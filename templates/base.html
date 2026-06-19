@@ -246,54 +246,253 @@
             border-top: 1px solid var(--border);
             margin-top: auto;
         }
+
+        /* --- LAYOUT COM SIDEBAR LATERAL CORPORATIVA --- */
+        .app-layout {
+            display: flex;
+            flex-direction: row;
+            min-height: 100vh;
+            width: 100vw;
+            background-color: var(--bg-primary);
+        }
+
+        .sidebar {
+            width: 260px;
+            background: #0f172a; /* Azul marinho escuro corporativo */
+            border-right: 1px solid rgba(255, 255, 255, 0.05);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            position: sticky;
+            top: 0;
+            height: 100vh;
+            z-index: 1000;
+            padding: 2rem 1.25rem 1.5rem 1.25rem;
+            box-sizing: border-box;
+        }
+
+        .sidebar-logo {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-family: var(--font-title);
+            font-weight: 800;
+            font-size: 1.2rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: #ffffff;
+            margin-bottom: 3rem;
+            padding-left: 0.5rem;
+            text-decoration: none;
+        }
+
+        .sidebar-logo svg {
+            color: var(--secondary);
+            width: 22px;
+            height: 22px;
+        }
+
+        .sidebar-menu {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            flex: 1;
+        }
+
+        .sidebar-link {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.75rem 1rem;
+            color: #94a3b8;
+            text-decoration: none;
+            font-size: 0.9rem;
+            font-weight: 500;
+            border-radius: 8px;
+            transition: all 0.2s ease;
+        }
+
+        .sidebar-link svg {
+            width: 18px;
+            height: 18px;
+        }
+
+        .sidebar-link:hover {
+            color: #ffffff;
+            background: rgba(255, 255, 255, 0.03);
+        }
+
+        .sidebar-link.active {
+            color: #ffffff;
+            background: rgba(59, 130, 246, 0.12);
+            border-left: 3px solid var(--secondary);
+            border-radius: 4px 8px 8px 4px;
+            padding-left: 0.75rem;
+        }
+
+        .sidebar-footer {
+            border-top: 1px solid rgba(255, 255, 255, 0.08);
+            padding-top: 1.25rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: auto;
+        }
+
+        .sidebar-user-info {
+            display: flex;
+            align-items: center;
+            gap: 0.65rem;
+        }
+
+        .sidebar-user-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 750;
+            font-size: 0.85rem;
+        }
+
+        .sidebar-user-details {
+            display: flex;
+            flex-direction: column;
+            gap: 0.15rem;
+        }
+
+        .sidebar-user-name {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: #ffffff;
+            max-width: 120px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .sidebar-logout-btn {
+            color: #94a3b8;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0.4rem;
+            border-radius: 6px;
+            transition: all 0.2s;
+            text-decoration: none;
+        }
+
+        .sidebar-logout-btn:hover {
+            color: var(--danger);
+            background: rgba(225, 29, 72, 0.08);
+        }
+
+        .main-content {
+            flex: 1;
+            background: var(--bg-primary);
+            height: 100vh;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .main-container-guest {
+            width: 100vw;
+            min-height: 100vh;
+        }
     </style>
     {% block extra_head %}{% endblock %}
 </head>
 <body>
-    <header>
-        <a href="{% url 'site_list' %}" style="text-decoration: none;">
-            <div class="logo-container">
-                <i data-lucide="radio" class="logo-icon"></i>
-                <span>MartinsTec Telecom</span>
-            </div>
-        </a>
-        {% if user.is_authenticated %}
-        <nav>
-            <div class="user-info">
-                <div class="user-avatar">{{ user.username|slice:":1"|upper }}</div>
-                <span>{{ user.first_name|default:user.username }}</span>
-                <span class="badge-role badge-{{ user.role|lower }}">
-                    {{ user.get_role_display }}
-                </span>
-            </div>
-            <a href="{% url 'logout' %}" class="btn btn-danger btn-sm">
-                <i data-lucide="log-out" style="width: 16px; height: 16px;"></i>Sair
+    {% if user.is_authenticated %}
+    <div class="app-layout">
+        <!-- Barra Lateral de Navegação (Sidebar) -->
+        <aside class="sidebar">
+            <a href="{% url 'site_list' %}" class="sidebar-logo">
+                <i data-lucide="radio"></i>
+                <span>MartinsTec</span>
             </a>
-        </nav>
-        {% endif %}
-    </header>
+            
+            <nav class="sidebar-menu">
+                <a href="{% url 'site_list' %}" class="sidebar-link active">
+                    <i data-lucide="radio"></i>
+                    <span>Sites de Telecom</span>
+                </a>
+                <a href="#" class="sidebar-link">
+                    <i data-lucide="map"></i>
+                    <span>Mapa de Torres</span>
+                </a>
+                <a href="#" class="sidebar-link">
+                    <i data-lucide="users"></i>
+                    <span>Equipe Técnica</span>
+                </a>
+                <a href="#" class="sidebar-link">
+                    <i data-lucide="file-text"></i>
+                    <span>Relatórios</span>
+                </a>
+                <a href="#" class="sidebar-link">
+                    <i data-lucide="settings"></i>
+                    <span>Configurações</span>
+                </a>
+            </nav>
+            
+            <div class="sidebar-footer">
+                <div class="sidebar-user-info">
+                    <div class="sidebar-user-avatar">{{ user.username|slice:":1"|upper }}</div>
+                    <div class="sidebar-user-details">
+                        <span class="sidebar-user-name">{{ user.first_name|default:user.username }}</span>
+                        <span class="badge-role badge-{{ user.role|lower }}">{{ user.get_role_display }}</span>
+                    </div>
+                </div>
+                <a href="{% url 'logout' %}" class="sidebar-logout-btn" title="Sair do Sistema">
+                    <i data-lucide="log-out"></i>
+                </a>
+            </div>
+        </aside>
 
-    <main class="main-container">
-        {% if messages %}
-        <ul class="messages">
-            {% for message in messages %}
-            <li class="message-item message-{{ message.tags }}">
-                <i data-lucide="info" style="width: 18px; height: 18px;"></i>
-                {{ message }}
-            </li>
-            {% endfor %}
-        </ul>
-        {% endif %}
-
-        {% block content %}{% endblock %}
-    </main>
-
-    <footer>
-        &copy; 2026 MartinsTec Engenharia. Todos os direitos reservados. Setor de Telecomunicações.
-    </footer>
+        <!-- Conteúdo do Painel à Direita -->
+        <main class="main-content">
+            {% if messages %}
+            <div style="padding: 1.5rem 2rem 0 2rem;">
+                <ul class="messages">
+                    {% for message in messages %}
+                    <li class="message-item message-{{ message.tags }}">
+                        <i data-lucide="info" style="width: 18px; height: 18px;"></i>
+                        {{ message }}
+                    </li>
+                    {% endfor %}
+                </ul>
+            </div>
+            {% endif %}
+            
+            {% block content %}{% endblock %}
+        </main>
+    </div>
+    {% else %}
+        <!-- Layout normal para visitantes/login -->
+        <main class="main-container-guest">
+            {% if messages %}
+            <div style="padding: 1.5rem 2rem 0 2rem; max-width: 440px; margin: 0 auto;">
+                <ul class="messages">
+                    {% for message in messages %}
+                    <li class="message-item message-{{ message.tags }}">
+                        <i data-lucide="info" style="width: 18px; height: 18px;"></i>
+                        {{ message }}
+                    </li>
+                    {% endfor %}
+                </ul>
+            </div>
+            {% endif %}
+            {% block content %}{% endblock %}
+        </main>
+    {% endif %}
 
     <script>
-        // Inicializa todos os ícones Lucide
+        // Inicializa os ícones Lucide
         lucide.createIcons();
     </script>
 </body>

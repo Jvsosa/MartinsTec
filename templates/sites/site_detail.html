@@ -218,16 +218,27 @@
             grid-column: span 2;
         }
     }
+
+    .detail-page-wrapper {
+        padding: 3rem;
+    }
+
+    @media (max-width: 768px) {
+        .detail-page-wrapper {
+            padding: 1.5rem;
+        }
+    }
 </style>
 {% endblock %}
 
 {% block content %}
-<div class="back-nav">
-    <a href="{% url 'site_list' %}" class="back-link">
-        <i data-lucide="arrow-left" style="width: 18px; height: 18px;"></i>
-        Voltar para a Listagem de Sites
-    </a>
-</div>
+<div class="detail-page-wrapper">
+    <div class="back-nav">
+        <a href="{% url 'site_list' %}" class="back-link">
+            <i data-lucide="arrow-left" style="width: 18px; height: 18px;"></i>
+            Voltar para a Listagem de Sites
+        </a>
+    </div>
 
 <div class="detail-layout">
     <!-- Coluna da Esquerda: Ficha Técnica do Site -->
@@ -510,5 +521,6 @@
             </form>
         </div>
     </div>
+</div>
 </div>
 {% endblock %}

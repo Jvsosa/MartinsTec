@@ -75,7 +75,22 @@ def site_list(request):
     else:
         sites = Site.objects.all()
 
-    return render(request, 'sites/site_list.html', {'sites': sites, 'query': query})
+    # Cálculo dos contadores (KPIs) para o topo do painel
+    total_sites = Site.objects.count()
+    active_sites = Site.objects.filter(status='ACTIVE').count()
+    maintenance_sites = Site.objects.filter(status='MAINTENANCE').count()
+    total_files = SiteFile.objects.count()
+
+    context = {
+        'sites': sites,
+        'query': query,
+        'total_sites': total_sites,
+        'active_sites': active_sites,
+        'maintenance_sites': maintenance_sites,
+        'total_files': total_files,
+    }
+
+    return render(request, 'sites/site_list.html', context)
 
 
 # --- DETALHES DO SITE E UPLOAD DE ARQUIVOS ---
