@@ -4,174 +4,336 @@
 
 {% block extra_head %}
 <style>
-    .login-wrapper {
+    /* Ocultar cabeçalho e rodapé padrão do base.html para criar a tela cheia minimalista */
+    header, footer {
+        display: none !important;
+    }
+
+    .login-page-container {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        background: #ffffff;
+        z-index: 9999;
         display: flex;
-        justify-content: center;
+        flex-direction: column;
+        overflow-y: auto;
+        font-family: var(--font-family);
+    }
+
+    /* Barra superior fina */
+    .login-top-bar {
+        display: flex;
+        justify-content: space-between;
         align-items: center;
-        min-height: calc(100vh - 73px - 58px);
+        padding: 1.5rem 3rem;
         width: 100%;
-        margin: -2.5rem -2rem; /* Anula o padding do container pai no base.html */
-        padding: 2.5rem 2rem;
-        background-color: #f1f5f9; /* Fundo cinza claro sólido corporativo (sem texturas) */
     }
 
-    .login-card {
-        width: 100%;
-        max-width: 400px;
-        border: 1px solid var(--border);
-        border-radius: 8px; /* Cantos um pouco mais retos e sóbrios, estilo corporativo profissional */
-        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.02);
-        background: var(--bg-secondary);
-        overflow: hidden;
-    }
-
-    .login-accent-bar {
-        height: 4px;
-        background: var(--primary); /* Linha azul marinho sólida no topo (padrão de sistemas enterprise) */
-    }
-
-    .login-content {
-        padding: 2.5rem;
+    .login-top-logo {
         display: flex;
-        flex-direction: column;
-        gap: 2rem;
-    }
-
-    .login-header {
-        text-align: center;
-    }
-
-    .login-header h1 {
+        align-items: center;
+        gap: 0.5rem;
         font-family: var(--font-title);
-        font-size: 1.5rem;
         font-weight: 700;
-        color: var(--text-primary);
-        margin-bottom: 0.5rem;
-    }
-
-    .login-header p {
-        color: var(--text-secondary);
-        font-size: 0.875rem;
-        font-weight: 400;
-    }
-
-    .form-group {
-        display: flex;
-        flex-direction: column;
-        gap: 0.4rem;
-    }
-
-    .form-group label {
-        font-size: 0.75rem;
-        font-weight: 600;
+        font-size: 1.15rem;
         color: var(--text-primary);
         text-transform: uppercase;
         letter-spacing: 0.5px;
+        text-decoration: none;
     }
 
-    .input-wrapper {
-        position: relative;
+    .login-top-logo svg {
+        color: var(--primary);
+        width: 22px;
+        height: 22px;
+    }
+
+    .login-top-right-link {
+        font-size: 0.85rem;
+        color: var(--text-secondary);
+        text-decoration: none;
+        font-weight: 600;
+    }
+
+    .login-top-right-link:hover {
+        color: var(--primary);
+    }
+
+    /* Conteúdo Principal Centralizado */
+    .login-main {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        padding: 2rem;
+        margin-top: -2.5rem; /* Ajuste sutil para centralizar opticamente */
+    }
+
+    .login-form-wrapper {
+        width: 100%;
+        max-width: 360px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 1.5rem;
+    }
+
+    /* Ícone Centralizado */
+    .login-center-icon-wrapper {
+        width: 44px;
+        height: 44px;
+        border-radius: 50%;
+        background: rgba(30, 58, 138, 0.05);
+        color: var(--primary);
         display: flex;
         align-items: center;
+        justify-content: center;
+        margin-bottom: 0.25rem;
     }
 
-    .input-wrapper i, .input-wrapper svg {
-        position: absolute;
-        left: 1rem;
+    .login-center-icon-wrapper svg {
+        width: 22px;
+        height: 22px;
+    }
+
+    /* Títulos */
+    .login-titles {
+        text-align: center;
+        margin-bottom: 0.75rem;
+    }
+
+    .login-titles h2 {
+        font-family: var(--font-title);
+        font-size: 1.6rem;
+        font-weight: 700;
+        color: var(--text-primary);
+        margin-bottom: 0.4rem;
+        letter-spacing: -0.5px;
+    }
+
+    .login-titles p {
         color: var(--text-secondary);
-        width: 18px;
-        height: 18px;
-        pointer-events: none;
-        transition: color 0.2s ease;
-        z-index: 10;
+        font-size: 0.85rem;
     }
 
-    .input-control {
+    .login-titles a {
+        color: var(--secondary);
+        text-decoration: none;
+        font-weight: 600;
+    }
+
+    .login-titles a:hover {
+        text-decoration: underline;
+    }
+
+    /* Formulário */
+    .login-form {
         width: 100%;
-        padding: 0.75rem 1rem 0.75rem 2.75rem;
+        display: flex;
+        flex-direction: column;
+        gap: 1.2rem;
+    }
+
+    .login-field-group {
+        display: flex;
+        flex-direction: column;
+        gap: 0.35rem;
+    }
+
+    .login-field-group label {
+        font-size: 0.85rem;
+        font-weight: 500;
+        color: #1e293b;
+    }
+
+    .login-input {
+        width: 100%;
+        padding: 0.65rem 0.85rem;
         background: #ffffff;
-        border: 1px solid #cbd5e1; /* Borda visível e limpa padrão de sistemas modernos */
+        border: 1px solid #cbd5e1;
         border-radius: 6px;
         color: var(--text-primary);
         font-family: var(--font-family);
         font-size: 0.95rem;
-        transition: all 0.2s ease;
+        transition: all 0.15s ease;
     }
 
-    .input-control:focus {
+    .login-input:focus {
         outline: none;
         border-color: var(--secondary);
-        background: #ffffff;
         box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
     }
 
-    /* Efeito sutil no ícone ao focar */
-    .input-control:focus ~ i,
-    .input-control:focus ~ svg {
-        color: var(--secondary);
-    }
-
-    .btn-submit {
-        width: 100%;
-        justify-content: center;
-        padding: 0.75rem;
-        font-size: 0.9rem;
-        font-weight: 600;
-        margin-top: 0.5rem;
-        border-radius: 6px;
-        background: var(--primary);
-        color: white;
-        border: none;
-        cursor: pointer;
+    /* Checkbox "Lembrar por 30 dias" */
+    .login-remember-wrapper {
         display: flex;
         align-items: center;
         gap: 0.5rem;
-        transition: background 0.2s ease;
+        font-size: 0.85rem;
+        color: var(--text-secondary);
     }
 
-    .btn-submit:hover {
-        background: #172554; /* Azul mais escuro no hover */
+    .login-remember-wrapper input[type="checkbox"] {
+        width: 15px;
+        height: 15px;
+        border: 1px solid #cbd5e1;
+        border-radius: 4px;
+        cursor: pointer;
     }
 
-    .btn-submit:active {
-        transform: none;
+    /* Botão Principal */
+    .login-btn-submit {
+        width: 100%;
+        padding: 0.7rem;
+        background: var(--primary);
+        color: white;
+        border: none;
+        border-radius: 6px;
+        font-size: 0.9rem;
+        font-weight: 600;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        transition: background 0.15s ease;
+        margin-top: 0.25rem;
+    }
+
+    .login-btn-submit:hover {
+        background: #172554;
+    }
+
+    /* Separador "ou" */
+    .login-separator {
+        width: 100%;
+        display: flex;
+        align-items: center;
+        text-align: center;
+        color: #94a3b8;
+        font-size: 0.75rem;
+        margin: 0.4rem 0;
+    }
+
+    .login-separator::before,
+    .login-separator::after {
+        content: '';
+        flex: 1;
+        border-bottom: 1px solid #e2e8f0;
+    }
+
+    .login-separator:not(:empty)::before {
+        margin-right: .75em;
+    }
+
+    .login-separator:not(:empty)::after {
+        margin-left: .75em;
+    }
+
+    /* Botão Google / Suporte */
+    .login-btn-support {
+        width: 100%;
+        padding: 0.65rem;
+        background: #ffffff;
+        border: 1px solid #e2e8f0;
+        border-radius: 6px;
+        color: var(--text-primary);
+        font-size: 0.85rem;
+        font-weight: 600;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        transition: background 0.15s ease;
+        text-decoration: none;
+    }
+
+    .login-btn-support:hover {
+        background: #f8fafc;
+        border-color: #cbd5e1;
+    }
+
+    /* Link recuperar senha */
+    .login-forgot-link {
+        font-size: 0.8rem;
+        color: var(--secondary);
+        text-decoration: none;
+        font-weight: 600;
+        text-align: center;
+        width: 100%;
+    }
+
+    .login-forgot-link:hover {
+        text-decoration: underline;
+    }
+
+    @media (max-width: 640px) {
+        .login-top-bar {
+            padding: 1rem 1.5rem;
+        }
     }
 </style>
 {% endblock %}
 
 {% block content %}
-<div class="login-wrapper">
-    <div class="login-card">
-        <div class="login-accent-bar"></div>
-        <div class="login-content">
-            <div class="login-header">
-                <h1>Portal de Engenharia</h1>
-                <p>Identifique-se para acessar os sites de Telecom</p>
+<div class="login-page-container">
+    <!-- Barra superior fina com logo e link de suporte -->
+    <div class="login-top-bar">
+        <a href="/" class="login-top-logo">
+            <i data-lucide="radio"></i>
+            <span>MartinsTec</span>
+        </a>
+        <a href="mailto:suporte@martinstec.com" class="login-top-right-link">Suporte Técnico</a>
+    </div>
+
+    <!-- Conteúdo Central -->
+    <div class="login-main">
+        <div class="login-form-wrapper">
+            <!-- Ícone circular no centro -->
+            <div class="login-center-icon-wrapper">
+                <i data-lucide="radio"></i>
             </div>
             
-            <form method="POST" action="{% url 'login' %}" style="display: flex; flex-direction: column; gap: 1.25rem;">
+            <div class="login-titles">
+                <h2>Acesse sua conta</h2>
+                <p>Não tem acesso? Solicite ao seu <a href="mailto:suporte@martinstec.com">Gestor</a></p>
+            </div>
+            
+            <form method="POST" action="{% url 'login' %}" class="login-form">
                 {% csrf_token %}
-                <div class="form-group">
+                <div class="login-field-group">
                     <label for="username">Usuário Corporativo</label>
-                    <div class="input-wrapper">
-                        <input type="text" name="username" id="username" class="input-control" placeholder="ex: joao.silva" required>
-                        <i data-lucide="user"></i>
-                    </div>
+                    <input type="text" name="username" id="username" class="login-input" placeholder="ex: joao.silva" required>
                 </div>
 
-                <div class="form-group">
+                <div class="login-field-group">
                     <label for="password">Senha de Rede</label>
-                    <div class="input-wrapper">
-                        <input type="password" name="password" id="password" class="input-control" placeholder="••••••••" required>
-                        <i data-lucide="lock"></i>
-                    </div>
+                    <input type="password" name="password" id="password" class="login-input" placeholder="Sua senha corporativa" required>
                 </div>
 
-                <button type="submit" class="btn btn-submit">
+                <div class="login-remember-wrapper">
+                    <input type="checkbox" id="remember" name="remember">
+                    <label for="remember">Lembrar login por 30 dias</label>
+                </div>
+
+                <button type="submit" class="login-btn-submit">
                     Entrar no Sistema
-                    <i data-lucide="arrow-right" style="width: 16px; height: 16px;"></i>
                 </button>
             </form>
+
+            <div class="login-separator">ou</div>
+
+            <a href="mailto:suporte@martinstec.com" class="login-btn-support">
+                <i data-lucide="help-circle" style="width: 16px; height: 16px; color: var(--text-secondary);"></i>
+                Falar com a Engenharia
+            </a>
+
+            <a href="mailto:suporte@martinstec.com" class="login-forgot-link">Esqueceu a senha?</a>
         </div>
     </div>
 </div>
