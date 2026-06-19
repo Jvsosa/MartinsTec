@@ -391,25 +391,35 @@
             background: rgba(225, 29, 72, 0.08);
         }
 
-        .main-content {
+        /* Seção do Conteúdo principal para o App Logado */
+        .app-layout .main-container {
             flex: 1;
             background: var(--bg-primary);
             height: 100vh;
             overflow-y: auto;
             display: flex;
             flex-direction: column;
+            box-sizing: border-box;
         }
 
-        .main-container-guest {
+        /* Seção do Conteúdo principal para Visitantes (Login) */
+        .guest-layout {
             width: 100vw;
             min-height: 100vh;
+        }
+        .guest-layout .main-container {
+            width: 100vw;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            box-sizing: border-box;
         }
     </style>
     {% block extra_head %}{% endblock %}
 </head>
 <body>
-    {% if user.is_authenticated %}
-    <div class="app-layout">
+    <div class="{% if user.is_authenticated %}app-layout{% else %}guest-layout{% endif %}">
+        {% if user.is_authenticated %}
         <!-- Barra Lateral de Navegação (Sidebar) -->
         <aside class="sidebar">
             <a href="{% url 'site_list' %}" class="sidebar-logo">
@@ -453,11 +463,12 @@
                 </a>
             </div>
         </aside>
+        {% endif %}
 
-        <!-- Conteúdo do Painel à Direita -->
-        <main class="main-content">
+        <!-- Conteúdo do Painel à Direita (ou tela de login se deslogado) -->
+        <main class="main-container">
             {% if messages %}
-            <div style="padding: 1.5rem 2rem 0 2rem;">
+            <div style="padding: 1.5rem 2rem 0 2rem; max-width: 480px; margin: 0 auto; width: 100%;">
                 <ul class="messages">
                     {% for message in messages %}
                     <li class="message-item message-{{ message.tags }}">
@@ -472,24 +483,6 @@
             {% block content %}{% endblock %}
         </main>
     </div>
-    {% else %}
-        <!-- Layout normal para visitantes/login -->
-        <main class="main-container-guest">
-            {% if messages %}
-            <div style="padding: 1.5rem 2rem 0 2rem; max-width: 440px; margin: 0 auto;">
-                <ul class="messages">
-                    {% for message in messages %}
-                    <li class="message-item message-{{ message.tags }}">
-                        <i data-lucide="info" style="width: 18px; height: 18px;"></i>
-                        {{ message }}
-                    </li>
-                    {% endfor %}
-                </ul>
-            </div>
-            {% endif %}
-            {% block content %}{% endblock %}
-        </main>
-    {% endif %}
 
     <script>
         // Inicializa os ícones Lucide
