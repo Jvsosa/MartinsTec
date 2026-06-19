@@ -8,25 +8,64 @@
         display: flex;
         justify-content: center;
         align-items: center;
-        min-height: calc(70vh - 100px);
+        min-height: calc(100vh - 73px - 58px);
         width: 100%;
+        margin: -2.5rem -2rem; /* Anula o padding do container pai no base.html */
+        padding: 2.5rem 2rem;
+        background-color: #f8fafc;
+        background-image: 
+            radial-gradient(at 0% 0%, rgba(59, 130, 246, 0.04) 0px, transparent 50%),
+            radial-gradient(at 100% 100%, rgba(30, 58, 138, 0.04) 0px, transparent 50%),
+            linear-gradient(rgba(15, 23, 42, 0.02) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(15, 23, 42, 0.02) 1px, transparent 1px);
+        background-size: 100% 100%, 100% 100%, 20px 20px, 20px 20px;
     }
 
     .login-card {
         width: 100%;
-        max-width: 440px;
+        max-width: 420px;
         border: 1px solid var(--border);
-        border-radius: 12px;
-        box-shadow: 0 8px 30px rgba(0, 0, 0, 0.05);
+        border-radius: 16px;
+        box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.05), 0 10px 10px -5px rgba(0, 0, 0, 0.02);
         background: var(--bg-secondary);
         overflow: hidden;
     }
 
+    .login-accent-bar {
+        height: 5px;
+        background: linear-gradient(90deg, var(--primary) 0%, var(--secondary) 100%);
+    }
+
     .login-content {
-        padding: 2.5rem;
+        padding: 3rem 2.5rem 2.5rem 2.5rem;
         display: flex;
         flex-direction: column;
-        gap: 1.5rem;
+        gap: 1.75rem;
+    }
+
+    .brand-icon-wrapper {
+        display: flex;
+        justify-content: center;
+        margin-top: -1.5rem;
+        margin-bottom: 0.5rem;
+    }
+
+    .brand-icon {
+        width: 56px;
+        height: 56px;
+        border-radius: 50%;
+        background: rgba(30, 58, 138, 0.04);
+        border: 1px solid rgba(30, 58, 138, 0.08);
+        color: var(--primary);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.02);
+    }
+
+    .brand-icon svg, .brand-icon i {
+        width: 24px;
+        height: 24px;
     }
 
     .login-header {
@@ -35,14 +74,16 @@
 
     .login-header h1 {
         font-family: var(--font-title);
-        font-size: 1.8rem;
+        font-size: 1.6rem;
         font-weight: 800;
-        margin-bottom: 0.5rem;
+        color: var(--primary);
+        margin-bottom: 0.4rem;
     }
 
     .login-header p {
         color: var(--text-secondary);
-        font-size: 0.9rem;
+        font-size: 0.85rem;
+        font-weight: 500;
     }
 
     .form-group {
@@ -52,9 +93,11 @@
     }
 
     .form-group label {
-        font-size: 0.85rem;
-        font-weight: 500;
-        color: var(--text-secondary);
+        font-size: 0.75rem;
+        font-weight: 700;
+        color: var(--text-primary);
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
     }
 
     .input-wrapper {
@@ -63,24 +106,28 @@
         align-items: center;
     }
 
-    .input-wrapper i {
+    /* Target para tags i e svg após substituição do Lucide */
+    .input-wrapper i, .input-wrapper svg {
         position: absolute;
         left: 1rem;
         color: var(--text-secondary);
         width: 18px;
         height: 18px;
+        pointer-events: none;
+        transition: color 0.2s ease;
+        z-index: 10;
     }
 
     .input-control {
         width: 100%;
-        padding: 0.75rem 1rem 0.75rem 2.75rem;
-        background: #ffffff;
+        padding: 0.8rem 1rem 0.8rem 2.75rem;
+        background: #f8fafc;
         border: 1px solid var(--border);
         border-radius: 8px;
         color: var(--text-primary);
         font-family: var(--font-family);
         font-size: 0.95rem;
-        transition: all 0.25s ease;
+        transition: all 0.2s ease;
     }
 
     .input-control:focus {
@@ -90,22 +137,55 @@
         box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
     }
 
+    /* Efeito de mudar cor do ícone no focus do input */
+    .input-control:focus ~ i,
+    .input-control:focus ~ svg {
+        color: var(--secondary);
+    }
+
     .btn-submit {
         width: 100%;
         justify-content: center;
-        padding: 0.8rem;
-        font-size: 1rem;
-        margin-top: 1rem;
+        padding: 0.85rem;
+        font-size: 0.95rem;
+        font-weight: 700;
+        margin-top: 0.5rem;
+        border-radius: 8px;
+        background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+        color: white;
+        border: none;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        transition: all 0.2s ease;
+        box-shadow: 0 4px 10px rgba(30, 58, 138, 0.15);
+    }
+
+    .btn-submit:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 6px 14px rgba(30, 58, 138, 0.22);
+    }
+
+    .btn-submit:active {
+        transform: translateY(0);
     }
 </style>
 {% endblock %}
 
 {% block content %}
 <div class="login-wrapper">
-    <div class="login-card glass-card" style="padding: 0; border: none;">
+    <div class="login-card">
+        <div class="login-accent-bar"></div>
         <div class="login-content">
+            <div class="brand-icon-wrapper">
+                <div class="brand-icon">
+                    <i data-lucide="radio"></i>
+                </div>
+            </div>
+            
             <div class="login-header">
-                <h1 class="text-gradient">Portal de Engenharia</h1>
+                <h1>Portal de Engenharia</h1>
                 <p>Identifique-se para acessar os sites de Telecom</p>
             </div>
             
@@ -114,20 +194,21 @@
                 <div class="form-group">
                     <label for="username">Usuário Corporativo</label>
                     <div class="input-wrapper">
-                        <i data-lucide="user"></i>
+                        <!-- Colocado input antes para efeito de foco CSS via combinador ~ -->
                         <input type="text" name="username" id="username" class="input-control" placeholder="ex: joao.silva" required>
+                        <i data-lucide="user"></i>
                     </div>
                 </div>
 
                 <div class="form-group">
                     <label for="password">Senha de Rede</label>
                     <div class="input-wrapper">
-                        <i data-lucide="lock"></i>
                         <input type="password" name="password" id="password" class="input-control" placeholder="••••••••" required>
+                        <i data-lucide="lock"></i>
                     </div>
                 </div>
 
-                <button type="submit" class="btn btn-primary btn-submit">
+                <button type="submit" class="btn btn-submit">
                     Entrar no Sistema
                     <i data-lucide="arrow-right" style="width: 18px; height: 18px;"></i>
                 </button>
