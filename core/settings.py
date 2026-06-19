@@ -111,9 +111,10 @@ STORAGES = {
     },
 }
 
-# Configurações do Render Persistent Disk para Mídias (Arquivos de Sites)
-if IS_RENDER:
-    # No Render, o disco persistente é montado em um caminho absoluto
+# Configurações de Mídias (Arquivos de Sites)
+# No Render, se o disco persistente estiver montado em '/var/lib/data', usamos ele.
+# Caso contrário (plano Free), salvamos na pasta local do projeto para evitar erros de permissão.
+if IS_RENDER and os.path.exists('/var/lib/data') and os.access('/var/lib/data', os.W_OK):
     MEDIA_ROOT = '/var/lib/data/media'
 else:
     MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
