@@ -9,49 +9,33 @@
         display: none !important;
     }
 
+    /* O container principal agora ocupa 100% da largura e altura da tela, sem margens */
     .login-page-container {
         position: fixed;
         top: 0;
         left: 0;
         width: 100vw;
         height: 100vh;
-        background: #f8fafc;
+        background: #ffffff;
         z-index: 9999;
         display: flex;
-        justify-content: center;
-        align-items: center;
-        font-family: var(--font-family);
-        padding: 1.5rem;
+        flex-direction: row;
+        overflow: hidden;
     }
 
-    .split-login-card {
-        width: 100%;
-        max-width: 1040px;
-        background: #ffffff;
-        border: 1px solid var(--border);
-        border-radius: 24px;
-        box-shadow: 0 25px 50px -12px rgba(15, 23, 42, 0.08);
-        padding: 1.75rem;
-        display: grid;
-        grid-template-columns: 1.15fr 1fr;
-        gap: 3rem;
-        align-items: stretch;
-    }
-
-    /* Coluna Esquerda: Banner com a Imagem Sólida (Nítida) */
+    /* Coluna Esquerda: Imagem Tela Cheia cobrindo 55% da largura da janela */
     .login-banner {
         position: relative;
+        width: 55%;
         height: 100%;
-        min-height: 540px;
-        border-radius: 18px;
-        overflow: hidden;
         display: flex;
         flex-direction: column;
-        justify-content: space-between; /* Coloca o grupo de textos no topo e o copyright no pé */
+        justify-content: space-between; /* Grupo superior no topo, copyright no rodapé */
         align-items: flex-start;
         text-align: left;
-        padding: 3.5rem 3rem;
+        padding: 5rem 4.5rem;
         color: #ffffff;
+        box-sizing: border-box;
     }
 
     .login-banner-bg {
@@ -73,13 +57,13 @@
         z-index: 2;
         display: flex;
         flex-direction: column;
-        gap: 1.25rem;
+        gap: 1.5rem;
         width: 100%;
     }
 
     .login-banner-title-top {
         font-family: var(--font-title);
-        font-size: 2.4rem;
+        font-size: 2.8rem;
         font-weight: 850;
         letter-spacing: -0.5px;
         text-transform: uppercase;
@@ -89,13 +73,13 @@
     }
 
     .login-banner-text-top {
-        font-size: 1rem;
-        line-height: 1.55;
+        font-size: 1.05rem;
+        line-height: 1.6;
         font-weight: 450;
-        color: rgba(255, 255, 255, 0.9);
+        color: rgba(255, 255, 255, 0.95);
         border-top: 1px solid rgba(255, 255, 255, 0.25);
-        padding-top: 1.25rem;
-        max-width: 400px;
+        padding-top: 1.5rem;
+        max-width: 440px;
         margin: 0;
         text-align: left;
     }
@@ -104,25 +88,37 @@
     .login-banner-copyright {
         position: relative;
         z-index: 2;
-        font-size: 0.75rem;
+        font-size: 0.8rem;
         color: rgba(255, 255, 255, 0.55);
         font-weight: 400;
         letter-spacing: 0.2px;
         margin: 0;
     }
 
-    /* Coluna Direita: Formulário de Login */
+    /* Coluna Direita: Formulário de Login ocupando 45% da tela */
     .login-form-side {
-        padding: 2rem 2.5rem 2rem 1rem;
+        width: 45%;
+        height: 100%;
+        background: #ffffff;
         display: flex;
         flex-direction: column;
         justify-content: center;
+        align-items: center;
+        padding: 4rem;
+        box-sizing: border-box;
+    }
+
+    .login-form-wrapper {
+        width: 100%;
+        max-width: 380px;
+        display: flex;
+        flex-direction: column;
         gap: 2rem;
     }
 
     .login-header h2 {
         font-family: var(--font-title);
-        font-size: 2rem;
+        font-size: 2.1rem;
         font-weight: 700;
         color: var(--text-primary);
         margin-bottom: 0.5rem;
@@ -273,30 +269,15 @@
         border-color: #cbd5e1;
     }
 
-    /* Responsividade */
+    /* Responsividade: Ocultar o banner em telas menores para melhor uso de espaço */
     @media (max-width: 900px) {
-        .split-login-card {
-            grid-template-columns: 1fr;
-            max-width: 460px;
-            padding: 1.25rem;
+        .login-banner {
+            display: none !important;
         }
 
         .login-form-side {
-            padding: 0.5rem;
-        }
-
-        .login-banner {
-            min-height: 290px;
-            padding: 2.5rem 2rem;
-        }
-
-        .login-banner-title-top {
-            font-size: 2rem;
-        }
-
-        .login-banner-text-top {
-            font-size: 0.95rem;
-            padding-top: 0.75rem;
+            width: 100%;
+            padding: 2rem;
         }
     }
 </style>
@@ -304,28 +285,28 @@
 
 {% block content %}
 <div class="login-page-container">
-    <div class="split-login-card">
+    
+    <!-- Coluna Esquerda: Imagem Tela Inteira (55% da tela) -->
+    <div class="login-banner">
+        <div class="login-banner-bg"></div>
         
-        <!-- Coluna Esquerda: Imagem Nitida, Titulo, Linha e Slogan no Topo, Copyright no Pe -->
-        <div class="login-banner">
-            <div class="login-banner-bg"></div>
-            
-            <!-- Grupo superior de textos -->
-            <div class="login-banner-header-group">
-                <h1 class="login-banner-title-top">MartinsTec</h1>
-                <p class="login-banner-text-top">
-                    Especialistas em soluções e execuções de obras de infraestrutura para redes de telecomunicações.
-                </p>
-            </div>
-            
-            <!-- Linha de rodapé com todos os direitos reservados -->
-            <span class="login-banner-copyright">
-                &copy; 2026 MartinsTec Engenharia. Todos os direitos reservados.
-            </span>
+        <!-- Grupo superior de textos -->
+        <div class="login-banner-header-group">
+            <h1 class="login-banner-title-top">MartinsTec</h1>
+            <p class="login-banner-text-top">
+                Especialistas em soluções e execuções de obras de infraestrutura para redes de telecomunicações.
+            </p>
         </div>
         
-        <!-- Coluna Direita: Formulário de Login -->
-        <div class="login-form-side">
+        <!-- Copyright no rodapé da imagem -->
+        <span class="login-banner-copyright">
+            &copy; 2026 MartinsTec Engenharia. Todos os direitos reservados.
+        </span>
+    </div>
+    
+    <!-- Coluna Direita: Formulário Centralizado (45% da tela) -->
+    <div class="login-form-side">
+        <div class="login-form-wrapper">
             <div class="login-header">
                 <h2>Acesse sua conta</h2>
                 <p>Entre com suas credenciais corporativas para gerenciar a infraestrutura e documentação dos sites.</p>
@@ -363,7 +344,7 @@
                 Solicitar Acesso ao Gestor
             </a>
         </div>
-        
     </div>
+    
 </div>
 {% endblock %}
