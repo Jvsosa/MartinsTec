@@ -4,7 +4,7 @@
 
 {% block extra_head %}
 <style>
-    /* Ocultar cabeçalho e rodapé padrão do base.html para criar a tela cheia minimalista */
+    /* Ocultar cabeçalho e rodapé padrão do base.html para o login */
     header, footer {
         display: none !important;
     }
@@ -15,151 +15,146 @@
         left: 0;
         width: 100vw;
         height: 100vh;
-        background: #ffffff;
+        background: #f8fafc;
         z-index: 9999;
         display: flex;
-        flex-direction: column;
-        overflow-y: auto;
-        font-family: var(--font-family);
-    }
-
-    /* Barra superior fina */
-    .login-top-bar {
-        display: flex;
-        justify-content: space-between;
+        justify-content: center;
         align-items: center;
-        padding: 1.5rem 3rem;
-        width: 100%;
+        font-family: var(--font-family);
+        padding: 1.5rem;
     }
 
-    .login-top-logo {
+    .split-login-card {
+        width: 100%;
+        max-width: 960px;
+        background: #ffffff;
+        border: 1px solid var(--border);
+        border-radius: 24px;
+        box-shadow: 0 25px 50px -12px rgba(15, 23, 42, 0.08);
+        padding: 1.5rem;
+        display: grid;
+        grid-template-columns: 1.12fr 1fr;
+        gap: 2.5rem;
+        align-items: center;
+    }
+
+    /* Coluna Esquerda: Banner com a Imagem e Blur */
+    .login-banner {
+        position: relative;
+        height: 100%;
+        min-height: 520px;
+        border-radius: 18px;
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-end;
+        padding: 3.5rem 3rem;
+        color: #ffffff;
+    }
+
+    .login-banner-bg {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-image: url('https://martinstec.com.br/images/slider/foto1.jpg');
+        background-size: cover;
+        background-position: center;
+        filter: blur(3px) brightness(0.6); /* Leve blur e escurecido para destaque das letras */
+        transform: scale(1.08); /* Evita bordas brancas do blur */
+        z-index: 1;
+    }
+
+    .login-banner-content {
+        position: relative;
+        z-index: 2;
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
+    }
+
+    .login-banner-logo {
+        font-family: var(--font-title);
+        font-size: 2.2rem;
+        font-weight: 800;
+        letter-spacing: -0.5px;
+        text-transform: uppercase;
+        color: #ffffff;
         display: flex;
         align-items: center;
         gap: 0.5rem;
-        font-family: var(--font-title);
-        font-weight: 700;
-        font-size: 1.15rem;
-        color: var(--text-primary);
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-        text-decoration: none;
     }
 
-    .login-top-logo svg {
-        color: var(--primary);
-        width: 22px;
-        height: 22px;
+    .login-banner-logo svg {
+        width: 32px;
+        height: 32px;
+        color: #3b82f6; /* Detalhe azul na logo interna */
     }
 
-    .login-top-right-link {
-        font-size: 0.85rem;
-        color: var(--text-secondary);
-        text-decoration: none;
-        font-weight: 600;
+    .login-banner-text {
+        font-size: 0.95rem;
+        line-height: 1.5;
+        font-weight: 450;
+        color: rgba(255, 255, 255, 0.9);
+        border-top: 1px solid rgba(255, 255, 255, 0.2);
+        padding-top: 1.25rem;
+        max-width: 420px;
     }
 
-    .login-top-right-link:hover {
-        color: var(--primary);
-    }
-
-    /* Conteúdo Principal Centralizado */
-    .login-main {
-        flex: 1;
+    /* Coluna Direita: Formulário */
+    .login-form-side {
+        padding: 1rem 1.5rem 1rem 0;
         display: flex;
         flex-direction: column;
-        justify-content: center;
-        align-items: center;
-        padding: 2rem;
-        margin-top: -2.5rem; /* Ajuste sutil para centralizar opticamente */
+        gap: 1.75rem;
     }
 
-    .login-form-wrapper {
-        width: 100%;
-        max-width: 360px;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        gap: 1.5rem;
-    }
-
-    /* Ícone Centralizado */
-    .login-center-icon-wrapper {
-        width: 44px;
-        height: 44px;
-        border-radius: 50%;
-        background: rgba(30, 58, 138, 0.05);
-        color: var(--primary);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        margin-bottom: 0.25rem;
-    }
-
-    .login-center-icon-wrapper svg {
-        width: 22px;
-        height: 22px;
-    }
-
-    /* Títulos */
-    .login-titles {
-        text-align: center;
-        margin-bottom: 0.75rem;
-    }
-
-    .login-titles h2 {
+    .login-header h2 {
         font-family: var(--font-title);
-        font-size: 1.6rem;
+        font-size: 1.8rem;
         font-weight: 700;
         color: var(--text-primary);
-        margin-bottom: 0.4rem;
+        margin-bottom: 0.5rem;
         letter-spacing: -0.5px;
     }
 
-    .login-titles p {
+    .login-header p {
         color: var(--text-secondary);
-        font-size: 0.85rem;
+        font-size: 0.875rem;
+        line-height: 1.45;
     }
 
-    .login-titles a {
-        color: var(--secondary);
-        text-decoration: none;
-        font-weight: 600;
-    }
-
-    .login-titles a:hover {
-        text-decoration: underline;
-    }
-
-    /* Formulário */
     .login-form {
-        width: 100%;
         display: flex;
         flex-direction: column;
-        gap: 1.2rem;
+        gap: 1.25rem;
     }
 
     .login-field-group {
         display: flex;
         flex-direction: column;
-        gap: 0.35rem;
+        gap: 0.4rem;
     }
 
     .login-field-group label {
-        font-size: 0.85rem;
-        font-weight: 500;
+        font-size: 0.8rem;
+        font-weight: 600;
         color: #1e293b;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
     }
 
     .login-input {
         width: 100%;
-        padding: 0.65rem 0.85rem;
+        padding: 0.75rem 0.95rem;
         background: #ffffff;
         border: 1px solid #cbd5e1;
-        border-radius: 6px;
+        border-radius: 8px;
         color: var(--text-primary);
         font-family: var(--font-family);
         font-size: 0.95rem;
-        transition: all 0.15s ease;
+        transition: all 0.2s ease;
     }
 
     .login-input:focus {
@@ -168,16 +163,23 @@
         box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
     }
 
-    /* Checkbox "Lembrar por 30 dias" */
-    .login-remember-wrapper {
+    .login-remember-forgot {
         display: flex;
+        justify-content: space-between;
         align-items: center;
-        gap: 0.5rem;
         font-size: 0.85rem;
-        color: var(--text-secondary);
     }
 
-    .login-remember-wrapper input[type="checkbox"] {
+    .login-remember {
+        display: flex;
+        align-items: center;
+        gap: 0.4rem;
+        color: var(--text-secondary);
+        cursor: pointer;
+        font-weight: 500;
+    }
+
+    .login-remember input[type="checkbox"] {
         width: 15px;
         height: 15px;
         border: 1px solid #cbd5e1;
@@ -185,21 +187,26 @@
         cursor: pointer;
     }
 
-    /* Botão Principal */
+    .login-forgot-link {
+        color: var(--secondary);
+        text-decoration: none;
+        font-weight: 600;
+    }
+
+    .login-forgot-link:hover {
+        text-decoration: underline;
+    }
+
     .login-btn-submit {
         width: 100%;
-        padding: 0.7rem;
+        padding: 0.8rem;
         background: var(--primary);
         color: white;
         border: none;
-        border-radius: 6px;
-        font-size: 0.9rem;
+        border-radius: 8px;
+        font-size: 0.95rem;
         font-weight: 600;
         cursor: pointer;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        gap: 0.5rem;
         transition: background 0.15s ease;
         margin-top: 0.25rem;
     }
@@ -208,7 +215,6 @@
         background: #172554;
     }
 
-    /* Separador "ou" */
     .login-separator {
         width: 100%;
         display: flex;
@@ -216,7 +222,7 @@
         text-align: center;
         color: #94a3b8;
         font-size: 0.75rem;
-        margin: 0.4rem 0;
+        margin: 0.25rem 0;
     }
 
     .login-separator::before,
@@ -234,13 +240,12 @@
         margin-left: .75em;
     }
 
-    /* Botão Google / Suporte */
     .login-btn-support {
         width: 100%;
-        padding: 0.65rem;
+        padding: 0.7rem;
         background: #ffffff;
         border: 1px solid #e2e8f0;
-        border-radius: 6px;
+        border-radius: 8px;
         color: var(--text-primary);
         font-size: 0.85rem;
         font-weight: 600;
@@ -258,23 +263,30 @@
         border-color: #cbd5e1;
     }
 
-    /* Link recuperar senha */
-    .login-forgot-link {
-        font-size: 0.8rem;
-        color: var(--secondary);
-        text-decoration: none;
-        font-weight: 600;
-        text-align: center;
-        width: 100%;
-    }
+    /* Responsividade */
+    @media (max-width: 840px) {
+        .split-login-card {
+            grid-template-columns: 1fr;
+            max-width: 440px;
+            padding: 1.25rem;
+        }
 
-    .login-forgot-link:hover {
-        text-decoration: underline;
-    }
+        .login-form-side {
+            padding: 0.5rem;
+        }
 
-    @media (max-width: 640px) {
-        .login-top-bar {
-            padding: 1rem 1.5rem;
+        .login-banner {
+            min-height: 240px;
+            padding: 2.5rem 2rem;
+        }
+
+        .login-banner-logo {
+            font-size: 1.8rem;
+        }
+
+        .login-banner-text {
+            font-size: 0.875rem;
+            padding-top: 0.75rem;
         }
     }
 </style>
@@ -282,26 +294,27 @@
 
 {% block content %}
 <div class="login-page-container">
-    <!-- Barra superior fina com logo e link de suporte -->
-    <div class="login-top-bar">
-        <a href="/" class="login-top-logo">
-            <i data-lucide="radio"></i>
-            <span>MartinsTec</span>
-        </a>
-        <a href="mailto:suporte@martinstec.com" class="login-top-right-link">Suporte Técnico</a>
-    </div>
-
-    <!-- Conteúdo Central -->
-    <div class="login-main">
-        <div class="login-form-wrapper">
-            <!-- Ícone circular no centro -->
-            <div class="login-center-icon-wrapper">
-                <i data-lucide="radio"></i>
+    <div class="split-login-card">
+        
+        <!-- Coluna Esquerda: Imagem com Blur e Textos por Cima -->
+        <div class="login-banner">
+            <div class="login-banner-bg"></div>
+            <div class="login-banner-content">
+                <div class="login-banner-logo">
+                    <i data-lucide="radio"></i>
+                    <span>MartinsTec</span>
+                </div>
+                <p class="login-banner-text">
+                    Especialistas em soluções e execuções de obras de infraestrutura para redes de telecomunicações.
+                </p>
             </div>
-            
-            <div class="login-titles">
+        </div>
+        
+        <!-- Coluna Direita: Formulário de Login -->
+        <div class="login-form-side">
+            <div class="login-header">
                 <h2>Acesse sua conta</h2>
-                <p>Não tem acesso? Solicite ao seu <a href="mailto:suporte@martinstec.com">Gestor</a></p>
+                <p>Entre com suas credenciais corporativas para gerenciar a infraestrutura e documentação dos sites.</p>
             </div>
             
             <form method="POST" action="{% url 'login' %}" class="login-form">
@@ -313,12 +326,15 @@
 
                 <div class="login-field-group">
                     <label for="password">Senha de Rede</label>
-                    <input type="password" name="password" id="password" class="login-input" placeholder="Sua senha corporativa" required>
+                    <input type="password" name="password" id="password" class="login-input" placeholder="Sua senha de rede" required>
                 </div>
 
-                <div class="login-remember-wrapper">
-                    <input type="checkbox" id="remember" name="remember">
-                    <label for="remember">Lembrar login por 30 dias</label>
+                <div class="login-remember-forgot">
+                    <label class="login-remember" for="remember">
+                        <input type="checkbox" id="remember" name="remember">
+                        Lembrar login
+                    </label>
+                    <a href="mailto:suporte@martinstec.com.br" class="login-forgot-link">Esqueceu a senha?</a>
                 </div>
 
                 <button type="submit" class="login-btn-submit">
@@ -328,13 +344,12 @@
 
             <div class="login-separator">ou</div>
 
-            <a href="mailto:suporte@martinstec.com" class="login-btn-support">
+            <a href="mailto:suporte@martinstec.com.br" class="login-btn-support">
                 <i data-lucide="help-circle" style="width: 16px; height: 16px; color: var(--text-secondary);"></i>
-                Falar com a Engenharia
+                Solicitar Acesso ao Gestor
             </a>
-
-            <a href="mailto:suporte@martinstec.com" class="login-forgot-link">Esqueceu a senha?</a>
         </div>
+        
     </div>
 </div>
 {% endblock %}
