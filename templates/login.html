@@ -26,28 +26,30 @@
 
     .split-login-card {
         width: 100%;
-        max-width: 960px;
+        max-width: 1040px; /* Aumentado para dar mais amplitude ao painel */
         background: #ffffff;
         border: 1px solid var(--border);
         border-radius: 24px;
         box-shadow: 0 25px 50px -12px rgba(15, 23, 42, 0.08);
-        padding: 1.5rem;
+        padding: 1.75rem;
         display: grid;
-        grid-template-columns: 1.12fr 1fr;
-        gap: 2.5rem;
-        align-items: center;
+        grid-template-columns: 1.15fr 1fr;
+        gap: 3rem;
+        align-items: stretch; /* Garante que ambas as colunas tenham a mesma altura */
     }
 
-    /* Coluna Esquerda: Banner com a Imagem e Blur */
+    /* Coluna Esquerda: Banner com a Imagem, Centralizado e com Blur */
     .login-banner {
         position: relative;
         height: 100%;
-        min-height: 520px;
+        min-height: 540px;
         border-radius: 18px;
         overflow: hidden;
         display: flex;
         flex-direction: column;
-        justify-content: flex-end;
+        justify-content: center; /* Centraliza verticalmente o texto no meio da imagem */
+        align-items: center; /* Centraliza horizontalmente */
+        text-align: center; /* Alinha o texto no centro */
         padding: 3.5rem 3rem;
         color: #ffffff;
     }
@@ -61,7 +63,7 @@
         background-image: url('https://martinstec.com.br/images/slider/foto1.jpg');
         background-size: cover;
         background-position: center;
-        filter: blur(3px) brightness(0.6); /* Leve blur e escurecido para destaque das letras */
+        filter: blur(3px) brightness(0.55); /* Leve blur e escurecido ideal para contraste */
         transform: scale(1.08); /* Evita bordas brancas do blur */
         z-index: 1;
     }
@@ -71,48 +73,52 @@
         z-index: 2;
         display: flex;
         flex-direction: column;
-        gap: 0.75rem;
+        align-items: center;
+        gap: 1.25rem;
     }
 
     .login-banner-logo {
         font-family: var(--font-title);
-        font-size: 2.2rem;
+        font-size: 2.6rem; /* Aumentado para melhor visualização */
         font-weight: 800;
         letter-spacing: -0.5px;
         text-transform: uppercase;
         color: #ffffff;
         display: flex;
         align-items: center;
-        gap: 0.5rem;
+        justify-content: center;
+        gap: 0.6rem;
     }
 
     .login-banner-logo svg {
-        width: 32px;
-        height: 32px;
-        color: #3b82f6; /* Detalhe azul na logo interna */
+        width: 36px;
+        height: 36px;
+        color: #3b82f6;
     }
 
     .login-banner-text {
-        font-size: 0.95rem;
-        line-height: 1.5;
+        font-size: 1.05rem; /* Letras ligeiramente maiores e com mais espaçamento */
+        line-height: 1.6;
         font-weight: 450;
         color: rgba(255, 255, 255, 0.9);
-        border-top: 1px solid rgba(255, 255, 255, 0.2);
+        border-top: 1px solid rgba(255, 255, 255, 0.25);
         padding-top: 1.25rem;
-        max-width: 420px;
+        max-width: 340px; /* Reduzido o max-width para quebrar o texto de forma mais harmônica e centralizada */
+        margin: 0 auto;
     }
 
-    /* Coluna Direita: Formulário */
+    /* Coluna Direita: Formulário de Login (Mais Espaçoso) */
     .login-form-side {
-        padding: 1rem 1.5rem 1rem 0;
+        padding: 2rem 2.5rem 2rem 1rem; /* Mais espaçamento interno (respiro) */
         display: flex;
         flex-direction: column;
-        gap: 1.75rem;
+        justify-content: center;
+        gap: 2rem;
     }
 
     .login-header h2 {
         font-family: var(--font-title);
-        font-size: 1.8rem;
+        font-size: 2rem; /* Título maior e mais robusto */
         font-weight: 700;
         color: var(--text-primary);
         margin-bottom: 0.5rem;
@@ -121,25 +127,25 @@
 
     .login-header p {
         color: var(--text-secondary);
-        font-size: 0.875rem;
-        line-height: 1.45;
+        font-size: 0.95rem; /* Texto de apoio ligeiramente maior */
+        line-height: 1.5;
     }
 
     .login-form {
         display: flex;
         flex-direction: column;
-        gap: 1.25rem;
+        gap: 1.5rem; /* Mais espaço entre os campos */
     }
 
     .login-field-group {
         display: flex;
         flex-direction: column;
-        gap: 0.4rem;
+        gap: 0.5rem;
     }
 
     .login-field-group label {
-        font-size: 0.8rem;
-        font-weight: 600;
+        font-size: 0.85rem;
+        font-weight: 700;
         color: #1e293b;
         text-transform: uppercase;
         letter-spacing: 0.5px;
@@ -147,13 +153,13 @@
 
     .login-input {
         width: 100%;
-        padding: 0.75rem 0.95rem;
+        padding: 0.85rem 1.1rem; /* Inputs maiores e mais confortáveis para digitação */
         background: #ffffff;
         border: 1px solid #cbd5e1;
         border-radius: 8px;
         color: var(--text-primary);
         font-family: var(--font-family);
-        font-size: 0.95rem;
+        font-size: 1rem; /* Fonte maior para melhor legibilidade */
         transition: all 0.2s ease;
     }
 
@@ -167,21 +173,21 @@
         display: flex;
         justify-content: space-between;
         align-items: center;
-        font-size: 0.85rem;
+        font-size: 0.9rem;
     }
 
     .login-remember {
         display: flex;
         align-items: center;
-        gap: 0.4rem;
+        gap: 0.5rem;
         color: var(--text-secondary);
         cursor: pointer;
         font-weight: 500;
     }
 
     .login-remember input[type="checkbox"] {
-        width: 15px;
-        height: 15px;
+        width: 16px;
+        height: 16px;
         border: 1px solid #cbd5e1;
         border-radius: 4px;
         cursor: pointer;
@@ -199,12 +205,12 @@
 
     .login-btn-submit {
         width: 100%;
-        padding: 0.8rem;
+        padding: 0.9rem; /* Botão mais encorpado */
         background: var(--primary);
         color: white;
         border: none;
         border-radius: 8px;
-        font-size: 0.95rem;
+        font-size: 1rem;
         font-weight: 600;
         cursor: pointer;
         transition: background 0.15s ease;
@@ -221,7 +227,7 @@
         align-items: center;
         text-align: center;
         color: #94a3b8;
-        font-size: 0.75rem;
+        font-size: 0.8rem;
         margin: 0.25rem 0;
     }
 
@@ -233,21 +239,21 @@
     }
 
     .login-separator:not(:empty)::before {
-        margin-right: .75em;
+        margin-right: 1rem;
     }
 
     .login-separator:not(:empty)::after {
-        margin-left: .75em;
+        margin-left: 1rem;
     }
 
     .login-btn-support {
         width: 100%;
-        padding: 0.7rem;
+        padding: 0.8rem; /* Botão de suporte mais encorpado */
         background: #ffffff;
         border: 1px solid #e2e8f0;
         border-radius: 8px;
         color: var(--text-primary);
-        font-size: 0.85rem;
+        font-size: 0.9rem;
         font-weight: 600;
         cursor: pointer;
         display: flex;
@@ -264,10 +270,10 @@
     }
 
     /* Responsividade */
-    @media (max-width: 840px) {
+    @media (max-width: 900px) {
         .split-login-card {
             grid-template-columns: 1fr;
-            max-width: 440px;
+            max-width: 460px;
             padding: 1.25rem;
         }
 
@@ -276,16 +282,16 @@
         }
 
         .login-banner {
-            min-height: 240px;
+            min-height: 260px;
             padding: 2.5rem 2rem;
         }
 
         .login-banner-logo {
-            font-size: 1.8rem;
+            font-size: 2.1rem;
         }
 
         .login-banner-text {
-            font-size: 0.875rem;
+            font-size: 0.95rem;
             padding-top: 0.75rem;
         }
     }
@@ -296,7 +302,7 @@
 <div class="login-page-container">
     <div class="split-login-card">
         
-        <!-- Coluna Esquerda: Imagem com Blur e Textos por Cima -->
+        <!-- Coluna Esquerda: Imagem com Blur e Textos Centralizados no Meio -->
         <div class="login-banner">
             <div class="login-banner-bg"></div>
             <div class="login-banner-content">
@@ -310,7 +316,7 @@
             </div>
         </div>
         
-        <!-- Coluna Direita: Formulário de Login -->
+        <!-- Coluna Direita: Formulário de Login (Mais Amplo) -->
         <div class="login-form-side">
             <div class="login-header">
                 <h2>Acesse sua conta</h2>
@@ -345,7 +351,7 @@
             <div class="login-separator">ou</div>
 
             <a href="mailto:suporte@martinstec.com.br" class="login-btn-support">
-                <i data-lucide="help-circle" style="width: 16px; height: 16px; color: var(--text-secondary);"></i>
+                <i data-lucide="help-circle" style="width: 18px; height: 18px; color: var(--text-secondary);"></i>
                 Solicitar Acesso ao Gestor
             </a>
         </div>
