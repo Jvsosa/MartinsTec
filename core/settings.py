@@ -112,9 +112,11 @@ STORAGES = {
 }
 
 # Configurações de Mídias (Arquivos de Sites)
-# No Render, se o disco persistente estiver montado em '/var/lib/data', usamos ele.
-# Caso contrário (plano Free), salvamos na pasta local do projeto para evitar erros de permissão.
-if IS_RENDER and os.path.exists('/var/lib/data') and os.access('/var/lib/data', os.W_OK):
+# No Render, verificamos se o disco persistente está montado em '/data' ou '/var/lib/data'.
+# Caso contrário (plano Free), salvamos na pasta 'media' local do projeto temporariamente.
+if IS_RENDER and os.path.exists('/data') and os.access('/data', os.W_OK):
+    MEDIA_ROOT = '/data/media'
+elif IS_RENDER and os.path.exists('/var/lib/data') and os.access('/var/lib/data', os.W_OK):
     MEDIA_ROOT = '/var/lib/data/media'
 else:
     MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
