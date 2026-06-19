@@ -26,7 +26,7 @@
 
     .split-login-card {
         width: 100%;
-        max-width: 1040px; /* Aumentado para dar mais amplitude ao painel */
+        max-width: 1040px;
         background: #ffffff;
         border: 1px solid var(--border);
         border-radius: 24px;
@@ -35,10 +35,10 @@
         display: grid;
         grid-template-columns: 1.15fr 1fr;
         gap: 3rem;
-        align-items: stretch; /* Garante que ambas as colunas tenham a mesma altura */
+        align-items: stretch;
     }
 
-    /* Coluna Esquerda: Banner com a Imagem, Centralizado e com Blur */
+    /* Coluna Esquerda: Banner com a Imagem Sólida (Nítida) */
     .login-banner {
         position: relative;
         height: 100%;
@@ -47,9 +47,7 @@
         overflow: hidden;
         display: flex;
         flex-direction: column;
-        justify-content: center; /* Centraliza verticalmente o texto no meio da imagem */
-        align-items: center; /* Centraliza horizontalmente */
-        text-align: center; /* Alinha o texto no centro */
+        justify-content: space-between; /* Coloca o título no topo e o slogan no pé */
         padding: 3.5rem 3rem;
         color: #ffffff;
     }
@@ -63,53 +61,39 @@
         background-image: url('https://martinstec.com.br/images/slider/foto1.jpg');
         background-size: cover;
         background-position: center;
-        filter: blur(3px) brightness(0.55); /* Leve blur e escurecido ideal para contraste */
-        transform: scale(1.08); /* Evita bordas brancas do blur */
+        filter: brightness(0.65); /* Remove o blur, mantendo a nitidez e apenas escurecendo para leitura */
         z-index: 1;
     }
 
-    .login-banner-content {
+    .login-banner-title-top {
         position: relative;
         z-index: 2;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        gap: 1.25rem;
-    }
-
-    .login-banner-logo {
         font-family: var(--font-title);
-        font-size: 2.6rem; /* Aumentado para melhor visualização */
-        font-weight: 800;
+        font-size: 2.4rem;
+        font-weight: 850;
         letter-spacing: -0.5px;
         text-transform: uppercase;
         color: #ffffff;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        gap: 0.6rem;
+        margin: 0;
+        line-height: 1;
     }
 
-    .login-banner-logo svg {
-        width: 36px;
-        height: 36px;
-        color: #3b82f6;
-    }
-
-    .login-banner-text {
-        font-size: 1.05rem; /* Letras ligeiramente maiores e com mais espaçamento */
-        line-height: 1.6;
+    .login-banner-text-bottom {
+        position: relative;
+        z-index: 2;
+        font-size: 1rem;
+        line-height: 1.55;
         font-weight: 450;
         color: rgba(255, 255, 255, 0.9);
-        border-top: 1px solid rgba(255, 255, 255, 0.25);
+        border-top: 1px solid rgba(255, 255, 255, 0.2);
         padding-top: 1.25rem;
-        max-width: 340px; /* Reduzido o max-width para quebrar o texto de forma mais harmônica e centralizada */
-        margin: 0 auto;
+        max-width: 400px;
+        margin: 0;
     }
 
-    /* Coluna Direita: Formulário de Login (Mais Espaçoso) */
+    /* Coluna Direita: Formulário de Login */
     .login-form-side {
-        padding: 2rem 2.5rem 2rem 1rem; /* Mais espaçamento interno (respiro) */
+        padding: 2rem 2.5rem 2rem 1rem;
         display: flex;
         flex-direction: column;
         justify-content: center;
@@ -118,7 +102,7 @@
 
     .login-header h2 {
         font-family: var(--font-title);
-        font-size: 2rem; /* Título maior e mais robusto */
+        font-size: 2rem;
         font-weight: 700;
         color: var(--text-primary);
         margin-bottom: 0.5rem;
@@ -127,14 +111,14 @@
 
     .login-header p {
         color: var(--text-secondary);
-        font-size: 0.95rem; /* Texto de apoio ligeiramente maior */
+        font-size: 0.95rem;
         line-height: 1.5;
     }
 
     .login-form {
         display: flex;
         flex-direction: column;
-        gap: 1.5rem; /* Mais espaço entre os campos */
+        gap: 1.5rem;
     }
 
     .login-field-group {
@@ -153,13 +137,13 @@
 
     .login-input {
         width: 100%;
-        padding: 0.85rem 1.1rem; /* Inputs maiores e mais confortáveis para digitação */
+        padding: 0.85rem 1.1rem;
         background: #ffffff;
         border: 1px solid #cbd5e1;
         border-radius: 8px;
         color: var(--text-primary);
         font-family: var(--font-family);
-        font-size: 1rem; /* Fonte maior para melhor legibilidade */
+        font-size: 1rem;
         transition: all 0.2s ease;
     }
 
@@ -205,7 +189,7 @@
 
     .login-btn-submit {
         width: 100%;
-        padding: 0.9rem; /* Botão mais encorpado */
+        padding: 0.9rem;
         background: var(--primary);
         color: white;
         border: none;
@@ -248,7 +232,7 @@
 
     .login-btn-support {
         width: 100%;
-        padding: 0.8rem; /* Botão de suporte mais encorpado */
+        padding: 0.8rem;
         background: #ffffff;
         border: 1px solid #e2e8f0;
         border-radius: 8px;
@@ -284,13 +268,14 @@
         .login-banner {
             min-height: 260px;
             padding: 2.5rem 2rem;
+            justify-content: space-between;
         }
 
-        .login-banner-logo {
-            font-size: 2.1rem;
+        .login-banner-title-top {
+            font-size: 2rem;
         }
 
-        .login-banner-text {
+        .login-banner-text-bottom {
             font-size: 0.95rem;
             padding-top: 0.75rem;
         }
@@ -302,21 +287,16 @@
 <div class="login-page-container">
     <div class="split-login-card">
         
-        <!-- Coluna Esquerda: Imagem com Blur e Textos Centralizados no Meio -->
+        <!-- Coluna Esquerda: Imagem Nitida, Titulo no Topo e Slogan no Pe -->
         <div class="login-banner">
             <div class="login-banner-bg"></div>
-            <div class="login-banner-content">
-                <div class="login-banner-logo">
-                    <i data-lucide="radio"></i>
-                    <span>MartinsTec</span>
-                </div>
-                <p class="login-banner-text">
-                    Especialistas em soluções e execuções de obras de infraestrutura para redes de telecomunicações.
-                </p>
-            </div>
+            <h1 class="login-banner-title-top">MartinsTec</h1>
+            <p class="login-banner-text-bottom">
+                Especialistas em soluções e execuções de obras de infraestrutura para redes de telecomunicações.
+            </p>
         </div>
         
-        <!-- Coluna Direita: Formulário de Login (Mais Amplo) -->
+        <!-- Coluna Direita: Formulário de Login -->
         <div class="login-form-side">
             <div class="login-header">
                 <h2>Acesse sua conta</h2>
