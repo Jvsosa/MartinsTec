@@ -12,60 +12,29 @@
         width: 100%;
         margin: -2.5rem -2rem; /* Anula o padding do container pai no base.html */
         padding: 2.5rem 2rem;
-        background-color: #f8fafc;
-        background-image: 
-            radial-gradient(at 0% 0%, rgba(59, 130, 246, 0.04) 0px, transparent 50%),
-            radial-gradient(at 100% 100%, rgba(30, 58, 138, 0.04) 0px, transparent 50%),
-            linear-gradient(rgba(15, 23, 42, 0.02) 1px, transparent 1px),
-            linear-gradient(90deg, rgba(15, 23, 42, 0.02) 1px, transparent 1px);
-        background-size: 100% 100%, 100% 100%, 20px 20px, 20px 20px;
+        background-color: #f1f5f9; /* Fundo cinza claro sólido corporativo (sem texturas) */
     }
 
     .login-card {
         width: 100%;
-        max-width: 420px;
+        max-width: 400px;
         border: 1px solid var(--border);
-        border-radius: 16px;
-        box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.05), 0 10px 10px -5px rgba(0, 0, 0, 0.02);
+        border-radius: 8px; /* Cantos um pouco mais retos e sóbrios, estilo corporativo profissional */
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.02);
         background: var(--bg-secondary);
         overflow: hidden;
     }
 
     .login-accent-bar {
-        height: 5px;
-        background: linear-gradient(90deg, var(--primary) 0%, var(--secondary) 100%);
+        height: 4px;
+        background: var(--primary); /* Linha azul marinho sólida no topo (padrão de sistemas enterprise) */
     }
 
     .login-content {
-        padding: 3rem 2.5rem 2.5rem 2.5rem;
+        padding: 2.5rem;
         display: flex;
         flex-direction: column;
-        gap: 1.75rem;
-    }
-
-    .brand-icon-wrapper {
-        display: flex;
-        justify-content: center;
-        margin-top: -1.5rem;
-        margin-bottom: 0.5rem;
-    }
-
-    .brand-icon {
-        width: 56px;
-        height: 56px;
-        border-radius: 50%;
-        background: rgba(30, 58, 138, 0.04);
-        border: 1px solid rgba(30, 58, 138, 0.08);
-        color: var(--primary);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.02);
-    }
-
-    .brand-icon svg, .brand-icon i {
-        width: 24px;
-        height: 24px;
+        gap: 2rem;
     }
 
     .login-header {
@@ -74,27 +43,27 @@
 
     .login-header h1 {
         font-family: var(--font-title);
-        font-size: 1.6rem;
-        font-weight: 800;
-        color: var(--primary);
-        margin-bottom: 0.4rem;
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: var(--text-primary);
+        margin-bottom: 0.5rem;
     }
 
     .login-header p {
         color: var(--text-secondary);
-        font-size: 0.85rem;
-        font-weight: 500;
+        font-size: 0.875rem;
+        font-weight: 400;
     }
 
     .form-group {
         display: flex;
         flex-direction: column;
-        gap: 0.5rem;
+        gap: 0.4rem;
     }
 
     .form-group label {
         font-size: 0.75rem;
-        font-weight: 700;
+        font-weight: 600;
         color: var(--text-primary);
         text-transform: uppercase;
         letter-spacing: 0.5px;
@@ -106,7 +75,6 @@
         align-items: center;
     }
 
-    /* Target para tags i e svg após substituição do Lucide */
     .input-wrapper i, .input-wrapper svg {
         position: absolute;
         left: 1rem;
@@ -120,10 +88,10 @@
 
     .input-control {
         width: 100%;
-        padding: 0.8rem 1rem 0.8rem 2.75rem;
-        background: #f8fafc;
-        border: 1px solid var(--border);
-        border-radius: 8px;
+        padding: 0.75rem 1rem 0.75rem 2.75rem;
+        background: #ffffff;
+        border: 1px solid #cbd5e1; /* Borda visível e limpa padrão de sistemas modernos */
+        border-radius: 6px;
         color: var(--text-primary);
         font-family: var(--font-family);
         font-size: 0.95rem;
@@ -137,7 +105,7 @@
         box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
     }
 
-    /* Efeito de mudar cor do ícone no focus do input */
+    /* Efeito sutil no ícone ao focar */
     .input-control:focus ~ i,
     .input-control:focus ~ svg {
         color: var(--secondary);
@@ -146,29 +114,27 @@
     .btn-submit {
         width: 100%;
         justify-content: center;
-        padding: 0.85rem;
-        font-size: 0.95rem;
-        font-weight: 700;
+        padding: 0.75rem;
+        font-size: 0.9rem;
+        font-weight: 600;
         margin-top: 0.5rem;
-        border-radius: 8px;
-        background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+        border-radius: 6px;
+        background: var(--primary);
         color: white;
         border: none;
         cursor: pointer;
         display: flex;
         align-items: center;
         gap: 0.5rem;
-        transition: all 0.2s ease;
-        box-shadow: 0 4px 10px rgba(30, 58, 138, 0.15);
+        transition: background 0.2s ease;
     }
 
     .btn-submit:hover {
-        transform: translateY(-1px);
-        box-shadow: 0 6px 14px rgba(30, 58, 138, 0.22);
+        background: #172554; /* Azul mais escuro no hover */
     }
 
     .btn-submit:active {
-        transform: translateY(0);
+        transform: none;
     }
 </style>
 {% endblock %}
@@ -178,12 +144,6 @@
     <div class="login-card">
         <div class="login-accent-bar"></div>
         <div class="login-content">
-            <div class="brand-icon-wrapper">
-                <div class="brand-icon">
-                    <i data-lucide="radio"></i>
-                </div>
-            </div>
-            
             <div class="login-header">
                 <h1>Portal de Engenharia</h1>
                 <p>Identifique-se para acessar os sites de Telecom</p>
@@ -194,7 +154,6 @@
                 <div class="form-group">
                     <label for="username">Usuário Corporativo</label>
                     <div class="input-wrapper">
-                        <!-- Colocado input antes para efeito de foco CSS via combinador ~ -->
                         <input type="text" name="username" id="username" class="input-control" placeholder="ex: joao.silva" required>
                         <i data-lucide="user"></i>
                     </div>
@@ -210,7 +169,7 @@
 
                 <button type="submit" class="btn btn-submit">
                     Entrar no Sistema
-                    <i data-lucide="arrow-right" style="width: 18px; height: 18px;"></i>
+                    <i data-lucide="arrow-right" style="width: 16px; height: 16px;"></i>
                 </button>
             </form>
         </div>
