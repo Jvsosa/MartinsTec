@@ -1,0 +1,514 @@
+{% extends 'base.html' %}
+
+{% block title %}Repositório - {{ site.site_id }} - MartinsTec{% endblock %}
+
+{% block extra_head %}
+<style>
+    .back-nav {
+        margin-bottom: 1.5rem;
+    }
+
+    .back-link {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        color: var(--text-secondary);
+        text-decoration: none;
+        font-weight: 500;
+        font-size: 0.9rem;
+        transition: color 0.2s ease;
+    }
+
+    .back-link:hover {
+        color: var(--primary);
+    }
+
+    .detail-layout {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 2rem;
+        align-items: start;
+    }
+
+    @media (min-width: 992px) {
+        .detail-layout {
+            grid-template-columns: 1fr 2fr;
+        }
+    }
+
+    /* Card de Informações Físicas */
+    .info-card h3 {
+        font-family: var(--font-title);
+        margin-bottom: 1.25rem;
+        font-size: 1.25rem;
+        border-bottom: 1px solid var(--border);
+        padding-bottom: 0.5rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .info-list {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+    }
+
+    .info-item {
+        display: flex;
+        flex-direction: column;
+        gap: 0.25rem;
+    }
+
+    .info-label {
+        font-size: 0.75rem;
+        color: var(--text-secondary);
+        text-transform: uppercase;
+        font-weight: 600;
+        letter-spacing: 0.5px;
+    }
+
+    .info-value {
+        font-size: 1rem;
+        font-weight: 500;
+    }
+
+    /* Repositório de Documentos */
+    .repo-card h3 {
+        font-family: var(--font-title);
+        font-size: 1.3rem;
+        margin-bottom: 1.5rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .category-section {
+        margin-bottom: 2rem;
+        background: rgba(255, 255, 255, 0.01);
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        padding: 1.25rem;
+    }
+
+    .category-header {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        margin-bottom: 1rem;
+        border-bottom: 1px solid var(--border);
+        padding-bottom: 0.5rem;
+        font-family: var(--font-title);
+        font-weight: 600;
+    }
+
+    .category-header-pdf { color: #f43f5e; }
+    .category-header-image { color: #10b981; }
+    .category-header-dwg { color: #00f2fe; }
+    .category-header-other { color: #94a3b8; }
+
+    .file-table {
+        width: 100%;
+        border-collapse: collapse;
+        text-align: left;
+        font-size: 0.875rem;
+    }
+
+    .file-table th {
+        color: var(--text-secondary);
+        font-weight: 500;
+        padding: 0.5rem;
+        border-bottom: 1px solid var(--border);
+    }
+
+    .file-table td {
+        padding: 0.75rem 0.5rem;
+        border-bottom: 1px dashed var(--border);
+        vertical-align: middle;
+    }
+
+    .file-name-cell {
+        display: flex;
+        flex-direction: column;
+        gap: 0.15rem;
+    }
+
+    .file-title {
+        font-weight: 500;
+        color: var(--text-primary);
+        text-decoration: none;
+    }
+
+    .file-desc {
+        font-size: 0.75rem;
+        color: var(--text-secondary);
+    }
+
+    .file-meta {
+        font-size: 0.75rem;
+        color: var(--text-secondary);
+    }
+
+    .action-download {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 32px;
+        height: 32px;
+        border-radius: 6px;
+        background: rgba(0, 242, 254, 0.1);
+        color: var(--primary);
+        transition: all 0.2s;
+    }
+
+    .action-download:hover {
+        background: var(--primary);
+        color: #080c14;
+        box-shadow: 0 0 10px rgba(0, 242, 254, 0.3);
+    }
+
+    .action-locked {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 32px;
+        height: 32px;
+        border-radius: 6px;
+        background: rgba(244, 63, 94, 0.08);
+        color: var(--danger);
+        cursor: not-allowed;
+    }
+
+    .no-files {
+        font-size: 0.85rem;
+        color: var(--text-secondary);
+        font-style: italic;
+        padding: 0.5rem;
+    }
+
+    /* Modal/Formulário de Upload */
+    .upload-box {
+        margin-top: 2rem;
+        background: rgba(255, 255, 255, 0.02);
+        border: 1px dashed var(--border);
+        border-radius: 8px;
+        padding: 1.25rem;
+    }
+
+    .upload-box h4 {
+        font-family: var(--font-title);
+        margin-bottom: 1rem;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .upload-form {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 1rem;
+    }
+
+    @media (min-width: 640px) {
+        .upload-form {
+            grid-template-columns: 1fr 1.5fr;
+        }
+        .full-width {
+            grid-column: span 2;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="back-nav">
+    <a href="{% url 'site_list' %}" class="back-link">
+        <i data-lucide="arrow-left" style="width: 18px; height: 18px;"></i>
+        Voltar para a Listagem de Sites
+    </a>
+</div>
+
+<div class="detail-layout">
+    <!-- Coluna da Esquerda: Ficha Técnica do Site -->
+    <div class="glass-card info-card">
+        <h3>
+            <i data-lucide="info" style="color: var(--primary);"></i>
+            Ficha Técnica
+        </h3>
+        
+        <div class="info-list">
+            <div class="info-item">
+                <span class="info-label">Código do Site (ID)</span>
+                <span class="info-value text-gradient" style="font-family: var(--font-title); font-weight: 700; font-size: 1.3rem;">
+                    {{ site.site_id }}
+                </span>
+            </div>
+
+            <div class="info-item">
+                <span class="info-label">Nome Operacional</span>
+                <span class="info-value">{{ site.name }}</span>
+            </div>
+
+            <div class="info-item">
+                <span class="info-label">Status Operacional</span>
+                <div>
+                    <span class="status-badge status-{{ site.status|lower }}">
+                        {{ site.get_status_display }}
+                    </span>
+                </div>
+            </div>
+
+            <div class="info-item">
+                <span class="info-label">Coordenadas Geográficas</span>
+                <span class="info-value" style="font-size: 0.9rem; color: var(--text-secondary);">
+                    Lat: {{ site.latitude }} <br>
+                    Lon: {{ site.longitude }}
+                </span>
+            </div>
+
+            <div class="info-item">
+                <span class="info-label">Descrição da Estrutura</span>
+                <span class="info-value" style="font-size: 0.875rem; color: var(--text-secondary); white-space: pre-line;">
+                    {{ site.description|default:"Nenhuma observação cadastrada." }}
+                </span>
+            </div>
+
+            <div class="info-item" style="border-top: 1px solid var(--border); padding-top: 1rem;">
+                <span class="info-label">Cadastrado em</span>
+                <span class="info-value" style="font-size: 0.85rem; color: var(--text-secondary);">
+                    {{ site.created_at|date:"d/m/Y H:i" }}
+                </span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Coluna da Direita: Repositório e Upload de Mídias -->
+    <div class="glass-card repo-card">
+        <h3>
+            <i data-lucide="folder-archive" style="color: var(--primary);"></i>
+            Repositório de Documentação Técnica
+        </h3>
+
+        <!-- Seção 1: Relatórios Técnicos (PDF) -->
+        <div class="category-section">
+            <div class="category-header category-header-pdf">
+                <i data-lucide="file-text" style="width: 20px; height: 20px;"></i>
+                <span>Relatórios Técnicos (PDF)</span>
+            </div>
+            {% if files_by_category.PDF %}
+                <table class="file-table">
+                    <thead>
+                        <tr>
+                            <th>Arquivo</th>
+                            <th>Enviado Por</th>
+                            <th style="width: 50px; text-align: center;">Baixar</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for f in files_by_category.PDF %}
+                        <tr>
+                            <td class="file-name-cell">
+                                <span class="file-title">{{ f.file.name|slice:"15:" }}</span> <!-- Mostra o nome do arquivo -->
+                                {% if f.description %}
+                                <span class="file-desc">{{ f.description }}</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <span class="file-meta">
+                                    {{ f.uploaded_by.first_name|default:f.uploaded_by.username }} <br>
+                                    <span style="font-size: 0.7rem; opacity: 0.7;">{{ f.uploaded_at|date:"d/m/Y" }}</span>
+                                </span>
+                            </td>
+                            <td style="text-align: center;">
+                                <a href="{% url 'download_file' file_id=f.id %}" class="action-download" title="Fazer Download do PDF">
+                                    <i data-lucide="download" style="width: 16px; height: 16px;"></i>
+                                </a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            {% else %}
+                <p class="no-files">Nenhum relatório em PDF anexado.</p>
+            {% endif %}
+        </div>
+
+        <!-- Seção 2: Fotos e Imagens (IMAGE) -->
+        <div class="category-section">
+            <div class="category-header category-header-image">
+                <i data-lucide="image" style="width: 20px; height: 20px;"></i>
+                <span>Fotografias / Imagens</span>
+            </div>
+            {% if files_by_category.IMAGE %}
+                <table class="file-table">
+                    <thead>
+                        <tr>
+                            <th>Arquivo</th>
+                            <th>Enviado Por</th>
+                            <th style="width: 50px; text-align: center;">Baixar</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for f in files_by_category.IMAGE %}
+                        <tr>
+                            <td class="file-name-cell">
+                                <span class="file-title">{{ f.file.name|slice:"17:" }}</span>
+                                {% if f.description %}
+                                <span class="file-desc">{{ f.description }}</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <span class="file-meta">
+                                    {{ f.uploaded_by.first_name|default:f.uploaded_by.username }} <br>
+                                    <span style="font-size: 0.7rem; opacity: 0.7;">{{ f.uploaded_at|date:"d/m/Y" }}</span>
+                                </span>
+                            </td>
+                            <td style="text-align: center;">
+                                <a href="{% url 'download_file' file_id=f.id %}" class="action-download" title="Fazer Download da Foto">
+                                    <i data-lucide="download" style="width: 16px; height: 16px;"></i>
+                                </a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            {% else %}
+                <p class="no-files">Nenhuma fotografia anexada.</p>
+            {% endif %}
+        </div>
+
+        <!-- Seção 3: Plantas AutoCAD (DWG) -->
+        <div class="category-section">
+            <div class="category-header category-header-dwg">
+                <i data-lucide="drafting-compass" style="width: 20px; height: 20px;"></i>
+                <span>Plantas AutoCAD (DWG)</span>
+            </div>
+            {% if files_by_category.DWG %}
+                <table class="file-table">
+                    <thead>
+                        <tr>
+                            <th>Arquivo</th>
+                            <th>Enviado Por</th>
+                            <th style="width: 50px; text-align: center;">Baixar</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for f in files_by_category.DWG %}
+                        <tr>
+                            <td class="file-name-cell">
+                                <span class="file-title">{{ f.file.name|slice:"15:" }}</span>
+                                {% if f.description %}
+                                <span class="file-desc">{{ f.description }}</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <span class="file-meta">
+                                    {{ f.uploaded_by.first_name|default:f.uploaded_by.username }} <br>
+                                    <span style="font-size: 0.7rem; opacity: 0.7;">{{ f.uploaded_at|date:"d/m/Y" }}</span>
+                                </span>
+                            </td>
+                            <td style="text-align: center;">
+                                {% if user.role == 'TECHNICIAN' %}
+                                    <!-- Técnico de Campo com restrição de acesso por cargo (RBAC) -->
+                                    <span class="action-locked" title="Acesso Restrito: Técnicos de campo não podem baixar plantas DWG.">
+                                        <i data-lucide="lock" style="width: 16px; height: 16px;"></i>
+                                    </span>
+                                {% else %}
+                                    <a href="{% url 'download_file' file_id=f.id %}" class="action-download" title="Fazer Download da Planta DWG">
+                                        <i data-lucide="download" style="width: 16px; height: 16px;"></i>
+                                    </a>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            {% else %}
+                <p class="no-files">Nenhuma planta DWG anexada.</p>
+            {% endif %}
+        </div>
+
+        <!-- Seção 4: Outros Documentos -->
+        <div class="category-section" style="margin-bottom: 0;">
+            <div class="category-header category-header-other">
+                <i data-lucide="file-digit" style="width: 20px; height: 20px;"></i>
+                <span>Outros Arquivos</span>
+            </div>
+            {% if files_by_category.OTHER %}
+                <table class="file-table">
+                    <thead>
+                        <tr>
+                            <th>Arquivo</th>
+                            <th>Enviado Por</th>
+                            <th style="width: 50px; text-align: center;">Baixar</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for f in files_by_category.OTHER %}
+                        <tr>
+                            <td class="file-name-cell">
+                                <span class="file-title">{{ f.file.name|slice:"17:" }}</span>
+                                {% if f.description %}
+                                <span class="file-desc">{{ f.description }}</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <span class="file-meta">
+                                    {{ f.uploaded_by.first_name|default:f.uploaded_by.username }} <br>
+                                    <span style="font-size: 0.7rem; opacity: 0.7;">{{ f.uploaded_at|date:"d/m/Y" }}</span>
+                                </span>
+                            </td>
+                            <td style="text-align: center;">
+                                <a href="{% url 'download_file' file_id=f.id %}" class="action-download" title="Fazer Download do Arquivo">
+                                    <i data-lucide="download" style="width: 16px; height: 16px;"></i>
+                                </a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            {% else %}
+                <p class="no-files">Nenhum outro arquivo anexado.</p>
+            {% endif %}
+        </div>
+
+        <!-- Formulário de Upload de Arquivo -->
+        <div class="upload-box">
+            <h4>
+                <i data-lucide="upload-cloud" style="color: var(--primary);"></i>
+                Enviar Novo Arquivo Técnica para o Site
+            </h4>
+            
+            <form method="POST" action="{% url 'site_detail' pk=site.pk %}" enctype="multipart/form-data" class="upload-form">
+                {% csrf_token %}
+                <div class="field-group">
+                    <label for="category">Categoria do Arquivo</label>
+                    <select name="category" id="category" class="field-control" style="background: var(--bg-tertiary);" required>
+                        {% for code, label in categories %}
+                        <option value="{{ code }}">{{ label }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="field-group">
+                    <label for="file">Arquivo (PDF, DWG, Fotos)</label>
+                    <input type="file" name="file" id="file" class="field-control" required>
+                </div>
+
+                <div class="field-group full-width">
+                    <label for="description">Descrição / Resumo do Conteúdo</label>
+                    <input type="text" name="description" id="description" class="field-control" placeholder="Ex: Planta de fundação da torre, fotos dos conectores RF..." required>
+                </div>
+
+                <div class="full-width" style="display: flex; justify-content: flex-end;">
+                    <button type="submit" class="btn btn-primary" style="margin-top: 0.5rem;">
+                        Realizar Upload
+                        <i data-lucide="upload" style="width: 16px; height: 16px;"></i>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,161 @@
+{% extends 'base.html' %}
+
+{% block title %}Acesso ao Sistema - MartinsTec Telecom{% endblock %}
+
+{% block extra_head %}
+<style>
+    .login-wrapper {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: calc(70vh - 100px);
+        width: 100%;
+    }
+
+    .login-card {
+        width: 100%;
+        max-width: 440px;
+        position: relative;
+        overflow: hidden;
+    }
+
+    /* Glow decorativo no fundo do card */
+    .login-card::before {
+        content: '';
+        position: absolute;
+        top: -50%;
+        left: -50%;
+        width: 200%;
+        height: 200%;
+        background: conic-gradient(
+            transparent, 
+            transparent, 
+            transparent, 
+            var(--primary)
+        );
+        animation: rotateGlow 12s linear infinite;
+        z-index: -1;
+    }
+
+    @keyframes rotateGlow {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+
+    .login-content {
+        background: #0b111e;
+        border-radius: 11px;
+        padding: 2.5rem;
+        margin: 1px; /* Mostra a borda brilhante do gradiente */
+        display: flex;
+        flex-direction: column;
+        gap: 1.5rem;
+    }
+
+    .login-header {
+        text-align: center;
+    }
+
+    .login-header h1 {
+        font-family: var(--font-title);
+        font-size: 1.8rem;
+        font-weight: 800;
+        margin-bottom: 0.5rem;
+    }
+
+    .login-header p {
+        color: var(--text-secondary);
+        font-size: 0.9rem;
+    }
+
+    .form-group {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+
+    .form-group label {
+        font-size: 0.85rem;
+        font-weight: 500;
+        color: var(--text-secondary);
+    }
+
+    .input-wrapper {
+        position: relative;
+        display: flex;
+        align-items: center;
+    }
+
+    .input-wrapper i {
+        position: absolute;
+        left: 1rem;
+        color: var(--text-secondary);
+        width: 18px;
+        height: 18px;
+    }
+
+    .input-control {
+        width: 100%;
+        padding: 0.75rem 1rem 0.75rem 2.75rem;
+        background: rgba(255, 255, 255, 0.02);
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        color: var(--text-primary);
+        font-family: var(--font-family);
+        font-size: 0.95rem;
+        transition: all 0.25s ease;
+    }
+
+    .input-control:focus {
+        outline: none;
+        border-color: var(--primary);
+        background: rgba(255, 255, 255, 0.04);
+        box-shadow: 0 0 10px rgba(0, 242, 254, 0.15);
+    }
+
+    .btn-submit {
+        width: 100%;
+        justify-content: center;
+        padding: 0.8rem;
+        font-size: 1rem;
+        margin-top: 1rem;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="login-wrapper">
+    <div class="login-card glass-card" style="padding: 0; border: none;">
+        <div class="login-content">
+            <div class="login-header">
+                <h1 class="text-gradient">Portal de Engenharia</h1>
+                <p>Identifique-se para acessar os sites de Telecom</p>
+            </div>
+            
+            <form method="POST" action="{% url 'login' %}" style="display: flex; flex-direction: column; gap: 1.25rem;">
+                {% csrf_token %}
+                <div class="form-group">
+                    <label for="username">Usuário Corporativo</label>
+                    <div class="input-wrapper">
+                        <i data-lucide="user"></i>
+                        <input type="text" name="username" id="username" class="input-control" placeholder="ex: joao.silva" required>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="password">Senha de Rede</label>
+                    <div class="input-wrapper">
+                        <i data-lucide="lock"></i>
+                        <input type="password" name="password" id="password" class="input-control" placeholder="••••••••" required>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn btn-primary btn-submit">
+                    Entrar no Sistema
+                    <i data-lucide="arrow-right" style="width: 18px; height: 18px;"></i>
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

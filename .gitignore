@@ -1,0 +1,19 @@
+# Ambientes virtuais
+venv/
+ENV/
+env/
+
+# Django files
+*.pyc
+__pycache__/
+db.sqlite3
+db.sqlite3-journal
+media/
+staticfiles/
+.env
+
+# Outros
+.idea/
+.vscode/
+*.log
+.gemini/

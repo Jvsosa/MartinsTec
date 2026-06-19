@@ -1,0 +1,376 @@
+{% extends 'base.html' %}
+
+{% block title %}Sites de Telecom - MartinsTec Engenharia{% endblock %}
+
+{% block extra_head %}
+<style>
+    .page-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 2rem;
+        flex-wrap: wrap;
+        gap: 1rem;
+    }
+
+    .page-title h2 {
+        font-family: var(--font-title);
+        font-size: 1.8rem;
+        font-weight: 800;
+    }
+
+    .page-title p {
+        color: var(--text-secondary);
+        font-size: 0.9rem;
+    }
+
+    /* Layout principal de duas colunas */
+    .dashboard-grid {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 2rem;
+        align-items: start;
+    }
+
+    @media (min-width: 992px) {
+        .dashboard-grid {
+            grid-template-columns: 2.2fr 1fr;
+        }
+    }
+
+    /* Barra de busca */
+    .search-box {
+        display: flex;
+        gap: 0.5rem;
+        margin-bottom: 1.5rem;
+        width: 100%;
+    }
+
+    .search-input-wrapper {
+        position: relative;
+        flex: 1;
+        display: flex;
+        align-items: center;
+    }
+
+    .search-input-wrapper i {
+        position: absolute;
+        left: 1rem;
+        color: var(--text-secondary);
+        width: 18px;
+        height: 18px;
+    }
+
+    .search-control {
+        width: 100%;
+        padding: 0.65rem 1rem 0.65rem 2.5rem;
+        background: var(--bg-secondary);
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        color: var(--text-primary);
+        font-family: var(--font-family);
+        font-size: 0.9rem;
+        transition: all 0.2s ease;
+    }
+
+    .search-control:focus {
+        outline: none;
+        border-color: var(--primary);
+        box-shadow: 0 0 8px rgba(0, 242, 254, 0.1);
+    }
+
+    /* Grid de Sites */
+    .sites-list {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 1.25rem;
+    }
+
+    @media (min-width: 640px) {
+        .sites-list {
+            grid-template-columns: repeat(2, 1fr);
+        }
+    }
+
+    .site-card {
+        background: var(--bg-secondary);
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        padding: 1.5rem;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        gap: 1.25rem;
+        transition: all 0.25s ease;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .site-card:hover {
+        transform: translateY(-3px);
+        border-color: rgba(0, 242, 254, 0.25);
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+    }
+
+    .site-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 4px;
+        height: 100%;
+        background: transparent;
+        transition: background 0.25s ease;
+    }
+
+    .site-card-status-planned::before { background: var(--warning); }
+    .site-card-status-active::before { background: var(--success); }
+    .site-card-status-maintenance::before { background: var(--accent); }
+    .site-card-status-inactive::before { background: var(--danger); }
+
+    .site-card-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+    }
+
+    .site-code {
+        font-family: var(--font-title);
+        font-weight: 700;
+        font-size: 1.15rem;
+        color: var(--primary);
+    }
+
+    .site-name {
+        font-weight: 600;
+        font-size: 1rem;
+        margin-top: 0.25rem;
+    }
+
+    .status-badge {
+        font-size: 0.75rem;
+        padding: 0.2rem 0.6rem;
+        border-radius: 6px;
+        font-weight: 600;
+    }
+
+    .status-planned { background: rgba(245, 158, 11, 0.12); color: var(--warning); border: 1px solid rgba(245, 158, 11, 0.2); }
+    .status-active { background: rgba(16, 185, 129, 0.12); color: var(--success); border: 1px solid rgba(16, 185, 129, 0.2); }
+    .status-maintenance { background: rgba(139, 92, 246, 0.12); color: var(--accent); border: 1px solid rgba(139, 92, 246, 0.2); }
+    .status-inactive { background: rgba(244, 63, 94, 0.12); color: var(--danger); border: 1px solid rgba(244, 63, 94, 0.2); }
+
+    .site-coordinates {
+        display: flex;
+        gap: 1rem;
+        font-size: 0.8rem;
+        color: var(--text-secondary);
+        background: rgba(255, 255, 255, 0.02);
+        padding: 0.5rem;
+        border-radius: 6px;
+        border: 1px solid var(--border);
+    }
+
+    .coord-item {
+        display: flex;
+        align-items: center;
+        gap: 0.25rem;
+    }
+
+    .site-desc {
+        font-size: 0.85rem;
+        color: var(--text-secondary);
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+        height: 2.5rem;
+    }
+
+    .no-sites {
+        text-align: center;
+        padding: 3rem;
+        border: 1px dashed var(--border);
+        border-radius: 12px;
+        color: var(--text-secondary);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 1rem;
+        grid-column: span 2;
+    }
+
+    /* Formulário Lateral */
+    .form-card h3 {
+        font-family: var(--font-title);
+        margin-bottom: 1.25rem;
+        font-size: 1.2rem;
+        border-bottom: 1px solid var(--border);
+        padding-bottom: 0.5rem;
+    }
+
+    .field-group {
+        display: flex;
+        flex-direction: column;
+        gap: 0.4rem;
+        margin-bottom: 1rem;
+    }
+
+    .field-group label {
+        font-size: 0.8rem;
+        font-weight: 500;
+        color: var(--text-secondary);
+    }
+
+    .field-control {
+        width: 100%;
+        padding: 0.55rem 0.75rem;
+        background: rgba(255, 255, 255, 0.02);
+        border: 1px solid var(--border);
+        border-radius: 6px;
+        color: var(--text-primary);
+        font-family: var(--font-family);
+        font-size: 0.9rem;
+        transition: all 0.2s ease;
+    }
+
+    .field-control:focus {
+        outline: none;
+        border-color: var(--primary);
+    }
+
+    .field-row {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 0.75rem;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div class="page-title">
+        <h2>Sites de Telecomunicações</h2>
+        <p>Visão geral e cadastro de ativos da rede de transmissão</p>
+    </div>
+</div>
+
+<div class="dashboard-grid">
+    <!-- Coluna da Esquerda: Busca e Lista de Sites -->
+    <div>
+        <form method="GET" action="{% url 'site_list' %}" class="search-box">
+            <div class="search-input-wrapper">
+                <i data-lucide="search"></i>
+                <input type="text" name="q" value="{{ query|default:'' }}" class="search-control" placeholder="Buscar por Código ou Nome do Site...">
+            </div>
+            <button type="submit" class="btn btn-secondary">Filtrar</button>
+            {% if query %}
+            <a href="{% url 'site_list' %}" class="btn btn-secondary" title="Limpar Filtro">
+                <i data-lucide="x" style="width: 16px; height: 16px;"></i>
+            </a>
+            {% endif %}
+        </form>
+
+        <div class="sites-list">
+            {% for site in sites %}
+            <div class="site-card site-card-status-{{ site.status|lower }}">
+                <div class="site-card-header">
+                    <div>
+                        <span class="site-code">{{ site.site_id }}</span>
+                        <h4 class="site-name">{{ site.name }}</h4>
+                    </div>
+                    <span class="status-badge status-{{ site.status|lower }}">
+                        {{ site.get_status_display }}
+                    </span>
+                </div>
+
+                <p class="site-desc">{{ site.description|default:"Sem observações cadastradas." }}</p>
+
+                <div class="site-coordinates">
+                    <div class="coord-item">
+                        <i data-lucide="navigation-2" style="width: 12px; height: 12px; transform: rotate(45deg);"></i>
+                        <span>Lat: {{ site.latitude }}</span>
+                    </div>
+                    <div class="coord-item">
+                        <i data-lucide="navigation-2" style="width: 12px; height: 12px; transform: rotate(135deg);"></i>
+                        <span>Lon: {{ site.longitude }}</span>
+                    </div>
+                </div>
+
+                <div style="display: flex; gap: 0.5rem; justify-content: flex-end; align-items: center;">
+                    <span style="font-size: 0.75rem; color: var(--text-secondary); margin-right: auto; display: flex; align-items: center; gap: 0.25rem;">
+                        <i data-lucide="file" style="width: 12px; height: 12px;"></i>
+                        {{ site.files.count }} arquivo(s)
+                    </span>
+                    <a href="{% url 'site_detail' pk=site.pk %}" class="btn btn-primary" style="padding: 0.45rem 0.9rem; font-size: 0.8rem;">
+                        Repositório
+                        <i data-lucide="folder-open" style="width: 14px; height: 14px;"></i>
+                    </a>
+                </div>
+            </div>
+            {% empty %}
+            <div class="no-sites">
+                <i data-lucide="radio" style="width: 48px; height: 48px; color: var(--text-secondary);"></i>
+                <p>Nenhum site de telecom localizado com os critérios de busca.</p>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- Coluna da Direita: Painel de Cadastro (Somente Admin e Engenheiro) -->
+    <div>
+        {% if user.role == 'ADMIN' or user.role == 'ENGINEER' %}
+        <div class="glass-card form-card">
+            <h3 class="text-gradient">Cadastrar Novo Site</h3>
+            <form method="POST" action="{% url 'site_list' %}">
+                {% csrf_token %}
+                <div class="field-group">
+                    <label for="site_id">Código do Site (ID)</label>
+                    <input type="text" name="site_id" id="site_id" class="field-control" placeholder="Ex: SP_CTA_001" required>
+                </div>
+
+                <div class="field-group">
+                    <label for="name">Nome do Site</label>
+                    <input type="text" name="name" id="name" class="field-control" placeholder="Ex: Central Catu" required>
+                </div>
+
+                <div class="field-row">
+                    <div class="field-group">
+                        <label for="latitude">Latitude</label>
+                        <input type="number" name="latitude" id="latitude" step="0.000001" class="field-control" placeholder="-23.55052" required>
+                    </div>
+                    <div class="field-group">
+                        <label for="longitude">Longitude</label>
+                        <input type="number" name="longitude" id="longitude" step="0.000001" class="field-control" placeholder="-46.633308" required>
+                    </div>
+                </div>
+
+                <div class="field-group">
+                    <label for="status">Status Operacional</label>
+                    <select name="status" id="status" class="field-control" style="background: var(--bg-tertiary);" required>
+                        <option value="PLANNED">Planejado</option>
+                        <option value="ACTIVE">Ativo</option>
+                        <option value="MAINTENANCE">Em Manutenção</option>
+                        <option value="INACTIVE">Inativo</option>
+                    </select>
+                </div>
+
+                <div class="field-group">
+                    <label for="description">Observações / Infraestrutura</label>
+                    <textarea name="description" id="description" class="field-control" rows="3" placeholder="Ex: Torre auto-portante de 60m, gerador 50kVA, antenas MW..."></textarea>
+                </div>
+
+                <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 0.5rem; justify-content: center;">
+                    Salvar Registro
+                    <i data-lucide="save" style="width: 16px; height: 16px;"></i>
+                </button>
+            </form>
+        </div>
+        {% else %}
+        <div class="glass-card text-center" style="padding: 1.5rem; font-size: 0.85rem; color: var(--text-secondary); text-align: center;">
+            <i data-lucide="lock" style="width: 24px; height: 24px; margin-bottom: 0.5rem; color: var(--warning);"></i>
+            <p>Seu perfil de acesso (<strong>{{ user.get_role_display }}</strong>) permite apenas visualizar as informações e realizar downloads de mídias.</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
