@@ -12,21 +12,21 @@
     <script src="https://unpkg.com/lucide@latest"></script>
     <style>
         :root {
-            --bg-primary: #080c14;
-            --bg-secondary: #0f172a;
-            --bg-tertiary: #1e293b;
-            --text-primary: #f8fafc;
-            --text-secondary: #94a3b8;
-            --primary: #00f2fe;
-            --primary-rgb: 0, 242, 254;
-            --secondary: #4facfe;
-            --accent: #8b5cf6;
-            --success: #10b981;
-            --warning: #f59e0b;
-            --danger: #f43f5e;
-            --border: rgba(255, 255, 255, 0.06);
-            --glass-bg: rgba(15, 23, 42, 0.75);
-            --glass-border: rgba(255, 255, 255, 0.08);
+            --bg-primary: #f8fafc;
+            --bg-secondary: #ffffff;
+            --bg-tertiary: #f1f5f9;
+            --text-primary: #0f172a;
+            --text-secondary: #475569;
+            --primary: #1e3a8a;
+            --primary-rgb: 30, 58, 138;
+            --secondary: #3b82f6;
+            --accent: #4f46e5;
+            --success: #0d9488;
+            --warning: #d97706;
+            --danger: #e11d48;
+            --border: #e2e8f0;
+            --glass-bg: rgba(255, 255, 255, 0.85);
+            --glass-border: rgba(0, 0, 0, 0.06);
             --font-family: 'Inter', sans-serif;
             --font-title: 'Outfit', sans-serif;
         }
@@ -40,8 +40,8 @@
         body {
             background-color: var(--bg-primary);
             background-image: 
-                radial-gradient(at 0% 0%, rgba(139, 92, 246, 0.08) 0px, transparent 50%),
-                radial-gradient(at 100% 100%, rgba(0, 242, 254, 0.08) 0px, transparent 50%);
+                radial-gradient(at 0% 0%, rgba(79, 70, 229, 0.03) 0px, transparent 50%),
+                radial-gradient(at 100% 100%, rgba(59, 130, 246, 0.03) 0px, transparent 50%);
             background-attachment: fixed;
             color: var(--text-primary);
             font-family: var(--font-family);
@@ -63,6 +63,7 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
         }
 
         .logo-container {
@@ -94,7 +95,7 @@
             display: flex;
             align-items: center;
             gap: 0.75rem;
-            background: rgba(255, 255, 255, 0.03);
+            background: rgba(0, 0, 0, 0.02);
             border: 1px solid var(--border);
             padding: 0.4rem 1rem;
             border-radius: 100px;
@@ -104,7 +105,7 @@
         .user-avatar {
             width: 24px;
             height: 24px;
-            background: linear-gradient(135deg, var(--accent) 0%, var(--secondary) 100%);
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
             border-radius: 50%;
             display: flex;
             align-items: center;
@@ -122,9 +123,9 @@
             text-transform: uppercase;
         }
 
-        .badge-admin { background: rgba(244, 63, 94, 0.15); color: var(--danger); border: 1px solid rgba(244, 63, 94, 0.2); }
-        .badge-engineer { background: rgba(0, 242, 254, 0.15); color: var(--primary); border: 1px solid rgba(0, 242, 254, 0.2); }
-        .badge-technician { background: rgba(245, 158, 11, 0.15); color: var(--warning); border: 1px solid rgba(245, 158, 11, 0.2); }
+        .badge-admin { background: rgba(225, 29, 72, 0.08); color: var(--danger); border: 1px solid rgba(225, 29, 72, 0.15); }
+        .badge-engineer { background: rgba(59, 130, 246, 0.08); color: var(--secondary); border: 1px solid rgba(59, 130, 246, 0.15); }
+        .badge-technician { background: rgba(217, 119, 6, 0.08); color: var(--warning); border: 1px solid rgba(217, 119, 6, 0.15); }
 
         .btn {
             display: inline-flex;
@@ -142,36 +143,37 @@
 
         .btn-primary {
             background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
-            color: #080c14;
-            box-shadow: 0 4px 15px rgba(0, 242, 254, 0.25);
+            color: white;
+            box-shadow: 0 4px 12px rgba(30, 58, 138, 0.12);
         }
 
         .btn-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(0, 242, 254, 0.4);
+            transform: translateY(-1px);
+            box-shadow: 0 6px 16px rgba(30, 58, 138, 0.2);
         }
 
         .btn-secondary {
-            background: rgba(255, 255, 255, 0.05);
+            background: #ffffff;
             color: var(--text-primary);
             border: 1px solid var(--border);
+            box-shadow: 0 1px 2px rgba(0,0,0,0.02);
         }
 
         .btn-secondary:hover {
-            background: rgba(255, 255, 255, 0.08);
-            border-color: rgba(255, 255, 255, 0.15);
+            background: #f8fafc;
+            border-color: #cbd5e1;
         }
 
         .btn-danger {
-            background: rgba(244, 63, 94, 0.1);
+            background: rgba(225, 29, 72, 0.06);
             color: var(--danger);
-            border: 1px solid rgba(244, 63, 94, 0.2);
+            border: 1px solid rgba(225, 29, 72, 0.12);
         }
 
         .btn-danger:hover {
             background: var(--danger);
             color: white;
-            box-shadow: 0 4px 15px rgba(244, 63, 94, 0.25);
+            box-shadow: 0 4px 12px rgba(225, 29, 72, 0.15);
         }
 
         .main-container {
@@ -223,13 +225,11 @@
 
         /* Classes Utilitárias Globais */
         .glass-card {
-            background: var(--glass-bg);
-            backdrop-filter: blur(16px);
-            -webkit-backdrop-filter: blur(16px);
-            border: 1px solid var(--glass-border);
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
             border-radius: 12px;
             padding: 2rem;
-            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+            box-shadow: 0 4px 20px 0 rgba(0, 0, 0, 0.04);
         }
 
         .text-gradient {

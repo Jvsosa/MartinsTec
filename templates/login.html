@@ -15,38 +15,15 @@
     .login-card {
         width: 100%;
         max-width: 440px;
-        position: relative;
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        box-shadow: 0 8px 30px rgba(0, 0, 0, 0.05);
+        background: var(--bg-secondary);
         overflow: hidden;
     }
 
-    /* Glow decorativo no fundo do card */
-    .login-card::before {
-        content: '';
-        position: absolute;
-        top: -50%;
-        left: -50%;
-        width: 200%;
-        height: 200%;
-        background: conic-gradient(
-            transparent, 
-            transparent, 
-            transparent, 
-            var(--primary)
-        );
-        animation: rotateGlow 12s linear infinite;
-        z-index: -1;
-    }
-
-    @keyframes rotateGlow {
-        0% { transform: rotate(0deg); }
-        100% { transform: rotate(360deg); }
-    }
-
     .login-content {
-        background: #0b111e;
-        border-radius: 11px;
         padding: 2.5rem;
-        margin: 1px; /* Mostra a borda brilhante do gradiente */
         display: flex;
         flex-direction: column;
         gap: 1.5rem;
@@ -97,7 +74,7 @@
     .input-control {
         width: 100%;
         padding: 0.75rem 1rem 0.75rem 2.75rem;
-        background: rgba(255, 255, 255, 0.02);
+        background: #ffffff;
         border: 1px solid var(--border);
         border-radius: 8px;
         color: var(--text-primary);
@@ -108,9 +85,9 @@
 
     .input-control:focus {
         outline: none;
-        border-color: var(--primary);
-        background: rgba(255, 255, 255, 0.04);
-        box-shadow: 0 0 10px rgba(0, 242, 254, 0.15);
+        border-color: var(--secondary);
+        background: #ffffff;
+        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
     }
 
     .btn-submit {
