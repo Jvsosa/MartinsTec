@@ -47,7 +47,9 @@
         overflow: hidden;
         display: flex;
         flex-direction: column;
-        justify-content: space-between; /* Coloca o título no topo e o slogan no pé */
+        justify-content: space-between; /* Coloca o grupo de textos no topo e o copyright no pé */
+        align-items: flex-start;
+        text-align: left;
         padding: 3.5rem 3rem;
         color: #ffffff;
     }
@@ -65,9 +67,17 @@
         z-index: 1;
     }
 
-    .login-banner-title-top {
+    /* Grupo de cabeçalho no topo da imagem */
+    .login-banner-header-group {
         position: relative;
         z-index: 2;
+        display: flex;
+        flex-direction: column;
+        gap: 1.25rem;
+        width: 100%;
+    }
+
+    .login-banner-title-top {
         font-family: var(--font-title);
         font-size: 2.4rem;
         font-weight: 850;
@@ -78,16 +88,26 @@
         line-height: 1;
     }
 
-    .login-banner-text-bottom {
-        position: relative;
-        z-index: 2;
+    .login-banner-text-top {
         font-size: 1rem;
         line-height: 1.55;
         font-weight: 450;
         color: rgba(255, 255, 255, 0.9);
-        border-top: 1px solid rgba(255, 255, 255, 0.2);
+        border-top: 1px solid rgba(255, 255, 255, 0.25);
         padding-top: 1.25rem;
         max-width: 400px;
+        margin: 0;
+        text-align: left;
+    }
+
+    /* Copyright no pé da imagem */
+    .login-banner-copyright {
+        position: relative;
+        z-index: 2;
+        font-size: 0.75rem;
+        color: rgba(255, 255, 255, 0.55);
+        font-weight: 400;
+        letter-spacing: 0.2px;
         margin: 0;
     }
 
@@ -266,16 +286,15 @@
         }
 
         .login-banner {
-            min-height: 260px;
+            min-height: 290px;
             padding: 2.5rem 2rem;
-            justify-content: space-between;
         }
 
         .login-banner-title-top {
             font-size: 2rem;
         }
 
-        .login-banner-text-bottom {
+        .login-banner-text-top {
             font-size: 0.95rem;
             padding-top: 0.75rem;
         }
@@ -287,13 +306,22 @@
 <div class="login-page-container">
     <div class="split-login-card">
         
-        <!-- Coluna Esquerda: Imagem Nitida, Titulo no Topo e Slogan no Pe -->
+        <!-- Coluna Esquerda: Imagem Nitida, Titulo, Linha e Slogan no Topo, Copyright no Pe -->
         <div class="login-banner">
             <div class="login-banner-bg"></div>
-            <h1 class="login-banner-title-top">MartinsTec</h1>
-            <p class="login-banner-text-bottom">
-                Especialistas em soluções e execuções de obras de infraestrutura para redes de telecomunicações.
-            </p>
+            
+            <!-- Grupo superior de textos -->
+            <div class="login-banner-header-group">
+                <h1 class="login-banner-title-top">MartinsTec</h1>
+                <p class="login-banner-text-top">
+                    Especialistas em soluções e execuções de obras de infraestrutura para redes de telecomunicações.
+                </p>
+            </div>
+            
+            <!-- Linha de rodapé com todos os direitos reservados -->
+            <span class="login-banner-copyright">
+                &copy; 2026 MartinsTec Engenharia. Todos os direitos reservados.
+            </span>
         </div>
         
         <!-- Coluna Direita: Formulário de Login -->
