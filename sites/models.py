@@ -59,7 +59,7 @@ class Site(models.Model):
         max_length=100,
         blank=True,
         null=True,
-        verbose_name="Empresa Parceira"
+        verbose_name="Fornecedora de Laudo/Projeto"
     )
 
     # Datas de Planejamento e Realização do Fluxo

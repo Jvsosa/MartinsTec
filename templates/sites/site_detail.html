@@ -368,8 +368,8 @@
                 </div>
 
                 <div class="info-item">
-                    <span class="info-label">Empresa Parceira</span>
-                    <span class="info-value" style="font-weight: 600;">{{ site.partner_company|default:"Sem Empresa Vinculada" }}</span>
+                    <span class="info-label">Fornecedora de Laudo/Projeto</span>
+                    <span class="info-value" style="font-weight: 600;">{{ site.partner_company|default:"Sem Fornecedora Vinculada" }}</span>
                 </div>
 
                 <div class="info-item">
@@ -430,8 +430,8 @@
                     </div>
                     
                     <div class="info-item">
-                        <label for="partner_company_edit" class="info-label">Empresa Parceira</label>
-                        <input type="text" name="partner_company" id="partner_company_edit" class="field-control" value="{{ site.partner_company|default:'' }}" placeholder="Nome do parceiro" style="padding: 0.5rem; font-size: 0.85rem; border: 1px solid var(--border-color); border-radius: 8px;">
+                        <label for="partner_company_edit" class="info-label">Fornecedora de Laudo/Projeto</label>
+                        <input type="text" name="partner_company" id="partner_company_edit" class="field-control" value="{{ site.partner_company|default:'' }}" placeholder="Nome da fornecedora" style="padding: 0.5rem; font-size: 0.85rem; border: 1px solid var(--border-color); border-radius: 8px;">
                     </div>
                     
                     <div class="info-item" style="border-top: 1px dashed var(--border-color); padding-top: 0.75rem;">
@@ -478,8 +478,53 @@
         <div style="border: 1px solid var(--border-color); border-radius: 12px; padding: 1.5rem; margin-bottom: 2rem; background: var(--bg-body);">
             <h4 style="font-family: var(--font-heading); font-size: 1.05rem; font-weight: 700; color: var(--text-main); margin-bottom: 1.25rem; display: flex; align-items: center; gap: 0.5rem;">
                 <i data-lucide="git-pull-request" style="color: var(--brand-primary); width: 18px; height: 18px;"></i>
-                Acompanhamento do Fluxo de Trabalho (Parceiro)
+                Acompanhamento do Fluxo de Trabalho (Fornecedora)
             </h4>
+            
+            <!-- Descrição Textual Dinâmica da Etapa Atual -->
+            <div style="margin-top: -0.75rem; margin-bottom: 1.5rem; font-size: 0.9rem; font-weight: 600; color: var(--text-muted); display: flex; align-items: center; gap: 0.5rem;">
+                <span>Etapa Atual:</span>
+                {% if site.planned_survey_date or site.actual_survey_date %}
+                    {% if site.actual_report_date %}
+                        <span style="color: #10b981; background: #ecfdf5; padding: 0.25rem 0.75rem; border-radius: 20px; font-size: 0.8rem; display: inline-flex; align-items: center; gap: 0.35rem;">
+                            <span style="width: 6px; height: 6px; background-color: #10b981; border-radius: 50%;"></span>
+                            Concluído (Laudo/Projeto entregue)
+                        </span>
+                    {% elif site.actual_survey_date %}
+                        <span style="color: #3b82f6; background: #eff6ff; padding: 0.25rem 0.75rem; border-radius: 20px; font-size: 0.8rem; display: inline-flex; align-items: center; gap: 0.35rem;">
+                            <span style="width: 6px; height: 6px; background-color: #3b82f6; border-radius: 50%;"></span>
+                            Vistoria Realizada ➔ Em Elaboração de Laudo/Projeto
+                        </span>
+                    {% elif site.planned_survey_date or site.planned_report_date %}
+                        <span style="color: #f59e0b; background: #fffbeb; padding: 0.25rem 0.75rem; border-radius: 20px; font-size: 0.8rem; display: inline-flex; align-items: center; gap: 0.35rem;">
+                            <span style="width: 6px; height: 6px; background-color: #f59e0b; border-radius: 50%;"></span>
+                            Fornecedora Acionada ➔ Vistoria em Andamento
+                        </span>
+                    {% else %}
+                        <span style="color: #64748b; background: #f1f5f9; padding: 0.25rem 0.75rem; border-radius: 20px; font-size: 0.8rem; display: inline-flex; align-items: center; gap: 0.35rem;">
+                            <span style="width: 6px; height: 6px; background-color: #64748b; border-radius: 50%;"></span>
+                            Aguardando Acionamento
+                        </span>
+                    {% endif %}
+                {% else %}
+                    {% if site.actual_report_date %}
+                        <span style="color: #10b981; background: #ecfdf5; padding: 0.25rem 0.75rem; border-radius: 20px; font-size: 0.8rem; display: inline-flex; align-items: center; gap: 0.35rem;">
+                            <span style="width: 6px; height: 6px; background-color: #10b981; border-radius: 50%;"></span>
+                            Concluído (Laudo/Projeto entregue)
+                        </span>
+                    {% elif site.planned_report_date %}
+                        <span style="color: #3b82f6; background: #eff6ff; padding: 0.25rem 0.75rem; border-radius: 20px; font-size: 0.8rem; display: inline-flex; align-items: center; gap: 0.35rem;">
+                            <span style="width: 6px; height: 6px; background-color: #3b82f6; border-radius: 50%;"></span>
+                            Fornecedora Acionada ➔ Em Elaboração de Laudo/Projeto
+                        </span>
+                    {% else %}
+                        <span style="color: #64748b; background: #f1f5f9; padding: 0.25rem 0.75rem; border-radius: 20px; font-size: 0.8rem; display: inline-flex; align-items: center; gap: 0.35rem;">
+                            <span style="width: 6px; height: 6px; background-color: #64748b; border-radius: 50%;"></span>
+                            Aguardando Acionamento
+                        </span>
+                    {% endif %}
+                {% endif %}
+            </div>
             
             {% if site.planned_survey_date or site.actual_survey_date %}
             <!-- Caso A: Com Vistoria (4 Etapas) -->
