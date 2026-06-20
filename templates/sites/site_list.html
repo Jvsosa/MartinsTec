@@ -565,54 +565,54 @@
             
             <div class="ent-card" style="padding: 1.5rem 1.75rem;">
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
-                    <span style="font-size: 0.85rem; font-weight: 600; color: var(--ent-text-muted);">Portfólio Total</span>
+                    <span style="font-size: 0.85rem; font-weight: 600; color: var(--ent-text-muted);">Total de Sites</span>
                     <div style="width: 38px; height: 38px; border-radius: 10px; background: #eff6ff; display: flex; align-items: center; justify-content: center; color: var(--ent-accent);">
                         <i data-lucide="layers" style="width: 20px; height: 20px;"></i>
                     </div>
                 </div>
                 <div style="font-family: var(--font-heading); font-size: 2.2rem; font-weight: 700; color: var(--ent-primary); line-height: 1.2; margin-bottom: 0.25rem;">{{ total_sites|default:0 }}</div>
-                <div style="font-size: 0.75rem; color: var(--ent-text-muted); font-weight: 500;">Estruturas de telecom mapeadas</div>
+                <div style="font-size: 0.75rem; color: var(--ent-text-muted); font-weight: 500;">Estruturas cadastradas</div>
             </div>
 
             <div class="ent-card" style="padding: 1.5rem 1.75rem;">
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
-                    <span style="font-size: 0.85rem; font-weight: 600; color: var(--ent-text-muted);">Operando Ativo</span>
+                    <span style="font-size: 0.85rem; font-weight: 600; color: var(--ent-text-muted);">Sites Finalizados</span>
                     <div style="width: 38px; height: 38px; border-radius: 10px; background: #ecfdf5; display: flex; align-items: center; justify-content: center; color: #10B981;">
-                        <i data-lucide="activity" style="width: 20px; height: 20px;"></i>
+                        <i data-lucide="check-circle" style="width: 20px; height: 20px;"></i>
                     </div>
                 </div>
                 <div style="font-family: var(--font-heading); font-size: 2.2rem; font-weight: 700; color: var(--ent-primary); line-height: 1.2; margin-bottom: 0.25rem;">{{ active_sites|default:0 }}</div>
                 <div style="font-size: 0.75rem; color: #10B981; font-weight: 600; display: flex; align-items: center; gap: 0.25rem;">
                     <span style="width: 6px; height: 6px; background-color: #10B981; border-radius: 50%;"></span>
-                    Uptime de rede estável
+                    Concluídos e operacionais
                 </div>
             </div>
 
             <div class="ent-card" style="padding: 1.5rem 1.75rem;">
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
-                    <span style="font-size: 0.85rem; font-weight: 600; color: var(--ent-text-muted);">Manutenção</span>
+                    <span style="font-size: 0.85rem; font-weight: 600; color: var(--ent-text-muted);">Em Alerta</span>
                     <div style="width: 38px; height: 38px; border-radius: 10px; background: #fffbeb; display: flex; align-items: center; justify-content: center; color: #F59E0B;">
-                        <i data-lucide="tool" style="width: 20px; height: 20px;"></i>
+                        <i data-lucide="alert-triangle" style="width: 20px; height: 20px;"></i>
                     </div>
                 </div>
                 <div style="font-family: var(--font-heading); font-size: 2.2rem; font-weight: 700; color: var(--ent-primary); line-height: 1.2; margin-bottom: 0.25rem;">{{ maintenance_sites|default:0 }}</div>
                 <div style="font-size: 0.75rem; color: #F59E0B; font-weight: 600; display: flex; align-items: center; gap: 0.25rem;">
                     <span style="width: 6px; height: 6px; background-color: #F59E0B; border-radius: 50%;"></span>
-                    Equipes em campo
+                    Demandam atenção ou técnica
                 </div>
             </div>
 
             <div class="ent-card" style="padding: 1.5rem 1.75rem;">
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
-                    <span style="font-size: 0.85rem; font-weight: 600; color: var(--ent-text-muted);">Suspenso / Offline</span>
+                    <span style="font-size: 0.85rem; font-weight: 600; color: var(--ent-text-muted);">Prazos Vencidos</span>
                     <div style="width: 38px; height: 38px; border-radius: 10px; background: #fef2f2; display: flex; align-items: center; justify-content: center; color: #EF4444;">
-                        <i data-lucide="power-off" style="width: 20px; height: 20px;"></i>
+                        <i data-lucide="clock" style="width: 20px; height: 20px;"></i>
                     </div>
                 </div>
                 <div style="font-family: var(--font-heading); font-size: 2.2rem; font-weight: 700; color: var(--ent-primary); line-height: 1.2; margin-bottom: 0.25rem;">{{ inactive_sites|default:0 }}</div>
                 <div style="font-size: 0.75rem; color: #EF4444; font-weight: 600; display: flex; align-items: center; gap: 0.25rem;">
                     <span style="width: 6px; height: 6px; background-color: #EF4444; border-radius: 50%;"></span>
-                    Atenção imediata do NOC
+                    Pendências críticas no NOC
                 </div>
             </div>
 
@@ -647,7 +647,7 @@
                             <div class="progress-item-header">
                                 <span style="color: var(--ent-primary); font-weight: 600; display: flex; align-items: center; gap: 0.5rem;">
                                     <span style="width: 8px; height: 8px; border-radius: 50%; background-color: #10B981; display: inline-block;"></span>
-                                    Operação Ativa
+                                    Sites Finalizados
                                 </span>
                                 <span id="pct-active-text" style="color: var(--ent-text-muted); font-weight: 700;">--</span>
                             </div>
@@ -660,7 +660,7 @@
                             <div class="progress-item-header">
                                 <span style="color: var(--ent-primary); font-weight: 600; display: flex; align-items: center; gap: 0.5rem;">
                                     <span style="width: 8px; height: 8px; border-radius: 50%; background-color: #F59E0B; display: inline-block;"></span>
-                                    Planejamento / Obra
+                                    Em Planejamento
                                 </span>
                                 <span id="pct-planned-text" style="color: var(--ent-text-muted); font-weight: 700;">--</span>
                             </div>
@@ -673,7 +673,7 @@
                             <div class="progress-item-header">
                                 <span style="color: var(--ent-primary); font-weight: 600; display: flex; align-items: center; gap: 0.5rem;">
                                     <span style="width: 8px; height: 8px; border-radius: 50%; background-color: #3B82F6; display: inline-block;"></span>
-                                    Preventiva / Técnica
+                                    Em Alerta
                                 </span>
                                 <span id="pct-maintenance-text" style="color: var(--ent-text-muted); font-weight: 700;">--</span>
                             </div>
@@ -686,7 +686,7 @@
                             <div class="progress-item-header">
                                 <span style="color: var(--ent-primary); font-weight: 600; display: flex; align-items: center; gap: 0.5rem;">
                                     <span style="width: 8px; height: 8px; border-radius: 50%; background-color: #EF4444; display: inline-block;"></span>
-                                    Inativo / Offline
+                                    Prazos Vencidos
                                 </span>
                                 <span id="pct-inactive-text" style="color: var(--ent-text-muted); font-weight: 700;">--</span>
                             </div>
@@ -1250,7 +1250,7 @@
         new Chart(statusCtx, {
             type: 'doughnut',
             data: {
-                labels: ['Operação Ativa', 'Planejamento', 'Manutenção', 'Suspenso'],
+                labels: ['Sites Finalizados', 'Em Planejamento', 'Em Alerta', 'Prazos Vencidos'],
                 datasets: [{
                     data: [active, planned, maintenance, inactive],
                     backgroundColor: ['#10B981', '#F59E0B', '#3B82F6', '#EF4444'],
