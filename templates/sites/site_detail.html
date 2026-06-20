@@ -481,10 +481,12 @@
                 Acompanhamento do Fluxo de Trabalho (Parceiro)
             </h4>
             
+            {% if site.planned_survey_date or site.actual_survey_date %}
+            <!-- Caso A: Com Vistoria (4 Etapas) -->
             <div style="display: flex; align-items: center; justify-content: space-between; position: relative; padding: 0 0.5rem;">
                 <!-- Linha de Fundo -->
                 <div style="position: absolute; top: 18px; left: 10%; right: 10%; height: 3px; background-color: #cbd5e1; z-index: 1;">
-                    <div style="height: 100%; width: {% if site.actual_report_date %}100%{% elif site.actual_survey_date %}66%{% elif site.planned_survey_date %}33%{% else %}0%{% endif %}; background-color: var(--brand-primary); transition: width 0.4s ease;"></div>
+                    <div style="height: 100%; width: {% if site.actual_report_date %}100%{% elif site.actual_survey_date %}66%{% elif site.planned_survey_date or site.planned_report_date %}33%{% else %}0%{% endif %}; background-color: var(--brand-primary); transition: width 0.4s ease;"></div>
                 </div>
                 
                 <!-- Etapa 1: Cadastrado -->
@@ -498,15 +500,23 @@
 
                 <!-- Etapa 2: Acionado -->
                 <div style="display: flex; flex-direction: column; align-items: center; gap: 0.4rem; z-index: 2; width: 22%; text-align: center;">
-                    <div style="width: 34px; height: 34px; border-radius: 50%; background-color: {% if site.planned_survey_date %}var(--brand-primary){% else %}#f1f5f9{% endif %}; color: {% if site.planned_survey_date %}white{% else %}#64748b{% endif %}; display: flex; align-items: center; justify-content: center; font-weight: 700; border: 2px solid {% if site.planned_survey_date %}var(--brand-primary){% else %}#cbd5e1{% endif %};">
-                        {% if site.planned_survey_date %}
+                    <div style="width: 34px; height: 34px; border-radius: 50%; background-color: {% if site.planned_survey_date or site.planned_report_date %}var(--brand-primary){% else %}#f1f5f9{% endif %}; color: {% if site.planned_survey_date or site.planned_report_date %}white{% else %}#64748b{% endif %}; display: flex; align-items: center; justify-content: center; font-weight: 700; border: 2px solid {% if site.planned_survey_date or site.planned_report_date %}var(--brand-primary){% else %}#cbd5e1{% endif %};">
+                        {% if site.planned_survey_date or site.planned_report_date %}
                             <i data-lucide="check" style="width: 15px; height: 15px;"></i>
                         {% else %}
                             2
                         {% endif %}
                     </div>
-                    <span style="font-size: 0.75rem; font-weight: 700; color: {% if site.planned_survey_date %}var(--text-main){% else %}#94a3b8{% endif %};">Acionado</span>
-                    <span style="font-size: 0.65rem; color: var(--text-muted);">{% if site.planned_survey_date %}Prev: {{ site.planned_survey_date|date:"d/m" }}{% else %}Aguardando{% endif %}</span>
+                    <span style="font-size: 0.75rem; font-weight: 700; color: {% if site.planned_survey_date or site.planned_report_date %}var(--text-main){% else %}#94a3b8{% endif %};">Acionado</span>
+                    <span style="font-size: 0.65rem; color: var(--text-muted);">
+                        {% if site.planned_survey_date %}
+                            Prev: {{ site.planned_survey_date|date:"d/m" }}
+                        {% elif site.planned_report_date %}
+                            Prev: {{ site.planned_report_date|date:"d/m" }}
+                        {% else %}
+                            Aguardando
+                        {% endif %}
+                    </span>
                 </div>
 
                 <!-- Etapa 3: Vistoriado -->
@@ -535,6 +545,51 @@
                     <span style="font-size: 0.65rem; color: var(--text-muted);">{% if site.actual_report_date %}{{ site.actual_report_date|date:"d/m" }}{% else %}Aguardando{% endif %}</span>
                 </div>
             </div>
+            {% else %}
+            <!-- Caso B: Sem Vistoria (3 Etapas) -->
+            <div style="display: flex; align-items: center; justify-content: space-between; position: relative; padding: 0 0.5rem;">
+                <!-- Linha de Fundo -->
+                <div style="position: absolute; top: 18px; left: 10%; right: 10%; height: 3px; background-color: #cbd5e1; z-index: 1;">
+                    <div style="height: 100%; width: {% if site.actual_report_date %}100%{% elif site.planned_report_date %}50%{% else %}0%{% endif %}; background-color: var(--brand-primary); transition: width 0.4s ease;"></div>
+                </div>
+                
+                <!-- Etapa 1: Cadastrado -->
+                <div style="display: flex; flex-direction: column; align-items: center; gap: 0.4rem; z-index: 2; width: 30%; text-align: center;">
+                    <div style="width: 34px; height: 34px; border-radius: 50%; background-color: var(--brand-primary); color: white; display: flex; align-items: center; justify-content: center; font-weight: 700; box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.15);">
+                        <i data-lucide="check" style="width: 15px; height: 15px;"></i>
+                    </div>
+                    <span style="font-size: 0.75rem; font-weight: 700; color: var(--text-main);">Cadastrado</span>
+                    <span style="font-size: 0.65rem; color: var(--text-muted);">{{ site.created_at|date:"d/m/Y" }}</span>
+                </div>
+
+                <!-- Etapa 2: Acionado -->
+                <div style="display: flex; flex-direction: column; align-items: center; gap: 0.4rem; z-index: 2; width: 30%; text-align: center;">
+                    <div style="width: 34px; height: 34px; border-radius: 50%; background-color: {% if site.planned_report_date %}var(--brand-primary){% else %}#f1f5f9{% endif %}; color: {% if site.planned_report_date %}white{% else %}#64748b{% endif %}; display: flex; align-items: center; justify-content: center; font-weight: 700; border: 2px solid {% if site.planned_report_date %}var(--brand-primary){% else %}#cbd5e1{% endif %};">
+                        {% if site.planned_report_date %}
+                            <i data-lucide="check" style="width: 15px; height: 15px;"></i>
+                        {% else %}
+                            2
+                        {% endif %}
+                    </div>
+                    <span style="font-size: 0.75rem; font-weight: 700; color: {% if site.planned_report_date %}var(--text-main){% else %}#94a3b8{% endif %};">Acionado</span>
+                    <span style="font-size: 0.65rem; color: var(--text-muted);">{% if site.planned_report_date %}Prev: {{ site.planned_report_date|date:"d/m" }}{% else %}Aguardando{% endif %}</span>
+                </div>
+
+                <!-- Etapa 3: Finalizado -->
+                <div style="display: flex; flex-direction: column; align-items: center; gap: 0.4rem; z-index: 2; width: 30%; text-align: center;">
+                    <div style="width: 34px; height: 34px; border-radius: 50%; background-color: {% if site.actual_report_date %}#10b981{% else %}#f1f5f9{% endif %}; color: {% if site.actual_report_date %}white{% else %}#64748b{% endif %}; display: flex; align-items: center; justify-content: center; font-weight: 700; border: 2px solid {% if site.actual_report_date %}#10b981{% else %}#cbd5e1{% endif %};">
+                        {% if site.actual_report_date %}
+                            <i data-lucide="check" style="width: 15px; height: 15px;"></i>
+                        {% else %}
+                            3
+                        {% endif %}
+                    </div>
+                    <span style="font-size: 0.75rem; font-weight: 700; color: {% if site.actual_report_date %}var(--text-main){% else %}#94a3b8{% endif %};">Finalizado</span>
+                    <span style="font-size: 0.65rem; color: var(--text-muted);">{% if site.actual_report_date %}{{ site.actual_report_date|date:"d/m" }}{% else %}Aguardando{% endif %}</span>
+                </div>
+            </div>
+            {% endif %}
+        </div>
         </div>
 
         <h3>
