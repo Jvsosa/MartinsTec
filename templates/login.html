@@ -4,8 +4,15 @@
 
 {% block extra_head %}
 <style>
-    /* Ocultar cabeçalho e rodapé padrão do base.html para o login */
-    header, footer {
+    :root {
+        --primary: #2563EB;
+        --secondary: #2563EB;
+        --text-primary: #0F172A;
+        --text-secondary: #64748B;
+    }
+
+    /* Ocultar cabeçalho, rodapé e barra lateral do base.html para o login */
+    header, footer, aside {
         display: none !important;
     }
 

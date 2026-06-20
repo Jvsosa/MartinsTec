@@ -374,6 +374,109 @@
         }
         .btn-primary:hover { background-color: var(--brand-hover); }
 
+        /* TOAST DE NOTIFICAÇÕES (Canto Superior Direito) */
+        .toast-container {
+            position: fixed;
+            top: 24px;
+            right: 24px;
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+            max-width: 380px;
+            width: calc(100% - 48px);
+            pointer-events: none; /* Deixa cliques passarem pelo container vazio */
+        }
+
+        .toast-message {
+            background-color: var(--bg-surface);
+            color: var(--text-main);
+            border: 1px solid var(--border-color);
+            border-left: 4px solid var(--brand-primary);
+            padding: 1rem 1.25rem;
+            border-radius: 12px;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.08), 0 8px 16px -6px rgba(0, 0, 0, 0.05);
+            display: flex;
+            align-items: flex-start;
+            gap: 0.75rem;
+            pointer-events: auto; /* Reativa cliques no card do toast */
+            animation: toastSlideIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+            position: relative;
+        }
+
+        .toast-message.success {
+            border-left-color: #10B981;
+        }
+        .toast-message.error, .toast-message.danger {
+            border-left-color: var(--danger);
+        }
+        .toast-message.warning {
+            border-left-color: var(--warning);
+        }
+
+        .toast-icon {
+            flex-shrink: 0;
+            margin-top: 2px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .toast-icon.success { color: #10B981; }
+        .toast-icon.error, .toast-icon.danger { color: var(--danger); }
+        .toast-icon.warning { color: var(--warning); }
+        .toast-icon.info { color: var(--brand-primary); }
+
+        .toast-content {
+            flex-grow: 1;
+            font-size: 0.88rem;
+            font-weight: 550;
+            line-height: 1.4;
+            color: var(--text-main);
+        }
+
+        .toast-close {
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            cursor: pointer;
+            padding: 2px;
+            margin-left: 0.5rem;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+            flex-shrink: 0;
+        }
+
+        .toast-close:hover {
+            color: var(--text-main);
+            background-color: var(--bg-body);
+        }
+
+        @keyframes toastSlideIn {
+            from {
+                opacity: 0;
+                transform: translateX(100%) translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0) translateY(0);
+            }
+        }
+
+        @keyframes toastFadeOut {
+            from {
+                opacity: 1;
+                transform: scale(1);
+            }
+            to {
+                opacity: 0;
+                transform: scale(0.9);
+            }
+        }
+
     </style>
     {% block extra_head %}{% endblock %}
 </head>
@@ -384,7 +487,7 @@
         <!-- Topo: Logo MartinsTec -->
         <a href="{% url 'site_list' %}" class="nav-brand">
             <div class="brand-icon">
-                <i data-lucide="tower" style="width: 22px; height: 22px;"></i>
+                <i data-lucide="radio-tower" style="width: 22px; height: 22px;"></i>
             </div>
             <div class="brand-text-container">
                 <span class="brand-text">MartinsTec</span>
@@ -437,14 +540,26 @@
     <!-- CONTEÚDO PRINCIPAL -->
     <main class="app-container">
         {% if messages %}
-        <div style="margin-bottom: 2rem;">
-            <ul style="list-style: none; display: flex; flex-direction: column; gap: 0.5rem;">
-                {% for message in messages %}
-                <li style="padding: 1rem; border-radius: 8px; background: #DBEAFE; color: #1D4ED8; border: 1px solid #BFDBFE; display: flex; align-items: center; gap: 0.5rem;">
-                    <i data-lucide="info" style="width: 18px; height: 18px;"></i> {{ message }}
-                </li>
-                {% endfor %}
-            </ul>
+        <div class="toast-container">
+            {% for message in messages %}
+            <div class="toast-message {% if message.tags %}{{ message.tags }}{% endif %}" id="toast-{{ forloop.counter }}">
+                <div class="toast-icon {% if message.tags %}{{ message.tags }}{% endif %}">
+                    {% if 'success' in message.tags %}
+                        <i data-lucide="check-circle" style="width: 18px; height: 18px;"></i>
+                    {% elif 'error' in message.tags or 'danger' in message.tags %}
+                        <i data-lucide="x-circle" style="width: 18px; height: 18px;"></i>
+                    {% elif 'warning' in message.tags %}
+                        <i data-lucide="alert-triangle" style="width: 18px; height: 18px;"></i>
+                    {% else %}
+                        <i data-lucide="info" style="width: 18px; height: 18px;"></i>
+                    {% endif %}
+                </div>
+                <div class="toast-content">{{ message }}</div>
+                <button class="toast-close" onclick="closeToast('toast-{{ forloop.counter }}')" title="Fechar">
+                    <i data-lucide="x" style="width: 16px; height: 16px;"></i>
+                </button>
+            </div>
+            {% endfor %}
         </div>
         {% endif %}
         
@@ -453,6 +568,27 @@
 
     <script>
         lucide.createIcons();
+
+        // Fechar notificação toast suavemente
+        function closeToast(id) {
+            const toast = document.getElementById(id);
+            if (toast) {
+                toast.style.animation = 'toastFadeOut 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards';
+                setTimeout(() => {
+                    toast.remove();
+                }, 250);
+            }
+        }
+
+        // Auto-fechar os toasts após 5 segundos
+        document.addEventListener('DOMContentLoaded', () => {
+            const toasts = document.querySelectorAll('.toast-message');
+            toasts.forEach(toast => {
+                setTimeout(() => {
+                    closeToast(toast.id);
+                }, 5000);
+            });
+        });
 
         // Lógica de Navegação do SPA (Hash)
         function handleNav() {
