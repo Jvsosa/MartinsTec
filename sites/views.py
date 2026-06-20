@@ -38,6 +38,27 @@ def logout_view(request):
 # --- LISTAGEM DE SITES DE TELECOM ---
 @login_required
 def site_list(request):
+    # Recalcula e atualiza o status de todos os sites com base nos prazos versus data atual
+    from django.utils import timezone
+    today = timezone.localdate()
+    
+    for site in Site.objects.all():
+        old_status = site.status
+        if site.actual_report_date:
+            new_status = Site.SiteStatus.ACTIVE
+        elif (site.planned_survey_date and site.planned_survey_date < today and not site.actual_survey_date) or \
+             (site.planned_report_date and site.planned_report_date < today and not site.actual_report_date):
+            new_status = Site.SiteStatus.INACTIVE
+        elif (site.planned_survey_date and today <= site.planned_survey_date <= today + timezone.timedelta(days=3) and not site.actual_survey_date) or \
+             (site.planned_report_date and today <= site.planned_report_date <= today + timezone.timedelta(days=3) and not site.actual_report_date):
+            new_status = Site.SiteStatus.MAINTENANCE
+        else:
+            new_status = Site.SiteStatus.PLANNED
+            
+        if old_status != new_status:
+            site.status = new_status
+            site.save(update_fields=['status'])
+
     # Processa criação de novo site se for POST e o usuário tiver permissão (Admin ou Engenheiro)
     if request.method == 'POST':
         if request.user.role not in [User.Role.ADMIN, User.Role.ENGINEER]:
@@ -48,7 +69,15 @@ def site_list(request):
         name = request.POST.get('name').strip()
         latitude_str = request.POST.get('latitude')
         longitude_str = request.POST.get('longitude')
-        status = request.POST.get('status')
+        scope_type = request.POST.get('scope_type')
+        partner_company = request.POST.get('partner_company', '').strip() or None
+        
+        p_survey = request.POST.get('planned_survey_date')
+        planned_survey_date = p_survey if p_survey else None
+        
+        p_report = request.POST.get('planned_report_date')
+        planned_report_date = p_report if p_report else None
+        
         description = request.POST.get('description')
 
         try:
@@ -57,7 +86,10 @@ def site_list(request):
                 name=name,
                 latitude=latitude_str,
                 longitude=longitude_str,
-                status=status,
+                scope_type=scope_type,
+                partner_company=partner_company,
+                planned_survey_date=planned_survey_date,
+                planned_report_date=planned_report_date,
                 description=description
             )
             messages.success(request, f"Site {site_id} cadastrado com sucesso!")
@@ -77,11 +109,15 @@ def site_list(request):
 
     # Cálculo dos contadores (KPIs) para o topo do painel
     total_sites = Site.objects.count()
-    active_sites = Site.objects.filter(status='ACTIVE').count()
-    maintenance_sites = Site.objects.filter(status='MAINTENANCE').count()
-    planned_sites = Site.objects.filter(status='PLANNED').count()
-    inactive_sites = Site.objects.filter(status='INACTIVE').count()
+    active_sites = Site.objects.filter(status=Site.SiteStatus.ACTIVE).count()
+    maintenance_sites = Site.objects.filter(status=Site.SiteStatus.MAINTENANCE).count()
+    planned_sites = Site.objects.filter(status=Site.SiteStatus.PLANNED).count()
+    inactive_sites = Site.objects.filter(status=Site.SiteStatus.INACTIVE).count()
     total_files = SiteFile.objects.count()
+
+    # Listas para o dashboard de prazos
+    overdue_list = Site.objects.filter(status=Site.SiteStatus.INACTIVE)
+    alert_list = Site.objects.filter(status=Site.SiteStatus.MAINTENANCE)
 
     # Contagem de arquivos por categoria para gráficos
     pdf_files = SiteFile.objects.filter(category='PDF').count()
@@ -100,6 +136,8 @@ def site_list(request):
         'maintenance_sites': maintenance_sites,
         'planned_sites': planned_sites,
         'inactive_sites': inactive_sites,
+        'overdue_list': overdue_list,
+        'alert_list': alert_list,
         'total_files': total_files,
         'pdf_files': pdf_files,
         'image_files': image_files,
@@ -117,8 +155,38 @@ def site_detail(request, pk):
     site = get_object_or_404(Site, pk=pk)
 
     if request.method == 'POST':
-        # Qualquer cargo pode fazer upload, ou limitamos se necessário.
-        # Vamos permitir que todos enviem arquivos, mas com tags de quem enviou.
+        action = request.POST.get('action')
+        
+        # Ação 1: Atualização de cronogramas e fluxo de trabalho (apenas ADMIN ou ENGINEER)
+        if action == 'update_workflow':
+            if request.user.role not in [User.Role.ADMIN, User.Role.ENGINEER]:
+                messages.error(request, "Seu cargo não possui permissão para atualizar prazos.")
+                return redirect('site_detail', pk=pk)
+
+            site.scope_type = request.POST.get('scope_type')
+            site.partner_company = request.POST.get('partner_company', '').strip() or None
+            
+            p_survey = request.POST.get('planned_survey_date')
+            site.planned_survey_date = p_survey if p_survey else None
+            
+            a_survey = request.POST.get('actual_survey_date')
+            site.actual_survey_date = a_survey if a_survey else None
+            
+            p_report = request.POST.get('planned_report_date')
+            site.planned_report_date = p_report if p_report else None
+            
+            a_report = request.POST.get('actual_report_date')
+            site.actual_report_date = a_report if a_report else None
+
+            try:
+                site.save()  # Auto-calcula o status
+                messages.success(request, "Fluxo de trabalho e prazos atualizados com sucesso!")
+            except Exception as e:
+                messages.error(request, f"Erro ao atualizar prazos: {str(e)}")
+                
+            return redirect('site_detail', pk=pk)
+
+        # Ação 2: Upload de arquivos técnicos (Qualquer cargo)
         file_obj = request.FILES.get('file')
         category = request.POST.get('category')
         description = request.POST.get('description')

@@ -342,62 +342,203 @@
 
 <div class="detail-layout">
     <!-- Coluna da Esquerda: Ficha Técnica do Site -->
-    <div class="glass-card info-card">
-        <h3>
-            <i data-lucide="info" style="color: var(--primary);"></i>
-            Ficha Técnica
-        </h3>
-        
-        <div class="info-list">
-            <div class="info-item">
-                <span class="info-label">Código do Site (ID)</span>
-                <span class="info-value text-gradient" style="font-family: var(--font-title); font-weight: 700; font-size: 1.3rem;">
-                    {{ site.site_id }}
-                </span>
-            </div>
+    <div>
+        <div class="glass-card info-card">
+            <h3>
+                <i data-lucide="info" style="color: var(--brand-primary);"></i>
+                Ficha Técnica
+            </h3>
+            
+            <div class="info-list">
+                <div class="info-item">
+                    <span class="info-label">Código do Site (ID)</span>
+                    <span class="info-value text-gradient" style="font-family: var(--font-title); font-weight: 700; font-size: 1.3rem; color: var(--text-main);">
+                        {{ site.site_id }}
+                    </span>
+                </div>
 
-            <div class="info-item">
-                <span class="info-label">Nome Operacional</span>
-                <span class="info-value">{{ site.name }}</span>
-            </div>
+                <div class="info-item">
+                    <span class="info-label">Nome Operacional</span>
+                    <span class="info-value">{{ site.name }}</span>
+                </div>
 
-            <div class="info-item">
-                <span class="info-label">Status Operacional</span>
-                <div>
-                    <span class="status-badge status-{{ site.status|lower }}">
-                        {{ site.get_status_display }}
+                <div class="info-item">
+                    <span class="info-label">Escopo do Acionamento</span>
+                    <span class="info-value" style="font-weight: 600;">{{ site.get_scope_type_display }}</span>
+                </div>
+
+                <div class="info-item">
+                    <span class="info-label">Empresa Parceira</span>
+                    <span class="info-value" style="font-weight: 600;">{{ site.partner_company|default:"Sem Empresa Vinculada" }}</span>
+                </div>
+
+                <div class="info-item">
+                    <span class="info-label">Status Operacional</span>
+                    <div>
+                        <span class="status-badge badge-{{ site.status|lower }}">
+                            <span class="status-dot"></span>
+                            {{ site.get_status_display }}
+                        </span>
+                    </div>
+                </div>
+
+                <div class="info-item">
+                    <span class="info-label">Coordenadas Geográficas</span>
+                    <span class="info-value" style="font-size: 0.9rem; color: var(--text-secondary);">
+                        Lat: {{ site.latitude }} <br>
+                        Lon: {{ site.longitude }}
+                    </span>
+                </div>
+
+                <div class="info-item">
+                    <span class="info-label">Descrição da Estrutura</span>
+                    <span class="info-value" style="font-size: 0.875rem; color: var(--text-secondary); white-space: pre-line;">
+                        {{ site.description|default:"Nenhuma observação cadastrada." }}
+                    </span>
+                </div>
+
+                <div class="info-item" style="border-top: 1px solid var(--border-color); padding-top: 1rem;">
+                    <span class="info-label">Cadastrado em</span>
+                    <span class="info-value" style="font-size: 0.85rem; color: var(--text-secondary);">
+                        {{ site.created_at|date:"d/m/Y H:i" }}
                     </span>
                 </div>
             </div>
-
-            <div class="info-item">
-                <span class="info-label">Coordenadas Geográficas</span>
-                <span class="info-value" style="font-size: 0.9rem; color: var(--text-secondary);">
-                    Lat: {{ site.latitude }} <br>
-                    Lon: {{ site.longitude }}
-                </span>
-            </div>
-
-            <div class="info-item">
-                <span class="info-label">Descrição da Estrutura</span>
-                <span class="info-value" style="font-size: 0.875rem; color: var(--text-secondary); white-space: pre-line;">
-                    {{ site.description|default:"Nenhuma observação cadastrada." }}
-                </span>
-            </div>
-
-            <div class="info-item" style="border-top: 1px solid var(--border); padding-top: 1rem;">
-                <span class="info-label">Cadastrado em</span>
-                <span class="info-value" style="font-size: 0.85rem; color: var(--text-secondary);">
-                    {{ site.created_at|date:"d/m/Y H:i" }}
-                </span>
-            </div>
         </div>
+
+        {% if user.role == 'ADMIN' or user.role == 'ENGINEER' %}
+        <!-- Painel de Gerenciamento de Prazos (Replanejamento) -->
+        <div class="glass-card info-card" style="margin-top: 1.5rem;">
+            <h3>
+                <i data-lucide="calendar" style="color: var(--brand-primary);"></i>
+                Gerenciar Cronograma
+            </h3>
+            
+            <form method="POST" action="{% url 'site_detail' pk=site.pk %}">
+                {% csrf_token %}
+                <input type="hidden" name="action" value="update_workflow">
+                
+                <div class="info-list" style="gap: 1rem;">
+                    <div class="info-item">
+                        <label for="scope_type_edit" class="info-label">Escopo do Acionamento</label>
+                        <select name="scope_type" id="scope_type_edit" class="field-control" required style="padding: 0.5rem; font-size: 0.85rem; border: 1px solid var(--border-color); border-radius: 8px;">
+                            <option value="LAUDO" {% if site.scope_type == 'LAUDO' %}selected{% endif %}>Laudo Técnico</option>
+                            <option value="PROJETO" {% if site.scope_type == 'PROJETO' %}selected{% endif %}>Projeto</option>
+                            <option value="OBRA" {% if site.scope_type == 'OBRA' %}selected{% endif %}>Obra / Instalação</option>
+                            <option value="OUTRO" {% if site.scope_type == 'OUTRO' %}selected{% endif %}>Outro</option>
+                        </select>
+                    </div>
+                    
+                    <div class="info-item">
+                        <label for="partner_company_edit" class="info-label">Empresa Parceira</label>
+                        <input type="text" name="partner_company" id="partner_company_edit" class="field-control" value="{{ site.partner_company|default:'' }}" placeholder="Nome do parceiro" style="padding: 0.5rem; font-size: 0.85rem; border: 1px solid var(--border-color); border-radius: 8px;">
+                    </div>
+                    
+                    <div class="info-item" style="border-top: 1px dashed var(--border-color); padding-top: 0.75rem;">
+                        <span style="font-size: 0.7rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase;">Fase 1: Vistoria</span>
+                    </div>
+                    
+                    <div class="info-item">
+                        <label for="planned_survey_date_edit" class="info-label">Vistoria Planejada</label>
+                        <input type="date" name="planned_survey_date" id="planned_survey_date_edit" class="field-control" value="{{ site.planned_survey_date|date:'Y-m-d' }}" style="padding: 0.5rem; font-size: 0.85rem; border: 1px solid var(--border-color); border-radius: 8px;">
+                    </div>
+                    
+                    <div class="info-item">
+                        <label for="actual_survey_date_edit" class="info-label">Vistoria Realizada</label>
+                        <input type="date" name="actual_survey_date" id="actual_survey_date_edit" class="field-control" value="{{ site.actual_survey_date|date:'Y-m-d' }}" style="padding: 0.5rem; font-size: 0.85rem; border: 1px solid var(--border-color); border-radius: 8px;">
+                    </div>
+
+                    <div class="info-item" style="border-top: 1px dashed var(--border-color); padding-top: 0.75rem;">
+                        <span style="font-size: 0.7rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase;">Fase 2: Laudo</span>
+                    </div>
+                    
+                    <div class="info-item">
+                        <label for="planned_report_date_edit" class="info-label">Laudo Planejado</label>
+                        <input type="date" name="planned_report_date" id="planned_report_date_edit" class="field-control" value="{{ site.planned_report_date|date:'Y-m-d' }}" style="padding: 0.5rem; font-size: 0.85rem; border: 1px solid var(--border-color); border-radius: 8px;">
+                    </div>
+                    
+                    <div class="info-item">
+                        <label for="actual_report_date_edit" class="info-label">Laudo Realizado</label>
+                        <input type="date" name="actual_report_date" id="actual_report_date_edit" class="field-control" value="{{ site.actual_report_date|date:'Y-m-d' }}" style="padding: 0.5rem; font-size: 0.85rem; border: 1px solid var(--border-color); border-radius: 8px;">
+                    </div>
+                    
+                    <button type="submit" class="btn-submit" style="width: 100%; padding: 0.75rem; font-size: 0.85rem; margin-top: 0.5rem; background: var(--brand-primary); cursor: pointer; border-radius: 8px;">
+                        Salvar Alterações
+                        <i data-lucide="check" style="width: 16px; height: 16px;"></i>
+                    </button>
+                </div>
+            </form>
+        </div>
+        {% endif %}
     </div>
 
     <!-- Coluna da Direita: Repositório e Upload de Mídias -->
     <div class="glass-card repo-card">
+        <!-- Rastreamento Visual do Fluxo -->
+        <div style="border: 1px solid var(--border-color); border-radius: 12px; padding: 1.5rem; margin-bottom: 2rem; background: var(--bg-body);">
+            <h4 style="font-family: var(--font-heading); font-size: 1.05rem; font-weight: 700; color: var(--text-main); margin-bottom: 1.25rem; display: flex; align-items: center; gap: 0.5rem;">
+                <i data-lucide="git-pull-request" style="color: var(--brand-primary); width: 18px; height: 18px;"></i>
+                Acompanhamento do Fluxo de Trabalho (Parceiro)
+            </h4>
+            
+            <div style="display: flex; align-items: center; justify-content: space-between; position: relative; padding: 0 0.5rem;">
+                <!-- Linha de Fundo -->
+                <div style="position: absolute; top: 18px; left: 10%; right: 10%; height: 3px; background-color: #cbd5e1; z-index: 1;">
+                    <div style="height: 100%; width: {% if site.actual_report_date %}100%{% elif site.actual_survey_date %}66%{% elif site.planned_survey_date %}33%{% else %}0%{% endif %}; background-color: var(--brand-primary); transition: width 0.4s ease;"></div>
+                </div>
+                
+                <!-- Etapa 1: Cadastrado -->
+                <div style="display: flex; flex-direction: column; align-items: center; gap: 0.4rem; z-index: 2; width: 22%; text-align: center;">
+                    <div style="width: 34px; height: 34px; border-radius: 50%; background-color: var(--brand-primary); color: white; display: flex; align-items: center; justify-content: center; font-weight: 700; box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.15);">
+                        <i data-lucide="check" style="width: 15px; height: 15px;"></i>
+                    </div>
+                    <span style="font-size: 0.75rem; font-weight: 700; color: var(--text-main);">Cadastrado</span>
+                    <span style="font-size: 0.65rem; color: var(--text-muted);">{{ site.created_at|date:"d/m/Y" }}</span>
+                </div>
+
+                <!-- Etapa 2: Acionado -->
+                <div style="display: flex; flex-direction: column; align-items: center; gap: 0.4rem; z-index: 2; width: 22%; text-align: center;">
+                    <div style="width: 34px; height: 34px; border-radius: 50%; background-color: {% if site.planned_survey_date %}var(--brand-primary){% else %}#f1f5f9{% endif %}; color: {% if site.planned_survey_date %}white{% else %}#64748b{% endif %}; display: flex; align-items: center; justify-content: center; font-weight: 700; border: 2px solid {% if site.planned_survey_date %}var(--brand-primary){% else %}#cbd5e1{% endif %};">
+                        {% if site.planned_survey_date %}
+                            <i data-lucide="check" style="width: 15px; height: 15px;"></i>
+                        {% else %}
+                            2
+                        {% endif %}
+                    </div>
+                    <span style="font-size: 0.75rem; font-weight: 700; color: {% if site.planned_survey_date %}var(--text-main){% else %}#94a3b8{% endif %};">Acionado</span>
+                    <span style="font-size: 0.65rem; color: var(--text-muted);">{% if site.planned_survey_date %}Prev: {{ site.planned_survey_date|date:"d/m" }}{% else %}Aguardando{% endif %}</span>
+                </div>
+
+                <!-- Etapa 3: Vistoriado -->
+                <div style="display: flex; flex-direction: column; align-items: center; gap: 0.4rem; z-index: 2; width: 22%; text-align: center;">
+                    <div style="width: 34px; height: 34px; border-radius: 50%; background-color: {% if site.actual_survey_date %}var(--brand-primary){% else %}#f1f5f9{% endif %}; color: {% if site.actual_survey_date %}white{% else %}#64748b{% endif %}; display: flex; align-items: center; justify-content: center; font-weight: 700; border: 2px solid {% if site.actual_survey_date %}var(--brand-primary){% else %}#cbd5e1{% endif %};">
+                        {% if site.actual_survey_date %}
+                            <i data-lucide="check" style="width: 15px; height: 15px;"></i>
+                        {% else %}
+                            3
+                        {% endif %}
+                    </div>
+                    <span style="font-size: 0.75rem; font-weight: 700; color: {% if site.actual_survey_date %}var(--text-main){% else %}#94a3b8{% endif %};">Vistoriado</span>
+                    <span style="font-size: 0.65rem; color: var(--text-muted);">{% if site.actual_survey_date %}{{ site.actual_survey_date|date:"d/m" }}{% else %}Aguardando{% endif %}</span>
+                </div>
+
+                <!-- Etapa 4: Finalizado -->
+                <div style="display: flex; flex-direction: column; align-items: center; gap: 0.4rem; z-index: 2; width: 22%; text-align: center;">
+                    <div style="width: 34px; height: 34px; border-radius: 50%; background-color: {% if site.actual_report_date %}#10b981{% else %}#f1f5f9{% endif %}; color: {% if site.actual_report_date %}white{% else %}#64748b{% endif %}; display: flex; align-items: center; justify-content: center; font-weight: 700; border: 2px solid {% if site.actual_report_date %}#10b981{% else %}#cbd5e1{% endif %};">
+                        {% if site.actual_report_date %}
+                            <i data-lucide="check" style="width: 15px; height: 15px;"></i>
+                        {% else %}
+                            4
+                        {% endif %}
+                    </div>
+                    <span style="font-size: 0.75rem; font-weight: 700; color: {% if site.actual_report_date %}var(--text-main){% else %}#94a3b8{% endif %};">Finalizado</span>
+                    <span style="font-size: 0.65rem; color: var(--text-muted);">{% if site.actual_report_date %}{{ site.actual_report_date|date:"d/m" }}{% else %}Aguardando{% endif %}</span>
+                </div>
+            </div>
+        </div>
+
         <h3>
-            <i data-lucide="folder-archive" style="color: var(--primary);"></i>
+            <i data-lucide="folder-archive" style="color: var(--brand-primary);"></i>
             Repositório de Documentação Técnica
         </h3>
 

@@ -28,10 +28,16 @@ class User(AbstractUser):
 # --- 2. CADASTRO DE SITES DE TELECOM ---
 class Site(models.Model):
     class SiteStatus(models.TextChoices):
-        PLANNED = 'PLANNED', 'Planejado'
-        ACTIVE = 'ACTIVE', 'Ativo'
-        MAINTENANCE = 'MAINTENANCE', 'Em Manutenção'
-        INACTIVE = 'INACTIVE', 'Inativo'
+        PLANNED = 'PLANNED', 'Cadastrado'
+        ACTIVE = 'ACTIVE', 'Finalizado'
+        MAINTENANCE = 'MAINTENANCE', 'Em Alerta'
+        INACTIVE = 'INACTIVE', 'Prazo Vencido'
+
+    class ScopeType(models.TextChoices):
+        LAUDO = 'LAUDO', 'Laudo Técnico'
+        PROJETO = 'PROJETO', 'Projeto'
+        OBRA = 'OBRA', 'Obra / Instalação'
+        OUTRO = 'OUTRO', 'Outro'
 
     site_id = models.CharField(
         max_length=50, 
@@ -41,6 +47,43 @@ class Site(models.Model):
     name = models.CharField(max_length=100, verbose_name="Nome do Site")
     latitude = models.DecimalField(max_digits=9, decimal_places=6, verbose_name="Latitude")
     longitude = models.DecimalField(max_digits=9, decimal_places=6, verbose_name="Longitude")
+    
+    # Campo de escopo e parceiro
+    scope_type = models.CharField(
+        max_length=20,
+        choices=ScopeType.choices,
+        default=ScopeType.LAUDO,
+        verbose_name="Escopo do Acionamento"
+    )
+    partner_company = models.CharField(
+        max_length=100,
+        blank=True,
+        null=True,
+        verbose_name="Empresa Parceira"
+    )
+
+    # Datas de Planejamento e Realização do Fluxo
+    planned_survey_date = models.DateField(
+        blank=True,
+        null=True,
+        verbose_name="Vistoria Planejada"
+    )
+    actual_survey_date = models.DateField(
+        blank=True,
+        null=True,
+        verbose_name="Vistoria Realizada"
+    )
+    planned_report_date = models.DateField(
+        blank=True,
+        null=True,
+        verbose_name="Laudo Planejado"
+    )
+    actual_report_date = models.DateField(
+        blank=True,
+        null=True,
+        verbose_name="Laudo Realizado"
+    )
+
     status = models.CharField(
         max_length=20,
         choices=SiteStatus.choices,
@@ -58,6 +101,62 @@ class Site(models.Model):
 
     def __str__(self):
         return f"{self.site_id} - {self.name}"
+
+    @property
+    def days_overdue(self):
+        from django.utils import timezone
+        today = timezone.localdate()
+        max_delay = 0
+        if self.planned_survey_date and not self.actual_survey_date and self.planned_survey_date < today:
+            delay = (today - self.planned_survey_date).days
+            if delay > max_delay:
+                max_delay = delay
+        if self.planned_report_date and not self.actual_report_date and self.planned_report_date < today:
+            delay = (today - self.planned_report_date).days
+            if delay > max_delay:
+                max_delay = delay
+        return max_delay
+
+    @property
+    def overdue_stage(self):
+        from django.utils import timezone
+        today = timezone.localdate()
+        stages = []
+        if self.planned_survey_date and not self.actual_survey_date and self.planned_survey_date < today:
+            stages.append("Vistoria")
+        if self.planned_report_date and not self.actual_report_date and self.planned_report_date < today:
+            stages.append("Laudo")
+        return " e ".join(stages)
+
+    @property
+    def alert_stage(self):
+        from django.utils import timezone
+        today = timezone.localdate()
+        three_days = today + timezone.timedelta(days=3)
+        stages = []
+        if self.planned_survey_date and not self.actual_survey_date and today <= self.planned_survey_date <= three_days:
+            stages.append("Vistoria")
+        if self.planned_report_date and not self.actual_report_date and today <= self.planned_report_date <= three_days:
+            stages.append("Laudo")
+        return " e ".join(stages)
+
+    def save(self, *args, **kwargs):
+        from django.utils import timezone
+        today = timezone.localdate()
+        
+        if self.actual_report_date:
+            self.status = self.SiteStatus.ACTIVE
+        elif (self.planned_survey_date and self.planned_survey_date < today and not self.actual_survey_date) or \
+             (self.planned_report_date and self.planned_report_date < today and not self.actual_report_date):
+            self.status = self.SiteStatus.INACTIVE
+        elif (self.planned_survey_date and today <= self.planned_survey_date <= today + timezone.timedelta(days=3) and not self.actual_survey_date) or \
+             (self.planned_report_date and today <= self.planned_report_date <= today + timezone.timedelta(days=3) and not self.actual_report_date):
+            self.status = self.SiteStatus.MAINTENANCE
+        else:
+            self.status = self.SiteStatus.PLANNED
+            
+        super().save(*args, **kwargs)
+
 
 
 # --- 3. REPOSITÓRIO DE ARQUIVOS POR SITE ---

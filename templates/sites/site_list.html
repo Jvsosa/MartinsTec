@@ -660,7 +660,7 @@
                             <div class="progress-item-header">
                                 <span style="color: var(--ent-primary); font-weight: 600; display: flex; align-items: center; gap: 0.5rem;">
                                     <span style="width: 8px; height: 8px; border-radius: 50%; background-color: #F59E0B; display: inline-block;"></span>
-                                    Em Planejamento
+                                    Cadastrados
                                 </span>
                                 <span id="pct-planned-text" style="color: var(--ent-text-muted); font-weight: 700;">--</span>
                             </div>
@@ -782,10 +782,10 @@
             <div>
                 <div class="filter-pills">
                     <button class="filter-pill active" onclick="setFilterStatus('ALL', this)">Todos os Sites</button>
-                    <button class="filter-pill" onclick="setFilterStatus('ACTIVE', this)">Operação Ativa</button>
-                    <button class="filter-pill" onclick="setFilterStatus('PLANNED', this)">Fase de Planejamento</button>
-                    <button class="filter-pill" onclick="setFilterStatus('MAINTENANCE', this)">Intervenção Técnica</button>
-                    <button class="filter-pill" onclick="setFilterStatus('INACTIVE', this)">Operação Suspensa</button>
+                    <button class="filter-pill" onclick="setFilterStatus('ACTIVE', this)">Finalizados</button>
+                    <button class="filter-pill" onclick="setFilterStatus('PLANNED', this)">Cadastrados</button>
+                    <button class="filter-pill" onclick="setFilterStatus('MAINTENANCE', this)">Em Alerta</button>
+                    <button class="filter-pill" onclick="setFilterStatus('INACTIVE', this)">Prazos Vencidos</button>
                 </div>
 
                 <div class="site-card-grid" id="sites-grid-container">
@@ -808,8 +808,14 @@
 
                         <div class="site-meta-list">
                             <div class="site-meta-item">
-                                <span class="site-meta-label">Lat/Lng</span>
-                                <span class="site-meta-val" style="font-family: monospace;">{{ site.latitude|floatformat:4 }}, {{ site.longitude|floatformat:4 }}</span>
+                                <span class="site-meta-label">Escopo / Parceiro</span>
+                                <span class="site-meta-val" style="font-weight: 600;">{{ site.get_scope_type_display }} / {{ site.partner_company|default:"-" }}</span>
+                            </div>
+                            <div class="site-meta-item">
+                                <span class="site-meta-label">Vistoria / Laudo</span>
+                                <span class="site-meta-val" style="font-family: monospace; font-size: 0.78rem;">
+                                    {{ site.planned_survey_date|date:"d/m/y"|default:"--" }} / {{ site.planned_report_date|date:"d/m/y"|default:"--" }}
+                                </span>
                             </div>
                             <div class="site-meta-item">
                                 <span class="site-meta-label">Acervo Físico/Digital</span>
@@ -862,7 +868,9 @@
                         <tr>
                             <th>Identificador</th>
                             <th>Denominação</th>
-                            <th>Geolocalização</th>
+                            <th>Escopo</th>
+                            <th>Empresa Parceira</th>
+                            <th>Previsão Vist./Laudo</th>
                             <th>Estado Operacional</th>
                             <th>Acervo (Docs)</th>
                             <th style="text-align: right;">Ação</th>
@@ -873,7 +881,9 @@
                         <tr>
                             <td style="font-weight: 700; color: var(--ent-primary);">{{ site.site_id }}</td>
                             <td>{{ site.name }}</td>
-                            <td style="font-family: monospace; font-size: 0.85rem; color: var(--ent-text-muted);">{{ site.latitude }}, {{ site.longitude }}</td>
+                            <td><span style="font-size: 0.78rem; font-weight: 600; padding: 0.25rem 0.5rem; background: #f1f5f9; border-radius: 6px; color: #475569;">{{ site.get_scope_type_display }}</span></td>
+                            <td style="font-weight: 600;">{{ site.partner_company|default:"-" }}</td>
+                            <td style="font-family: monospace; font-size: 0.85rem;">{{ site.planned_survey_date|date:"d/m/Y"|default:"--" }} / {{ site.planned_report_date|date:"d/m/Y"|default:"--" }}</td>
                             <td>
                                 <span class="status-badge badge-{{ site.status|lower }}" style="font-size: 0.65rem;">
                                     <span class="status-dot"></span>
@@ -889,7 +899,7 @@
                         </tr>
                         {% empty %}
                         <tr>
-                            <td colspan="6" style="text-align: center; padding: 4rem 2rem; color: var(--ent-text-muted);">O inventário está vazio no momento.</td>
+                            <td colspan="8" style="text-align: center; padding: 4rem 2rem; color: var(--ent-text-muted);">O inventário está vazio no momento.</td>
                         </tr>
                         {% endfor %}
                     </tbody>
@@ -910,33 +920,54 @@
             </div>
         </div>
 
-        <div class="ent-card" style="padding: 0;">
-            <div class="chart-header" style="padding: 2rem 2rem 1rem 2rem; margin: 0; border-bottom: 1px solid var(--ent-border);">
-                <h3 class="chart-title">Ativos em Intervenção (Manutenção)</h3>
+        <!-- Tabela 1: Prazos Vencidos -->
+        <div class="ent-card" style="padding: 0; margin-bottom: 2.5rem; border: none; box-shadow: var(--ent-shadow-md);">
+            <div class="chart-header" style="padding: 2rem 2rem 1rem 2rem; margin: 0; border-bottom: 1px solid var(--ent-border); display: flex; justify-content: space-between; align-items: center;">
+                <div>
+                    <h3 class="chart-title" style="color: var(--ent-danger); display: flex; align-items: center; gap: 0.5rem;">
+                        <i data-lucide="clock" style="width: 20px; height: 20px;"></i> Prazos Vencidos (Cobrança Urgente)
+                    </h3>
+                    <p style="font-size: 0.8rem; color: var(--ent-text-muted); margin-top: 0.25rem;">Sites cujas vistorias ou laudos ultrapassaram a data planejada do parceiro.</p>
+                </div>
+                <span style="font-size: 0.75rem; font-weight: 700; color: var(--ent-danger); background: #fdeceb; padding: 0.35rem 0.75rem; border-radius: 20px;">{{ overdue_list.count }} pendente(s)</span>
             </div>
             <div class="ent-table-wrapper">
-                {% if maintenance_sites > 0 %}
+                {% if overdue_list %}
                 <table class="ent-table">
                     <thead>
                         <tr>
                             <th>Código</th>
-                            <th>Ativo Operacional</th>
-                            <th>Classificação do Evento</th>
-                            <th>Última Atualização</th>
-                            <th>Sinalização</th>
+                            <th>Ativo / Site</th>
+                            <th>Parceiro</th>
+                            <th>Escopo</th>
+                            <th>Etapa Atrasada</th>
+                            <th>Prazos Planejados</th>
+                            <th>Atraso</th>
+                            <th style="text-align: right;">Ação</th>
                         </tr>
                     </thead>
                     <tbody>
-                        {% for site in sites %}
-                        {% if site.status == 'MAINTENANCE' %}
+                        {% for site in overdue_list %}
                         <tr>
                             <td style="font-weight: 700; color: var(--ent-primary);">{{ site.site_id }}</td>
                             <td>{{ site.name }}</td>
-                            <td style="color: var(--ent-warning); font-weight: 500;"><i data-lucide="tool" style="width: 14px; height: 14px; margin-right: 0.25rem;"></i> Manutenção Corretiva/Preventiva</td>
-                            <td style="color: var(--ent-text-muted); font-size: 0.85rem;">{{ site.updated_at|date:"d M Y, H:i" }}</td>
-                            <td><span class="status-badge badge-maintenance"><span class="status-dot"></span> Em Andamento</span></td>
+                            <td style="font-weight: 600;">{{ site.partner_company|default:"Sem Parceiro" }}</td>
+                            <td><span style="font-size: 0.78rem; font-weight: 600; padding: 0.25rem 0.5rem; background: #f1f5f9; border-radius: 6px; color: #475569;">{{ site.get_scope_type_display }}</span></td>
+                            <td style="color: var(--ent-danger); font-weight: 600;">{{ site.overdue_stage }}</td>
+                            <td style="font-size: 0.85rem; color: var(--ent-text-muted);">
+                                Vist: {{ site.planned_survey_date|date:"d/m/Y"|default:"--" }}<br>
+                                Laudo: {{ site.planned_report_date|date:"d/m/Y"|default:"--" }}
+                            </td>
+                            <td style="font-weight: 700; color: var(--ent-danger);">
+                                <i data-lucide="alert-circle" style="width: 14px; height: 14px; display: inline-block; vertical-align: middle; margin-right: 0.15rem;"></i>
+                                {{ site.days_overdue }} dias
+                            </td>
+                            <td style="text-align: right;">
+                                <a href="{% url 'site_detail' pk=site.pk %}" class="btn-ent btn-ent-primary" style="padding: 0.35rem 0.8rem; font-size: 0.75rem; background-color: var(--ent-danger);">
+                                    Cobrar / Replanejar
+                                </a>
+                            </td>
                         </tr>
-                        {% endif %}
                         {% endfor %}
                     </tbody>
                 </table>
@@ -944,7 +975,71 @@
                 <div style="padding: 4rem 2rem; text-align: center;">
                     <i data-lucide="shield-check" style="width: 56px; height: 56px; color: var(--ent-success); margin-bottom: 1rem; opacity: 0.9;"></i>
                     <h4 style="font-family: var(--font-heading); font-size: 1.3rem; font-weight: 700; color: var(--ent-primary);">Cronogramas em Dia</h4>
-                    <p style="font-size: 1rem; color: var(--ent-text-muted); margin-top: 0.5rem;">Nenhum ativo demanda intervenção emergencial neste momento.</p>
+                    <p style="font-size: 1rem; color: var(--ent-text-muted); margin-top: 0.5rem;">Nenhum acionamento de vistoria ou laudo parceiro está atrasado.</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Tabela 2: Prazos em Alerta -->
+        <div class="ent-card" style="padding: 0; border: none; box-shadow: var(--ent-shadow-md);">
+            <div class="chart-header" style="padding: 2rem 2rem 1rem 2rem; margin: 0; border-bottom: 1px solid var(--ent-border); display: flex; justify-content: space-between; align-items: center;">
+                <div>
+                    <h3 class="chart-title" style="color: var(--ent-warning); display: flex; align-items: center; gap: 0.5rem;">
+                        <i data-lucide="alert-triangle" style="width: 20px; height: 20px;"></i> Prazos em Alerta (Próximos 3 Dias)
+                    </h3>
+                    <p style="font-size: 0.8rem; color: var(--ent-text-muted); margin-top: 0.25rem;">Sites com datas de vistoria ou laudo próximas e sem data de realização.</p>
+                </div>
+                <span style="font-size: 0.75rem; font-weight: 700; color: #d97706; background: #fffbeb; padding: 0.35rem 0.75rem; border-radius: 20px;">{{ alert_list.count }} em alerta</span>
+            </div>
+            <div class="ent-table-wrapper">
+                {% if alert_list %}
+                <table class="ent-table">
+                    <thead>
+                        <tr>
+                            <th>Código</th>
+                            <th>Ativo / Site</th>
+                            <th>Parceiro</th>
+                            <th>Escopo</th>
+                            <th>Etapa Próxima</th>
+                            <th>Data Prevista</th>
+                            <th>Status</th>
+                            <th style="text-align: right;">Ação</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for site in alert_list %}
+                        <tr>
+                            <td style="font-weight: 700; color: var(--ent-primary);">{{ site.site_id }}</td>
+                            <td>{{ site.name }}</td>
+                            <td style="font-weight: 600;">{{ site.partner_company|default:"Sem Parceiro" }}</td>
+                            <td><span style="font-size: 0.78rem; font-weight: 600; padding: 0.25rem 0.5rem; background: #f1f5f9; border-radius: 6px; color: #475569;">{{ site.get_scope_type_display }}</span></td>
+                            <td style="color: #d97706; font-weight: 600;">{{ site.alert_stage }}</td>
+                            <td style="font-size: 0.85rem; font-weight: 600; color: var(--ent-primary);">
+                                {% if "Vistoria" in site.alert_stage %}
+                                    Vistoria: {{ site.planned_survey_date|date:"d/m/Y" }}
+                                {% elif "Laudo" in site.alert_stage %}
+                                    Laudo: {{ site.planned_report_date|date:"d/m/Y" }}
+                                {% else %}
+                                    Vist: {{ site.planned_survey_date|date:"d/m/Y"|default:"--" }} <br>
+                                    Laudo: {{ site.planned_report_date|date:"d/m/Y"|default:"--" }}
+                                {% endif %}
+                            </td>
+                            <td><span class="status-badge badge-maintenance" style="font-size: 0.65rem;"><span class="status-dot"></span> Em Atenção</span></td>
+                            <td style="text-align: right;">
+                                <a href="{% url 'site_detail' pk=site.pk %}" class="btn-ent btn-ent-outline" style="padding: 0.35rem 0.8rem; font-size: 0.75rem;">
+                                    Gerenciar
+                                </a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                {% else %}
+                <div style="padding: 4rem 2rem; text-align: center; color: var(--ent-text-muted);">
+                    <i data-lucide="check-circle" style="width: 48px; height: 48px; color: var(--ent-success); margin-bottom: 0.75rem; opacity: 0.8;"></i>
+                    <h4 style="font-weight: 600; color: var(--ent-primary);">Nenhum alerta pendente</h4>
+                    <p style="font-size: 0.85rem;">Todos os cronogramas dos próximos dias estão tranquilos.</p>
                 </div>
                 {% endif %}
             </div>
@@ -971,40 +1066,57 @@
                 {% csrf_token %}
                 <div class="ent-form-grid" style="margin-bottom: 1.5rem;">
                     <div class="form-group">
-                        <label for="site_id">Identificador Alfanumérico (ID)</label>
+                        <label for="site_id">Identificador Alfanumérico (ID) <span style="color: var(--ent-danger);">*</span></label>
                         <input type="text" name="site_id" id="site_id" class="form-control" placeholder="Ex: SP_SJO_01" required>
                     </div>
 
                     <div class="form-group">
-                        <label for="name">Denominação do Site</label>
+                        <label for="name">Denominação do Site <span style="color: var(--ent-danger);">*</span></label>
                         <input type="text" name="name" id="name" class="form-control" placeholder="Ex: Central São José" required>
                     </div>
                 </div>
 
                 <div class="ent-form-grid" style="margin-bottom: 1.5rem;">
                     <div class="form-group">
-                        <label for="latitude">Latitude (WGS 84)</label>
+                        <label for="latitude">Latitude (WGS 84) <span style="color: var(--ent-danger);">*</span></label>
                         <input type="number" name="latitude" id="latitude" step="0.000001" class="form-control" placeholder="-23.550500" required>
                     </div>
                     <div class="form-group">
-                        <label for="longitude">Longitude (WGS 84)</label>
+                        <label for="longitude">Longitude (WGS 84) <span style="color: var(--ent-danger);">*</span></label>
                         <input type="number" name="longitude" id="longitude" step="0.000001" class="form-control" placeholder="-46.633300" required>
                     </div>
                 </div>
 
-                <div class="form-group" style="margin-bottom: 1.5rem;">
-                    <label for="status">Condição Operacional Primária</label>
-                    <select name="status" id="status" class="form-control" required style="cursor: pointer;">
-                        <option value="PLANNED">Fase de Planejamento (Greenfield)</option>
-                        <option value="ACTIVE">Operação Ativa (Em Serviço)</option>
-                        <option value="MAINTENANCE">Manutenção (Intervenção)</option>
-                        <option value="INACTIVE">Operação Suspensa (Offline)</option>
-                    </select>
+                <div class="ent-form-grid" style="margin-bottom: 1.5rem;">
+                    <div class="form-group">
+                        <label for="scope_type">Escopo do Acionamento</label>
+                        <select name="scope_type" id="scope_type" class="form-control" required style="cursor: pointer;">
+                            <option value="LAUDO" selected>Laudo Técnico (Mais Comum)</option>
+                            <option value="PROJETO">Projeto</option>
+                            <option value="OBRA">Obra / Instalação</option>
+                            <option value="OUTRO">Outros</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="partner_company">Empresa Parceira (Vistoria/Laudo)</label>
+                        <input type="text" name="partner_company" id="partner_company" class="form-control" placeholder="Ex: Parceiro Vistorias Ltda">
+                    </div>
+                </div>
+
+                <div class="ent-form-grid" style="margin-bottom: 1.5rem;">
+                    <div class="form-group">
+                        <label for="planned_survey_date">Data Planejada para Vistoria</label>
+                        <input type="date" name="planned_survey_date" id="planned_survey_date" class="form-control">
+                    </div>
+                    <div class="form-group">
+                        <label for="planned_report_date">Data Planejada para Laudo</label>
+                        <input type="date" name="planned_report_date" id="planned_report_date" class="form-control">
+                    </div>
                 </div>
 
                 <div class="form-group" style="margin-bottom: 2.5rem;">
                     <label for="description">Especificações Técnicas e Notas</label>
-                    <textarea name="description" id="description" class="form-control" rows="5" placeholder="Detalhes de infraestrutura, altura da torre, tipo de fundação, equipamentos alocados..." style="resize: vertical;"></textarea>
+                    <textarea name="description" id="description" class="form-control" rows="4" placeholder="Detalhes de infraestrutura, altura da torre, tipo de fundação, equipamentos alocados..." style="resize: vertical;"></textarea>
                 </div>
 
                 <div style="display: flex; justify-content: flex-end; border-top: 1px solid var(--ent-border); padding-top: 1.5rem;">
@@ -1250,7 +1362,7 @@
         new Chart(statusCtx, {
             type: 'doughnut',
             data: {
-                labels: ['Sites Finalizados', 'Em Planejamento', 'Em Alerta', 'Prazos Vencidos'],
+                labels: ['Sites Finalizados', 'Cadastrados', 'Em Alerta', 'Prazos Vencidos'],
                 datasets: [{
                     data: [active, planned, maintenance, inactive],
                     backgroundColor: ['#10B981', '#F59E0B', '#3B82F6', '#EF4444'],
