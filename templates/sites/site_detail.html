@@ -566,7 +566,7 @@
                     </span>
                 </div>
 
-                <!-- Etapa 3: Vistoriado -->
+                <!-- Etapa 3: Vistoria -->
                 <div style="display: flex; flex-direction: column; align-items: center; gap: 0.4rem; z-index: 2; width: 22%; text-align: center;">
                     <div style="width: 34px; height: 34px; border-radius: 50%; background-color: {% if site.actual_survey_date %}var(--brand-primary){% elif site.partner_company %}#fffbeb{% else %}#f1f5f9{% endif %}; color: {% if site.actual_survey_date %}white{% elif site.partner_company %}#d97706{% else %}#64748b{% endif %}; display: flex; align-items: center; justify-content: center; font-weight: 700; border: 2px {% if site.partner_company and not site.actual_survey_date %}dashed #f59e0b{% else %}solid {% if site.actual_survey_date %}var(--brand-primary){% else %}#cbd5e1{% endif %}{% endif %}; {% if site.partner_company and not site.actual_survey_date %}animation: pulse-ring-warning 2s infinite;{% endif %}">
                         {% if site.actual_survey_date %}
@@ -577,7 +577,7 @@
                             3
                         {% endif %}
                     </div>
-                    <span style="font-size: 0.75rem; font-weight: 700; color: {% if site.actual_survey_date %}var(--text-main){% elif site.partner_company %}#d97706{% else %}#94a3b8{% endif %};">Vistoriado</span>
+                    <span style="font-size: 0.75rem; font-weight: 700; color: {% if site.actual_survey_date %}var(--text-main){% elif site.partner_company %}#d97706{% else %}#94a3b8{% endif %};">Vistoria</span>
                     <span style="font-size: 0.65rem; color: var(--text-muted);">
                         {% if site.actual_survey_date %}
                             {{ site.actual_survey_date|date:"d/m" }}
@@ -589,7 +589,7 @@
                     </span>
                 </div>
 
-                <!-- Etapa 4: Finalizado -->
+                <!-- Etapa 4: Laudo -->
                 <div style="display: flex; flex-direction: column; align-items: center; gap: 0.4rem; z-index: 2; width: 22%; text-align: center;">
                     <div style="width: 34px; height: 34px; border-radius: 50%; background-color: {% if site.actual_report_date %}#10b981{% elif site.actual_survey_date %}#eff6ff{% else %}#f1f5f9{% endif %}; color: {% if site.actual_report_date %}white{% elif site.actual_survey_date %}#2563eb{% else %}#64748b{% endif %}; display: flex; align-items: center; justify-content: center; font-weight: 700; border: 2px {% if site.actual_survey_date and not site.actual_report_date %}dashed #3b82f6{% else %}solid {% if site.actual_report_date %}#10b981{% else %}#cbd5e1{% endif %}{% endif %}; {% if site.actual_survey_date and not site.actual_report_date %}animation: pulse-ring-info 2s infinite;{% endif %}">
                         {% if site.actual_report_date %}
@@ -600,7 +600,7 @@
                             4
                         {% endif %}
                     </div>
-                    <span style="font-size: 0.75rem; font-weight: 700; color: {% if site.actual_report_date %}var(--text-main){% elif site.actual_survey_date %}#2563eb{% else %}#94a3b8{% endif %};">Finalizado</span>
+                    <span style="font-size: 0.75rem; font-weight: 700; color: {% if site.actual_report_date %}var(--text-main){% elif site.actual_survey_date %}#2563eb{% else %}#94a3b8{% endif %};">Laudo</span>
                     <span style="font-size: 0.65rem; color: var(--text-muted);">
                         {% if site.actual_report_date %}
                             {{ site.actual_report_date|date:"d/m" }}
