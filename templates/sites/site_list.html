@@ -4,29 +4,33 @@
 
 {% block extra_head %}
 <style>
-    /* Header Escuro Superior (Inspirado no painel Inntegrate) */
+    /* Header Escuro Superior com Efeito de Glow Premium */
     .dashboard-header-block {
-        background: #0f172a; /* Azul marinho escuro */
-        border-radius: 0 0 24px 24px;
-        padding: 3rem 3rem 4rem 3rem;
+        background: radial-gradient(circle at 85% 30%, rgba(99, 102, 241, 0.15) 0%, transparent 60%), linear-gradient(135deg, #090d16 0%, #111827 100%);
+        border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        padding: 3.5rem 4rem 4rem 4rem;
         color: #ffffff;
         display: flex;
         flex-direction: column;
         gap: 2.5rem;
-        box-shadow: 0 10px 30px rgba(15, 23, 42, 0.03);
+        box-shadow: 0 10px 30px rgba(9, 13, 22, 0.05);
     }
 
     .dashboard-title-area h2 {
         font-family: var(--font-title);
-        font-size: 2.2rem;
+        font-size: 2.4rem;
         font-weight: 800;
-        letter-spacing: -0.5px;
-        margin-bottom: 0.35rem;
+        letter-spacing: -0.75px;
+        margin-bottom: 0.5rem;
+        background: linear-gradient(135deg, #ffffff 0%, #cbd5e1 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
     }
 
     .dashboard-title-area p {
-        color: #94a3b8;
-        font-size: 1rem;
+        color: #64748b;
+        font-size: 1.05rem;
+        font-weight: 450;
     }
 
     /* Grid de KPIs */
@@ -37,62 +41,71 @@
     }
 
     .kpi-card {
-        background: #1e293b; /* Card escuro dentro do banner */
-        border: 1px solid rgba(255, 255, 255, 0.05);
-        border-radius: 12px;
+        background: rgba(255, 255, 255, 0.02);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.06);
+        border-radius: 16px;
         padding: 1.25rem 1.5rem;
         display: flex;
         justify-content: space-between;
         align-items: center;
-        transition: transform 0.2s;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     }
 
     .kpi-card:hover {
-        transform: translateY(-2px);
+        background: rgba(255, 255, 255, 0.05);
+        border-color: rgba(255, 255, 255, 0.12);
+        transform: translateY(-4px);
+        box-shadow: 0 12px 25px rgba(0, 0, 0, 0.25);
     }
 
     .kpi-info {
         display: flex;
         flex-direction: column;
-        gap: 0.25rem;
+        gap: 0.35rem;
     }
 
     .kpi-label {
         font-size: 0.75rem;
-        color: #94a3b8;
-        font-weight: 600;
+        color: #64748b;
+        font-weight: 700;
         text-transform: uppercase;
-        letter-spacing: 0.5px;
+        letter-spacing: 1px;
     }
 
     .kpi-value {
         font-family: var(--font-title);
-        font-size: 1.8rem;
+        font-size: 2rem;
         font-weight: 800;
         color: #ffffff;
+        line-height: 1;
     }
 
     .kpi-icon-badge {
-        width: 44px;
-        height: 44px;
-        border-radius: 10px;
+        width: 48px;
+        height: 48px;
+        border-radius: 12px;
         display: flex;
         align-items: center;
         justify-content: center;
+        box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
     }
 
-    .kpi-icon-total { background: rgba(59, 130, 246, 0.15); color: #3b82f6; }
-    .kpi-icon-active { background: rgba(13, 148, 136, 0.15); color: #0d9488; }
-    .kpi-icon-maintenance { background: rgba(217, 119, 6, 0.15); color: #d97706; }
-    .kpi-icon-files { background: rgba(168, 85, 247, 0.15); color: #a855f7; }
+    .kpi-icon-total { background: rgba(99, 102, 241, 0.15); color: #818cf8; border: 1px solid rgba(99, 102, 241, 0.2); }
+    .kpi-icon-active { background: rgba(20, 184, 166, 0.15); color: #2dd4bf; border: 1px solid rgba(20, 184, 166, 0.2); }
+    .kpi-icon-maintenance { background: rgba(245, 158, 11, 0.15); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.2); }
+    .kpi-icon-files { background: rgba(168, 85, 247, 0.15); color: #c084fc; border: 1px solid rgba(168, 85, 247, 0.2); }
 
     /* Área de Conteúdo Principal */
     .dashboard-body-layout {
-        padding: 3rem;
+        padding: 3rem 4rem;
         display: grid;
-        grid-template-columns: 300px 1fr;
-        gap: 3rem;
-        align-items: start;
+        grid-template-columns: 340px 1fr;
+        gap: 3.5rem;
+        max-width: 1700px;
+        margin: 0 auto;
+        width: 100%;
+        box-sizing: border-box;
     }
 
     /* Coluna Lateral Esquerda: Filtros e Cadastro */
@@ -113,6 +126,8 @@
         font-family: var(--font-title);
         font-size: 1rem;
         font-weight: 700;
+        color: var(--text-primary);
+        letter-spacing: -0.2px;
     }
 
     .search-wrapper {
@@ -124,7 +139,7 @@
 
     .search-wrapper svg {
         position: absolute;
-        left: 0.85rem;
+        left: 1rem;
         color: #64748b;
         width: 18px;
         height: 18px;
@@ -132,48 +147,54 @@
 
     .search-input {
         width: 100%;
-        padding: 0.65rem 0.85rem 0.65rem 2.25rem;
+        padding: 0.8rem 1rem 0.8rem 2.5rem;
         background: #ffffff;
         border: 1px solid #cbd5e1;
-        border-radius: 8px;
-        font-size: 0.875rem;
+        border-radius: 12px;
+        font-size: 0.9rem;
         font-family: var(--font-family);
         color: var(--text-primary);
+        box-shadow: 0 2px 8px rgba(0,0,0,0.01);
+        transition: all 0.25s ease;
     }
 
     .search-input:focus {
         outline: none;
-        border-color: var(--secondary);
+        border-color: #4f46e5;
+        box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.08);
+        background: #ffffff;
     }
 
     /* Card de Cadastro */
     .form-card {
         background: #ffffff;
         border: 1px solid var(--border);
-        border-radius: 16px;
-        padding: 1.75rem;
-        box-shadow: 0 1px 3px rgba(0,0,0,0.02);
+        border-radius: 20px;
+        padding: 2rem;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.02);
     }
 
     .form-card h3 {
         font-family: var(--font-title);
-        font-size: 1.15rem;
+        font-size: 1.2rem;
         font-weight: 700;
-        margin-bottom: 1.25rem;
+        margin-bottom: 1.5rem;
+        color: var(--text-primary);
         border-bottom: 1px solid var(--border);
-        padding-bottom: 0.5rem;
+        padding-bottom: 0.75rem;
+        letter-spacing: -0.3px;
     }
 
     .field-group {
         display: flex;
         flex-direction: column;
-        gap: 0.4rem;
-        margin-bottom: 1rem;
+        gap: 0.45rem;
+        margin-bottom: 1.25rem;
     }
 
     .field-group label {
         font-size: 0.75rem;
-        font-weight: 600;
+        font-weight: 700;
         color: var(--text-secondary);
         text-transform: uppercase;
         letter-spacing: 0.5px;
@@ -181,19 +202,21 @@
 
     .field-control {
         width: 100%;
-        padding: 0.55rem 0.75rem;
-        background: #ffffff;
+        padding: 0.75rem 1rem;
+        background: #f8fafc;
         border: 1px solid #cbd5e1;
-        border-radius: 6px;
+        border-radius: 10px;
         color: var(--text-primary);
         font-family: var(--font-family);
         font-size: 0.9rem;
+        transition: all 0.2s ease;
     }
 
     .field-control:focus {
         outline: none;
-        border-color: var(--secondary);
-        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.08);
+        border-color: #4f46e5;
+        box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.08);
+        background: #ffffff;
     }
 
     .field-row {
@@ -205,28 +228,28 @@
     /* Coluna Direita: Grid de Sites (Estilo Jerome Bell) */
     .sites-grid {
         display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(290px, 1fr));
+        grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
         gap: 1.5rem;
     }
 
     .site-card {
         background: #ffffff;
         border: 1px solid #cbd5e1;
-        border-radius: 16px;
-        padding: 1.5rem;
+        border-radius: 20px;
+        padding: 1.75rem;
         display: flex;
         flex-direction: column;
         justify-content: space-between;
-        gap: 1.25rem;
+        gap: 1.5rem;
         position: relative;
-        transition: all 0.2s ease;
-        box-shadow: 0 1px 3px rgba(0,0,0,0.01);
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.015);
     }
 
     .site-card:hover {
-        transform: translateY(-2px);
-        border-color: var(--secondary);
-        box-shadow: 0 8px 24px rgba(15, 23, 42, 0.04);
+        transform: translateY(-4px);
+        border-color: #cbd5e1;
+        box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.05), 0 10px 10px -5px rgba(0, 0, 0, 0.03);
     }
 
     .site-card-header {
@@ -238,14 +261,15 @@
     .site-info-wrapper {
         display: flex;
         flex-direction: column;
-        gap: 0.15rem;
+        gap: 0.25rem;
     }
 
     .site-code-badge {
         font-family: var(--font-title);
-        font-weight: 750;
-        font-size: 1.1rem;
-        color: var(--primary);
+        font-weight: 800;
+        font-size: 1.25rem;
+        color: #1e3a8a;
+        letter-spacing: -0.3px;
     }
 
     .site-name-title {
@@ -255,61 +279,61 @@
     }
 
     .status-badge {
-        font-size: 0.7rem;
-        padding: 0.2rem 0.55rem;
-        border-radius: 6px;
+        font-size: 0.65rem;
+        padding: 0.25rem 0.6rem;
+        border-radius: 8px;
         font-weight: 700;
         text-transform: uppercase;
-        letter-spacing: 0.3px;
+        letter-spacing: 0.5px;
     }
 
-    .status-planned { background: rgba(217, 119, 6, 0.08); color: var(--warning); border: 1px solid rgba(217, 119, 6, 0.15); }
-    .status-active { background: rgba(13, 148, 136, 0.08); color: var(--success); border: 1px solid rgba(13, 148, 136, 0.15); }
-    .status-maintenance { background: rgba(79, 70, 229, 0.08); color: var(--accent); border: 1px solid rgba(79, 70, 229, 0.15); }
-    .status-inactive { background: rgba(225, 29, 72, 0.08); color: var(--danger); border: 1px solid rgba(225, 29, 72, 0.15); }
+    .status-planned { background: rgba(245, 158, 11, 0.08); color: #d97706; border: 1px solid rgba(245, 158, 11, 0.15); }
+    .status-active { background: rgba(20, 184, 166, 0.08); color: #0d9488; border: 1px solid rgba(20, 184, 166, 0.15); }
+    .status-maintenance { background: rgba(99, 102, 241, 0.08); color: #4f46e5; border: 1px solid rgba(99, 102, 241, 0.15); }
+    .status-inactive { background: rgba(244, 63, 94, 0.08); color: #e11d48; border: 1px solid rgba(244, 63, 94, 0.15); }
 
     .site-description {
         font-size: 0.85rem;
         color: var(--text-secondary);
-        line-height: 1.5;
+        line-height: 1.6;
         display: -webkit-box;
         -webkit-line-clamp: 2;
         -webkit-box-orient: vertical;
         overflow: hidden;
-        height: 2.5rem;
+        height: 2.7rem;
     }
 
     .site-details-row {
-        background: var(--bg-tertiary);
-        border: 1px solid var(--border);
-        border-radius: 8px;
-        padding: 0.75rem;
+        background: #f8fafc;
+        border: 1px solid #e2e8f0;
+        border-radius: 12px;
+        padding: 1rem;
         display: flex;
         flex-direction: column;
-        gap: 0.4rem;
-        font-size: 0.8rem;
-        color: var(--text-secondary);
+        gap: 0.6rem;
+        font-size: 0.85rem;
+        color: #64748b;
     }
 
     .site-detail-item {
         display: flex;
         align-items: center;
-        gap: 0.5rem;
+        gap: 0.6rem;
     }
 
     .site-detail-item svg {
-        width: 14px;
-        height: 14px;
-        color: var(--text-secondary);
+        width: 15px;
+        height: 15px;
+        color: #64748b;
     }
 
     .btn-details {
         width: 100%;
-        background: #0f172a; /* Botão plano azul escuro */
-        color: #ffffff;
-        border-radius: 8px;
-        padding: 0.65rem;
-        font-size: 0.85rem;
+        background: #f1f5f9;
+        color: #1e293b;
+        border-radius: 12px;
+        padding: 0.8rem;
+        font-size: 0.875rem;
         font-weight: 600;
         text-align: center;
         text-decoration: none;
@@ -317,24 +341,37 @@
         align-items: center;
         justify-content: center;
         gap: 0.5rem;
-        transition: background 0.15s;
+        transition: all 0.25s ease;
     }
 
     .btn-details:hover {
-        background: var(--secondary);
+        background: #090d16;
+        color: #ffffff;
+        box-shadow: 0 4px 12px rgba(9, 13, 22, 0.15);
     }
 
     .no-sites {
         text-align: center;
-        padding: 4rem;
+        padding: 5rem 2rem;
         border: 1px dashed #cbd5e1;
-        border-radius: 16px;
+        border-radius: 20px;
         color: var(--text-secondary);
         display: flex;
         flex-direction: column;
         align-items: center;
-        gap: 1rem;
+        gap: 1.25rem;
         grid-column: span 3;
+        background: #ffffff;
+    }
+
+    .no-sites svg {
+        color: #94a3b8;
+    }
+
+    .no-sites p {
+        font-size: 0.95rem;
+        font-weight: 500;
+        color: var(--text-secondary);
     }
 
     /* Responsividade */
@@ -351,6 +388,28 @@
             padding: 2rem;
             gap: 2rem;
         }
+    }
+
+    .btn-submit {
+        background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);
+        color: white;
+        border: none;
+        border-radius: 12px;
+        padding: 0.85rem;
+        font-weight: 600;
+        font-family: var(--font-family);
+        cursor: pointer;
+        transition: all 0.2s ease;
+        box-shadow: 0 4px 12px rgba(30, 58, 138, 0.15);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+    }
+
+    .btn-submit:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(30, 58, 138, 0.25);
     }
 </style>
 {% endblock %}
@@ -466,7 +525,7 @@
                     <textarea name="description" id="description" class="field-control" rows="3" placeholder="Torre, gerador, antenas..." style="resize: vertical;"></textarea>
                 </div>
 
-                <button type="submit" class="login-btn-submit" style="width: 100%; justify-content: center; font-size: 0.9rem;">
+                <button type="submit" class="btn-submit" style="width: 100%;">
                     Salvar Registro
                 </button>
             </form>
