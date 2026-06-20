@@ -501,6 +501,93 @@
     .site-meta-label { color: var(--ent-text-muted); font-weight: 500; }
     .site-meta-val { color: var(--ent-text-main); font-weight: 600; }
 
+    /* Metricas de progresso personalizadas */
+    .progress-item {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+    .progress-item-header {
+        display: flex;
+        justify-content: space-between;
+        font-size: 0.85rem;
+        font-weight: 600;
+    }
+    .progress-bar-bg {
+        width: 100%;
+        height: 8px;
+        background-color: #f1f5f9;
+        border-radius: 4px;
+        overflow: hidden;
+    }
+    .progress-bar-fill {
+        height: 100%;
+        border-radius: 4px;
+        transition: width 0.8s ease-in-out;
+    }
+
+    /* Grid de Ações Rápidas */
+    .quick-action-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 1.5rem;
+        margin-bottom: 2rem;
+    }
+    .quick-action-card {
+        background: var(--ent-bg-card);
+        border: 1px solid var(--ent-border);
+        border-radius: 16px;
+        padding: 1.15rem;
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        cursor: pointer;
+        text-decoration: none;
+        transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .quick-action-card:hover {
+        transform: translateY(-4px);
+        box-shadow: var(--ent-shadow-lg);
+        border-color: var(--ent-accent);
+    }
+    .quick-action-icon {
+        width: 44px; height: 44px;
+        border-radius: 10px;
+        background-color: #eff6ff;
+        color: var(--ent-accent);
+        display: flex; align-items: center; justify-content: center;
+        flex-shrink: 0;
+        transition: all 0.25s;
+    }
+    .quick-action-card:hover .quick-action-icon {
+        background-color: var(--ent-accent);
+        color: white;
+        transform: rotate(5deg);
+    }
+    .quick-action-details h4 {
+        font-family: var(--font-heading);
+        font-size: 0.92rem;
+        font-weight: 700;
+        color: var(--ent-primary);
+        margin-bottom: 0.15rem;
+    }
+    .quick-action-details p {
+        font-size: 0.75rem;
+        color: var(--ent-text-muted);
+    }
+
+    @media (max-width: 1200px) {
+        .quick-action-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
+    }
+    @media (max-width: 768px) {
+        .quick-action-grid {
+            grid-template-columns: 1fr;
+            gap: 1rem;
+        }
+    }
+
 </style>
 {% endblock %}
 
@@ -512,68 +599,123 @@
          ========================================== -->
     <div id="dashboard-view" class="view-container" style="display: block;">
         
-        <!-- Modern Welcome Header -->
-        <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 2.5rem;">
-            <div>
-                <h1 style="font-family: var(--font-heading); font-size: 2.2rem; font-weight: 700; color: var(--ent-primary); letter-spacing: -0.02em; margin-bottom: 0.25rem;">Visão Geral da Rede</h1>
-                <p style="color: var(--ent-text-muted); font-size: 1rem; font-weight: 500;">Monitoramento de performance e infraestrutura de telecomunicações.</p>
+        <!-- Hero Banner Premium -->
+        <div class="hero-banner" style="margin-bottom: 2rem;">
+            <div class="hero-content">
+                <span style="font-size: 0.8rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: #93C5FD; background: rgba(37, 99, 235, 0.25); padding: 0.35rem 0.75rem; border-radius: 20px; display: inline-block; margin-bottom: 1rem;">NOC - Centro de Operações</span>
+                <h1 class="hero-title" style="font-size: 2.2rem; margin-bottom: 0.75rem;">Visão Geral da Rede MartinsTec</h1>
+                <p class="hero-subtitle" style="max-width: 600px; line-height: 1.6; color: #94A3B8;">
+                    Monitoramento integrado de infraestrutura física, licenças de rádio, vistorias técnicas e acervo documental de telecomunicações.
+                </p>
             </div>
-            <div style="display: flex; align-items: center; gap: 1rem;">
-                <div style="background: white; border-radius: 30px; padding: 0.6rem 1.2rem; display: flex; align-items: center; gap: 0.5rem; box-shadow: var(--ent-shadow-sm); font-size: 0.85rem; font-weight: 600; color: var(--ent-primary);">
-                    <i data-lucide="calendar" style="width: 16px; height: 16px; color: var(--ent-accent);"></i>
-                    <span id="current-date"></span>
+            <div style="display: flex; flex-direction: column; align-items: flex-end; gap: 0.75rem; z-index: 2;">
+                <div style="background: rgba(255, 255, 255, 0.08); border: 1px solid rgba(255, 255, 255, 0.15); border-radius: 30px; padding: 0.6rem 1.2rem; display: flex; align-items: center; gap: 0.5rem; font-size: 0.85rem; font-weight: 600; color: #FFFFFF; backdrop-filter: blur(10px);">
+                    <i data-lucide="calendar" style="width: 16px; height: 16px; color: #3B82F6;"></i>
+                    <span id="current-date" style="color: #FFFFFF;"></span>
                 </div>
-                <button class="btn-ent btn-ent-primary" style="border-radius: 30px;">
+                <button class="btn-ent btn-ent-primary" style="border-radius: 30px; background-color: var(--ent-accent); color: white;">
                     <i data-lucide="download-cloud" style="width: 16px; height: 16px;"></i> Exportar NOC
                 </button>
             </div>
         </div>
 
+        <!-- Ações Rápidas (Atalhos NOC) -->
+        <div class="quick-action-grid">
+            <a href="{% url 'site_list' %}#sites" class="quick-action-card" onclick="window.location.hash='#sites'">
+                <div class="quick-action-icon">
+                    <i data-lucide="search" style="width: 18px; height: 18px;"></i>
+                </div>
+                <div class="quick-action-details">
+                    <h4>Consultar Ativos</h4>
+                    <p>Filtros e mapeamento de sites</p>
+                </div>
+            </a>
+            
+            <a href="{% url 'site_list' %}#planilha" class="quick-action-card" onclick="window.location.hash='#planilha'">
+                <div class="quick-action-icon" style="background-color: #ecfdf5; color: #10B981;">
+                    <i data-lucide="file-spreadsheet" style="width: 18px; height: 18px;"></i>
+                </div>
+                <div class="quick-action-details">
+                    <h4>Inventário Mestre</h4>
+                    <p>Planilha física consolidada</p>
+                </div>
+            </a>
+            
+            <a href="{% url 'site_list' %}#prazos" class="quick-action-card" onclick="window.location.hash='#prazos'">
+                <div class="quick-action-icon" style="background-color: #fffbeb; color: #F59E0B;">
+                    <i data-lucide="calendar-days" style="width: 18px; height: 18px;"></i>
+                </div>
+                <div class="quick-action-details">
+                    <h4>Gestão de Prazos</h4>
+                    <p>Controle de cronogramas e vistorias</p>
+                </div>
+            </a>
+            
+            <a href="{% url 'site_list' %}#gerenciar" class="quick-action-card" onclick="window.location.hash='#gerenciar'">
+                <div class="quick-action-icon" style="background-color: #fdf2f8; color: #DB2777;">
+                    <i data-lucide="plus-circle" style="width: 18px; height: 18px;"></i>
+                </div>
+                <div class="quick-action-details">
+                    <h4>Novo Ativo</h4>
+                    <p>Adicionar site ao banco de dados</p>
+                </div>
+            </a>
+        </div>
+
         <!-- KPIs Modernos -->
         <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 1.5rem; margin-bottom: 2.5rem;">
             
-            <div class="ent-card" style="padding: 1.5rem; position: relative; overflow: hidden; border: none;">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
-                    <div style="width: 50px; height: 50px; border-radius: 50%; background: #f4f7fe; display: flex; align-items: center; justify-content: center; color: var(--ent-accent);">
-                        <i data-lucide="layers" style="width: 24px; height: 24px;"></i>
+            <div class="ent-card" style="padding: 1.5rem 1.75rem; border-top: 4px solid var(--ent-accent); border-bottom: none; border-left: none; border-right: none;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
+                    <span style="font-size: 0.85rem; font-weight: 600; color: var(--ent-text-muted);">Portfólio Total</span>
+                    <div style="width: 38px; height: 38px; border-radius: 10px; background: #eff6ff; display: flex; align-items: center; justify-content: center; color: var(--ent-accent);">
+                        <i data-lucide="layers" style="width: 20px; height: 20px;"></i>
                     </div>
-                    <span style="font-size: 0.8rem; font-weight: 700; color: var(--ent-success); background: #e6f8f1; padding: 0.25rem 0.5rem; border-radius: 12px;">+12%</span>
                 </div>
-                <div style="font-size: 0.85rem; font-weight: 600; color: var(--ent-text-muted); margin-bottom: 0.25rem;">Portfólio Total</div>
-                <div style="font-family: var(--font-heading); font-size: 2.2rem; font-weight: 700; color: var(--ent-primary);">{{ total_sites|default:0 }}</div>
+                <div style="font-family: var(--font-heading); font-size: 2.2rem; font-weight: 700; color: var(--ent-primary); line-height: 1.2; margin-bottom: 0.25rem;">{{ total_sites|default:0 }}</div>
+                <div style="font-size: 0.75rem; color: var(--ent-text-muted); font-weight: 500;">Estruturas de telecom mapeadas</div>
             </div>
 
-            <div class="ent-card" style="padding: 1.5rem; position: relative; overflow: hidden; border: none;">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
-                    <div style="width: 50px; height: 50px; border-radius: 50%; background: #e6f8f1; display: flex; align-items: center; justify-content: center; color: var(--ent-success);">
-                        <i data-lucide="activity" style="width: 24px; height: 24px;"></i>
+            <div class="ent-card" style="padding: 1.5rem 1.75rem; border-top: 4px solid #10B981; border-bottom: none; border-left: none; border-right: none;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
+                    <span style="font-size: 0.85rem; font-weight: 600; color: var(--ent-text-muted);">Operando Ativo</span>
+                    <div style="width: 38px; height: 38px; border-radius: 10px; background: #ecfdf5; display: flex; align-items: center; justify-content: center; color: #10B981;">
+                        <i data-lucide="activity" style="width: 20px; height: 20px;"></i>
                     </div>
-                    <span style="font-size: 0.8rem; font-weight: 700; color: var(--ent-success); background: #e6f8f1; padding: 0.25rem 0.5rem; border-radius: 12px;">98.9% SLA</span>
                 </div>
-                <div style="font-size: 0.85rem; font-weight: 600; color: var(--ent-text-muted); margin-bottom: 0.25rem;">Sites Ativos</div>
-                <div style="font-family: var(--font-heading); font-size: 2.2rem; font-weight: 700; color: var(--ent-primary);">{{ active_sites|default:0 }}</div>
+                <div style="font-family: var(--font-heading); font-size: 2.2rem; font-weight: 700; color: var(--ent-primary); line-height: 1.2; margin-bottom: 0.25rem;">{{ active_sites|default:0 }}</div>
+                <div style="font-size: 0.75rem; color: #10B981; font-weight: 600; display: flex; align-items: center; gap: 0.25rem;">
+                    <span style="width: 6px; height: 6px; background-color: #10B981; border-radius: 50%;"></span>
+                    Uptime de rede estável
+                </div>
             </div>
 
-            <div class="ent-card" style="padding: 1.5rem; position: relative; overflow: hidden; border: none;">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
-                    <div style="width: 50px; height: 50px; border-radius: 50%; background: #fff6e6; display: flex; align-items: center; justify-content: center; color: var(--ent-warning);">
-                        <i data-lucide="tool" style="width: 24px; height: 24px;"></i>
+            <div class="ent-card" style="padding: 1.5rem 1.75rem; border-top: 4px solid #F59E0B; border-bottom: none; border-left: none; border-right: none;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
+                    <span style="font-size: 0.85rem; font-weight: 600; color: var(--ent-text-muted);">Manutenção</span>
+                    <div style="width: 38px; height: 38px; border-radius: 10px; background: #fffbeb; display: flex; align-items: center; justify-content: center; color: #F59E0B;">
+                        <i data-lucide="tool" style="width: 20px; height: 20px;"></i>
                     </div>
-                    <span style="font-size: 0.8rem; font-weight: 700; color: var(--ent-warning); background: #fff6e6; padding: 0.25rem 0.5rem; border-radius: 12px;">Atenção</span>
                 </div>
-                <div style="font-size: 0.85rem; font-weight: 600; color: var(--ent-text-muted); margin-bottom: 0.25rem;">Em Manutenção</div>
-                <div style="font-family: var(--font-heading); font-size: 2.2rem; font-weight: 700; color: var(--ent-primary);">{{ maintenance_sites|default:0 }}</div>
+                <div style="font-family: var(--font-heading); font-size: 2.2rem; font-weight: 700; color: var(--ent-primary); line-height: 1.2; margin-bottom: 0.25rem;">{{ maintenance_sites|default:0 }}</div>
+                <div style="font-size: 0.75rem; color: #F59E0B; font-weight: 600; display: flex; align-items: center; gap: 0.25rem;">
+                    <span style="width: 6px; height: 6px; background-color: #F59E0B; border-radius: 50%;"></span>
+                    Equipes em campo
+                </div>
             </div>
 
-            <div class="ent-card" style="padding: 1.5rem; position: relative; overflow: hidden; border: none;">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
-                    <div style="width: 50px; height: 50px; border-radius: 50%; background: #fdeceb; display: flex; align-items: center; justify-content: center; color: var(--ent-danger);">
-                        <i data-lucide="power-off" style="width: 24px; height: 24px;"></i>
+            <div class="ent-card" style="padding: 1.5rem 1.75rem; border-top: 4px solid #EF4444; border-bottom: none; border-left: none; border-right: none;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
+                    <span style="font-size: 0.85rem; font-weight: 600; color: var(--ent-text-muted);">Suspenso / Offline</span>
+                    <div style="width: 38px; height: 38px; border-radius: 10px; background: #fef2f2; display: flex; align-items: center; justify-content: center; color: #EF4444;">
+                        <i data-lucide="power-off" style="width: 20px; height: 20px;"></i>
                     </div>
-                    <span style="font-size: 0.8rem; font-weight: 700; color: var(--ent-danger); background: #fdeceb; padding: 0.25rem 0.5rem; border-radius: 12px;">Crítico</span>
                 </div>
-                <div style="font-size: 0.85rem; font-weight: 600; color: var(--ent-text-muted); margin-bottom: 0.25rem;">Inativos / Offline</div>
-                <div style="font-family: var(--font-heading); font-size: 2.2rem; font-weight: 700; color: var(--ent-primary);">{{ inactive_sites|default:0 }}</div>
+                <div style="font-family: var(--font-heading); font-size: 2.2rem; font-weight: 700; color: var(--ent-primary); line-height: 1.2; margin-bottom: 0.25rem;">{{ inactive_sites|default:0 }}</div>
+                <div style="font-size: 0.75rem; color: #EF4444; font-weight: 600; display: flex; align-items: center; gap: 0.25rem;">
+                    <span style="width: 6px; height: 6px; background-color: #EF4444; border-radius: 50%;"></span>
+                    Atenção imediata do NOC
+                </div>
             </div>
 
         </div>
@@ -581,51 +723,124 @@
         <!-- Gráficos e Alertas -->
         <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 1.5rem;">
             
-            <div class="ent-card" style="padding: 2rem; border: none;">
+            <div class="ent-card" style="padding: 2.2rem; border: none; display: flex; flex-direction: column;">
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
-                    <h3 style="font-family: var(--font-heading); font-size: 1.25rem; font-weight: 700; color: var(--ent-primary);">Composição e Status da Rede</h3>
+                    <div>
+                        <h3 style="font-family: var(--font-heading); font-size: 1.25rem; font-weight: 700; color: var(--ent-primary); margin-bottom: 0.25rem;">Distribuição dos Status de Rede</h3>
+                        <p style="font-size: 0.8rem; color: var(--ent-text-muted); font-weight: 500;">Percentual operacional consolidado de todos os ativos</p>
+                    </div>
                     <div style="background: #f4f7fe; padding: 0.25rem; border-radius: 10px; display: flex; gap: 0.25rem;">
-                        <button style="padding: 0.4rem 1rem; border-radius: 8px; border: none; background: white; box-shadow: var(--ent-shadow-sm); font-weight: 600; font-size: 0.8rem; color: var(--ent-primary);">Gráfico</button>
+                        <span style="padding: 0.4rem 1rem; border-radius: 8px; border: none; background: white; box-shadow: var(--ent-shadow-sm); font-weight: 600; font-size: 0.8rem; color: var(--ent-primary); display: flex; align-items: center; gap: 0.35rem;">
+                            <i data-lucide="pie-chart" style="width: 14px; height: 14px; color: var(--ent-accent);"></i> NOC Analytics
+                        </span>
                     </div>
                 </div>
-                <div style="position: relative; height: 300px; display: flex; align-items: center; justify-content: center;">
-                    <canvas id="statusDoughnutChart"></canvas>
+                
+                <div style="display: grid; grid-template-columns: 1.2fr 1fr; gap: 2.5rem; align-items: center; flex: 1;">
+                    <!-- Gráfico -->
+                    <div style="position: relative; height: 260px; display: flex; align-items: center; justify-content: center;">
+                        <canvas id="statusDoughnutChart"></canvas>
+                    </div>
+                    
+                    <!-- Barra de progresso das métricas -->
+                    <div style="display: flex; flex-direction: column; gap: 1.25rem;">
+                        
+                        <div class="progress-item">
+                            <div class="progress-item-header">
+                                <span style="color: var(--ent-primary); font-weight: 600; display: flex; align-items: center; gap: 0.5rem;">
+                                    <span style="width: 8px; height: 8px; border-radius: 50%; background-color: #10B981; display: inline-block;"></span>
+                                    Operação Ativa
+                                </span>
+                                <span id="pct-active-text" style="color: var(--ent-text-muted); font-weight: 700;">--</span>
+                            </div>
+                            <div class="progress-bar-bg">
+                                <div id="pct-active-bar" class="progress-bar-fill" style="width: 0%; background-color: #10B981;"></div>
+                            </div>
+                        </div>
+
+                        <div class="progress-item">
+                            <div class="progress-item-header">
+                                <span style="color: var(--ent-primary); font-weight: 600; display: flex; align-items: center; gap: 0.5rem;">
+                                    <span style="width: 8px; height: 8px; border-radius: 50%; background-color: #F59E0B; display: inline-block;"></span>
+                                    Planejamento / Obra
+                                </span>
+                                <span id="pct-planned-text" style="color: var(--ent-text-muted); font-weight: 700;">--</span>
+                            </div>
+                            <div class="progress-bar-bg">
+                                <div id="pct-planned-bar" class="progress-bar-fill" style="width: 0%; background-color: #F59E0B;"></div>
+                            </div>
+                        </div>
+
+                        <div class="progress-item">
+                            <div class="progress-item-header">
+                                <span style="color: var(--ent-primary); font-weight: 600; display: flex; align-items: center; gap: 0.5rem;">
+                                    <span style="width: 8px; height: 8px; border-radius: 50%; background-color: #3B82F6; display: inline-block;"></span>
+                                    Preventiva / Técnica
+                                </span>
+                                <span id="pct-maintenance-text" style="color: var(--ent-text-muted); font-weight: 700;">--</span>
+                            </div>
+                            <div class="progress-bar-bg">
+                                <div id="pct-maintenance-bar" class="progress-bar-fill" style="width: 0%; background-color: #3B82F6;"></div>
+                            </div>
+                        </div>
+
+                        <div class="progress-item">
+                            <div class="progress-item-header">
+                                <span style="color: var(--ent-primary); font-weight: 600; display: flex; align-items: center; gap: 0.5rem;">
+                                    <span style="width: 8px; height: 8px; border-radius: 50%; background-color: #EF4444; display: inline-block;"></span>
+                                    Inativo / Offline
+                                </span>
+                                <span id="pct-inactive-text" style="color: var(--ent-text-muted); font-weight: 700;">--</span>
+                            </div>
+                            <div class="progress-bar-bg">
+                                <div id="pct-inactive-bar" class="progress-bar-fill" style="width: 0%; background-color: #EF4444;"></div>
+                            </div>
+                        </div>
+
+                    </div>
                 </div>
             </div>
 
             <!-- Tabela de Ocorrências Modernizada -->
-            <div class="ent-card" style="padding: 2rem; border: none; display: flex; flex-direction: column;">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
-                    <h3 style="font-family: var(--font-heading); font-size: 1.25rem; font-weight: 700; color: var(--ent-primary);">Alertas Ativos</h3>
-                    <span style="font-size: 0.75rem; font-weight: 700; color: var(--ent-danger); background: #fdeceb; padding: 0.35rem 0.75rem; border-radius: 20px;">Alta Prioridade</span>
+            <div class="ent-card" style="padding: 2.2rem; border: none; display: flex; flex-direction: column;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                    <h3 style="font-family: var(--font-heading); font-size: 1.25rem; font-weight: 700; color: var(--ent-primary);">Alertas Recentes</h3>
+                    <span style="font-size: 0.75rem; font-weight: 700; color: var(--ent-danger); background: #fdeceb; padding: 0.35rem 0.75rem; border-radius: 20px;">NOC Monitor</span>
                 </div>
+                <p style="font-size: 0.8rem; color: var(--ent-text-muted); font-weight: 500; margin-bottom: 1.5rem;">Ocorrências que exigem vistoria ou ação imediata</p>
+                
                 <div style="flex: 1; overflow-y: auto; padding-right: 0.5rem; display: flex; flex-direction: column; gap: 1rem;">
                     {% if maintenance_sites > 0 or inactive_sites > 0 %}
                         {% for site in sites %}
                         {% if site.status == 'MAINTENANCE' or site.status == 'INACTIVE' %}
-                        <div style="display: flex; align-items: center; justify-content: space-between; padding: 1rem; border-radius: 16px; background: #f4f7fe; border-left: 4px solid {% if site.status == 'MAINTENANCE' %}var(--ent-warning){% else %}var(--ent-danger){% endif %}; transition: background 0.2s;">
-                            <div style="display: flex; align-items: center; gap: 1rem;">
-                                <div style="width: 36px; height: 36px; border-radius: 10px; background: white; display: flex; align-items: center; justify-content: center; box-shadow: var(--ent-shadow-sm); color: {% if site.status == 'MAINTENANCE' %}var(--ent-warning){% else %}var(--ent-danger){% endif %};">
+                        <div style="display: flex; align-items: center; justify-content: space-between; padding: 0.85rem 1rem; border-radius: 12px; background: #F8FAFC; border: 1px solid #E2E8F0; border-left: 4px solid {% if site.status == 'MAINTENANCE' %}#F59E0B{% else %}#EF4444{% endif %}; transition: all 0.2s;">
+                            <div style="display: flex; align-items: center; gap: 0.85rem;">
+                                <div style="width: 36px; height: 36px; border-radius: 8px; background: white; display: flex; align-items: center; justify-content: center; box-shadow: var(--ent-shadow-sm); color: {% if site.status == 'MAINTENANCE' %}#F59E0B{% else %}#EF4444{% endif %}; border: 1px solid #E2E8F0;">
                                     <i data-lucide="alert-triangle" style="width: 18px; height: 18px;"></i>
                                 </div>
                                 <div>
-                                    <div style="font-weight: 700; color: var(--ent-primary); font-size: 0.95rem; margin-bottom: 0.15rem;">{{ site.site_id }}</div>
-                                    <div style="font-size: 0.8rem; color: var(--ent-text-muted); font-weight: 500;">{{ site.name }}</div>
+                                    <div style="font-weight: 700; color: var(--ent-primary); font-size: 0.9rem; margin-bottom: 0.15rem;">{{ site.site_id }}</div>
+                                    <div style="font-size: 0.78rem; color: var(--ent-text-muted); font-weight: 500; white-space: nowrap; text-overflow: ellipsis; overflow: hidden; max-width: 140px;">{{ site.name }}</div>
                                 </div>
                             </div>
-                            <a href="{% url 'site_detail' pk=site.pk %}" style="width: 32px; height: 32px; border-radius: 50%; background: white; display: flex; align-items: center; justify-content: center; box-shadow: var(--ent-shadow-sm); color: var(--ent-accent); transition: all 0.2s; text-decoration: none;">
-                                <i data-lucide="arrow-right" style="width: 14px; height: 14px;"></i>
-                            </a>
+                            <div style="display: flex; align-items: center; gap: 0.5rem;">
+                                <span style="font-size: 0.68rem; font-weight: 700; padding: 0.2rem 0.5rem; border-radius: 6px; background-color: {% if site.status == 'MAINTENANCE' %}#fffbeb{% else %}#fdeceb{% endif %}; color: {% if site.status == 'MAINTENANCE' %}#d97706{% else %}#dc2626{% endif %};">
+                                    {% if site.status == 'MAINTENANCE' %}Ajuste{% else %}Offline{% endif %}
+                                </span>
+                                <a href="{% url 'site_detail' pk=site.pk %}" style="width: 30px; height: 30px; border-radius: 50%; background: white; display: flex; align-items: center; justify-content: center; box-shadow: var(--ent-shadow-sm); color: var(--ent-accent); border: 1px solid #E2E8F0; transition: all 0.2s; text-decoration: none;">
+                                    <i data-lucide="arrow-right" style="width: 14px; height: 14px;"></i>
+                                </a>
+                            </div>
                         </div>
                         {% endif %}
                         {% endfor %}
                     {% else %}
-                        <div style="height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center;">
-                            <div style="width: 64px; height: 64px; border-radius: 50%; background: #e6f8f1; display: flex; align-items: center; justify-content: center; color: var(--ent-success); margin-bottom: 1rem;">
-                                <i data-lucide="check-circle" style="width: 32px; height: 32px;"></i>
+                        <div style="height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 2rem 0;">
+                            <div style="width: 58px; height: 58px; border-radius: 50%; background: #ecfdf5; display: flex; align-items: center; justify-content: center; color: #10B981; margin-bottom: 1rem; border: 1px solid #a7f3d0;">
+                                <i data-lucide="shield-check" style="width: 28px; height: 28px;"></i>
                             </div>
-                            <h4 style="font-family: var(--font-heading); font-size: 1.1rem; font-weight: 700; color: var(--ent-primary); margin-bottom: 0.25rem;">Sistemas Normalizados</h4>
-                            <p style="font-size: 0.85rem; color: var(--ent-text-muted);">Nenhuma intercorrência técnica na rede.</p>
+                            <h4 style="font-family: var(--font-heading); font-size: 1.05rem; font-weight: 700; color: var(--ent-primary); margin-bottom: 0.25rem;">NOC Normalizado</h4>
+                            <p style="font-size: 0.8rem; color: var(--ent-text-muted); max-width: 180px;">Sem intercorrências registradas no momento.</p>
                         </div>
                     {% endif %}
                 </div>
@@ -1108,7 +1323,31 @@
         const maintenance = {{ maintenance_sites|default:0 }};
         const inactive = {{ inactive_sites|default:0 }};
 
-        // Gráfico de Pizza Premium
+        // Calcular e preencher as barras de progresso dinamicamente
+        const total = (active + planned + maintenance + inactive) || 1;
+        const activePct = Math.round((active / total) * 100);
+        const plannedPct = Math.round((planned / total) * 100);
+        const maintenancePct = Math.round((maintenance / total) * 100);
+        const inactivePct = Math.round((inactive / total) * 100);
+
+        if (document.getElementById('pct-active-text')) {
+            document.getElementById('pct-active-text').textContent = activePct + '%';
+            document.getElementById('pct-active-bar').style.width = activePct + '%';
+        }
+        if (document.getElementById('pct-planned-text')) {
+            document.getElementById('pct-planned-text').textContent = plannedPct + '%';
+            document.getElementById('pct-planned-bar').style.width = plannedPct + '%';
+        }
+        if (document.getElementById('pct-maintenance-text')) {
+            document.getElementById('pct-maintenance-text').textContent = maintenancePct + '%';
+            document.getElementById('pct-maintenance-bar').style.width = maintenancePct + '%';
+        }
+        if (document.getElementById('pct-inactive-text')) {
+            document.getElementById('pct-inactive-text').textContent = inactivePct + '%';
+            document.getElementById('pct-inactive-bar').style.width = inactivePct + '%';
+        }
+
+        // Gráfico de Rosca Premium (Cores Coesas com a Identidade MartinsTec)
         const statusCtx = document.getElementById('statusDoughnutChart').getContext('2d');
         new Chart(statusCtx, {
             type: 'doughnut',
@@ -1116,7 +1355,7 @@
                 labels: ['Operação Ativa', 'Planejamento', 'Manutenção', 'Suspenso'],
                 datasets: [{
                     data: [active, planned, maintenance, inactive],
-                    backgroundColor: ['#1D4ED8', '#d97706', '#2563eb', '#dc2626'],
+                    backgroundColor: ['#10B981', '#F59E0B', '#3B82F6', '#EF4444'],
                     borderWidth: 3,
                     borderColor: '#ffffff',
                     hoverOffset: 4
@@ -1128,17 +1367,7 @@
                 maintainAspectRatio: false,
                 plugins: {
                     legend: { 
-                        position: 'bottom',
-                        labels: {
-                            padding: 20,
-                            font: {
-                                family: "'Inter', sans-serif",
-                                size: 11,
-                                weight: '500'
-                            },
-                            usePointStyle: true,
-                            pointStyle: 'circle'
-                        }
+                        display: false // Oculta legenda padrão do Chart.js pois criamos uma customizada muito mais rica
                     },
                     tooltip: {
                         backgroundColor: '#0f172a',
