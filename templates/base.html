@@ -3,603 +3,303 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}Telecom Engineering System{% endblock %}</title>
-    <!-- Google Fonts: Inter & Outfit -->
+    <title>{% block title %}Engenharia Telecom - Sistema Corporativo{% endblock %}</title>
+    <!-- Google Fonts: Inter -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <!-- Lucide Icons -->
     <script src="https://unpkg.com/lucide@latest"></script>
     <style>
         :root {
-            --bg-primary: #f8fafc;
-            --bg-secondary: #ffffff;
-            --bg-tertiary: #f1f5f9;
-            --text-primary: #0f172a;
-            --text-secondary: #475569;
-            --primary: #1e3a8a;
-            --primary-rgb: 30, 58, 138;
-            --secondary: #3b82f6;
-            --accent: #4f46e5;
-            --success: #0d9488;
-            --warning: #d97706;
-            --danger: #e11d48;
-            --border: #e2e8f0;
-            --glass-bg: rgba(255, 255, 255, 0.85);
-            --glass-border: rgba(0, 0, 0, 0.06);
-            --font-family: 'Inter', sans-serif;
-            --font-title: 'Outfit', sans-serif;
+            /* Tema Claro/Branco */
+            --bg-body: #F8FAFC;
+            --bg-surface: #FFFFFF;
+            
+            /* Destaque Verde Moderno */
+            --brand-primary: #10B981; /* Emerald 500 */
+            --brand-hover: #059669;   /* Emerald 600 */
+            --brand-light: #D1FAE5;   /* Emerald 100 */
+            
+            /* Textos Grafite/Cinza Escuro */
+            --text-main: #0F172A;     /* Slate 900 */
+            --text-muted: #64748B;    /* Slate 500 */
+            
+            /* Auxiliares */
+            --border-color: #E2E8F0;  /* Slate 200 */
+            --danger: #EF4444;
+            --warning: #F59E0B;
+            
+            --font-main: 'Inter', sans-serif;
+            --radius-xl: 16px;
+            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
         }
 
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
 
         body {
-            background-color: #f1f5f9;
-            color: var(--text-primary);
-            font-family: var(--font-family);
-            line-height: 1.5;
-            min-height: 100vh;
+            font-family: var(--font-main);
+            background-color: var(--bg-body);
+            color: var(--text-main);
+            -webkit-font-smoothing: antialiased;
             display: flex;
             flex-direction: column;
+            min-height: 100vh;
         }
 
-        header {
-            background: var(--glass-bg);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-            border-bottom: 1px solid var(--glass-border);
-            padding: 1rem 2rem;
-            position: sticky;
-            top: 0;
-            z-index: 100;
+        /* NAVBAR SUPERIOR */
+        .top-navbar {
+            position: fixed;
+            top: 0; left: 0; right: 0;
+            height: 70px;
+            background-color: var(--bg-surface);
+            border-bottom: 1px solid var(--border-color);
             display: flex;
-            justify-content: space-between;
             align-items: center;
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
+            justify-content: space-between;
+            padding: 0 2rem;
+            z-index: 1000;
         }
 
-        .logo-container {
+        /* Lado Esquerdo: Logo */
+        .nav-brand {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            text-decoration: none;
+        }
+
+        .brand-icon {
+            width: 36px; height: 36px;
+            background-color: var(--brand-light);
+            color: var(--brand-primary);
+            border-radius: 10px;
+            display: flex; align-items: center; justify-content: center;
+        }
+
+        .brand-text {
+            font-size: 1.15rem;
+            font-weight: 700;
+            color: var(--text-main);
+            letter-spacing: -0.02em;
+        }
+
+        /* Centro: Links */
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+            align-items: center;
+        }
+
+        .nav-link {
+            color: var(--text-muted);
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 0.95rem;
+            transition: color 0.2s;
             display: flex;
             align-items: center;
             gap: 0.5rem;
-            font-family: var(--font-title);
-            font-weight: 800;
-            font-size: 1.4rem;
-            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            text-transform: uppercase;
-            letter-spacing: 1px;
+            padding: 0.5rem 0;
+            position: relative;
         }
 
-        .logo-icon {
-            color: var(--primary);
-            -webkit-text-fill-color: initial;
+        .nav-link:hover { color: var(--text-main); }
+
+        .nav-link.active {
+            color: var(--brand-primary);
+            font-weight: 600;
         }
 
-        nav {
+        .nav-link.active::after {
+            content: '';
+            position: absolute;
+            bottom: -20px; /* alinha com a borda da navbar */
+            left: 0; right: 0;
+            height: 3px;
+            background-color: var(--brand-primary);
+            border-radius: 3px 3px 0 0;
+        }
+
+        /* Direita: Perfil */
+        .nav-profile {
             display: flex;
             align-items: center;
             gap: 1.5rem;
         }
 
-        .user-info {
+        .profile-menu {
             display: flex;
             align-items: center;
             gap: 0.75rem;
-            background: rgba(0, 0, 0, 0.02);
-            border: 1px solid var(--border);
-            padding: 0.4rem 1rem;
-            border-radius: 100px;
-            font-size: 0.875rem;
-        }
-
-        .user-avatar {
-            width: 24px;
-            height: 24px;
-            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: bold;
-            font-size: 0.75rem;
-            color: white;
-        }
-
-        .badge-role {
-            font-size: 0.7rem;
-            padding: 0.15rem 0.5rem;
-            border-radius: 4px;
-            font-weight: 600;
-            text-transform: uppercase;
-        }
-
-        .badge-admin { background: rgba(225, 29, 72, 0.08); color: var(--danger); border: 1px solid rgba(225, 29, 72, 0.15); }
-        .badge-engineer { background: rgba(59, 130, 246, 0.08); color: var(--secondary); border: 1px solid rgba(59, 130, 246, 0.15); }
-        .badge-technician { background: rgba(217, 119, 6, 0.08); color: var(--warning); border: 1px solid rgba(217, 119, 6, 0.15); }
-
-        .btn {
-            display: inline-flex;
-            align-items: center;
-            gap: 0.5rem;
-            padding: 0.6rem 1.2rem;
-            border-radius: 8px;
-            font-size: 0.9rem;
-            font-weight: 600;
             cursor: pointer;
-            transition: all 0.25s ease;
-            text-decoration: none;
-            border: none;
+            padding: 0.25rem;
+            border-radius: 50px;
+            transition: background 0.2s;
+        }
+        
+        .profile-menu:hover { background-color: var(--bg-body); }
+
+        .profile-info {
+            display: flex;
+            flex-direction: column;
+            text-align: right;
         }
 
-        .btn-primary {
-            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+        .profile-name {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--text-main);
+        }
+
+        .profile-role {
+            font-size: 0.75rem;
+            color: var(--brand-primary);
+            font-weight: 500;
+        }
+
+        .profile-avatar {
+            width: 40px; height: 40px;
+            border-radius: 50%;
+            background-color: var(--brand-primary);
             color: white;
-            box-shadow: 0 4px 12px rgba(30, 58, 138, 0.12);
+            display: flex; align-items: center; justify-content: center;
+            font-weight: 700;
+            font-size: 1rem;
         }
 
-        .btn-primary:hover {
-            transform: translateY(-1px);
-            box-shadow: 0 6px 16px rgba(30, 58, 138, 0.2);
+        .logout-btn {
+            color: var(--text-muted);
+            transition: color 0.2s;
         }
+        .logout-btn:hover { color: var(--danger); }
 
-        .btn-secondary {
-            background: #ffffff;
-            color: var(--text-primary);
-            border: 1px solid var(--border);
-            box-shadow: 0 1px 2px rgba(0,0,0,0.02);
-        }
-
-        .btn-secondary:hover {
-            background: #f8fafc;
-            border-color: #cbd5e1;
-        }
-
-        .btn-danger {
-            background: rgba(225, 29, 72, 0.06);
-            color: var(--danger);
-            border: 1px solid rgba(225, 29, 72, 0.12);
-        }
-
-        .btn-danger:hover {
-            background: var(--danger);
-            color: white;
-            box-shadow: 0 4px 12px rgba(225, 29, 72, 0.15);
-        }
-
-        .main-container {
-            flex: 1;
+        /* Estrutura Principal */
+        .app-container {
+            margin-top: 70px; /* espaço da navbar */
             padding: 2.5rem 2rem;
-            max-width: 1300px;
-            margin: 0 auto;
+            max-width: 1400px;
+            margin-left: auto;
+            margin-right: auto;
             width: 100%;
         }
 
-        .messages {
-            margin-bottom: 1.5rem;
-            list-style: none;
-        }
-
-        .message-item {
-            padding: 1rem 1.25rem;
-            border-radius: 8px;
-            margin-bottom: 0.75rem;
-            font-size: 0.95rem;
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
-            animation: slideIn 0.3s ease;
-        }
-
-        .message-success {
-            background: rgba(16, 185, 129, 0.12);
-            color: var(--success);
-            border: 1px solid rgba(16, 185, 129, 0.25);
-        }
-
-        .message-error {
-            background: rgba(244, 63, 94, 0.12);
-            color: var(--danger);
-            border: 1px solid rgba(244, 63, 94, 0.25);
-        }
-
-        .message-info {
-            background: rgba(79, 172, 254, 0.12);
-            color: var(--secondary);
-            border: 1px solid rgba(79, 172, 254, 0.25);
-        }
-
-        @keyframes slideIn {
-            from { transform: translateY(-10px); opacity: 0; }
-            to { transform: translateY(0); opacity: 1; }
-        }
-
-        /* Classes Utilitárias Globais */
-        .glass-card {
-            background: var(--bg-secondary);
-            border: 1px solid var(--border);
-            border-radius: 12px;
-            padding: 2rem;
-            box-shadow: 0 4px 20px 0 rgba(0, 0, 0, 0.04);
-        }
-
-        .text-gradient {
-            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-
-        footer {
-            text-align: center;
-            padding: 1.5rem;
-            color: var(--text-secondary);
-            font-size: 0.8rem;
-            border-top: 1px solid var(--border);
-            margin-top: auto;
-        }
-
-        /* --- LAYOUT COM SIDEBAR LATERAL CORPORATIVA --- */
-        .app-layout {
-            display: flex;
-            flex-direction: row;
-            min-height: 100vh;
-            width: 100vw;
-            background-color: #f1f5f9;
-        }
-
-        .sidebar {
-            width: 270px;
-            background: #ffffff; /* Fundo Branco Corporativo */
-            border-right: 1px solid #e2e8f0;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-            position: sticky;
-            top: 0;
-            height: 100vh;
-            z-index: 1000;
-            padding: 2.25rem 1rem 1.5rem 1rem;
-            box-sizing: border-box;
-        }
-
-        .sidebar-logo {
-            display: flex;
-            align-items: center;
-            gap: 0.65rem;
-            font-family: var(--font-title);
-            font-weight: 800;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            color: #0f172a;
-            margin-bottom: 2.5rem;
-            padding-left: 0.5rem;
-            text-decoration: none;
-        }
-
-        .sidebar-logo span {
-            background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            font-size: 1.25rem;
-            font-weight: 800;
-            letter-spacing: 1px;
-        }
-
-        .sidebar-logo svg {
-            color: #1e3a8a;
-            width: 22px;
-            height: 22px;
-        }
-
-        .sidebar-menu {
-            display: flex;
-            flex-direction: column;
-            gap: 0.35rem;
-            flex: 1;
-        }
-
-        .sidebar-link {
-            display: flex;
-            align-items: center;
-            gap: 0.85rem;
-            padding: 0.75rem 0.85rem;
-            color: #475569;
-            text-decoration: none;
-            font-size: 0.88rem;
-            font-weight: 500;
-            border-radius: 8px;
-            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-
-        .sidebar-link svg {
-            width: 18px;
-            height: 18px;
-            color: #64748b;
-            transition: color 0.25s ease;
-        }
-
-        .sidebar-link:hover {
-            color: #0f172a;
-            background: #f1f5f9;
-        }
-
-        .sidebar-link:hover svg {
-            color: #0f172a;
-        }
-
-        .sidebar-link.active {
-            color: #ffffff;
-            background: #2563eb;
-            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.18);
-            font-weight: 600;
-        }
-
-        .sidebar-link.active svg {
-            color: #ffffff;
-        }
-
-        .sidebar-footer {
-            background: #f8fafc;
-            border: 1px solid #e2e8f0;
-            border-radius: 16px;
-            padding: 0.85rem 1rem;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-top: auto;
-        }
-
-        .sidebar-user-info {
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
-        }
-
-        .sidebar-user-avatar {
-            width: 36px;
-            height: 36px;
-            border-radius: 10px;
-            background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);
-            display: flex;
-            align-items: center;
-            justify-content: center;
+        /* Classes Utilitárias (Tailwind-like) */
+        .rounded-xl { border-radius: var(--radius-xl); }
+        .shadow-md { box-shadow: var(--shadow-md); }
+        .bg-white { background-color: var(--bg-surface); }
+        .text-green { color: var(--brand-primary); }
+        .btn-primary {
+            background-color: var(--brand-primary);
             color: white;
-            font-weight: 800;
-            font-size: 0.95rem;
-            box-shadow: 0 4px 10px rgba(30, 58, 138, 0.2);
-        }
-
-        .sidebar-user-details {
-            display: flex;
-            flex-direction: column;
-            gap: 0.15rem;
-        }
-
-        .sidebar-user-name {
-            font-size: 0.85rem;
-            font-weight: 600;
-            color: #0f172a;
-            max-width: 110px;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-
-        .badge-role {
-            font-size: 0.65rem;
-            padding: 0.15rem 0.4rem;
-            border-radius: 4px;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            display: inline-block;
-        }
-
-        .sidebar-logout-btn {
-            color: #64748b;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 0.5rem;
+            padding: 0.6rem 1.2rem;
             border-radius: 8px;
-            transition: all 0.25s;
+            font-weight: 500;
+            font-size: 0.9rem;
             text-decoration: none;
+            display: inline-flex; align-items: center; gap: 0.5rem;
+            border: none; cursor: pointer;
+            transition: background 0.2s;
         }
+        .btn-primary:hover { background-color: var(--brand-hover); }
 
-        .sidebar-logout-btn:hover {
-            color: var(--danger);
-            background: rgba(225, 29, 72, 0.08);
-            transform: scale(1.05);
-        }
-
-        /* Seção do Conteúdo principal para o App Logado */
-        .app-layout .main-container {
-            flex: 1;
-            background: var(--bg-primary);
-            height: 100vh;
-            overflow-y: auto;
-            display: flex;
-            flex-direction: column;
-            box-sizing: border-box;
-            padding: 0;
-            max-width: none;
-            margin: 0;
-        }
-
-        /* Seção do Conteúdo principal para Visitantes (Login) */
-        .guest-layout {
-            width: 100vw;
-            min-height: 100vh;
-        }
-        .guest-layout .main-container {
-            width: 100vw;
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            box-sizing: border-box;
-        }
     </style>
     {% block extra_head %}{% endblock %}
 </head>
 <body>
-    <div class="{% if user.is_authenticated %}app-layout{% else %}guest-layout{% endif %}">
-        {% if user.is_authenticated %}
-        <!-- Barra Lateral de Navegação (Sidebar) -->
-        <aside class="sidebar">
-            <!-- Logo Corporativo MartinsTec -->
-            <a href="{% if request.resolver_match.url_name == 'site_list' %}#dashboard{% else %}{% url 'site_list' %}#dashboard{% endif %}" class="sidebar-logo-container" style="display: flex; align-items: center; gap: 0.75rem; text-decoration: none; margin-bottom: 1.5rem; padding-left: 0.5rem;">
-                <div style="width: 32px; height: 32px; background-color: #2563eb; border-radius: 8px; display: flex; align-items: center; justify-content: center; color: white; flex-shrink: 0; box-shadow: 0 2px 6px rgba(37,99,235,0.25);">
-                    <i data-lucide="wrench" style="width: 18px; height: 18px; color: white;"></i>
-                </div>
-                <span style="font-family: var(--font-title); font-weight: 800; font-size: 1.15rem; color: #0f172a; letter-spacing: -0.5px;">MartinsTec - ENG</span>
+    {% if user.is_authenticated %}
+    <!-- NAVBAR SUPERIOR -->
+    <header class="top-navbar">
+        <!-- Esquerda: Logo -->
+        <a href="{% url 'site_list' %}" class="nav-brand">
+            <div class="brand-icon">
+                <i data-lucide="zap" style="width: 20px; height: 20px;"></i>
+            </div>
+            <span class="brand-text">Engenharia Telecom</span>
+        </a>
+
+        <!-- Centro: Links -->
+        <nav class="nav-links">
+            <a href="{% url 'site_list' %}#dashboard" class="nav-link active" data-target="dashboard">
+                <i data-lucide="layout-dashboard" style="width: 18px; height: 18px;"></i> Dashboard
             </a>
+            <a href="{% url 'site_list' %}#sites" class="nav-link" data-target="sites">
+                <i data-lucide="map-pin" style="width: 18px; height: 18px;"></i> Sites
+            </a>
+            <a href="{% url 'site_list' %}#planilha" class="nav-link" data-target="planilha">
+                <i data-lucide="folder" style="width: 18px; height: 18px;"></i> Arquivos
+            </a>
+            <a href="{% url 'site_list' %}#prazos" class="nav-link" data-target="prazos">
+                <i data-lucide="bar-chart-2" style="width: 18px; height: 18px;"></i> Relatórios
+            </a>
+        </nav>
 
-            <!-- Busca Rápida na Sidebar -->
-            <div class="sidebar-search" style="margin-bottom: 1.5rem; padding: 0 0.25rem; position: relative; display: flex; align-items: center;">
-                <i data-lucide="search" style="position: absolute; left: 0.95rem; color: #94a3b8; width: 14px; height: 14px; pointer-events: none;"></i>
-                <input type="text" id="sidebar-global-search" placeholder="Buscar..." style="width: 100%; padding: 0.5rem 0.75rem 0.5rem 2rem; border-radius: 8px; border: 1px solid #cbd5e1; font-size: 0.8rem; font-family: var(--font-family); background-color: #f8fafc; outline: none; transition: border-color 0.2s;" onkeyup="handleSidebarSearch(this.value)">
-            </div>
-            
-            <nav class="sidebar-menu">
-                <a href="{% if request.resolver_match.url_name == 'site_list' %}#dashboard{% else %}{% url 'site_list' %}#dashboard{% endif %}" class="sidebar-link active">
-                    <i data-lucide="layout-dashboard"></i>
-                    <span>Dashboard</span>
-                    <i data-lucide="chevron-right" class="sidebar-chevron" style="margin-left: auto; width: 14px; height: 14px; display: block;"></i>
-                </a>
-                <a href="{% if request.resolver_match.url_name == 'site_list' %}#sites{% else %}{% url 'site_list' %}#sites{% endif %}" class="sidebar-link">
-                    <i data-lucide="search"></i>
-                    <span>Buscar Site</span>
-                    <i data-lucide="chevron-right" class="sidebar-chevron" style="margin-left: auto; width: 14px; height: 14px; display: none;"></i>
-                </a>
-                <a href="{% if request.resolver_match.url_name == 'site_list' %}#planilha{% else %}{% url 'site_list' %}#planilha{% endif %}" class="sidebar-link">
-                    <i data-lucide="table"></i>
-                    <span>Planilha Geral</span>
-                    <i data-lucide="chevron-right" class="sidebar-chevron" style="margin-left: auto; width: 14px; height: 14px; display: none;"></i>
-                </a>
-                <a href="{% if request.resolver_match.url_name == 'site_list' %}#prazos{% else %}{% url 'site_list' %}#prazos{% endif %}" class="sidebar-link">
-                    <i data-lucide="alert-triangle"></i>
-                    <span>Gestão de Prazos</span>
-                    <i data-lucide="chevron-right" class="sidebar-chevron" style="margin-left: auto; width: 14px; height: 14px; display: none;"></i>
-                </a>
-                <a href="{% if request.resolver_match.url_name == 'site_list' %}#gerenciar{% else %}{% url 'site_list' %}#gerenciar{% endif %}" class="sidebar-link">
-                    <i data-lucide="settings"></i>
-                    <span>Gerenciar Site</span>
-                    <i data-lucide="chevron-right" class="sidebar-chevron" style="margin-left: auto; width: 14px; height: 14px; display: none;"></i>
-                </a>
-                <a href="{% if request.resolver_match.url_name == 'site_list' %}#anotacoes{% else %}{% url 'site_list' %}#anotacoes{% endif %}" class="sidebar-link">
-                    <i data-lucide="edit-3"></i>
-                    <span>Anotações</span>
-                    <i data-lucide="chevron-right" class="sidebar-chevron" style="margin-left: auto; width: 14px; height: 14px; display: none;"></i>
-                </a>
-
-                <!-- Link externo de suporte no rodape da menu -->
-                <a href="https://docs.google.com/spreadsheets" target="_blank" class="sidebar-link" style="margin-top: auto; color: #2563eb; font-weight: 600;">
-                    <i data-lucide="external-link" style="color: #2563eb;"></i>
-                    <span>Abrir Planilha Google</span>
-                </a>
-            </nav>
-            
-            <div class="sidebar-footer" style="margin-top: 1rem;">
-                <div class="sidebar-user-info">
-                    <div class="sidebar-user-avatar">{{ user.username|slice:":1"|upper }}</div>
-                    <div class="sidebar-user-details">
-                        <span class="sidebar-user-name">{{ user.first_name|default:user.username }}</span>
-                        <span class="badge-role badge-{{ user.role|lower }}">{{ user.get_role_display }}</span>
-                    </div>
+        <!-- Direita: Perfil -->
+        <div class="nav-profile">
+            <div class="profile-menu">
+                <div class="profile-info">
+                    <span class="profile-name">{{ user.first_name|default:user.username|default:"Admin" }}</span>
+                    <span class="profile-role">{{ user.get_role_display|default:"Engenheiro Sênior" }}</span>
                 </div>
-                <a href="{% url 'logout' %}" class="sidebar-logout-btn" title="Sair do Sistema">
-                    <i data-lucide="log-out"></i>
-                </a>
+                <div class="profile-avatar">{{ user.username|slice:":1"|upper|default:"A" }}</div>
             </div>
-        </aside>
-        {% endif %}
+            <a href="{% url 'logout' %}" class="logout-btn" title="Sair">
+                <i data-lucide="log-out" style="width: 20px; height: 20px;"></i>
+            </a>
+        </div>
+    </header>
+    {% endif %}
 
-        <!-- Conteúdo do Painel à Direita (ou tela de login se deslogado) -->
-        <main class="main-container">
-            {% if messages %}
-            <div style="padding: 1.5rem 2rem 0 2rem; max-width: 480px; margin: 0 auto; width: 100%;">
-                <ul class="messages">
-                    {% for message in messages %}
-                    <li class="message-item message-{{ message.tags }}">
-                        <i data-lucide="info" style="width: 18px; height: 18px;"></i>
-                        {{ message }}
-                    </li>
-                    {% endfor %}
-                </ul>
-            </div>
-            {% endif %}
-            
-            {% block content %}{% endblock %}
-        </main>
-    </div>
+    <!-- CONTEÚDO PRINCIPAL -->
+    <main class="app-container">
+        {% if messages %}
+        <div style="margin-bottom: 2rem;">
+            <ul style="list-style: none; display: flex; flex-direction: column; gap: 0.5rem;">
+                {% for message in messages %}
+                <li style="padding: 1rem; border-radius: 8px; background: #D1FAE5; color: #059669; border: 1px solid #A7F3D0; display: flex; align-items: center; gap: 0.5rem;">
+                    <i data-lucide="info" style="width: 18px; height: 18px;"></i> {{ message }}
+                </li>
+                {% endfor %}
+            </ul>
+        </div>
+        {% endif %}
+        
+        {% block content %}{% endblock %}
+    </main>
 
     <script>
-        // Inicializa os ícones Lucide
         lucide.createIcons();
 
-        // --- CONTROLE DE ROTAS SPA VIA HASH ---
-        function handleHashChange() {
+        // Lógica de Navegação do SPA (Hash)
+        function handleNav() {
             const hash = window.location.hash || '#dashboard';
-            const views = ['dashboard', 'sites', 'planilha', 'prazos', 'gerenciar', 'anotacoes'];
-            const currentView = hash.substring(1);
+            const target = hash.substring(1);
             
-            if (views.includes(currentView)) {
-                // Alterna visibilidade dos containers
-                views.forEach(v => {
-                    const el = document.getElementById(v + '-view');
-                    if (el) {
-                        el.style.display = (v === currentView) ? 'block' : 'none';
-                    }
-                });
-                
-                // Atualiza classe ativa e chevron na sidebar
-                document.querySelectorAll('.sidebar-link').forEach(link => {
-                    const href = link.getAttribute('href');
-                    if (href && (href.endsWith('#' + currentView) || href === '#' + currentView)) {
-                        link.classList.add('active');
-                        const chev = link.querySelector('.sidebar-chevron');
-                        if (chev) chev.style.display = 'block';
-                    } else {
-                        link.classList.remove('active');
-                        const chev = link.querySelector('.sidebar-chevron');
-                        if (chev) chev.style.display = 'none';
-                    }
-                });
+            // Atualizar links ativos na navbar
+            document.querySelectorAll('.nav-link').forEach(link => {
+                if (link.getAttribute('href').endsWith(hash)) {
+                    link.classList.add('active');
+                } else {
+                    link.classList.remove('active');
+                }
+            });
 
-                // Força recalcular tamanho do mapa do Leaflet caso altere para tab de sites
-                if (currentView === 'sites' && typeof map !== 'undefined' && map) {
-                    setTimeout(() => {
-                        map.invalidateSize();
-                    }, 180);
+            // Ocultar/Mostrar views (se existirem na página carregada)
+            const views = document.querySelectorAll('.view-container');
+            if(views.length > 0) {
+                views.forEach(v => v.style.display = 'none');
+                const activeView = document.getElementById(target + '-view');
+                if (activeView) {
+                    activeView.style.display = 'block';
+                } else if(document.getElementById('dashboard-view')) {
+                    document.getElementById('dashboard-view').style.display = 'block';
                 }
             }
         }
 
-        function handleSidebarSearch(val) {
-            // Se não estiver na página do site_list, redireciona para lá
-            const searchInput = document.getElementById('site-search-input');
-            if (!searchInput) {
-                window.location.href = "{% url 'site_list' %}?q=" + encodeURIComponent(val) + "#sites";
-                return;
-            }
-            // Se estiver, atualiza o input de busca, ativa a aba de sites e executa a filtragem
-            searchInput.value = val;
-            window.location.hash = "#sites";
-            filterSites();
-        }
-
-        window.addEventListener('hashchange', handleHashChange);
-        window.addEventListener('DOMContentLoaded', () => {
-            if (document.getElementById('dashboard-view')) {
-                handleHashChange();
-            }
-        });
+        window.addEventListener('hashchange', handleNav);
+        window.addEventListener('DOMContentLoaded', handleNav);
     </script>
 </body>
 </html>
