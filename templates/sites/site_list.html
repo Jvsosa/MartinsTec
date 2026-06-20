@@ -12,26 +12,26 @@
 
 <style>
     /* ----------------------------------
-       ENTERPRISE CORPORATE DESIGN SYSTEM
+       NEXT-GEN CORPORATE SAAS SYSTEM
        ---------------------------------- */
     :root {
-        --ent-primary: #0f172a;
-        --ent-secondary: #334155;
-        --ent-accent: #2563eb;
-        --ent-accent-hover: #1d4ed8;
-        --ent-bg-main: #f8fafc;
+        --ent-primary: #1b2559;
+        --ent-secondary: #a3aed1;
+        --ent-accent: #4318ff;
+        --ent-accent-hover: #3311db;
+        --ent-bg-main: #f4f7fe;
         --ent-bg-card: #ffffff;
-        --ent-border: #e2e8f0;
-        --ent-text-main: #0f172a;
-        --ent-text-muted: #64748b;
-        --ent-success: #059669;
-        --ent-warning: #d97706;
-        --ent-danger: #dc2626;
-        --ent-info: #0284c7;
-        --ent-shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-        --ent-shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
-        --ent-shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.05), 0 4px 6px -2px rgba(0, 0, 0, 0.025);
-        --ent-radius: 10px;
+        --ent-border: #e9edf7;
+        --ent-text-main: #1b2559;
+        --ent-text-muted: #8f9bba;
+        --ent-success: #01b574;
+        --ent-warning: #ffb547;
+        --ent-danger: #ee5d50;
+        --ent-info: #39b8ff;
+        --ent-shadow-sm: 0 2px 5px rgba(112, 144, 176, 0.05);
+        --ent-shadow-md: 0px 18px 40px rgba(112, 144, 176, 0.12);
+        --ent-shadow-lg: 0px 20px 45px rgba(112, 144, 176, 0.2);
+        --ent-radius: 20px;
         --font-sans: 'Inter', sans-serif;
         --font-heading: 'Outfit', sans-serif;
     }
@@ -512,118 +512,126 @@
          ========================================== -->
     <div id="dashboard-view" class="view-container" style="display: block;">
         
-        <!-- Hero Banner -->
-        <div class="hero-banner">
-            <div class="hero-content">
-                <h1 class="hero-title">Painel de Operações e Engenharia</h1>
-                <p class="hero-subtitle">Visão macro do portfólio de infraestrutura e performance da rede.</p>
+        <!-- Modern Welcome Header -->
+        <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 2.5rem;">
+            <div>
+                <h1 style="font-family: var(--font-heading); font-size: 2.2rem; font-weight: 700; color: var(--ent-primary); letter-spacing: -0.02em; margin-bottom: 0.25rem;">Visão Geral da Rede</h1>
+                <p style="color: var(--ent-text-muted); font-size: 1rem; font-weight: 500;">Monitoramento de performance e infraestrutura de telecomunicações.</p>
             </div>
-            <div style="text-align: right; z-index: 2;">
-                <div style="font-size: 0.85rem; color: #94a3b8; font-weight: 500; margin-bottom: 0.25rem;">Data Operacional</div>
-                <div style="font-size: 1.25rem; font-family: var(--font-heading); font-weight: 600;" id="current-date"></div>
-            </div>
-        </div>
-
-        <!-- KPIs -->
-        <div class="kpi-grid">
-            <div class="ent-card kpi-card">
-                <div class="kpi-icon-wrapper blue">
-                    <i data-lucide="layers"></i>
+            <div style="display: flex; align-items: center; gap: 1rem;">
+                <div style="background: white; border-radius: 30px; padding: 0.6rem 1.2rem; display: flex; align-items: center; gap: 0.5rem; box-shadow: var(--ent-shadow-sm); font-size: 0.85rem; font-weight: 600; color: var(--ent-primary);">
+                    <i data-lucide="calendar" style="width: 16px; height: 16px; color: var(--ent-accent);"></i>
+                    <span id="current-date"></span>
                 </div>
-                <div class="kpi-details">
-                    <span class="kpi-title">Portfólio Total</span>
-                    <span class="kpi-value">{{ total_sites|default:0 }}</span>
-                </div>
-            </div>
-            <div class="ent-card kpi-card">
-                <div class="kpi-icon-wrapper green">
-                    <i data-lucide="activity"></i>
-                </div>
-                <div class="kpi-details">
-                    <span class="kpi-title">Sites Ativos (SLA)</span>
-                    <span class="kpi-value">{{ active_sites|default:0 }}</span>
-                </div>
-            </div>
-            <div class="ent-card kpi-card">
-                <div class="kpi-icon-wrapper orange">
-                    <i data-lucide="tool"></i>
-                </div>
-                <div class="kpi-details">
-                    <span class="kpi-title">Manutenção Téc.</span>
-                    <span class="kpi-value">{{ maintenance_sites|default:0 }}</span>
-                </div>
-            </div>
-            <div class="ent-card kpi-card">
-                <div class="kpi-icon-wrapper red">
-                    <i data-lucide="power-off"></i>
-                </div>
-                <div class="kpi-details">
-                    <span class="kpi-title">Inativos / Offline</span>
-                    <span class="kpi-value">{{ inactive_sites|default:0 }}</span>
-                </div>
+                <button class="btn-ent btn-ent-primary" style="border-radius: 30px;">
+                    <i data-lucide="download-cloud" style="width: 16px; height: 16px;"></i> Exportar NOC
+                </button>
             </div>
         </div>
 
-        <!-- Gráficos Analíticos -->
-        <div class="charts-row">
-            <div class="ent-card chart-container">
-                <div class="chart-header">
-                    <h3 class="chart-title">Composição da Rede</h3>
-                    <button class="btn-ent btn-ent-outline" style="padding: 0.25rem 0.75rem; font-size: 0.75rem;">
-                        <i data-lucide="download" style="width: 14px; height: 14px;"></i> Exportar PDF
-                    </button>
+        <!-- KPIs Modernos -->
+        <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 1.5rem; margin-bottom: 2.5rem;">
+            
+            <div class="ent-card" style="padding: 1.5rem; position: relative; overflow: hidden; border: none;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                    <div style="width: 50px; height: 50px; border-radius: 50%; background: #f4f7fe; display: flex; align-items: center; justify-content: center; color: var(--ent-accent);">
+                        <i data-lucide="layers" style="width: 24px; height: 24px;"></i>
+                    </div>
+                    <span style="font-size: 0.8rem; font-weight: 700; color: var(--ent-success); background: #e6f8f1; padding: 0.25rem 0.5rem; border-radius: 12px;">+12%</span>
                 </div>
-                <div class="chart-body">
-                    <div style="width: 250px; height: 250px;">
-                        <canvas id="statusDoughnutChart"></canvas>
+                <div style="font-size: 0.85rem; font-weight: 600; color: var(--ent-text-muted); margin-bottom: 0.25rem;">Portfólio Total</div>
+                <div style="font-family: var(--font-heading); font-size: 2.2rem; font-weight: 700; color: var(--ent-primary);">{{ total_sites|default:0 }}</div>
+            </div>
+
+            <div class="ent-card" style="padding: 1.5rem; position: relative; overflow: hidden; border: none;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                    <div style="width: 50px; height: 50px; border-radius: 50%; background: #e6f8f1; display: flex; align-items: center; justify-content: center; color: var(--ent-success);">
+                        <i data-lucide="activity" style="width: 24px; height: 24px;"></i>
+                    </div>
+                    <span style="font-size: 0.8rem; font-weight: 700; color: var(--ent-success); background: #e6f8f1; padding: 0.25rem 0.5rem; border-radius: 12px;">98.9% SLA</span>
+                </div>
+                <div style="font-size: 0.85rem; font-weight: 600; color: var(--ent-text-muted); margin-bottom: 0.25rem;">Sites Ativos</div>
+                <div style="font-family: var(--font-heading); font-size: 2.2rem; font-weight: 700; color: var(--ent-primary);">{{ active_sites|default:0 }}</div>
+            </div>
+
+            <div class="ent-card" style="padding: 1.5rem; position: relative; overflow: hidden; border: none;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                    <div style="width: 50px; height: 50px; border-radius: 50%; background: #fff6e6; display: flex; align-items: center; justify-content: center; color: var(--ent-warning);">
+                        <i data-lucide="tool" style="width: 24px; height: 24px;"></i>
+                    </div>
+                    <span style="font-size: 0.8rem; font-weight: 700; color: var(--ent-warning); background: #fff6e6; padding: 0.25rem 0.5rem; border-radius: 12px;">Atenção</span>
+                </div>
+                <div style="font-size: 0.85rem; font-weight: 600; color: var(--ent-text-muted); margin-bottom: 0.25rem;">Em Manutenção</div>
+                <div style="font-family: var(--font-heading); font-size: 2.2rem; font-weight: 700; color: var(--ent-primary);">{{ maintenance_sites|default:0 }}</div>
+            </div>
+
+            <div class="ent-card" style="padding: 1.5rem; position: relative; overflow: hidden; border: none;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                    <div style="width: 50px; height: 50px; border-radius: 50%; background: #fdeceb; display: flex; align-items: center; justify-content: center; color: var(--ent-danger);">
+                        <i data-lucide="power-off" style="width: 24px; height: 24px;"></i>
+                    </div>
+                    <span style="font-size: 0.8rem; font-weight: 700; color: var(--ent-danger); background: #fdeceb; padding: 0.25rem 0.5rem; border-radius: 12px;">Crítico</span>
+                </div>
+                <div style="font-size: 0.85rem; font-weight: 600; color: var(--ent-text-muted); margin-bottom: 0.25rem;">Inativos / Offline</div>
+                <div style="font-family: var(--font-heading); font-size: 2.2rem; font-weight: 700; color: var(--ent-primary);">{{ inactive_sites|default:0 }}</div>
+            </div>
+
+        </div>
+
+        <!-- Gráficos e Alertas -->
+        <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 1.5rem;">
+            
+            <div class="ent-card" style="padding: 2rem; border: none;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+                    <h3 style="font-family: var(--font-heading); font-size: 1.25rem; font-weight: 700; color: var(--ent-primary);">Composição e Status da Rede</h3>
+                    <div style="background: #f4f7fe; padding: 0.25rem; border-radius: 10px; display: flex; gap: 0.25rem;">
+                        <button style="padding: 0.4rem 1rem; border-radius: 8px; border: none; background: white; box-shadow: var(--ent-shadow-sm); font-weight: 600; font-size: 0.8rem; color: var(--ent-primary);">Gráfico</button>
                     </div>
                 </div>
+                <div style="position: relative; height: 300px; display: flex; align-items: center; justify-content: center;">
+                    <canvas id="statusDoughnutChart"></canvas>
+                </div>
             </div>
 
-            <!-- Tabela de Ocorrências e Urgências (no lugar do gauge chart anterior) -->
-            <div class="ent-card" style="display: flex; flex-direction: column;">
-                <div class="chart-header" style="padding: 2rem 2rem 0 2rem; margin-bottom: 1rem;">
-                    <h3 class="chart-title">Alertas Operacionais</h3>
-                    <span style="font-size: 0.8rem; font-weight: 600; color: var(--ent-text-muted); background: #f1f5f9; padding: 0.25rem 0.75rem; border-radius: 20px;">Alta Prioridade</span>
+            <!-- Tabela de Ocorrências Modernizada -->
+            <div class="ent-card" style="padding: 2rem; border: none; display: flex; flex-direction: column;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+                    <h3 style="font-family: var(--font-heading); font-size: 1.25rem; font-weight: 700; color: var(--ent-primary);">Alertas Ativos</h3>
+                    <span style="font-size: 0.75rem; font-weight: 700; color: var(--ent-danger); background: #fdeceb; padding: 0.35rem 0.75rem; border-radius: 20px;">Alta Prioridade</span>
                 </div>
-                <div class="ent-table-wrapper" style="flex: 1; padding: 0 1rem 1rem 1rem;">
+                <div style="flex: 1; overflow-y: auto; padding-right: 0.5rem; display: flex; flex-direction: column; gap: 1rem;">
                     {% if maintenance_sites > 0 or inactive_sites > 0 %}
-                    <table class="ent-table" style="width: 100%; border: none;">
-                        <tbody>
-                            {% for site in sites %}
-                            {% if site.status == 'MAINTENANCE' or site.status == 'INACTIVE' %}
-                            <tr>
-                                <td style="border: none; border-bottom: 1px solid var(--ent-border); padding: 0.85rem 1rem;">
-                                    <div style="display: flex; align-items: center; gap: 1rem;">
-                                        <div style="width: 8px; height: 8px; border-radius: 50%; background-color: {% if site.status == 'MAINTENANCE' %}var(--ent-accent){% else %}var(--ent-danger){% endif %};"></div>
-                                        <div>
-                                            <div style="font-weight: 700; color: var(--ent-primary); font-size: 0.95rem;">{{ site.site_id }}</div>
-                                            <div style="font-size: 0.75rem; color: var(--ent-text-muted);">{{ site.name }}</div>
-                                        </div>
-                                    </div>
-                                </td>
-                                <td style="border: none; border-bottom: 1px solid var(--ent-border); text-align: right; padding: 0.85rem 1rem;">
-                                    <a href="{% url 'site_detail' pk=site.pk %}" class="btn-ent btn-ent-outline" style="font-size: 0.7rem; padding: 0.35rem 0.75rem;">
-                                        Analisar <i data-lucide="arrow-right" style="width: 12px; height: 12px;"></i>
-                                    </a>
-                                </td>
-                            </tr>
-                            {% endif %}
-                            {% endfor %}
-                        </tbody>
-                    </table>
+                        {% for site in sites %}
+                        {% if site.status == 'MAINTENANCE' or site.status == 'INACTIVE' %}
+                        <div style="display: flex; align-items: center; justify-content: space-between; padding: 1rem; border-radius: 16px; background: #f4f7fe; border-left: 4px solid {% if site.status == 'MAINTENANCE' %}var(--ent-warning){% else %}var(--ent-danger){% endif %}; transition: background 0.2s;">
+                            <div style="display: flex; align-items: center; gap: 1rem;">
+                                <div style="width: 36px; height: 36px; border-radius: 10px; background: white; display: flex; align-items: center; justify-content: center; box-shadow: var(--ent-shadow-sm); color: {% if site.status == 'MAINTENANCE' %}var(--ent-warning){% else %}var(--ent-danger){% endif %};">
+                                    <i data-lucide="alert-triangle" style="width: 18px; height: 18px;"></i>
+                                </div>
+                                <div>
+                                    <div style="font-weight: 700; color: var(--ent-primary); font-size: 0.95rem; margin-bottom: 0.15rem;">{{ site.site_id }}</div>
+                                    <div style="font-size: 0.8rem; color: var(--ent-text-muted); font-weight: 500;">{{ site.name }}</div>
+                                </div>
+                            </div>
+                            <a href="{% url 'site_detail' pk=site.pk %}" style="width: 32px; height: 32px; border-radius: 50%; background: white; display: flex; align-items: center; justify-content: center; box-shadow: var(--ent-shadow-sm); color: var(--ent-accent); transition: all 0.2s; text-decoration: none;">
+                                <i data-lucide="arrow-right" style="width: 14px; height: 14px;"></i>
+                            </a>
+                        </div>
+                        {% endif %}
+                        {% endfor %}
                     {% else %}
-                    <div style="height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; color: var(--ent-success); padding: 2rem; text-align: center;">
-                        <i data-lucide="check-circle" style="width: 48px; height: 48px; margin-bottom: 1rem; opacity: 0.8;"></i>
-                        <h4 style="font-family: var(--font-heading); font-size: 1.2rem; font-weight: 700; color: var(--ent-primary);">Sistemas Normalizados</h4>
-                        <p style="font-size: 0.9rem; color: var(--ent-text-muted);">Nenhuma intercorrência técnica relatada nos ativos da rede.</p>
-                    </div>
+                        <div style="height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center;">
+                            <div style="width: 64px; height: 64px; border-radius: 50%; background: #e6f8f1; display: flex; align-items: center; justify-content: center; color: var(--ent-success); margin-bottom: 1rem;">
+                                <i data-lucide="check-circle" style="width: 32px; height: 32px;"></i>
+                            </div>
+                            <h4 style="font-family: var(--font-heading); font-size: 1.1rem; font-weight: 700; color: var(--ent-primary); margin-bottom: 0.25rem;">Sistemas Normalizados</h4>
+                            <p style="font-size: 0.85rem; color: var(--ent-text-muted);">Nenhuma intercorrência técnica na rede.</p>
+                        </div>
                     {% endif %}
                 </div>
             </div>
         </div>
     </div>
-
 
     <!-- ==========================================
          VIEW 2: REPOSITÓRIO / BUSCAR SITE
