@@ -334,7 +334,7 @@
 {% block content %}
 <div class="detail-page-wrapper">
     <div class="back-nav">
-        <a href="{% url 'site_list' %}" class="back-link">
+        <a href="{% url 'site_list' %}#sites" class="back-link">
             <i data-lucide="arrow-left" style="width: 18px; height: 18px;"></i>
             Voltar para a Listagem de Sites
         </a>
@@ -593,38 +593,35 @@
                 <span>Fotografias / Imagens</span>
             </div>
             {% if files_by_category.IMAGE %}
-                <table class="file-table">
-                    <thead>
-                        <tr>
-                            <th>Arquivo</th>
-                            <th>Enviado Por</th>
-                            <th style="width: 50px; text-align: center;">Baixar</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for f in files_by_category.IMAGE %}
-                        <tr>
-                            <td class="file-name-cell">
-                                <span class="file-title">{{ f.file.name|slice:"17:" }}</span>
-                                {% if f.description %}
-                                <span class="file-desc">{{ f.description }}</span>
-                                {% endif %}
-                            </td>
-                            <td>
-                                <span class="file-meta">
-                                    {{ f.uploaded_by.first_name|default:f.uploaded_by.username }} <br>
-                                    <span style="font-size: 0.7rem; opacity: 0.7;">{{ f.uploaded_at|date:"d/m/Y" }}</span>
-                                </span>
-                            </td>
-                            <td style="text-align: center;">
-                                <a href="{% url 'download_file' file_id=f.id %}" class="action-download" title="Fazer Download da Foto">
-                                    <i data-lucide="download" style="width: 16px; height: 16px;"></i>
-                                </a>
-                            </td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
+                <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 1.25rem;">
+                    {% for f in files_by_category.IMAGE %}
+                    <div style="background: var(--bg-body); border: 1px solid var(--border-color); border-radius: 12px; padding: 0.75rem; display: flex; flex-direction: column; gap: 0.5rem; transition: transform 0.2s; position: relative;" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='translateY(0)'">
+                        
+                        <!-- Imagem com clique para visualização expandida -->
+                        <div style="width: 100%; height: 130px; border-radius: 8px; overflow: hidden; background: #e2e8f0; cursor: zoom-in;" onclick="openLightboxModal('{% url 'download_file' file_id=f.id %}', '{{ f.description|escapejs }}')">
+                            <img src="{% url 'download_file' file_id=f.id %}" style="width: 100%; height: 100%; object-fit: cover;" alt="{{ f.description }}">
+                        </div>
+                        
+                        <!-- Info e Descrição -->
+                        <div style="display: flex; flex-direction: column; flex: 1;">
+                            <span style="font-size: 0.82rem; font-weight: 700; color: var(--text-main); display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; line-height: 1.3;" title="{{ f.description }}">
+                                {{ f.description|default:"Sem descrição" }}
+                            </span>
+                            <span style="font-size: 0.7rem; color: var(--text-muted); margin-top: 0.25rem; line-height: 1.2;">
+                                Por {{ f.uploaded_by.first_name|default:f.uploaded_by.username }} <br>
+                                {{ f.uploaded_at|date:"d/m/Y" }}
+                            </span>
+                        </div>
+                        
+                        <!-- Botão Download -->
+                        <div style="border-top: 1px dashed var(--border-color); padding-top: 0.5rem; display: flex; justify-content: flex-end;">
+                            <a href="{% url 'download_file' file_id=f.id %}?download=true" class="action-download" style="width: 28px; height: 28px; border-radius: 6px; display: flex; align-items: center; justify-content: center; text-decoration: none;" title="Baixar original">
+                                <i data-lucide="download" style="width: 14px; height: 14px;"></i>
+                            </a>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
             {% else %}
                 <p class="no-files">Nenhuma fotografia anexada.</p>
             {% endif %}
@@ -764,4 +761,36 @@
     </div>
 </div>
 </div>
+
+<!-- Lightbox Modal para Visualização de Fotos -->
+<div id="image-lightbox-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.88); backdrop-filter: blur(5px); z-index: 99999; align-items: center; justify-content: center; padding: 2rem; box-sizing: border-box;" onclick="closeLightboxModal()">
+    <button style="position: absolute; top: 1.5rem; right: 1.5rem; background: none; border: none; color: white; cursor: pointer; padding: 0.5rem; display: flex; align-items: center; justify-content: center; border-radius: 50%; width: 40px; height: 40px; transition: background 0.2s;" onmouseover="this.style.background='rgba(255,255,255,0.1)'" onmouseout="this.style.background='none'">
+        <i data-lucide="x" style="width: 26px; height: 26px;"></i>
+    </button>
+    <div style="display: flex; flex-direction: column; align-items: center; max-width: 90%; max-height: 90%; gap: 1rem;" onclick="event.stopPropagation()">
+        <img id="lightbox-img" src="" style="max-width: 100%; max-height: 75vh; object-fit: contain; border-radius: 12px; box-shadow: 0 15px 35px rgba(0,0,0,0.5); border: 2px solid rgba(255,255,255,0.1);">
+        <p id="lightbox-desc" style="color: white; font-family: var(--font-heading); font-size: 1rem; text-align: center; font-weight: 600; text-shadow: 0 2px 4px rgba(0,0,0,0.5); background: rgba(0,0,0,0.4); padding: 0.5rem 1rem; border-radius: 20px;"></p>
+    </div>
+</div>
+
+<script>
+    function openLightboxModal(src, desc) {
+        const modal = document.getElementById('image-lightbox-modal');
+        const img = document.getElementById('lightbox-img');
+        const descEl = document.getElementById('lightbox-desc');
+        if (modal && img && descEl) {
+            img.src = src;
+            descEl.textContent = desc || 'Fotografia do Site';
+            modal.style.display = 'flex';
+            lucide.createIcons();
+        }
+    }
+
+    function closeLightboxModal() {
+        const modal = document.getElementById('image-lightbox-modal');
+        if (modal) {
+            modal.style.display = 'none';
+        }
+    }
+</script>
 {% endblock %}

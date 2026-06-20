@@ -265,7 +265,11 @@ def download_file(request, file_id):
     # Extrai o nome de arquivo limpo (removendo caminhos de pastas)
     original_filename = os.path.basename(site_file.file.name)
     
-    # Define o header para forçar o download no computador do usuário com o nome original do arquivo
-    response['Content-Disposition'] = f'attachment; filename="{original_filename}"'
+    # Define o header: se for imagem ou PDF e não houver solicitação expressa de download, exibe inline
+    force_download = request.GET.get('download') == 'true'
+    if site_file.category in ['IMAGE', 'PDF'] and not force_download:
+        response['Content-Disposition'] = f'inline; filename="{original_filename}"'
+    else:
+        response['Content-Disposition'] = f'attachment; filename="{original_filename}"'
 
     return response
