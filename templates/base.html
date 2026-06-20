@@ -592,7 +592,9 @@
 
         // Lógica de Navegação do SPA (Hash)
         function handleNav() {
-            const hash = window.location.hash || '#dashboard';
+            // Se estamos na tela de detalhes do site (data room), a aba ativa deve ser "sites"
+            const isSiteDetail = window.location.pathname.includes('/site/');
+            const hash = isSiteDetail ? '#sites' : (window.location.hash || '#dashboard');
             const target = hash.substring(1);
             
             // Atualizar links ativos na navbar
