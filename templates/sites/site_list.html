@@ -526,8 +526,16 @@
         transition: width 0.8s ease-in-out;
     }
 
+    @keyframes pulse {
+        0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(37, 99, 235, 0.7); }
+        70% { transform: scale(1.1); box-shadow: 0 0 0 8px rgba(37, 99, 235, 0); }
+        100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(37, 99, 235, 0); }
+    }
 
-
+    @keyframes modalScaleIn {
+        from { opacity: 0; transform: scale(0.95); }
+        to { opacity: 1; transform: scale(1); }
+    }
 </style>
 {% endblock %}
 
@@ -756,9 +764,9 @@
                 <p>Mapeamento geográfico e acesso aos data rooms de cada site de telecom</p>
             </div>
             <div>
-                <a href="#gerenciar" class="btn-ent btn-ent-primary" onclick="window.location.hash='#gerenciar'">
+                <button class="btn-ent btn-ent-primary" onclick="openCreateModal()">
                     <i data-lucide="plus"></i> Novo Ativo
-                </a>
+                </button>
             </div>
         </div>
 
@@ -1041,95 +1049,101 @@
                     <h4 style="font-weight: 600; color: var(--ent-primary);">Nenhum alerta pendente</h4>
                     <p style="font-size: 0.85rem;">Todos os cronogramas dos próximos dias estão tranquilos.</p>
                 </div>
-                {% endif %}
-            </div>
-        </div>
-    </div>
-
-
-    <!-- ==========================================
-         VIEW 5: GERENCIAMENTO E CADASTRO
+                <!-- ==========================================
+         POPUP MODAL: CADASTRO DE NOVO SITE (Em vez de aba separada)
          ========================================== -->
-    <div id="gerenciar-view" class="view-container">
-        <div class="page-header">
-            <div class="page-header-text">
-                <h2>Integração de Novos Ativos</h2>
-                <p>Módulo administrativo para registro de novas torres e infraestruturas na base de dados.</p>
-            </div>
-        </div>
-
-        <div class="ent-card" style="max-width: 800px; padding: 2.5rem;">
-            <h3 style="font-family: var(--font-heading); font-size: 1.25rem; font-weight: 700; color: var(--ent-primary); margin-bottom: 2rem; border-bottom: 1px solid var(--ent-border); padding-bottom: 1rem;">Ficha de Cadastro do Site</h3>
+    <div id="create-site-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.55); backdrop-filter: blur(4px); z-index: 9999; align-items: center; justify-content: center; padding: 1.5rem; box-sizing: border-box;">
+        <div class="ent-card" style="width: 100%; max-width: 650px; background: #ffffff; padding: 2.2rem; border-radius: var(--ent-radius); box-shadow: var(--ent-shadow-lg); animation: modalScaleIn 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards; position: relative;">
             
+            <!-- Fechar Modal -->
+            <button onclick="closeCreateModal()" style="position: absolute; top: 1.5rem; right: 1.5rem; background: none; border: none; color: var(--ent-secondary); cursor: pointer; padding: 0.5rem; border-radius: 50%; display: flex; align-items: center; justify-content: center; transition: all 0.2s;" onmouseover="this.style.background='#f1f5f9'; this.style.color='#0f172a'" onmouseout="this.style.background='none'; this.style.color='var(--ent-secondary)'">
+                <i data-lucide="x" style="width: 20px; height: 20px;"></i>
+            </button>
+
+            <h3 style="font-family: var(--font-heading); font-size: 1.35rem; font-weight: 700; color: var(--ent-primary); margin-bottom: 0.25rem; display: flex; align-items: center; gap: 0.5rem;">
+                <i data-lucide="radio-tower" style="color: var(--ent-accent); width: 22px; height: 22px;"></i>
+                Integrar Novo Ativo
+            </h3>
+            <p style="font-size: 0.8rem; color: var(--ent-text-muted); margin-bottom: 1.5rem;">Preencha os dados do acionamento técnico e prazos planejados do parceiro.</p>
+
             {% if user.role == 'ADMIN' or user.role == 'ENGINEER' %}
-            <form method="POST" action="{% url 'site_list' %}">
+            <form method="POST" action="{% url 'site_list' %}" id="modal-create-form">
                 {% csrf_token %}
-                <div class="ent-form-grid" style="margin-bottom: 1.5rem;">
-                    <div class="form-group">
-                        <label for="site_id">Identificador Alfanumérico (ID) <span style="color: var(--ent-danger);">*</span></label>
-                        <input type="text" name="site_id" id="site_id" class="form-control" placeholder="Ex: SP_SJO_01" required>
+                
+                <div style="max-height: 55vh; overflow-y: auto; padding-right: 0.5rem; display: flex; flex-direction: column; gap: 1.15rem;">
+                    <div class="ent-form-grid">
+                        <div class="form-group">
+                            <label for="modal_site_id">Identificador Alfanumérico (ID) <span style="color: var(--ent-danger);">*</span></label>
+                            <input type="text" name="site_id" id="modal_site_id" class="form-control" placeholder="Ex: SP_SJO_01" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="modal_name">Denominação do Site <span style="color: var(--ent-danger);">*</span></label>
+                            <input type="text" name="name" id="modal_name" class="form-control" placeholder="Ex: Central São José" required>
+                        </div>
+                    </div>
+
+                    <div class="ent-form-grid">
+                        <div class="form-group">
+                            <label for="modal_latitude">Latitude (WGS 84) <span style="color: var(--ent-danger);">*</span></label>
+                            <input type="number" name="latitude" id="modal_latitude" step="0.000001" class="form-control" placeholder="-23.550500" required oninput="updatePreviewMarker()">
+                        </div>
+                        <div class="form-group">
+                            <label for="modal_longitude">Longitude (WGS 84) <span style="color: var(--ent-danger);">*</span></label>
+                            <input type="number" name="longitude" id="modal_longitude" step="0.000001" class="form-control" placeholder="-46.633300" required oninput="updatePreviewMarker()">
+                        </div>
+                    </div>
+
+                    <div style="font-size: 0.75rem; color: var(--ent-accent); font-weight: 600; display: flex; align-items: center; gap: 0.35rem; margin-top: -0.5rem; background: #eff6ff; padding: 0.5rem 0.75rem; border-radius: 8px;">
+                        <i data-lucide="info" style="width: 14px; height: 14px; flex-shrink:0;"></i>
+                        <span>Dica: Você também pode <strong>clicar no mapa</strong> para capturar as coordenadas e abrir esta ficha de cadastro automaticamente!</span>
+                    </div>
+
+                    <div class="ent-form-grid">
+                        <div class="form-group">
+                            <label for="modal_scope_type">Escopo do Acionamento</label>
+                            <select name="scope_type" id="modal_scope_type" class="form-control" required style="cursor: pointer;">
+                                <option value="LAUDO" selected>Laudo Técnico (Mais Comum)</option>
+                                <option value="PROJETO">Projeto</option>
+                                <option value="OBRA">Obra / Instalação</option>
+                                <option value="OUTRO">Outros</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="modal_partner_company">Empresa Parceira</label>
+                            <input type="text" name="partner_company" id="modal_partner_company" class="form-control" placeholder="Ex: Parceiro Vistorias Ltda">
+                        </div>
+                    </div>
+
+                    <div class="ent-form-grid">
+                        <div class="form-group">
+                            <label for="modal_planned_survey_date">Data Planejada para Vistoria</label>
+                            <input type="date" name="planned_survey_date" id="modal_planned_survey_date" class="form-control">
+                        </div>
+                        <div class="form-group">
+                            <label for="modal_planned_report_date">Data Planejada para Laudo</label>
+                            <input type="date" name="planned_report_date" id="modal_planned_report_date" class="form-control">
+                        </div>
                     </div>
 
                     <div class="form-group">
-                        <label for="name">Denominação do Site <span style="color: var(--ent-danger);">*</span></label>
-                        <input type="text" name="name" id="name" class="form-control" placeholder="Ex: Central São José" required>
+                        <label for="modal_description">Especificações Técnicas e Notas</label>
+                        <textarea name="description" id="modal_description" class="form-control" rows="3" placeholder="Detalhes adicionais de infraestrutura..." style="resize: vertical;"></textarea>
                     </div>
                 </div>
 
-                <div class="ent-form-grid" style="margin-bottom: 1.5rem;">
-                    <div class="form-group">
-                        <label for="latitude">Latitude (WGS 84) <span style="color: var(--ent-danger);">*</span></label>
-                        <input type="number" name="latitude" id="latitude" step="0.000001" class="form-control" placeholder="-23.550500" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="longitude">Longitude (WGS 84) <span style="color: var(--ent-danger);">*</span></label>
-                        <input type="number" name="longitude" id="longitude" step="0.000001" class="form-control" placeholder="-46.633300" required>
-                    </div>
-                </div>
-
-                <div class="ent-form-grid" style="margin-bottom: 1.5rem;">
-                    <div class="form-group">
-                        <label for="scope_type">Escopo do Acionamento</label>
-                        <select name="scope_type" id="scope_type" class="form-control" required style="cursor: pointer;">
-                            <option value="LAUDO" selected>Laudo Técnico (Mais Comum)</option>
-                            <option value="PROJETO">Projeto</option>
-                            <option value="OBRA">Obra / Instalação</option>
-                            <option value="OUTRO">Outros</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label for="partner_company">Empresa Parceira (Vistoria/Laudo)</label>
-                        <input type="text" name="partner_company" id="partner_company" class="form-control" placeholder="Ex: Parceiro Vistorias Ltda">
-                    </div>
-                </div>
-
-                <div class="ent-form-grid" style="margin-bottom: 1.5rem;">
-                    <div class="form-group">
-                        <label for="planned_survey_date">Data Planejada para Vistoria</label>
-                        <input type="date" name="planned_survey_date" id="planned_survey_date" class="form-control">
-                    </div>
-                    <div class="form-group">
-                        <label for="planned_report_date">Data Planejada para Laudo</label>
-                        <input type="date" name="planned_report_date" id="planned_report_date" class="form-control">
-                    </div>
-                </div>
-
-                <div class="form-group" style="margin-bottom: 2.5rem;">
-                    <label for="description">Especificações Técnicas e Notas</label>
-                    <textarea name="description" id="description" class="form-control" rows="4" placeholder="Detalhes de infraestrutura, altura da torre, tipo de fundação, equipamentos alocados..." style="resize: vertical;"></textarea>
-                </div>
-
-                <div style="display: flex; justify-content: flex-end; border-top: 1px solid var(--ent-border); padding-top: 1.5rem;">
-                    <button type="submit" class="btn-ent btn-ent-primary" style="padding: 0.8rem 2rem; font-size: 0.95rem;">
+                <div style="display: flex; justify-content: flex-end; gap: 0.75rem; border-top: 1px solid var(--ent-border); padding-top: 1.25rem; margin-top: 1.25rem;">
+                    <button type="button" class="btn-ent btn-ent-outline" onclick="closeCreateModal()">Cancelar</button>
+                    <button type="submit" class="btn-ent btn-ent-primary" style="padding: 0.65rem 1.5rem;">
                         <i data-lucide="save"></i> Efetivar Registro
                     </button>
                 </div>
             </form>
             {% else %}
-            <div style="text-align: center; padding: 3rem 1rem; color: var(--ent-text-muted); background: #f8fafc; border-radius: var(--ent-radius);">
-                <i data-lucide="lock" style="width: 48px; height: 48px; color: var(--ent-warning); margin-bottom: 1.5rem;"></i>
-                <h4 style="font-family: var(--font-heading); font-size: 1.25rem; font-weight: 700; color: var(--ent-primary); margin-bottom: 0.5rem;">Acesso de Leitura</h4>
-                <p style="font-size: 1rem;">O seu perfil de <strong>{{ user.get_role_display }}</strong> não dispõe das permissões necessárias para gravar novos ativos na base de dados central.</p>
+            <div style="text-align: center; padding: 2rem 0; color: var(--ent-text-muted);">
+                <i data-lucide="lock" style="width: 48px; height: 48px; color: var(--ent-warning); margin-bottom: 1rem;"></i>
+                <h4 style="font-family: var(--font-heading); font-size: 1.10rem; font-weight: 700; color: var(--ent-primary); margin-bottom: 0.5rem;">Acesso de Leitura</h4>
+                <p style="font-size: 0.9rem;">O seu cargo não possui as permissões necessárias para gravar novos ativos na base central.</p>
             </div>
             {% endif %}
         </div>
@@ -1320,8 +1334,86 @@
         if (bounds.length > 1) {
             map.fitBounds(bounds, { padding: [30, 30] });
         }
+
+        // Ao clicar no mapa, abre o modal de criação pré-preenchido com a latitude/longitude
+        {% if user.role == 'ADMIN' or user.role == 'ENGINEER' %}
+        map.on('click', function(e) {
+            const lat = e.latlng.lat;
+            const lng = e.latlng.lng;
+            openCreateModal(lat, lng);
+        });
+        {% endif %}
+
         mapInitialized = true;
     }
+
+    // --- 4.1. FUNÇÕES DO MODAL DE CRIAÇÃO ---
+    let previewMarker = null;
+
+    function openCreateModal(lat = '', lng = '') {
+        const modal = document.getElementById('create-site-modal');
+        if (modal) {
+            modal.style.display = 'flex';
+            if (lat !== '' && lng !== '') {
+                document.getElementById('modal_latitude').value = parseFloat(lat).toFixed(6);
+                document.getElementById('modal_longitude').value = parseFloat(lng).toFixed(6);
+                updatePreviewMarker();
+            }
+            lucide.createIcons();
+        }
+    }
+
+    function closeCreateModal() {
+        const modal = document.getElementById('create-site-modal');
+        if (modal) {
+            modal.style.display = 'none';
+        }
+        if (previewMarker) {
+            map.removeLayer(previewMarker);
+            previewMarker = null;
+        }
+    }
+
+    function updatePreviewMarker() {
+        const latVal = parseFloat(document.getElementById('modal_latitude').value);
+        const lngVal = parseFloat(document.getElementById('modal_longitude').value);
+        
+        if (!isNaN(latVal) && !isNaN(lngVal)) {
+            const latlng = [latVal, lngVal];
+            
+            if (previewMarker) {
+                previewMarker.setLatLng(latlng);
+            } else {
+                const previewIcon = L.divIcon({
+                    html: `<div style="background-color: #2563EB; width: 14px; height: 14px; border-radius: 50%; border: 3px solid white; box-shadow: 0 0 10px rgba(37, 99, 235, 0.6); animation: pulse 1.5s infinite;"></div>`,
+                    className: 'custom-preview-pin',
+                    iconSize: [14, 14],
+                    iconAnchor: [7, 7]
+                });
+                previewMarker = L.marker(latlng, { icon: previewIcon }).addTo(map);
+            }
+            map.setView(latlng, map.getZoom() < 8 ? 8 : map.getZoom());
+        }
+    }
+
+    // --- 4.2. CORREÇÃO DOS TILES CINZAS (Leaflet Map InvalidateSize) ---
+    window.addEventListener('hashchange', () => {
+        const hash = window.location.hash || '#dashboard';
+        if (hash === '#sites' && mapInitialized && map) {
+            setTimeout(() => {
+                map.invalidateSize();
+            }, 150);
+        }
+    });
+    
+    document.addEventListener('DOMContentLoaded', () => {
+        const hash = window.location.hash || '#dashboard';
+        if (hash === '#sites' && mapInitialized && map) {
+            setTimeout(() => {
+                map.invalidateSize();
+            }, 300);
+        }
+    });
 
     // --- 5. GRÁFICO CHART.JS ---
     document.addEventListener("DOMContentLoaded", function() {
