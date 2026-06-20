@@ -7,6 +7,7 @@ from django.contrib import messages
 from django.http import FileResponse, Http404, HttpResponseForbidden
 from .models import Site, SiteFile, User
 from django.db import IntegrityError
+from django.utils.dateparse import parse_date
 
 # --- VIEW DE LOGIN ---
 def login_view(request):
@@ -73,10 +74,10 @@ def site_list(request):
         partner_company = request.POST.get('partner_company', '').strip() or None
         
         p_survey = request.POST.get('planned_survey_date')
-        planned_survey_date = p_survey if p_survey else None
+        planned_survey_date = parse_date(p_survey) if p_survey else None
         
         p_report = request.POST.get('planned_report_date')
-        planned_report_date = p_report if p_report else None
+        planned_report_date = parse_date(p_report) if p_report else None
         
         description = request.POST.get('description')
 
@@ -167,16 +168,16 @@ def site_detail(request, pk):
             site.partner_company = request.POST.get('partner_company', '').strip() or None
             
             p_survey = request.POST.get('planned_survey_date')
-            site.planned_survey_date = p_survey if p_survey else None
+            site.planned_survey_date = parse_date(p_survey) if p_survey else None
             
             a_survey = request.POST.get('actual_survey_date')
-            site.actual_survey_date = a_survey if a_survey else None
+            site.actual_survey_date = parse_date(a_survey) if a_survey else None
             
             p_report = request.POST.get('planned_report_date')
-            site.planned_report_date = p_report if p_report else None
+            site.planned_report_date = parse_date(p_report) if p_report else None
             
             a_report = request.POST.get('actual_report_date')
-            site.actual_report_date = a_report if a_report else None
+            site.actual_report_date = parse_date(a_report) if a_report else None
 
             try:
                 site.save()  # Auto-calcula o status

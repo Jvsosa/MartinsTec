@@ -142,7 +142,14 @@ class Site(models.Model):
 
     def save(self, *args, **kwargs):
         from django.utils import timezone
+        from django.utils.dateparse import parse_date
         today = timezone.localdate()
+        
+        # Garante que as datas sejam objetos datetime.date se forem strings
+        for field in ['planned_survey_date', 'actual_survey_date', 'planned_report_date', 'actual_report_date']:
+            val = getattr(self, field)
+            if isinstance(val, str):
+                setattr(self, field, parse_date(val) if val else None)
         
         if self.actual_report_date:
             self.status = self.SiteStatus.ACTIVE
