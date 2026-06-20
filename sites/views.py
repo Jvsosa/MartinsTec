@@ -79,7 +79,18 @@ def site_list(request):
     total_sites = Site.objects.count()
     active_sites = Site.objects.filter(status='ACTIVE').count()
     maintenance_sites = Site.objects.filter(status='MAINTENANCE').count()
+    planned_sites = Site.objects.filter(status='PLANNED').count()
+    inactive_sites = Site.objects.filter(status='INACTIVE').count()
     total_files = SiteFile.objects.count()
+
+    # Contagem de arquivos por categoria para gráficos
+    pdf_files = SiteFile.objects.filter(category='PDF').count()
+    image_files = SiteFile.objects.filter(category='IMAGE').count()
+    dwg_files = SiteFile.objects.filter(category='DWG').count()
+    other_files = SiteFile.objects.filter(category='OTHER').count()
+
+    # Atividades recentes (Uploads)
+    recent_activities = SiteFile.objects.select_related('site', 'uploaded_by').order_by('-uploaded_at')[:5]
 
     context = {
         'sites': sites,
@@ -87,7 +98,14 @@ def site_list(request):
         'total_sites': total_sites,
         'active_sites': active_sites,
         'maintenance_sites': maintenance_sites,
+        'planned_sites': planned_sites,
+        'inactive_sites': inactive_sites,
         'total_files': total_files,
+        'pdf_files': pdf_files,
+        'image_files': image_files,
+        'dwg_files': dwg_files,
+        'other_files': other_files,
+        'recent_activities': recent_activities,
     }
 
     return render(request, 'sites/site_list.html', context)
