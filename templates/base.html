@@ -48,48 +48,55 @@
             min-height: 100vh;
         }
 
-        /* NAVBAR SUPERIOR */
-        .top-navbar {
+        /* SIDEBAR DE NAVEGAÇÃO LATERAL */
+        .side-navbar {
             position: fixed;
-            top: 0; left: 0; right: 0;
-            height: 70px;
+            top: 0; left: 0; bottom: 0;
+            width: 260px;
             background-color: var(--bg-surface);
-            border-bottom: 1px solid var(--border-color);
+            border-right: 1px solid var(--border-color);
             display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 0 2rem;
+            flex-direction: column;
+            padding: 2rem 1.5rem;
             z-index: 1000;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
-        /* Lado Esquerdo: Logo */
+        /* Logo no topo da Sidebar */
         .nav-brand {
             display: flex;
             align-items: center;
             gap: 0.75rem;
             text-decoration: none;
+            margin-bottom: 2rem;
+            padding: 0 0.5rem;
         }
 
         .brand-icon {
-            width: 36px; height: 36px;
+            width: 38px; height: 38px;
             background-color: var(--brand-light);
             color: var(--brand-primary);
-            border-radius: 10px;
+            border-radius: 12px;
             display: flex; align-items: center; justify-content: center;
+            flex-shrink: 0;
+            box-shadow: 0 4px 10px rgba(37, 99, 235, 0.1);
         }
 
         .brand-text {
-            font-size: 1.15rem;
+            font-size: 1.2rem;
             font-weight: 700;
             color: var(--text-main);
             letter-spacing: -0.02em;
+            white-space: nowrap;
         }
 
-        /* Centro: Links */
+        /* Links de Navegação Verticais */
         .nav-links {
             display: flex;
-            gap: 2rem;
-            align-items: center;
+            flex-direction: column;
+            gap: 0.5rem;
+            width: 100%;
+            flex-grow: 1;
         }
 
         .nav-link {
@@ -97,36 +104,40 @@
             text-decoration: none;
             font-weight: 500;
             font-size: 0.95rem;
-            transition: color 0.2s;
+            transition: all 0.2s ease;
             display: flex;
             align-items: center;
-            gap: 0.5rem;
-            padding: 0.5rem 0;
-            position: relative;
+            gap: 0.85rem;
+            padding: 0.75rem 1rem;
+            border-radius: 10px;
+            width: 100%;
         }
 
-        .nav-link:hover { color: var(--text-main); }
+        .nav-link i {
+            flex-shrink: 0;
+        }
+
+        .nav-link:hover {
+            color: var(--text-main);
+            background-color: var(--bg-body);
+        }
 
         .nav-link.active {
             color: var(--brand-primary);
+            background-color: var(--brand-light);
             font-weight: 600;
         }
 
-        .nav-link.active::after {
-            content: '';
-            position: absolute;
-            bottom: -20px; /* alinha com a borda da navbar */
-            left: 0; right: 0;
-            height: 3px;
-            background-color: var(--brand-primary);
-            border-radius: 3px 3px 0 0;
-        }
-
-        /* Direita: Perfil */
-        .nav-profile {
+        /* Footer com Perfil e Logout */
+        .sidebar-footer {
+            border-top: 1px solid var(--border-color);
+            padding-top: 1.5rem;
+            margin-top: auto;
             display: flex;
             align-items: center;
-            gap: 1.5rem;
+            justify-content: space-between;
+            gap: 0.75rem;
+            width: 100%;
         }
 
         .profile-menu {
@@ -135,8 +146,10 @@
             gap: 0.75rem;
             cursor: pointer;
             padding: 0.25rem;
-            border-radius: 50px;
+            border-radius: 8px;
             transition: background 0.2s;
+            flex: 1;
+            overflow: hidden;
         }
         
         .profile-menu:hover { background-color: var(--bg-body); }
@@ -144,45 +157,119 @@
         .profile-info {
             display: flex;
             flex-direction: column;
-            text-align: right;
+            text-align: left;
+            overflow: hidden;
         }
 
         .profile-name {
             font-size: 0.85rem;
             font-weight: 600;
             color: var(--text-main);
+            white-space: nowrap;
+            text-overflow: ellipsis;
+            overflow: hidden;
         }
 
         .profile-role {
             font-size: 0.75rem;
             color: var(--brand-primary);
             font-weight: 500;
+            white-space: nowrap;
+            text-overflow: ellipsis;
+            overflow: hidden;
         }
 
         .profile-avatar {
-            width: 40px; height: 40px;
+            width: 38px; height: 38px;
             border-radius: 50%;
             background-color: var(--brand-primary);
             color: white;
             display: flex; align-items: center; justify-content: center;
             font-weight: 700;
-            font-size: 1rem;
+            font-size: 0.95rem;
+            flex-shrink: 0;
         }
 
         .logout-btn {
             color: var(--text-muted);
             transition: color 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0.5rem;
+            border-radius: 8px;
         }
-        .logout-btn:hover { color: var(--danger); }
+        .logout-btn:hover {
+            color: var(--danger);
+            background-color: #fee2e2;
+        }
 
         /* Estrutura Principal */
         .app-container {
-            margin-top: 70px; /* espaço da navbar */
-            padding: 2.5rem 2rem;
-            max-width: 1400px;
-            margin-left: auto;
-            margin-right: auto;
-            width: 100%;
+            margin-left: 260px; /* espaço da sidebar */
+            padding: 0;
+            width: calc(100% - 260px);
+            min-height: 100vh;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        /* Responsividade para telas médias/pequenas (Sidebar encolhe) */
+        @media (max-width: 992px) {
+            .side-navbar {
+                width: 80px;
+                padding: 2rem 0.75rem;
+                align-items: center;
+            }
+            .brand-text, .profile-info, .nav-link-text {
+                display: none;
+            }
+            .nav-brand {
+                justify-content: center;
+                padding: 0;
+                margin-bottom: 2.5rem;
+            }
+            .nav-links {
+                align-items: center;
+            }
+            .nav-link {
+                justify-content: center;
+                padding: 0.75rem;
+                width: 44px;
+                height: 44px;
+                border-radius: 10px;
+            }
+            .sidebar-footer {
+                flex-direction: column;
+                gap: 1.25rem;
+                padding-top: 1.25rem;
+                align-items: center;
+            }
+            .profile-menu {
+                justify-content: center;
+                padding: 0;
+            }
+            .app-container {
+                margin-left: 80px;
+                width: calc(100% - 80px);
+            }
+        }
+
+        /* Mobile total (Oculta ou joga em barra inferior / topo se preferir, mas vamos manter responsiva compacta no mobile) */
+        @media (max-width: 576px) {
+            .side-navbar {
+                width: 68px;
+                padding: 1.5rem 0.5rem;
+            }
+            .nav-link {
+                width: 38px;
+                height: 38px;
+                padding: 0;
+                justify-content: center;
+            }
+            .app-container {
+                margin-left: 68px;
+                width: calc(100% - 68px);
+            }
         }
 
         /* Classes Utilitárias (Tailwind-like) */
@@ -209,9 +296,9 @@
 </head>
 <body>
     {% if user.is_authenticated %}
-    <!-- NAVBAR SUPERIOR -->
-    <header class="top-navbar">
-        <!-- Esquerda: Logo -->
+    <!-- NAVEGAÇÃO LATERAL (SIDEBAR) -->
+    <aside class="side-navbar">
+        <!-- Topo: Logo -->
         <a href="{% url 'site_list' %}" class="nav-brand">
             <div class="brand-icon">
                 <i data-lucide="zap" style="width: 20px; height: 20px;"></i>
@@ -219,36 +306,40 @@
             <span class="brand-text">Engenharia Telecom</span>
         </a>
 
-        <!-- Centro: Links -->
+        <!-- Centro: Links de Navegação -->
         <nav class="nav-links">
             <a href="{% url 'site_list' %}#dashboard" class="nav-link active" data-target="dashboard">
-                <i data-lucide="layout-dashboard" style="width: 18px; height: 18px;"></i> Dashboard
+                <i data-lucide="layout-dashboard" style="width: 18px; height: 18px;"></i>
+                <span class="nav-link-text">Dashboard</span>
             </a>
             <a href="{% url 'site_list' %}#sites" class="nav-link" data-target="sites">
-                <i data-lucide="map-pin" style="width: 18px; height: 18px;"></i> Sites
+                <i data-lucide="map-pin" style="width: 18px; height: 18px;"></i>
+                <span class="nav-link-text">Sites</span>
             </a>
             <a href="{% url 'site_list' %}#planilha" class="nav-link" data-target="planilha">
-                <i data-lucide="folder" style="width: 18px; height: 18px;"></i> Arquivos
+                <i data-lucide="folder" style="width: 18px; height: 18px;"></i>
+                <span class="nav-link-text">Arquivos</span>
             </a>
             <a href="{% url 'site_list' %}#prazos" class="nav-link" data-target="prazos">
-                <i data-lucide="bar-chart-2" style="width: 18px; height: 18px;"></i> Relatórios
+                <i data-lucide="bar-chart-2" style="width: 18px; height: 18px;"></i>
+                <span class="nav-link-text">Relatórios</span>
             </a>
         </nav>
 
-        <!-- Direita: Perfil -->
-        <div class="nav-profile">
+        <!-- Base: Perfil e Log-out -->
+        <div class="sidebar-footer">
             <div class="profile-menu">
+                <div class="profile-avatar">{{ user.username|slice:":1"|upper|default:"A" }}</div>
                 <div class="profile-info">
                     <span class="profile-name">{{ user.first_name|default:user.username|default:"Admin" }}</span>
                     <span class="profile-role">{{ user.get_role_display|default:"Engenheiro Sênior" }}</span>
                 </div>
-                <div class="profile-avatar">{{ user.username|slice:":1"|upper|default:"A" }}</div>
             </div>
             <a href="{% url 'logout' %}" class="logout-btn" title="Sair">
                 <i data-lucide="log-out" style="width: 20px; height: 20px;"></i>
             </a>
         </div>
-    </header>
+    </aside>
     {% endif %}
 
     <!-- CONTEÚDO PRINCIPAL -->
