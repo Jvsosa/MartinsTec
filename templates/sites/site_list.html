@@ -1,711 +1,828 @@
 {% extends 'base.html' %}
 
-{% block title %}Painel de Controle - MartinsTec{% endblock %}
+{% block title %}Painel Corporativo - MartinsTec{% endblock %}
 
 {% block extra_head %}
 <!-- Leaflet.js (Mapas) -->
-<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="" />
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
 
 <!-- Chart.js (Gráficos) -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <style>
     /* ----------------------------------
-       LAYOUT E CONFIGURAÇÕES GERAIS (LIGHT CORPORATE)
+       ENTERPRISE CORPORATE DESIGN SYSTEM
        ---------------------------------- */
+    :root {
+        --ent-primary: #0f172a;
+        --ent-secondary: #334155;
+        --ent-accent: #2563eb;
+        --ent-accent-hover: #1d4ed8;
+        --ent-bg-main: #f8fafc;
+        --ent-bg-card: #ffffff;
+        --ent-border: #e2e8f0;
+        --ent-text-main: #0f172a;
+        --ent-text-muted: #64748b;
+        --ent-success: #059669;
+        --ent-warning: #d97706;
+        --ent-danger: #dc2626;
+        --ent-info: #0284c7;
+        --ent-shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+        --ent-shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+        --ent-shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.05), 0 4px 6px -2px rgba(0, 0, 0, 0.025);
+        --ent-radius: 10px;
+        --font-sans: 'Inter', sans-serif;
+        --font-heading: 'Outfit', sans-serif;
+    }
+
+    /* Container base */
     .dashboard-wrapper {
-        padding: 2rem 2.5rem;
+        padding: 2.5rem 3rem;
         width: 100%;
+        max-width: 1600px;
+        margin: 0 auto;
         box-sizing: border-box;
         display: flex;
         flex-direction: column;
-        gap: 2rem;
+        gap: 2.5rem;
+        background-color: var(--ent-bg-main);
+        min-height: 100%;
     }
 
-    .main-title-block {
-        display: flex;
-        flex-direction: column;
-        gap: 0.25rem;
-        margin-bottom: 0.5rem;
-    }
-
-    .main-title-block h2 {
-        font-family: var(--font-title);
-        font-size: 1.85rem;
-        font-weight: 700;
-        color: #0f172a;
-        letter-spacing: -0.5px;
-    }
-
-    .main-title-block p {
-        color: #64748b;
-        font-size: 0.9rem;
-        font-weight: 450;
-    }
-
-    /* Cards Brancos Limpos */
-    .white-card {
-        background: #ffffff;
-        border: 1px solid #e2e8f0;
-        border-radius: 12px;
-        padding: 1.5rem;
-        box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05), 0 1px 2px -1px rgba(0, 0, 0, 0.05);
-    }
-
-    /* ----------------------------------
-       DASHBOARD: KPI GRID
-       ---------------------------------- */
-    .kpi-row {
-        display: grid;
-        grid-template-columns: repeat(4, 1fr);
-        gap: 1.5rem;
-    }
-
-    .kpi-box {
-        display: flex;
-        flex-direction: column;
-        justify-content: space-between;
-        min-height: 120px;
-    }
-
-    .kpi-box-header {
+    /* Headers da Página */
+    .page-header {
         display: flex;
         justify-content: space-between;
-        align-items: center;
+        align-items: flex-end;
+        padding-bottom: 1.5rem;
+        border-bottom: 1px solid var(--ent-border);
         margin-bottom: 1rem;
     }
 
-    .kpi-box-label {
-        font-size: 0.72rem;
+    .page-header-text h2 {
+        font-family: var(--font-heading);
+        font-size: 2.2rem;
         font-weight: 700;
-        color: #64748b;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
+        color: var(--ent-primary);
+        letter-spacing: -0.02em;
+        margin-bottom: 0.35rem;
     }
 
-    .kpi-box-icon {
-        font-size: 1rem;
+    .page-header-text p {
+        color: var(--ent-text-muted);
+        font-size: 1.05rem;
+        font-weight: 400;
+    }
+
+    /* Banners e Hero (Efeito Glassmorphism sutil) */
+    .hero-banner {
+        background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+        border-radius: var(--ent-radius);
+        padding: 2.5rem 3rem;
+        color: white;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        box-shadow: var(--ent-shadow-lg);
+        position: relative;
+        overflow: hidden;
+    }
+
+    .hero-banner::after {
+        content: '';
+        position: absolute;
+        top: 0; right: 0; bottom: 0; left: 0;
+        background: url('data:image/svg+xml;utf8,<svg width="100" height="100" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><path d="M0 0h100v100H0z" fill="none"/><path d="M10 10h10v10H10z" fill="rgba(255,255,255,0.03)"/></svg>') repeat;
+        opacity: 0.5;
+        pointer-events: none;
+    }
+
+    .hero-content {
+        position: relative;
+        z-index: 2;
+    }
+
+    .hero-title {
+        font-family: var(--font-heading);
+        font-size: 1.8rem;
+        font-weight: 700;
+        margin-bottom: 0.5rem;
+        letter-spacing: -0.5px;
+    }
+
+    .hero-subtitle {
+        font-size: 0.95rem;
+        color: #94a3b8;
+        font-weight: 400;
+    }
+
+    /* Cards Premium Corporativos */
+    .ent-card {
+        background: var(--ent-bg-card);
+        border: 1px solid var(--ent-border);
+        border-radius: var(--ent-radius);
+        box-shadow: var(--ent-shadow-md);
+        transition: transform 0.25s ease, box-shadow 0.25s ease;
+        overflow: hidden;
+    }
+
+    .ent-card:hover {
+        box-shadow: var(--ent-shadow-lg);
+        transform: translateY(-2px);
+    }
+
+    /* KPI Grid */
+    .kpi-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 1.5rem;
+        margin-top: -1.5rem; /* Puxa os KPIs um pouco para cima do hero banner se quiser, ou mantém normal */
+    }
+
+    .kpi-card {
+        padding: 1.5rem;
+        display: flex;
+        align-items: center;
+        gap: 1.25rem;
+    }
+
+    .kpi-icon-wrapper {
+        width: 54px;
+        height: 54px;
+        border-radius: 12px;
         display: flex;
         align-items: center;
         justify-content: center;
-        width: 32px;
-        height: 32px;
-        border-radius: 8px;
+        flex-shrink: 0;
     }
 
-    /* Icones e Cores dos KPIs */
-    .kpi-blue { background-color: rgba(37, 99, 235, 0.06); color: #2563eb; }
-    .kpi-green { background-color: rgba(16, 185, 129, 0.06); color: #10b981; }
-    .kpi-orange { background-color: rgba(245, 158, 11, 0.06); color: #f59e0b; }
-    .kpi-red { background-color: rgba(239, 68, 68, 0.06); color: #ef4444; }
+    .kpi-icon-wrapper.blue { background: #eff6ff; color: #2563eb; }
+    .kpi-icon-wrapper.green { background: #ecfdf5; color: #059669; }
+    .kpi-icon-wrapper.orange { background: #fffbeb; color: #d97706; }
+    .kpi-icon-wrapper.red { background: #fef2f2; color: #dc2626; }
 
-    .kpi-box-value {
-        font-size: 2.75rem;
+    .kpi-icon-wrapper i { width: 26px; height: 26px; }
+
+    .kpi-details {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .kpi-title {
+        font-size: 0.8rem;
+        font-weight: 600;
+        color: var(--ent-text-muted);
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        margin-bottom: 0.25rem;
+    }
+
+    .kpi-value {
+        font-family: var(--font-heading);
+        font-size: 2rem;
         font-weight: 700;
-        line-height: 1;
-        font-family: var(--font-title);
+        color: var(--ent-primary);
+        line-height: 1.1;
     }
 
-    .val-blue { color: #2563eb; }
-    .val-green { color: #10b981; }
-    .val-orange { color: #f59e0b; }
-    .val-red { color: #ef4444; }
-
-    /* ----------------------------------
-       DASHBOARD: CHARTS ROW
-       ---------------------------------- */
+    /* Charts Row */
     .charts-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 2rem;
+    }
+
+    .chart-container {
+        padding: 2rem;
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+    }
+
+    .chart-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1.5rem;
+    }
+
+    .chart-title {
+        font-family: var(--font-heading);
+        font-size: 1.25rem;
+        font-weight: 700;
+        color: var(--ent-primary);
+    }
+
+    .chart-body {
+        position: relative;
+        flex: 1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 250px;
+    }
+
+    /* Tabelas Corporativas (Urgency / Planilha) */
+    .ent-table-wrapper {
+        width: 100%;
+        overflow-x: auto;
+        border-radius: var(--ent-radius);
+    }
+
+    .ent-table {
+        width: 100%;
+        border-collapse: separate;
+        border-spacing: 0;
+        text-align: left;
+    }
+
+    .ent-table thead th {
+        background-color: #f8fafc;
+        color: var(--ent-text-muted);
+        font-size: 0.8rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        padding: 1rem 1.5rem;
+        border-bottom: 1px solid var(--ent-border);
+        border-top: 1px solid var(--ent-border);
+    }
+
+    .ent-table tbody tr {
+        transition: background-color 0.15s ease;
+    }
+
+    .ent-table tbody tr:hover {
+        background-color: #f1f5f9;
+    }
+
+    .ent-table tbody td {
+        padding: 1rem 1.5rem;
+        font-size: 0.95rem;
+        color: var(--ent-text-main);
+        border-bottom: 1px solid var(--ent-border);
+        vertical-align: middle;
+    }
+
+    .ent-table tbody tr:last-child td {
+        border-bottom: none;
+    }
+
+    /* Badges de Status (Premium) */
+    .status-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.35rem;
+        padding: 0.35rem 0.8rem;
+        border-radius: 9999px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        letter-spacing: 0.02em;
+        text-transform: uppercase;
+    }
+
+    .status-dot {
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+    }
+
+    .badge-active { background: #ecfdf5; color: #059669; border: 1px solid #a7f3d0; }
+    .badge-active .status-dot { background-color: #059669; }
+
+    .badge-planned { background: #fffbeb; color: #d97706; border: 1px solid #fde68a; }
+    .badge-planned .status-dot { background-color: #d97706; }
+
+    .badge-maintenance { background: #eff6ff; color: #2563eb; border: 1px solid #bfdbfe; }
+    .badge-maintenance .status-dot { background-color: #2563eb; }
+
+    .badge-inactive { background: #fef2f2; color: #dc2626; border: 1px solid #fecaca; }
+    .badge-inactive .status-dot { background-color: #dc2626; }
+
+    /* Botões Corporativos */
+    .btn-ent {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        padding: 0.5rem 1.25rem;
+        border-radius: 6px;
+        font-size: 0.85rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        text-decoration: none;
+        border: 1px solid transparent;
+    }
+
+    .btn-ent-primary {
+        background-color: var(--ent-accent);
+        color: white;
+        box-shadow: 0 2px 4px rgba(37, 99, 235, 0.2);
+    }
+
+    .btn-ent-primary:hover {
+        background-color: var(--ent-accent-hover);
+        box-shadow: 0 4px 6px rgba(37, 99, 235, 0.3);
+    }
+
+    .btn-ent-outline {
+        background-color: transparent;
+        color: var(--ent-secondary);
+        border-color: var(--ent-border);
+    }
+
+    .btn-ent-outline:hover {
+        background-color: #f1f5f9;
+        color: var(--ent-primary);
+        border-color: #cbd5e1;
+    }
+
+    /* View Containers */
+    .view-container {
+        display: none;
+        animation: fadeIn 0.4s ease forwards;
+    }
+
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Formulários corporativos */
+    .ent-form-grid {
         display: grid;
         grid-template-columns: 1fr 1fr;
         gap: 1.5rem;
     }
 
-    .chart-card-header {
+    .form-group {
         display: flex;
-        align-items: center;
+        flex-direction: column;
         gap: 0.5rem;
-        border-bottom: 1px solid #f1f5f9;
-        padding-bottom: 0.75rem;
-        margin-bottom: 1rem;
     }
 
-    .chart-card-header svg {
-        width: 16px;
-        height: 16px;
-    }
-
-    .chart-card-header h4 {
-        font-family: var(--font-title);
-        font-size: 0.95rem;
-        font-weight: 700;
-        color: #0f172a;
-    }
-
-    .chart-card-content {
-        position: relative;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        min-height: 220px;
-    }
-
-    /* Meio circulo gauge */
-    .gauge-percentage-label {
-        position: absolute;
-        bottom: 35px;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        text-align: center;
-    }
-
-    .gauge-percentage-val {
-        font-size: 1.6rem;
-        font-weight: 800;
-        color: #0f172a;
-        font-family: var(--font-title);
-    }
-
-    .gauge-percentage-sub {
-        font-size: 0.65rem;
-        color: #64748b;
-        font-weight: 700;
-        text-transform: uppercase;
-        margin-top: -0.15rem;
-    }
-
-    .chart-legend-under {
-        display: flex;
-        justify-content: center;
-        flex-wrap: wrap;
-        gap: 1rem;
-        margin-top: 1rem;
-        font-size: 0.78rem;
-        color: #475569;
-    }
-
-    .legend-item {
-        display: flex;
-        align-items: center;
-        gap: 0.35rem;
-    }
-
-    .legend-dot {
-        width: 8px;
-        height: 8px;
-        border-radius: 50%;
-        display: inline-block;
-    }
-
-    /* ----------------------------------
-       DASHBOARD: URGENCIES TABLE PANEL
-       ---------------------------------- */
-    .urgency-panel {
-        display: flex;
-        flex-direction: column;
-        gap: 0.25rem;
-    }
-
-    .urgency-header {
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-        border-bottom: 1px solid #f1f5f9;
-        padding-bottom: 0.75rem;
-        margin-bottom: 1rem;
-    }
-
-    .urgency-header svg {
-        width: 16px;
-        height: 16px;
-        color: #ef4444;
-    }
-
-    .urgency-header h4 {
-        font-family: var(--font-title);
-        font-size: 0.95rem;
-        font-weight: 700;
-        color: #0f172a;
-    }
-
-    .urgency-table-wrapper {
-        width: 100%;
-        overflow-x: auto;
-    }
-
-    .urgency-table {
-        width: 100%;
-        border-collapse: collapse;
+    .form-group label {
         font-size: 0.85rem;
-        text-align: left;
-    }
-
-    .urgency-table th {
-        color: #64748b;
         font-weight: 600;
-        padding: 0.6rem 0.75rem;
-        border-bottom: 1px solid #e2e8f0;
-        background: #f8fafc;
-        font-size: 0.75rem;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
+        color: var(--ent-secondary);
     }
 
-    .urgency-table td {
-        padding: 0.75rem;
-        border-bottom: 1px solid #f1f5f9;
-        vertical-align: middle;
+    .form-control {
+        width: 100%;
+        padding: 0.75rem 1rem;
+        border: 1px solid var(--ent-border);
+        border-radius: 8px;
+        font-family: var(--font-sans);
+        font-size: 0.95rem;
+        color: var(--ent-text-main);
+        background-color: #fff;
+        transition: all 0.2s ease;
     }
 
-    .urgency-table tr:last-child td {
-        border-bottom: none;
+    .form-control:focus {
+        outline: none;
+        border-color: var(--ent-accent);
+        box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
     }
 
-    .urgency-success-state {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        padding: 2.5rem 1.5rem;
-        color: #0d9488;
-        font-size: 0.88rem;
-        font-weight: 600;
-        gap: 0.75rem;
-    }
-
-    .urgency-success-state svg {
-        width: 32px;
-        height: 32px;
-        color: #10b981;
-    }
-
-    /* ----------------------------------
-       ABAS SPA: OUTRAS VIEWS (SITES, PLANILHA, GERENCIAR, ETC)
-       ---------------------------------- */
-    .view-container {
-        display: none;
-    }
-
-    /* View Sites (Busca e Cards) */
-    .sites-layout-grid {
+    /* Layout da aba Sites (Busca + Mapa) */
+    .sites-layout-master {
         display: grid;
-        grid-template-columns: 320px 1fr;
+        grid-template-columns: 350px 1fr;
         gap: 2rem;
         align-items: start;
     }
 
-    .filter-tabs-row {
+    .filter-pills {
         display: flex;
-        justify-content: space-between;
-        align-items: center;
-        border-bottom: 1px solid #e2e8f0;
-        padding-bottom: 0.75rem;
+        gap: 0.5rem;
+        flex-wrap: wrap;
         margin-bottom: 1.5rem;
     }
 
-    .filter-tabs-row h3 {
-        font-family: var(--font-title);
-        font-size: 1.2rem;
-        font-weight: 700;
-        color: #0f172a;
-    }
-
-    .filter-tab-buttons {
-        display: flex;
-        background: #e2e8f0;
-        padding: 0.25rem;
-        border-radius: 8px;
-        gap: 0.15rem;
-    }
-
-    .filter-tab-btn {
-        background: none;
-        border: none;
-        padding: 0.35rem 0.75rem;
-        font-size: 0.72rem;
-        font-weight: 700;
+    .filter-pill {
+        padding: 0.4rem 1rem;
+        border-radius: 20px;
+        font-size: 0.8rem;
+        font-weight: 600;
+        background: #f1f5f9;
         color: #475569;
         cursor: pointer;
-        border-radius: 6px;
+        border: 1px solid transparent;
         transition: all 0.2s;
-        text-transform: uppercase;
-        letter-spacing: 0.25px;
     }
 
-    .filter-tab-btn.active {
-        background: #ffffff;
-        color: #2563eb;
-        box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    .filter-pill:hover {
+        background: #e2e8f0;
     }
 
-    /* Cards de Sites */
-    .sites-grid {
+    .filter-pill.active {
+        background: var(--ent-primary);
+        color: white;
+        box-shadow: var(--ent-shadow-md);
+    }
+
+    .site-card-grid {
         display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(290px, 1fr));
-        gap: 1.25rem;
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        gap: 1.5rem;
     }
 
-    .site-card {
-        background: #ffffff;
-        border: 1px solid #e2e8f0;
-        border-radius: 12px;
-        padding: 1.25rem;
+    .modern-site-card {
+        background: white;
+        border-radius: var(--ent-radius);
+        border: 1px solid var(--ent-border);
+        padding: 1.5rem;
         display: flex;
         flex-direction: column;
-        justify-content: space-between;
         gap: 1rem;
-        box-shadow: 0 1px 3px 0 rgba(0,0,0,0.02);
-        transition: all 0.25s ease;
+        transition: all 0.25s;
+        position: relative;
+        overflow: hidden;
     }
 
-    .site-card:hover {
-        transform: translateY(-2px);
-        border-color: #cbd5e1;
-        box-shadow: 0 8px 16px rgba(0,0,0,0.04);
+    .modern-site-card::before {
+        content: '';
+        position: absolute;
+        top: 0; left: 0; right: 0;
+        height: 4px;
+        background: var(--ent-border);
+        transition: background 0.3s;
     }
 
-    .site-card.border-active { border-top: 4px solid #10b981; }
-    .site-card.border-planned { border-top: 4px solid #f59e0b; }
-    .site-card.border-maintenance { border-top: 4px solid #3b82f6; }
-    .site-card.border-inactive { border-top: 4px solid #ef4444; }
+    .modern-site-card:hover {
+        transform: translateY(-4px);
+        box-shadow: var(--ent-shadow-lg);
+    }
 
-    .site-card-top {
+    .modern-site-card[data-status="ACTIVE"]::before { background: var(--ent-success); }
+    .modern-site-card[data-status="PLANNED"]::before { background: var(--ent-warning); }
+    .modern-site-card[data-status="MAINTENANCE"]::before { background: var(--ent-accent); }
+    .modern-site-card[data-status="INACTIVE"]::before { background: var(--ent-danger); }
+
+    .site-card-header {
         display: flex;
         justify-content: space-between;
         align-items: flex-start;
     }
 
-    .site-card-title {
-        font-family: var(--font-title);
-        font-size: 1.1rem;
+    .site-card-id {
+        font-family: var(--font-heading);
+        font-size: 1.15rem;
         font-weight: 700;
-        color: #1e3a8a;
+        color: var(--ent-primary);
+        margin-bottom: 0.15rem;
     }
 
     .site-card-name {
         font-size: 0.85rem;
-        font-weight: 600;
-        color: #0f172a;
+        color: var(--ent-text-muted);
+        font-weight: 500;
     }
 
-    .status-badge {
-        font-size: 0.6rem;
-        padding: 0.15rem 0.45rem;
-        border-radius: 6px;
-        font-weight: 700;
-        text-transform: uppercase;
-        letter-spacing: 0.25px;
-    }
-
-    .status-active { background-color: rgba(16, 185, 129, 0.08); color: #065f46; border: 1px solid rgba(16, 185, 129, 0.15); }
-    .status-planned { background-color: rgba(245, 158, 11, 0.08); color: #9a3412; border: 1px solid rgba(245, 158, 11, 0.15); }
-    .status-maintenance { background-color: rgba(59, 130, 246, 0.08); color: #1e40af; border: 1px solid rgba(59, 130, 246, 0.15); }
-    .status-inactive { background-color: rgba(239, 68, 68, 0.08); color: #991b1b; border: 1px solid rgba(239, 68, 68, 0.15); }
-
-    .site-card-desc {
-        font-size: 0.78rem;
-        color: #64748b;
-        line-height: 1.5;
-        min-height: 2.3rem;
-        display: -webkit-box;
-        -webkit-line-clamp: 2;
-        -webkit-box-orient: vertical;
-        overflow: hidden;
-    }
-
-    .site-card-meta {
-        background: #f8fafc;
-        border-radius: 8px;
-        padding: 0.6rem;
+    .site-meta-list {
         display: flex;
         flex-direction: column;
-        gap: 0.35rem;
-        font-size: 0.75rem;
-        color: #64748b;
-        border: 1px solid #f1f5f9;
+        gap: 0.5rem;
+        margin-top: 0.5rem;
+        padding-top: 1rem;
+        border-top: 1px dashed var(--ent-border);
     }
 
-    .meta-row {
+    .site-meta-item {
         display: flex;
         justify-content: space-between;
-        align-items: center;
+        font-size: 0.8rem;
     }
 
-    .meta-val {
-        font-weight: 600;
-        color: #334155;
-    }
+    .site-meta-label { color: var(--ent-text-muted); font-weight: 500; }
+    .site-meta-val { color: var(--ent-text-main); font-weight: 600; }
 
-    .site-card-btn {
-        width: 100%;
-        background: #f1f5f9;
-        color: #1e293b;
-        border-radius: 8px;
-        padding: 0.55rem;
-        font-size: 0.78rem;
-        font-weight: 700;
-        text-align: center;
-        text-decoration: none;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        gap: 0.35rem;
-        transition: all 0.2s;
-    }
-
-    .site-card-btn:hover {
-        background: #0f172a;
-        color: white;
-    }
-
-    /* ----------------------------------
-       FORM CARD E CONTROLES (CADASTRO)
-       ---------------------------------- */
-    .field-group {
-        display: flex;
-        flex-direction: column;
-        gap: 0.35rem;
-        margin-bottom: 1rem;
-    }
-
-    .field-group label {
-        font-size: 0.7rem;
-        font-weight: 700;
-        color: #64748b;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-    }
-
-    .field-control {
-        width: 100%;
-        padding: 0.6rem 0.75rem;
-        background: #f8fafc;
-        border: 1px solid #cbd5e1;
-        border-radius: 8px;
-        color: #0f172a;
-        font-family: var(--font-family);
-        font-size: 0.85rem;
-        transition: all 0.2s;
-        outline: none;
-    }
-
-    .field-control:focus {
-        border-color: #2563eb;
-        background: #ffffff;
-        box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.08);
-    }
-
-    .field-row {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 0.75rem;
-    }
-
-    .btn-submit {
-        background: #2563eb;
-        color: white;
-        border: none;
-        border-radius: 8px;
-        padding: 0.7rem 1.25rem;
-        font-weight: 600;
-        font-family: var(--font-family);
-        font-size: 0.82rem;
-        cursor: pointer;
-        transition: all 0.2s;
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        gap: 0.35rem;
-        box-shadow: 0 2px 4px rgba(37, 99, 235, 0.1);
-    }
-
-    .btn-submit:hover {
-        background: #1d4ed8;
-        transform: translateY(-1px);
-        box-shadow: 0 4px 10px rgba(37, 99, 235, 0.2);
-    }
-
-    /* ----------------------------------
-       ANOTAÇÕES VIEW (LOCALSTORAGE PERSISTENTE)
-       ---------------------------------- */
-    .notepad-container {
-        display: flex;
-        flex-direction: column;
-        gap: 1rem;
-        height: 100%;
-    }
-
-    .notepad-textarea {
-        width: 100%;
-        height: 300px;
-        padding: 1rem;
-        border-radius: 12px;
-        border: 1px solid #cbd5e1;
-        font-family: var(--font-family);
-        font-size: 0.9rem;
-        line-height: 1.6;
-        resize: vertical;
-        outline: none;
-    }
-
-    .notepad-textarea:focus {
-        border-color: #2563eb;
-        box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.08);
-    }
-
-    /* Responsividade */
-    @media (max-width: 1024px) {
-        .kpi-row { grid-template-columns: repeat(2, 1fr); }
-        .charts-row { grid-template-columns: 1fr; }
-        .sites-layout-grid { grid-template-columns: 1fr; }
-    }
 </style>
 {% endblock %}
 
 {% block content %}
 <div class="dashboard-wrapper">
     
-    <!-- 1. DASHBOARD VIEW (VISÃO GERAL) -->
+    <!-- ==========================================
+         VIEW 1: DASHBOARD CORPORATIVO
+         ========================================== -->
     <div id="dashboard-view" class="view-container" style="display: block;">
-        <div class="main-title-block">
-            <h2>Visão Geral</h2>
-            <p>Monitore cronogramas e prazos de implantação em tempo real</p>
-        </div>
-
-        <!-- Linha de KPIs ( row de 4) -->
-        <div class="kpi-row" style="margin-top: 1rem;">
-            <!-- KPI 1: TOTAL DE SITES -->
-            <div class="white-card kpi-box">
-                <div class="kpi-box-header">
-                    <span class="kpi-box-label">Total de Sites</span>
-                    <div class="kpi-box-icon kpi-blue">
-                        <i data-lucide="table-properties" style="width: 16px; height: 16px;"></i>
-                    </div>
-                </div>
-                <span class="kpi-box-value val-blue">{{ total_sites|default:0 }}</span>
+        
+        <!-- Hero Banner -->
+        <div class="hero-banner">
+            <div class="hero-content">
+                <h1 class="hero-title">Painel de Operações e Engenharia</h1>
+                <p class="hero-subtitle">Visão macro do portfólio de infraestrutura e performance da rede.</p>
             </div>
-
-            <!-- KPI 2: SITES FINALIZADOS -->
-            <div class="white-card kpi-box">
-                <div class="kpi-box-header">
-                    <span class="kpi-box-label">Sites Finalizados</span>
-                    <div class="kpi-box-icon kpi-green">
-                        <i data-lucide="check-circle-2" style="width: 16px; height: 16px;"></i>
-                    </div>
-                </div>
-                <span class="kpi-box-value val-green">{{ active_sites|default:0 }}</span>
-            </div>
-
-            <!-- KPI 3: EM ALERTA (dropdown fictício + valor real de manutenção) -->
-            <div class="white-card kpi-box">
-                <div class="kpi-box-header">
-                    <div style="display: flex; flex-direction: column; gap: 0.15rem;">
-                        <span class="kpi-box-label">Em Alerta</span>
-                        <select style="border: none; font-size: 0.65rem; color: #f59e0b; background: none; font-weight: 700; cursor: pointer; outline: none; padding: 0;">
-                            <option>Até 30 dias</option>
-                            <option>Até 60 dias</option>
-                        </select>
-                    </div>
-                    <div class="kpi-box-icon kpi-orange">
-                        <i data-lucide="alert-circle" style="width: 16px; height: 16px;"></i>
-                    </div>
-                </div>
-                <span class="kpi-box-value val-orange">{{ maintenance_sites|default:0 }}</span>
-            </div>
-
-            <!-- KPI 4: PRAZOS VENCIDOS (Sites inativos) -->
-            <div class="white-card kpi-box">
-                <div class="kpi-box-header">
-                    <span class="kpi-box-label">Prazos Vencidos</span>
-                    <div class="kpi-box-icon kpi-red">
-                        <i data-lucide="alert-triangle" style="width: 16px; height: 16px;"></i>
-                    </div>
-                </div>
-                <span class="kpi-box-value val-red">{{ inactive_sites|default:0 }}</span>
+            <div style="text-align: right; z-index: 2;">
+                <div style="font-size: 0.85rem; color: #94a3b8; font-weight: 500; margin-bottom: 0.25rem;">Data Operacional</div>
+                <div style="font-size: 1.25rem; font-family: var(--font-heading); font-weight: 600;" id="current-date"></div>
             </div>
         </div>
 
-        <!-- Linha dos Gráficos (row de 2) -->
-        <div class="charts-row" style="margin-top: 1.5rem;">
-            <!-- Grafico 1: Taxa de Sucesso Geral (Meio círculo Gauge) -->
-            <div class="white-card">
-                <div class="chart-card-header">
-                    <i data-lucide="shield-check" style="color: #10b981;"></i>
-                    <h4>Taxa de Sucesso Geral</h4>
+        <!-- KPIs -->
+        <div class="kpi-grid">
+            <div class="ent-card kpi-card">
+                <div class="kpi-icon-wrapper blue">
+                    <i data-lucide="layers"></i>
                 </div>
-                <div class="chart-card-content">
-                    <div style="width: 240px; height: 130px; position: relative;">
-                        <canvas id="gaugeChart"></canvas>
-                    </div>
-                    <div class="gauge-percentage-label">
-                        <span class="gauge-percentage-val" id="gauge-percent-text">0%</span>
-                        <span class="gauge-percentage-sub">Concluídos</span>
-                    </div>
-                    <p style="font-size: 0.78rem; color: #64748b; margin-top: 0.5rem;" id="gauge-fraction-text">0 de 0 sites finalizados</p>
+                <div class="kpi-details">
+                    <span class="kpi-title">Portfólio Total</span>
+                    <span class="kpi-value">{{ total_sites|default:0 }}</span>
                 </div>
             </div>
-
-            <!-- Grafico 2: Distribuição por Operadora / Status -->
-            <div class="white-card">
-                <div class="chart-card-header">
-                    <i data-lucide="pie-chart" style="color: #2563eb;"></i>
-                    <h4>Distribuição por Status</h4>
+            <div class="ent-card kpi-card">
+                <div class="kpi-icon-wrapper green">
+                    <i data-lucide="activity"></i>
                 </div>
-                <div class="chart-card-content" style="min-height: 200px;">
-                    <div style="width: 150px; height: 150px;">
+                <div class="kpi-details">
+                    <span class="kpi-title">Sites Ativos (SLA)</span>
+                    <span class="kpi-value">{{ active_sites|default:0 }}</span>
+                </div>
+            </div>
+            <div class="ent-card kpi-card">
+                <div class="kpi-icon-wrapper orange">
+                    <i data-lucide="tool"></i>
+                </div>
+                <div class="kpi-details">
+                    <span class="kpi-title">Manutenção Téc.</span>
+                    <span class="kpi-value">{{ maintenance_sites|default:0 }}</span>
+                </div>
+            </div>
+            <div class="ent-card kpi-card">
+                <div class="kpi-icon-wrapper red">
+                    <i data-lucide="power-off"></i>
+                </div>
+                <div class="kpi-details">
+                    <span class="kpi-title">Inativos / Offline</span>
+                    <span class="kpi-value">{{ inactive_sites|default:0 }}</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Gráficos Analíticos -->
+        <div class="charts-row">
+            <div class="ent-card chart-container">
+                <div class="chart-header">
+                    <h3 class="chart-title">Composição da Rede</h3>
+                    <button class="btn-ent btn-ent-outline" style="padding: 0.25rem 0.75rem; font-size: 0.75rem;">
+                        <i data-lucide="download" style="width: 14px; height: 14px;"></i> Exportar PDF
+                    </button>
+                </div>
+                <div class="chart-body">
+                    <div style="width: 250px; height: 250px;">
                         <canvas id="statusDoughnutChart"></canvas>
                     </div>
-                    <div class="chart-legend-under" id="doughnut-legend">
-                        <!-- Gerado via JS -->
+                </div>
+            </div>
+
+            <!-- Tabela de Ocorrências e Urgências (no lugar do gauge chart anterior) -->
+            <div class="ent-card" style="display: flex; flex-direction: column;">
+                <div class="chart-header" style="padding: 2rem 2rem 0 2rem; margin-bottom: 1rem;">
+                    <h3 class="chart-title">Alertas Operacionais</h3>
+                    <span style="font-size: 0.8rem; font-weight: 600; color: var(--ent-text-muted); background: #f1f5f9; padding: 0.25rem 0.75rem; border-radius: 20px;">Alta Prioridade</span>
+                </div>
+                <div class="ent-table-wrapper" style="flex: 1; padding: 0 1rem 1rem 1rem;">
+                    {% if maintenance_sites > 0 or inactive_sites > 0 %}
+                    <table class="ent-table" style="width: 100%; border: none;">
+                        <tbody>
+                            {% for site in sites %}
+                            {% if site.status == 'MAINTENANCE' or site.status == 'INACTIVE' %}
+                            <tr>
+                                <td style="border: none; border-bottom: 1px solid var(--ent-border); padding: 0.85rem 1rem;">
+                                    <div style="display: flex; align-items: center; gap: 1rem;">
+                                        <div style="width: 8px; height: 8px; border-radius: 50%; background-color: {% if site.status == 'MAINTENANCE' %}var(--ent-accent){% else %}var(--ent-danger){% endif %};"></div>
+                                        <div>
+                                            <div style="font-weight: 700; color: var(--ent-primary); font-size: 0.95rem;">{{ site.site_id }}</div>
+                                            <div style="font-size: 0.75rem; color: var(--ent-text-muted);">{{ site.name }}</div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td style="border: none; border-bottom: 1px solid var(--ent-border); text-align: right; padding: 0.85rem 1rem;">
+                                    <a href="{% url 'site_detail' pk=site.pk %}" class="btn-ent btn-ent-outline" style="font-size: 0.7rem; padding: 0.35rem 0.75rem;">
+                                        Analisar <i data-lucide="arrow-right" style="width: 12px; height: 12px;"></i>
+                                    </a>
+                                </td>
+                            </tr>
+                            {% endif %}
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                    {% else %}
+                    <div style="height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; color: var(--ent-success); padding: 2rem; text-align: center;">
+                        <i data-lucide="check-circle" style="width: 48px; height: 48px; margin-bottom: 1rem; opacity: 0.8;"></i>
+                        <h4 style="font-family: var(--font-heading); font-size: 1.2rem; font-weight: 700; color: var(--ent-primary);">Sistemas Normalizados</h4>
+                        <p style="font-size: 0.9rem; color: var(--ent-text-muted);">Nenhuma intercorrência técnica relatada nos ativos da rede.</p>
                     </div>
+                    {% endif %}
                 </div>
             </div>
         </div>
+    </div>
 
-        <!-- Urgências Operacionais / Atividades -->
-        <div class="white-card urgency-panel" style="margin-top: 1.5rem;">
-            <div class="urgency-header">
-                <i data-lucide="bell"></i>
-                <h4>Painel de Urgências Operacionais</h4>
+
+    <!-- ==========================================
+         VIEW 2: REPOSITÓRIO / BUSCAR SITE
+         ========================================== -->
+    <div id="sites-view" class="view-container">
+        <div class="page-header">
+            <div class="page-header-text">
+                <h2>Consulta de Ativos</h2>
+                <p>Mapeamento geográfico e acesso aos data rooms de cada site de telecom</p>
+            </div>
+            <div>
+                <a href="#gerenciar" class="btn-ent btn-ent-primary" onclick="window.location.hash='#gerenciar'">
+                    <i data-lucide="plus"></i> Novo Ativo
+                </a>
+            </div>
+        </div>
+
+        <div class="sites-layout-master">
+            <!-- Coluna Esquerda: Filtro e Mapa -->
+            <div style="display: flex; flex-direction: column; gap: 1.5rem; position: sticky; top: 100px;">
+                <div class="ent-card" style="padding: 1.5rem;">
+                    <label style="display: block; font-size: 0.85rem; font-weight: 600; color: var(--ent-secondary); margin-bottom: 0.75rem;">Busca Localizada</label>
+                    <div style="position: relative;">
+                        <i data-lucide="search" style="position: absolute; left: 1rem; top: 50%; transform: translateY(-50%); color: #94a3b8; width: 18px; height: 18px;"></i>
+                        <input type="text" id="site-search-input" class="form-control" placeholder="ID, Nome ou Coordenada..." onkeyup="filterSites()" style="padding-left: 2.75rem;">
+                    </div>
+                </div>
+
+                <div class="ent-card" style="padding: 0.5rem;">
+                    <div id="map-container" style="height: 380px; border-radius: 8px; width: 100%;"></div>
+                </div>
             </div>
 
-            <div class="urgency-table-wrapper">
-                {% if maintenance_sites > 0 or inactive_sites > 0 %}
-                <table class="urgency-table">
+            <!-- Coluna Direita: Cards dos Sites -->
+            <div>
+                <div class="filter-pills">
+                    <button class="filter-pill active" onclick="setFilterStatus('ALL', this)">Todos os Sites</button>
+                    <button class="filter-pill" onclick="setFilterStatus('ACTIVE', this)">Operação Ativa</button>
+                    <button class="filter-pill" onclick="setFilterStatus('PLANNED', this)">Fase de Planejamento</button>
+                    <button class="filter-pill" onclick="setFilterStatus('MAINTENANCE', this)">Intervenção Técnica</button>
+                    <button class="filter-pill" onclick="setFilterStatus('INACTIVE', this)">Operação Suspensa</button>
+                </div>
+
+                <div class="site-card-grid" id="sites-grid-container">
+                    {% for site in sites %}
+                    <div class="modern-site-card" data-status="{{ site.status }}" data-name="{{ site.name|lower }}" data-code="{{ site.site_id|lower }}">
+                        <div class="site-card-header">
+                            <div>
+                                <h3 class="site-card-id">{{ site.site_id }}</h3>
+                                <div class="site-card-name">{{ site.name }}</div>
+                            </div>
+                            <span class="status-badge badge-{{ site.status|lower }}">
+                                <span class="status-dot"></span>
+                                {{ site.get_status_display }}
+                            </span>
+                        </div>
+                        
+                        <p style="font-size: 0.85rem; color: var(--ent-text-muted); line-height: 1.5; margin-top: 0.25rem; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; height: 2.5rem;">
+                            {{ site.description|default:"Nenhuma observação técnica registrada." }}
+                        </p>
+
+                        <div class="site-meta-list">
+                            <div class="site-meta-item">
+                                <span class="site-meta-label">Lat/Lng</span>
+                                <span class="site-meta-val" style="font-family: monospace;">{{ site.latitude|floatformat:4 }}, {{ site.longitude|floatformat:4 }}</span>
+                            </div>
+                            <div class="site-meta-item">
+                                <span class="site-meta-label">Acervo Físico/Digital</span>
+                                <span class="site-meta-val">{{ site.files.count }} Docs</span>
+                            </div>
+                        </div>
+
+                        <div style="margin-top: 0.5rem;">
+                            <a href="{% url 'site_detail' pk=site.pk %}" class="btn-ent btn-ent-primary" style="width: 100%;">
+                                Acessar Data Room
+                            </a>
+                        </div>
+                    </div>
+                    {% empty %}
+                    <div style="grid-column: 1 / -1; padding: 4rem 2rem; text-align: center; background: white; border: 1px dashed var(--ent-border); border-radius: var(--ent-radius);">
+                        <i data-lucide="map-pin-off" style="width: 48px; height: 48px; color: var(--ent-text-muted); margin-bottom: 1rem; opacity: 0.5;"></i>
+                        <h4 style="font-size: 1.1rem; font-weight: 600; color: var(--ent-secondary);">Nenhum site localizado no banco de dados.</h4>
+                    </div>
+                    {% endfor %}
+                </div>
+
+                <div id="no-filter-results" style="display: none; padding: 4rem 2rem; text-align: center; background: white; border: 1px dashed var(--ent-border); border-radius: var(--ent-radius); margin-top: 1rem;">
+                    <i data-lucide="search-x" style="width: 48px; height: 48px; color: var(--ent-text-muted); margin-bottom: 1rem; opacity: 0.5;"></i>
+                    <h4 style="font-size: 1.1rem; font-weight: 600; color: var(--ent-secondary);">Nenhum resultado encontrado.</h4>
+                    <p style="font-size: 0.9rem; color: var(--ent-text-muted);">Tente alterar os termos da busca ou limpar os filtros de status.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- ==========================================
+         VIEW 3: PLANILHA CORPORATIVA GERAL
+         ========================================== -->
+    <div id="planilha-view" class="view-container">
+        <div class="page-header">
+            <div class="page-header-text">
+                <h2>Inventário Mestre</h2>
+                <p>Tabela central consolidada de todo o portfólio físico de telecomunicações.</p>
+            </div>
+            <button class="btn-ent btn-ent-outline">
+                <i data-lucide="file-spreadsheet"></i> Exportar CSV
+            </button>
+        </div>
+
+        <div class="ent-card" style="padding: 0;">
+            <div class="ent-table-wrapper">
+                <table class="ent-table">
                     <thead>
                         <tr>
-                            <th>Site</th>
-                            <th>Etapa Crítica / Status</th>
-                            <th>Ação / Localização</th>
+                            <th>Identificador</th>
+                            <th>Denominação</th>
+                            <th>Geolocalização</th>
+                            <th>Estado Operacional</th>
+                            <th>Acervo (Docs)</th>
+                            <th style="text-align: right;">Ação</th>
                         </tr>
                     </thead>
                     <tbody>
                         {% for site in sites %}
-                        {% if site.status == 'MAINTENANCE' or site.status == 'INACTIVE' %}
                         <tr>
-                            <td style="font-weight: 700; color: #1e3a8a;">{{ site.site_id }}</td>
+                            <td style="font-weight: 700; color: var(--ent-primary);">{{ site.site_id }}</td>
+                            <td>{{ site.name }}</td>
+                            <td style="font-family: monospace; font-size: 0.85rem; color: var(--ent-text-muted);">{{ site.latitude }}, {{ site.longitude }}</td>
                             <td>
-                                <span class="status-badge {% if site.status == 'MAINTENANCE' %}status-maintenance{% else %}status-inactive{% endif %}">
+                                <span class="status-badge badge-{{ site.status|lower }}" style="font-size: 0.65rem;">
+                                    <span class="status-dot"></span>
                                     {{ site.get_status_display }}
                                 </span>
                             </td>
-                            <td>
-                                <a href="{% url 'site_detail' pk=site.pk %}" class="btn-submit" style="padding: 0.35rem 0.75rem; font-size: 0.72rem; border-radius: 6px; text-decoration: none;">
-                                    Gerenciar Mídias
+                            <td style="font-weight: 600; color: var(--ent-secondary);">{{ site.files.count }}</td>
+                            <td style="text-align: right;">
+                                <a href="{% url 'site_detail' pk=site.pk %}" class="btn-ent btn-ent-outline" style="padding: 0.35rem 0.8rem; font-size: 0.75rem;">
+                                    Verificar
                                 </a>
                             </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="6" style="text-align: center; padding: 4rem 2rem; color: var(--ent-text-muted);">O inventário está vazio no momento.</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- ==========================================
+         VIEW 4: GESTÃO DE PRAZOS
+         ========================================== -->
+    <div id="prazos-view" class="view-container">
+        <div class="page-header">
+            <div class="page-header-text">
+                <h2>Gestão de Cronogramas</h2>
+                <p>Auditoria de prazos, licenças operacionais e manutenções agendadas.</p>
+            </div>
+        </div>
+
+        <div class="ent-card" style="padding: 0;">
+            <div class="chart-header" style="padding: 2rem 2rem 1rem 2rem; margin: 0; border-bottom: 1px solid var(--ent-border);">
+                <h3 class="chart-title">Ativos em Intervenção (Manutenção)</h3>
+            </div>
+            <div class="ent-table-wrapper">
+                {% if maintenance_sites > 0 %}
+                <table class="ent-table">
+                    <thead>
+                        <tr>
+                            <th>Código</th>
+                            <th>Ativo Operacional</th>
+                            <th>Classificação do Evento</th>
+                            <th>Última Atualização</th>
+                            <th>Sinalização</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for site in sites %}
+                        {% if site.status == 'MAINTENANCE' %}
+                        <tr>
+                            <td style="font-weight: 700; color: var(--ent-primary);">{{ site.site_id }}</td>
+                            <td>{{ site.name }}</td>
+                            <td style="color: var(--ent-warning); font-weight: 500;"><i data-lucide="tool" style="width: 14px; height: 14px; margin-right: 0.25rem;"></i> Manutenção Corretiva/Preventiva</td>
+                            <td style="color: var(--ent-text-muted); font-size: 0.85rem;">{{ site.updated_at|date:"d M Y, H:i" }}</td>
+                            <td><span class="status-badge badge-maintenance"><span class="status-dot"></span> Em Andamento</span></td>
                         </tr>
                         {% endif %}
                         {% endfor %}
                     </tbody>
                 </table>
                 {% else %}
-                <div class="urgency-success-state">
-                    <i data-lucide="check-circle"></i>
-                    <span>Sistemas e prazos 100% em dia.</span>
+                <div style="padding: 4rem 2rem; text-align: center;">
+                    <i data-lucide="shield-check" style="width: 56px; height: 56px; color: var(--ent-success); margin-bottom: 1rem; opacity: 0.9;"></i>
+                    <h4 style="font-family: var(--font-heading); font-size: 1.3rem; font-weight: 700; color: var(--ent-primary);">Cronogramas em Dia</h4>
+                    <p style="font-size: 1rem; color: var(--ent-text-muted); margin-top: 0.5rem;">Nenhum ativo demanda intervenção emergencial neste momento.</p>
                 </div>
                 {% endif %}
             </div>
@@ -713,278 +830,113 @@
     </div>
 
 
-    <!-- 2. BUSCAR SITE VIEW -->
-    <div id="sites-view" class="view-container">
-        <div class="main-title-block">
-            <h2>Buscar Ativos de Telecom</h2>
-            <p>Monitore e visualize a localização geográfica e o status dos sites cadastrados</p>
-        </div>
-
-        <div class="sites-layout-grid" style="margin-top: 1.5rem;">
-            <!-- Painel Esquerdo: Busca e Mapa -->
-            <div style="display: flex; flex-direction: column; gap: 1.5rem;">
-                <div class="white-card">
-                    <h3 style="font-family: var(--font-title); font-size: 0.95rem; font-weight: 700; margin-bottom: 0.75rem; color: #0f172a;">Filtrar Ativo</h3>
-                    <div class="search-wrapper">
-                        <i data-lucide="search" style="position: absolute; left: 1rem; color: #94a3b8; width: 16px; height: 16px; pointer-events: none;"></i>
-                        <input type="text" id="site-search-input" class="search-input" placeholder="Buscar por ID ou Nome..." onkeyup="filterSites()" style="width: 100%;">
-                    </div>
-                </div>
-
-                <div class="white-card" style="padding: 0.5rem; overflow: hidden;">
-                    <div id="map-container" style="height: 300px; border-radius: 8px;"></div>
-                </div>
-            </div>
-
-            <!-- Painel Direito: Grid de Sites com Abas de Status -->
-            <div class="sites-section-wrapper">
-                <div class="filter-tabs-row">
-                    <h3>Sites Registrados</h3>
-                    <div class="filter-tab-buttons">
-                        <button class="filter-tab-btn active" onclick="setFilterStatus('ALL', this)">Todos</button>
-                        <button class="filter-tab-btn" onclick="setFilterStatus('ACTIVE', this)">Ativos</button>
-                        <button class="filter-tab-btn" onclick="setFilterStatus('PLANNED', this)">Planejados</button>
-                        <button class="filter-tab-btn" onclick="setFilterStatus('MAINTENANCE', this)">Manutenção</button>
-                        <button class="filter-tab-btn" onclick="setFilterStatus('INACTIVE', this)">Inativos</button>
-                    </div>
-                </div>
-
-                <div class="sites-grid" id="sites-grid-container">
-                    {% for site in sites %}
-                    <div class="site-card border-{{ site.status|lower }}" data-status="{{ site.status }}" data-name="{{ site.name|lower }}" data-code="{{ site.site_id|lower }}">
-                        <div class="site-card-top">
-                            <div class="site-info-wrapper">
-                                <span class="site-card-title">{{ site.site_id }}</span>
-                                <h4 class="site-card-name">{{ site.name }}</h4>
-                            </div>
-                            <span class="status-badge status-{{ site.status|lower }}">
-                                {{ site.get_status_display }}
-                            </span>
-                        </div>
-                        <p class="site-card-desc">{{ site.description|default:"Sem observações cadastradas." }}</p>
-                        
-                        <div class="site-card-meta">
-                            <div class="meta-row">
-                                <span>Coordenadas:</span>
-                                <span class="meta-val" style="font-size: 0.7rem;">{{ site.latitude|floatformat:4 }}, {{ site.longitude|floatformat:4 }}</span>
-                            </div>
-                            <div class="meta-row">
-                                <span>Documentos:</span>
-                                <span class="meta-val">{{ site.files.count }}</span>
-                            </div>
-                        </div>
-
-                        <a href="{% url 'site_detail' pk=site.pk %}" class="site-card-btn">
-                            Acessar Repositório
-                            <i data-lucide="arrow-right" style="width: 14px; height: 14px;"></i>
-                        </a>
-                    </div>
-                    {% empty %}
-                    <div class="empty-sites" style="grid-column: 1 / -1; width: 100%;">
-                        <i data-lucide="radio" style="width: 44px; height: 44px; color: #cbd5e1;"></i>
-                        <p style="font-weight: 600; font-size: 0.95rem; color: #64748b;">Nenhum site de telecom localizado.</p>
-                    </div>
-                    {% endfor %}
-                </div>
-
-                <div id="no-filter-results" class="empty-sites" style="display: none; grid-column: 1 / -1; padding: 4rem 2rem; border: 1px dashed #cbd5e1; border-radius: 12px; flex-direction: column; align-items: center; justify-content: center; gap: 0.5rem; text-align: center;">
-                    <i data-lucide="search" style="width: 36px; height: 36px; color: #94a3b8;"></i>
-                    <p style="font-weight: 600; font-size: 0.95rem; color: #475569;">Nenhum site encontrado com os critérios de busca.</p>
-                </div>
-            </div>
-        </div>
-    </div>
-
-
-    <!-- 3. PLANILHA GERAL VIEW -->
-    <div id="planilha-view" class="view-container">
-        <div class="main-title-block">
-            <h2>Planilha Geral de Transmissão</h2>
-            <p>Lista completa e exportável de todos os ativos de rede cadastrados</p>
-        </div>
-
-        <div class="white-card" style="margin-top: 1.5rem; overflow-x: auto; padding: 0.5rem;">
-            <table class="urgency-table" style="width: 100%;">
-                <thead>
-                    <tr>
-                        <th style="padding: 1rem 0.75rem;">ID do Site</th>
-                        <th>Nome Operacional</th>
-                        <th>Coordenadas</th>
-                        <th>Status</th>
-                        <th>Documentos</th>
-                        <th>Ações</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for site in sites %}
-                    <tr>
-                        <td style="font-weight: 700; color: #1e3a8a; padding: 1rem 0.75rem;">{{ site.site_id }}</td>
-                        <td>{{ site.name }}</td>
-                        <td style="font-size: 0.78rem; color: #64748b;">{{ site.latitude }}, {{ site.longitude }}</td>
-                        <td>
-                            <span class="status-badge status-{{ site.status|lower }}">
-                                {{ site.get_status_display }}
-                            </span>
-                        </td>
-                        <td style="text-align: center; font-weight: 600; color: #475569;">{{ site.files.count }}</td>
-                        <td>
-                            <a href="{% url 'site_detail' pk=site.pk %}" class="btn-submit" style="padding: 0.4rem 0.8rem; font-size: 0.75rem; border-radius: 6px; text-decoration: none;">
-                                Detalhes
-                            </a>
-                        </td>
-                    </tr>
-                    {% empty %}
-                    <tr>
-                        <td colspan="6" style="text-align: center; padding: 3rem 0; color: #94a3b8;">Nenhum site cadastrado no sistema.</td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        </div>
-    </div>
-
-
-    <!-- 4. GESTÃO DE PRAZOS VIEW -->
-    <div id="prazos-view" class="view-container">
-        <div class="main-title-block">
-            <h2>Gestão de Prazos de Implantação</h2>
-            <p>Acompanhamento de prazos, entregas físicas e manutenções de infraestrutura</p>
-        </div>
-
-        <div class="white-card" style="margin-top: 1.5rem;">
-            <div class="urgency-header">
-                <i data-lucide="clock" style="color: #f59e0b;"></i>
-                <h4>Cronogramas Ativos & Operações de Manutenção</h4>
-            </div>
-
-            {% if maintenance_sites > 0 %}
-            <table class="urgency-table">
-                <thead>
-                    <tr>
-                        <th>Código</th>
-                        <th>Nome</th>
-                        <th>Tipo / Etapa</th>
-                        <th>Última Atualização</th>
-                        <th>Status</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for site in sites %}
-                    {% if site.status == 'MAINTENANCE' %}
-                    <tr>
-                        <td style="font-weight: 700; color: #1e3a8a;">{{ site.site_id }}</td>
-                        <td>{{ site.name }}</td>
-                        <td style="font-weight: 600; color: #f59e0b;">Manutenção Técnica Geral</td>
-                        <td>{{ site.updated_at|date:"d/m/Y H:i" }}</td>
-                        <td>
-                            <span class="status-badge status-maintenance">Em Manutenção</span>
-                        </td>
-                    </tr>
-                    {% endif %}
-                    {% endfor %}
-                </tbody>
-            </table>
-            {% else %}
-            <div class="urgency-success-state" style="color: #64748b;">
-                <i data-lucide="smile" style="color: #10b981; width: 44px; height: 44px;"></i>
-                <span style="font-weight: 700; font-size: 1rem; color: #0f172a; margin-top: 0.5rem;">Tudo no Prazo!</span>
-                <span>Não há sites em manutenção técnica ou com prazos expirados no momento.</span>
-            </div>
-            {% endif %}
-        </div>
-    </div>
-
-
-    <!-- 5. GERENCIAR SITE VIEW (CADASTRO) -->
+    <!-- ==========================================
+         VIEW 5: GERENCIAMENTO E CADASTRO
+         ========================================== -->
     <div id="gerenciar-view" class="view-container">
-        <div class="main-title-block">
-            <h2>Gerenciamento e Cadastro de Sites</h2>
-            <p>Cadastre novos sites de telecomunicações e modifique as configurações dos ativos da rede</p>
+        <div class="page-header">
+            <div class="page-header-text">
+                <h2>Integração de Novos Ativos</h2>
+                <p>Módulo administrativo para registro de novas torres e infraestruturas na base de dados.</p>
+            </div>
         </div>
 
-        <div class="white-card" style="margin-top: 1.5rem; max-width: 600px;">
-            <h3 style="font-family: var(--font-title); font-size: 1.1rem; font-weight: 700; margin-bottom: 1.25rem; color: #0f172a; border-bottom: 1px solid #f1f5f9; padding-bottom: 0.5rem;">Cadastrar Novo Ativo</h3>
+        <div class="ent-card" style="max-width: 800px; padding: 2.5rem;">
+            <h3 style="font-family: var(--font-heading); font-size: 1.25rem; font-weight: 700; color: var(--ent-primary); margin-bottom: 2rem; border-bottom: 1px solid var(--ent-border); padding-bottom: 1rem;">Ficha de Cadastro do Site</h3>
             
             {% if user.role == 'ADMIN' or user.role == 'ENGINEER' %}
             <form method="POST" action="{% url 'site_list' %}">
                 {% csrf_token %}
-                <div class="field-group">
-                    <label for="site_id">Código do Site (ID)</label>
-                    <input type="text" name="site_id" id="site_id" class="field-control" placeholder="Ex: SP_CTA_001" required>
-                </div>
-
-                <div class="field-group">
-                    <label for="name">Nome do Site</label>
-                    <input type="text" name="name" id="name" class="field-control" placeholder="Ex: Central Catu" required>
-                </div>
-
-                <div class="field-row">
-                    <div class="field-group">
-                        <label for="latitude">Latitude</label>
-                        <input type="number" name="latitude" id="latitude" step="0.000001" class="field-control" placeholder="-23.5505" required>
+                <div class="ent-form-grid" style="margin-bottom: 1.5rem;">
+                    <div class="form-group">
+                        <label for="site_id">Identificador Alfanumérico (ID)</label>
+                        <input type="text" name="site_id" id="site_id" class="form-control" placeholder="Ex: SP_SJO_01" required>
                     </div>
-                    <div class="field-group">
-                        <label for="longitude">Longitude</label>
-                        <input type="number" name="longitude" id="longitude" step="0.000001" class="field-control" placeholder="-46.6333" required>
+
+                    <div class="form-group">
+                        <label for="name">Denominação do Site</label>
+                        <input type="text" name="name" id="name" class="form-control" placeholder="Ex: Central São José" required>
                     </div>
                 </div>
 
-                <div class="field-group">
-                    <label for="status">Status Operacional</label>
-                    <select name="status" id="status" class="field-control" required>
-                        <option value="PLANNED">Planejado</option>
-                        <option value="ACTIVE">Ativo</option>
-                        <option value="MAINTENANCE">Em Manutenção</option>
-                        <option value="INACTIVE">Inativo</option>
+                <div class="ent-form-grid" style="margin-bottom: 1.5rem;">
+                    <div class="form-group">
+                        <label for="latitude">Latitude (WGS 84)</label>
+                        <input type="number" name="latitude" id="latitude" step="0.000001" class="form-control" placeholder="-23.550500" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="longitude">Longitude (WGS 84)</label>
+                        <input type="number" name="longitude" id="longitude" step="0.000001" class="form-control" placeholder="-46.633300" required>
+                    </div>
+                </div>
+
+                <div class="form-group" style="margin-bottom: 1.5rem;">
+                    <label for="status">Condição Operacional Primária</label>
+                    <select name="status" id="status" class="form-control" required style="cursor: pointer;">
+                        <option value="PLANNED">Fase de Planejamento (Greenfield)</option>
+                        <option value="ACTIVE">Operação Ativa (Em Serviço)</option>
+                        <option value="MAINTENANCE">Manutenção (Intervenção)</option>
+                        <option value="INACTIVE">Operação Suspensa (Offline)</option>
                     </select>
                 </div>
 
-                <div class="field-group">
-                    <label for="description">Observações / Infraestrutura</label>
-                    <textarea name="description" id="description" class="field-control" rows="4" placeholder="Torre metálica, gerador diesel, painéis fotovoltaicos..." style="resize: vertical;"></textarea>
+                <div class="form-group" style="margin-bottom: 2.5rem;">
+                    <label for="description">Especificações Técnicas e Notas</label>
+                    <textarea name="description" id="description" class="form-control" rows="5" placeholder="Detalhes de infraestrutura, altura da torre, tipo de fundação, equipamentos alocados..." style="resize: vertical;"></textarea>
                 </div>
 
-                <div style="display: flex; justify-content: flex-end; margin-top: 1rem;">
-                    <button type="submit" class="btn-submit">
-                        <i data-lucide="plus"></i> Cadastrar Site
+                <div style="display: flex; justify-content: flex-end; border-top: 1px solid var(--ent-border); padding-top: 1.5rem;">
+                    <button type="submit" class="btn-ent btn-ent-primary" style="padding: 0.8rem 2rem; font-size: 0.95rem;">
+                        <i data-lucide="save"></i> Efetivar Registro
                     </button>
                 </div>
             </form>
             {% else %}
-            <div style="text-align: center; padding: 2rem; color: #64748b; display: flex; flex-direction: column; align-items: center; gap: 0.75rem;">
-                <i data-lucide="lock" style="width: 32px; height: 32px; color: #f59e0b;"></i>
-                <p style="font-weight: 600;">Acesso Restrito</p>
-                <p style="font-size: 0.82rem;">Seu cargo de <strong>{{ user.get_role_display }}</strong> possui nível de acesso de consulta. Apenas Administradores e Engenheiros podem criar novos sites.</p>
+            <div style="text-align: center; padding: 3rem 1rem; color: var(--ent-text-muted); background: #f8fafc; border-radius: var(--ent-radius);">
+                <i data-lucide="lock" style="width: 48px; height: 48px; color: var(--ent-warning); margin-bottom: 1.5rem;"></i>
+                <h4 style="font-family: var(--font-heading); font-size: 1.25rem; font-weight: 700; color: var(--ent-primary); margin-bottom: 0.5rem;">Acesso de Leitura</h4>
+                <p style="font-size: 1rem;">O seu perfil de <strong>{{ user.get_role_display }}</strong> não dispõe das permissões necessárias para gravar novos ativos na base de dados central.</p>
             </div>
             {% endif %}
         </div>
     </div>
 
 
-    <!-- 6. ANOTAÇÕES VIEW -->
+    <!-- ==========================================
+         VIEW 6: BLOCO DE NOTAS DO ENGENHEIRO
+         ========================================== -->
     <div id="anotacoes-view" class="view-container">
-        <div class="main-title-block">
-            <h2>Bloco de Notas Técnica</h2>
-            <p>Anote observações de campo, lembretes de implantação ou rascunhos. Seus dados são salvos localmente.</p>
+        <div class="page-header">
+            <div class="page-header-text">
+                <h2>Workspace Pessoal</h2>
+                <p>Área de rascunhos e anotações rápidas mantida localmente na sua sessão.</p>
+            </div>
         </div>
 
-        <div class="white-card notepad-container" style="margin-top: 1.5rem;">
-            <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #f1f5f9; padding-bottom: 0.75rem;">
+        <div class="ent-card" style="display: flex; flex-direction: column; height: 600px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; padding: 1.5rem; border-bottom: 1px solid var(--ent-border); background: #f8fafc;">
                 <div style="display: flex; align-items: center; gap: 0.5rem;">
-                    <i data-lucide="file-edit" style="color: #2563eb;"></i>
-                    <h4 style="font-family: var(--font-title); font-size: 0.95rem; font-weight: 700; color: #0f172a;">Anotações do Engenheiro</h4>
+                    <i data-lucide="file-edit" style="color: var(--ent-accent);"></i>
+                    <h4 style="font-family: var(--font-heading); font-size: 1.1rem; font-weight: 700; color: var(--ent-primary);">Notepad Técnico</h4>
                 </div>
-                <span id="save-status" style="font-size: 0.75rem; color: #10b981; font-weight: 600; display: none;">Salvo!</span>
+                <span id="save-status" style="font-size: 0.8rem; color: var(--ent-success); font-weight: 600; display: none;">Sincronizado <i data-lucide="check" style="width: 14px; height: 14px; display: inline-block; vertical-align: middle;"></i></span>
             </div>
             
-            <textarea id="notepad-text" class="notepad-textarea" placeholder="Rascunhe suas anotações aqui... (As anotações permanecem gravadas neste navegador)" onkeyup="saveNotes(this.value)"></textarea>
+            <textarea id="notepad-text" style="flex: 1; border: none; padding: 2rem; font-family: monospace; font-size: 0.95rem; line-height: 1.6; color: var(--ent-secondary); resize: none; outline: none; background: #ffffff;" placeholder="Registre aqui parâmetros de configuração, IPs de gerência, anotações de reunião... (Os dados são mantidos em cache no seu navegador)" onkeyup="saveNotes(this.value)"></textarea>
         </div>
     </div>
 
 </div>
 
 <script>
-    // --- 1. BLOCO DE NOTAS (LOCALSTORAGE PERSISTENTE) ---
+    // Configurações Globais de UI
+    document.addEventListener("DOMContentLoaded", () => {
+        // Data atual no Hero
+        const dateOptions = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+        document.getElementById('current-date').innerText = new Date().toLocaleDateString('pt-BR', dateOptions);
+    });
+
+    // --- 1. BLOCO DE NOTAS (LOCALSTORAGE) ---
     function loadNotes() {
         const saved = localStorage.getItem('martinstec_notes');
         if (saved) {
@@ -1006,7 +958,7 @@
     
     loadNotes();
 
-    // --- 2. DADOS DE SITES ---
+    // --- 2. DADOS JSON INJETADOS PELO DJANGO ---
     const sitesData = [
         {% for site in sites %}
         {
@@ -1021,19 +973,19 @@
         {% endfor %}
     ];
 
-    // --- 3. FILTRO DE SITES (CLIENT-SIDE) ---
+    // --- 3. FILTRO DE SITES CLIENT-SIDE ---
     let currentFilterStatus = 'ALL';
 
     function setFilterStatus(status, element) {
         currentFilterStatus = status;
-        document.querySelectorAll('.filter-tab-btn').forEach(btn => btn.classList.remove('active'));
+        document.querySelectorAll('.filter-pill').forEach(btn => btn.classList.remove('active'));
         element.classList.add('active');
         filterSites();
     }
 
     function filterSites() {
         const query = document.getElementById('site-search-input').value.toLowerCase().trim();
-        const cards = document.querySelectorAll('.site-card');
+        const cards = document.querySelectorAll('.modern-site-card');
         let visibleCount = 0;
 
         cards.forEach(card => {
@@ -1054,13 +1006,13 @@
 
         const noResults = document.getElementById('no-filter-results');
         if (visibleCount === 0 && cards.length > 0) {
-            noResults.style.display = 'flex';
+            noResults.style.display = 'block';
         } else {
             noResults.style.display = 'none';
         }
     }
 
-    // --- 4. MAPA LEAFLET ---
+    // --- 4. MAPA LEAFLET CORPORATIVO ---
     let mapInitialized = false;
     let map = null;
 
@@ -1085,41 +1037,44 @@
 
         map = L.map('map-container').setView(defaultCenter, defaultZoom);
 
+        // Mapa estilo Carto Light (Clean & Corporate)
         L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
-            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/attributions">CARTO</a>',
+            attribution: '&copy; OpenStreetMap &copy; CARTO',
             subdomains: 'abcd',
             maxZoom: 20
         }).addTo(map);
 
         const statusColors = {
-            'ACTIVE': '#10b981',
-            'PLANNED': '#f59e0b',
-            'MAINTENANCE': '#3b82f6',
-            'INACTIVE': '#ef4444'
+            'ACTIVE': '#059669',
+            'PLANNED': '#d97706',
+            'MAINTENANCE': '#2563eb',
+            'INACTIVE': '#dc2626'
         };
 
         const bounds = [];
         sitesData.forEach(site => {
             if (!isNaN(site.lat) && !isNaN(site.lng)) {
                 const color = statusColors[site.status] || '#64748b';
+                
                 const markerIcon = L.divIcon({
-                    html: `<div style="background-color: ${color}; width: 12px; height: 12px; border-radius: 50%; border: 2px solid white; box-shadow: 0 1px 4px rgba(0,0,0,0.3);"></div>`,
+                    html: `<div style="background-color: ${color}; width: 14px; height: 14px; border-radius: 50%; border: 3px solid white; box-shadow: 0 2px 5px rgba(0,0,0,0.4);"></div>`,
                     className: 'custom-pin',
-                    iconSize: [12, 12],
-                    iconAnchor: [6, 6]
+                    iconSize: [14, 14],
+                    iconAnchor: [7, 7]
                 });
 
                 const marker = L.marker([site.lat, site.lng], { icon: markerIcon }).addTo(map);
                 
                 const popupContent = `
-                    <div style="font-family: 'Inter', sans-serif; padding: 0.2rem; width: 160px;">
-                        <h4 style="margin:0 0 0.15rem 0; font-size:0.85rem; color:#1e3a8a; font-family:'Outfit'; font-weight:700;">${site.id}</h4>
-                        <p style="margin:0 0 0.4rem 0; font-size:0.75rem; font-weight:600; color:#0f172a;">${site.name}</p>
-                        <p style="margin:0 0 0.4rem 0; font-size:0.7rem; color:#64748b;">
-                            Status: <span style="font-weight:700; color:${color}">${site.statusDisplay}</span>
+                    <div style="font-family: 'Inter', sans-serif; padding: 0.5rem; width: 180px;">
+                        <h4 style="margin:0 0 0.25rem 0; font-size:0.95rem; color:#0f172a; font-family:'Outfit'; font-weight:700;">${site.id}</h4>
+                        <p style="margin:0 0 0.5rem 0; font-size:0.8rem; font-weight:500; color:#475569;">${site.name}</p>
+                        <p style="margin:0 0 0.75rem 0; font-size:0.75rem; color:#64748b; display:flex; align-items:center; gap:0.3rem;">
+                            <span style="width:8px;height:8px;border-radius:50%;background:${color};display:inline-block;"></span>
+                            <span style="font-weight:600; color:#0f172a;">${site.statusDisplay}</span>
                         </p>
-                        <a href="${site.url}" style="display:block; font-size:0.7rem; text-decoration:none; background:#2563eb; color:white; text-align:center; padding:0.35rem; border-radius:4px; font-weight:600;">
-                            Acessar Repositório
+                        <a href="${site.url}" style="display:block; font-size:0.75rem; text-decoration:none; background:#0f172a; color:white; text-align:center; padding:0.4rem; border-radius:6px; font-weight:600; transition:background 0.2s;">
+                            Entrar no Site
                         </a>
                     </div>
                 `;
@@ -1129,91 +1084,63 @@
         });
 
         if (bounds.length > 1) {
-            map.fitBounds(bounds, { padding: [20, 20] });
+            map.fitBounds(bounds, { padding: [30, 30] });
         }
         mapInitialized = true;
     }
 
-    // --- 5. GRÁFICOS DO DASHBOARD (CHART.JS) ---
+    // --- 5. GRÁFICO CHART.JS ---
     document.addEventListener("DOMContentLoaded", function() {
         initMap();
 
-        // Variáveis de contagem
-        const total = {{ total_sites|default:0 }};
+        // Dados do backend
         const active = {{ active_sites|default:0 }};
-        const maintenance = {{ maintenance_sites|default:0 }};
         const planned = {{ planned_sites|default:0 }};
+        const maintenance = {{ maintenance_sites|default:0 }};
         const inactive = {{ inactive_sites|default:0 }};
 
-        // Taxa de Sucesso (Gauge Chart)
-        const percent = total > 0 ? Math.round((active / total) * 100) : 0;
-        document.getElementById('gauge-percent-text').innerText = percent + '%';
-        document.getElementById('gauge-fraction-text').innerText = `${active} de ${total} sites finalizados`;
-
-        const gaugeCtx = document.getElementById('gaugeChart').getContext('2d');
-        new Chart(gaugeCtx, {
-            type: 'doughnut',
-            data: {
-                datasets: [{
-                    data: [active, Math.max(0, total - active) || 1], // Previne divisão por zero se total for 0
-                    backgroundColor: [percent > 0 ? '#10b981' : '#cbd5e1', '#e2e8f0'],
-                    borderWidth: 0
-                }]
-            },
-            options: {
-                circumference: 180,
-                rotation: -90,
-                cutout: '82%',
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: { display: false },
-                    tooltip: { enabled: false }
-                }
-            }
-        });
-
-        // Gráfico de Pizza: Distribuição
+        // Gráfico de Pizza Premium
         const statusCtx = document.getElementById('statusDoughnutChart').getContext('2d');
         new Chart(statusCtx, {
             type: 'doughnut',
             data: {
-                labels: ['Ativos', 'Planejados', 'Manutenção', 'Inativos'],
+                labels: ['Operação Ativa', 'Planejamento', 'Manutenção', 'Suspenso'],
                 datasets: [{
                     data: [active, planned, maintenance, inactive],
-                    backgroundColor: ['#10b981', '#f59e0b', '#3b82f6', '#ef4444'],
-                    borderWidth: 2,
-                    borderColor: '#ffffff'
+                    backgroundColor: ['#059669', '#d97706', '#2563eb', '#dc2626'],
+                    borderWidth: 3,
+                    borderColor: '#ffffff',
+                    hoverOffset: 4
                 }]
             },
             options: {
-                cutout: '80%',
+                cutout: '75%',
                 responsive: true,
                 maintainAspectRatio: false,
                 plugins: {
-                    legend: { display: false }
+                    legend: { 
+                        position: 'bottom',
+                        labels: {
+                            padding: 20,
+                            font: {
+                                family: "'Inter', sans-serif",
+                                size: 11,
+                                weight: '500'
+                            },
+                            usePointStyle: true,
+                            pointStyle: 'circle'
+                        }
+                    },
+                    tooltip: {
+                        backgroundColor: '#0f172a',
+                        titleFont: { family: "'Outfit', sans-serif", size: 13 },
+                        bodyFont: { family: "'Inter', sans-serif", size: 12 },
+                        padding: 12,
+                        cornerRadius: 8
+                    }
                 }
             }
         });
-
-        // Gerar Legenda customizada
-        const legendContainer = document.getElementById('doughnut-legend');
-        const labels = ['Ativos', 'Planejados', 'Manutenção', 'Inativos'];
-        const values = [active, planned, maintenance, inactive];
-        const colors = ['#10b981', '#f59e0b', '#3b82f6', '#ef4444'];
-        
-        let legendHTML = '';
-        labels.forEach((label, idx) => {
-            const count = values[idx];
-            const p = total > 0 ? Math.round((count / total) * 100) : 0;
-            legendHTML += `
-                <div class="legend-item">
-                    <span class="legend-dot" style="background-color: ${colors[idx]}"></span>
-                    <span>${label}: <strong>${count} (${p}%)</strong></span>
-                </div>
-            `;
-        });
-        legendContainer.innerHTML = legendHTML;
     });
 </script>
 {% endblock %}
