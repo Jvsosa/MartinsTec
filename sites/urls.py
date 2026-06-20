@@ -7,4 +7,5 @@ urlpatterns = [
     path('', views.site_list, name='site_list'),
     path('site/<int:pk>/', views.site_detail, name='site_detail'),
     path('file/download/<int:file_id>/', views.download_file, name='download_file'),
+    path('file/delete/<int:file_id>/', views.delete_file, name='delete_file'),
 ]

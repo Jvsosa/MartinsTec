@@ -495,7 +495,7 @@
                             <span style="width: 6px; height: 6px; background-color: #3b82f6; border-radius: 50%;"></span>
                             Vistoria Realizada ➔ Em Elaboração de Laudo/Projeto
                         </span>
-                    {% elif site.planned_survey_date or site.planned_report_date %}
+                    {% elif site.partner_company %}
                         <span style="color: #f59e0b; background: #fffbeb; padding: 0.25rem 0.75rem; border-radius: 20px; font-size: 0.8rem; display: inline-flex; align-items: center; gap: 0.35rem;">
                             <span style="width: 6px; height: 6px; background-color: #f59e0b; border-radius: 50%;"></span>
                             Fornecedora Acionada ➔ Vistoria em Andamento
@@ -512,7 +512,7 @@
                             <span style="width: 6px; height: 6px; background-color: #10b981; border-radius: 50%;"></span>
                             Concluído (Laudo/Projeto entregue)
                         </span>
-                    {% elif site.planned_report_date %}
+                    {% elif site.partner_company %}
                         <span style="color: #3b82f6; background: #eff6ff; padding: 0.25rem 0.75rem; border-radius: 20px; font-size: 0.8rem; display: inline-flex; align-items: center; gap: 0.35rem;">
                             <span style="width: 6px; height: 6px; background-color: #3b82f6; border-radius: 50%;"></span>
                             Fornecedora Acionada ➔ Em Elaboração de Laudo/Projeto
@@ -531,7 +531,7 @@
             <div style="display: flex; align-items: center; justify-content: space-between; position: relative; padding: 0 0.5rem;">
                 <!-- Linha de Fundo -->
                 <div style="position: absolute; top: 18px; left: 10%; right: 10%; height: 3px; background-color: #cbd5e1; z-index: 1;">
-                    <div style="height: 100%; width: {% if site.actual_report_date %}100%{% elif site.actual_survey_date %}66%{% elif site.planned_survey_date or site.planned_report_date %}33%{% else %}0%{% endif %}; background-color: var(--brand-primary); transition: width 0.4s ease;"></div>
+                    <div style="height: 100%; width: {% if site.actual_report_date %}100%{% elif site.actual_survey_date %}66%{% elif site.partner_company %}33%{% else %}0%{% endif %}; background-color: var(--brand-primary); transition: width 0.4s ease;"></div>
                 </div>
                 
                 <!-- Etapa 1: Cadastrado -->
@@ -545,19 +545,17 @@
 
                 <!-- Etapa 2: Acionado -->
                 <div style="display: flex; flex-direction: column; align-items: center; gap: 0.4rem; z-index: 2; width: 22%; text-align: center;">
-                    <div style="width: 34px; height: 34px; border-radius: 50%; background-color: {% if site.planned_survey_date or site.planned_report_date %}var(--brand-primary){% else %}#f1f5f9{% endif %}; color: {% if site.planned_survey_date or site.planned_report_date %}white{% else %}#64748b{% endif %}; display: flex; align-items: center; justify-content: center; font-weight: 700; border: 2px solid {% if site.planned_survey_date or site.planned_report_date %}var(--brand-primary){% else %}#cbd5e1{% endif %};">
-                        {% if site.planned_survey_date or site.planned_report_date %}
+                    <div style="width: 34px; height: 34px; border-radius: 50%; background-color: {% if site.partner_company %}var(--brand-primary){% else %}#f1f5f9{% endif %}; color: {% if site.partner_company %}white{% else %}#64748b{% endif %}; display: flex; align-items: center; justify-content: center; font-weight: 700; border: 2px solid {% if site.partner_company %}var(--brand-primary){% else %}#cbd5e1{% endif %};">
+                        {% if site.partner_company %}
                             <i data-lucide="check" style="width: 15px; height: 15px;"></i>
                         {% else %}
                             2
                         {% endif %}
                     </div>
-                    <span style="font-size: 0.75rem; font-weight: 700; color: {% if site.planned_survey_date or site.planned_report_date %}var(--text-main){% else %}#94a3b8{% endif %};">Acionado</span>
-                    <span style="font-size: 0.65rem; color: var(--text-muted);">
-                        {% if site.planned_survey_date %}
-                            Prev: {{ site.planned_survey_date|date:"d/m" }}
-                        {% elif site.planned_report_date %}
-                            Prev: {{ site.planned_report_date|date:"d/m" }}
+                    <span style="font-size: 0.75rem; font-weight: 700; color: {% if site.partner_company %}var(--text-main){% else %}#94a3b8{% endif %};">Acionado</span>
+                    <span style="font-size: 0.65rem; color: var(--text-muted);" title="{{ site.partner_company|default:'Aguardando' }}">
+                        {% if site.partner_company %}
+                            {{ site.partner_company|truncatechars:12 }}
                         {% else %}
                             Aguardando
                         {% endif %}
@@ -595,7 +593,7 @@
             <div style="display: flex; align-items: center; justify-content: space-between; position: relative; padding: 0 0.5rem;">
                 <!-- Linha de Fundo -->
                 <div style="position: absolute; top: 18px; left: 10%; right: 10%; height: 3px; background-color: #cbd5e1; z-index: 1;">
-                    <div style="height: 100%; width: {% if site.actual_report_date %}100%{% elif site.planned_report_date %}50%{% else %}0%{% endif %}; background-color: var(--brand-primary); transition: width 0.4s ease;"></div>
+                    <div style="height: 100%; width: {% if site.actual_report_date %}100%{% elif site.partner_company %}50%{% else %}0%{% endif %}; background-color: var(--brand-primary); transition: width 0.4s ease;"></div>
                 </div>
                 
                 <!-- Etapa 1: Cadastrado -->
@@ -609,15 +607,21 @@
 
                 <!-- Etapa 2: Acionado -->
                 <div style="display: flex; flex-direction: column; align-items: center; gap: 0.4rem; z-index: 2; width: 30%; text-align: center;">
-                    <div style="width: 34px; height: 34px; border-radius: 50%; background-color: {% if site.planned_report_date %}var(--brand-primary){% else %}#f1f5f9{% endif %}; color: {% if site.planned_report_date %}white{% else %}#64748b{% endif %}; display: flex; align-items: center; justify-content: center; font-weight: 700; border: 2px solid {% if site.planned_report_date %}var(--brand-primary){% else %}#cbd5e1{% endif %};">
-                        {% if site.planned_report_date %}
+                    <div style="width: 34px; height: 34px; border-radius: 50%; background-color: {% if site.partner_company %}var(--brand-primary){% else %}#f1f5f9{% endif %}; color: {% if site.partner_company %}white{% else %}#64748b{% endif %}; display: flex; align-items: center; justify-content: center; font-weight: 700; border: 2px solid {% if site.partner_company %}var(--brand-primary){% else %}#cbd5e1{% endif %};">
+                        {% if site.partner_company %}
                             <i data-lucide="check" style="width: 15px; height: 15px;"></i>
                         {% else %}
                             2
                         {% endif %}
                     </div>
-                    <span style="font-size: 0.75rem; font-weight: 700; color: {% if site.planned_report_date %}var(--text-main){% else %}#94a3b8{% endif %};">Acionado</span>
-                    <span style="font-size: 0.65rem; color: var(--text-muted);">{% if site.planned_report_date %}Prev: {{ site.planned_report_date|date:"d/m" }}{% else %}Aguardando{% endif %}</span>
+                    <span style="font-size: 0.75rem; font-weight: 700; color: {% if site.partner_company %}var(--text-main){% else %}#94a3b8{% endif %};">Acionado</span>
+                    <span style="font-size: 0.65rem; color: var(--text-muted);" title="{{ site.partner_company|default:'Aguardando' }}">
+                        {% if site.partner_company %}
+                            {{ site.partner_company|truncatechars:15 }}
+                        {% else %}
+                            Aguardando
+                        {% endif %}
+                    </span>
                 </div>
 
                 <!-- Etapa 3: Finalizado -->
@@ -653,7 +657,7 @@
                         <tr>
                             <th>Arquivo</th>
                             <th>Enviado Por</th>
-                            <th style="width: 50px; text-align: center;">Baixar</th>
+                            <th style="width: 90px; text-align: center;">Ações</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -671,9 +675,12 @@
                                     <span style="font-size: 0.7rem; opacity: 0.7;">{{ f.uploaded_at|date:"d/m/Y" }}</span>
                                 </span>
                             </td>
-                            <td style="text-align: center;">
+                            <td style="text-align: center; display: flex; justify-content: center; gap: 0.5rem; align-items: center;">
                                 <a href="{% url 'download_file' file_id=f.id %}" class="action-download" title="Fazer Download do PDF">
                                     <i data-lucide="download" style="width: 16px; height: 16px;"></i>
+                                </a>
+                                <a href="{% url 'delete_file' file_id=f.id %}" class="action-download" style="background: #fef2f2; color: #ef4444;" title="Excluir PDF" onclick="return confirm('Tem certeza que deseja excluir este PDF?');" onmouseover="this.style.background='#ef4444'; this.style.color='white';" onmouseout="this.style.background='#fef2f2'; this.style.color='#ef4444';">
+                                    <i data-lucide="trash-2" style="width: 16px; height: 16px;"></i>
                                 </a>
                             </td>
                         </tr>
@@ -712,10 +719,13 @@
                             </span>
                         </div>
                         
-                        <!-- Botão Download -->
-                        <div style="border-top: 1px dashed var(--border-color); padding-top: 0.5rem; display: flex; justify-content: flex-end;">
+                        <!-- Botão Download e Excluir -->
+                        <div style="border-top: 1px dashed var(--border-color); padding-top: 0.5rem; display: flex; justify-content: flex-end; gap: 0.5rem;">
                             <a href="{% url 'download_file' file_id=f.id %}?download=true" class="action-download" style="width: 28px; height: 28px; border-radius: 6px; display: flex; align-items: center; justify-content: center; text-decoration: none;" title="Baixar original">
                                 <i data-lucide="download" style="width: 14px; height: 14px;"></i>
+                            </a>
+                            <a href="{% url 'delete_file' file_id=f.id %}" class="action-download" style="width: 28px; height: 28px; border-radius: 6px; display: flex; align-items: center; justify-content: center; text-decoration: none; background: #fef2f2; color: #ef4444;" title="Excluir fotografia" onclick="return confirm('Tem certeza que deseja excluir esta foto?');" onmouseover="this.style.background='#ef4444'; this.style.color='white';" onmouseout="this.style.background='#fef2f2'; this.style.color='#ef4444';">
+                                <i data-lucide="trash-2" style="width: 14px; height: 14px;"></i>
                             </a>
                         </div>
                     </div>
@@ -738,7 +748,7 @@
                         <tr>
                             <th>Arquivo</th>
                             <th>Enviado Por</th>
-                            <th style="width: 50px; text-align: center;">Baixar</th>
+                            <th style="width: 90px; text-align: center;">Ações</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -756,7 +766,7 @@
                                     <span style="font-size: 0.7rem; opacity: 0.7;">{{ f.uploaded_at|date:"d/m/Y" }}</span>
                                 </span>
                             </td>
-                            <td style="text-align: center;">
+                            <td style="text-align: center; display: flex; justify-content: center; gap: 0.5rem; align-items: center;">
                                 {% if user.role == 'TECHNICIAN' %}
                                     <!-- Técnico de Campo com restrição de acesso por cargo (RBAC) -->
                                     <span class="action-locked" title="Acesso Restrito: Técnicos de campo não podem baixar plantas DWG.">
@@ -765,6 +775,9 @@
                                 {% else %}
                                     <a href="{% url 'download_file' file_id=f.id %}" class="action-download" title="Fazer Download da Planta DWG">
                                         <i data-lucide="download" style="width: 16px; height: 16px;"></i>
+                                    </a>
+                                    <a href="{% url 'delete_file' file_id=f.id %}" class="action-download" style="background: #fef2f2; color: #ef4444;" title="Excluir Planta DWG" onclick="return confirm('Tem certeza que deseja excluir esta planta DWG?');" onmouseover="this.style.background='#ef4444'; this.style.color='white';" onmouseout="this.style.background='#fef2f2'; this.style.color='#ef4444';">
+                                        <i data-lucide="trash-2" style="width: 16px; height: 16px;"></i>
                                     </a>
                                 {% endif %}
                             </td>
@@ -789,7 +802,7 @@
                         <tr>
                             <th>Arquivo</th>
                             <th>Enviado Por</th>
-                            <th style="width: 50px; text-align: center;">Baixar</th>
+                            <th style="width: 90px; text-align: center;">Ações</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -807,9 +820,12 @@
                                     <span style="font-size: 0.7rem; opacity: 0.7;">{{ f.uploaded_at|date:"d/m/Y" }}</span>
                                 </span>
                             </td>
-                            <td style="text-align: center;">
+                            <td style="text-align: center; display: flex; justify-content: center; gap: 0.5rem; align-items: center;">
                                 <a href="{% url 'download_file' file_id=f.id %}" class="action-download" title="Fazer Download do Arquivo">
                                     <i data-lucide="download" style="width: 16px; height: 16px;"></i>
+                                </a>
+                                <a href="{% url 'delete_file' file_id=f.id %}" class="action-download" style="background: #fef2f2; color: #ef4444;" title="Excluir Arquivo" onclick="return confirm('Tem certeza que deseja excluir este arquivo?');" onmouseover="this.style.background='#ef4444'; this.style.color='white';" onmouseout="this.style.background='#fef2f2'; this.style.color='#ef4444';">
+                                    <i data-lucide="trash-2" style="width: 16px; height: 16px;"></i>
                                 </a>
                             </td>
                         </tr>

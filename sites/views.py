@@ -274,3 +274,22 @@ def download_file(request, file_id):
         response['Content-Disposition'] = f'attachment; filename="{original_filename}"'
 
     return response
+
+
+# --- EXCLUSÃO SEGURA DE ARQUIVO TÉCNICO ---
+@login_required
+def delete_file(request, file_id):
+    site_file = get_object_or_404(SiteFile, id=file_id)
+    site_pk = site_file.site.pk
+    
+    try:
+        # Tenta remover o arquivo físico do disco
+        if site_file.file and os.path.exists(site_file.file.path):
+            os.remove(site_file.file.path)
+    except Exception:
+        # Se o arquivo não existir fisicamente ou houver erro, apenas ignora para limpar o registro
+        pass
+        
+    site_file.delete()
+    messages.success(request, "Arquivo excluído com sucesso!")
+    return redirect('site_detail', pk=site_pk)
