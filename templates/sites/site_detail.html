@@ -428,72 +428,7 @@
                     </span>
                 </div>
             </div>
-        </div>
-
-        {% if user.role == 'ADMIN' or user.role == 'ENGINEER' %}
-        <!-- Painel de Gerenciamento de Prazos (Replanejamento) -->
-        <div class="glass-card info-card" style="margin-top: 1.5rem;">
-            <h3>
-                <i data-lucide="calendar" style="color: var(--brand-primary);"></i>
-                Gerenciar Cronograma
-            </h3>
-            
-            <form method="POST" action="{% url 'site_detail' pk=site.pk %}">
-                {% csrf_token %}
-                <input type="hidden" name="action" value="update_workflow">
-                
-                <div class="info-list" style="gap: 1rem;">
-                    <div class="info-item">
-                        <label for="scope_type_edit" class="info-label">Escopo do Acionamento</label>
-                        <select name="scope_type" id="scope_type_edit" class="field-control" required style="padding: 0.5rem; font-size: 0.85rem; border: 1px solid var(--border-color); border-radius: 8px;">
-                            <option value="LAUDO" {% if site.scope_type == 'LAUDO' %}selected{% endif %}>Laudo Técnico</option>
-                            <option value="PROJETO" {% if site.scope_type == 'PROJETO' %}selected{% endif %}>Projeto</option>
-                            <option value="OBRA" {% if site.scope_type == 'OBRA' %}selected{% endif %}>Obra / Instalação</option>
-                            <option value="OUTRO" {% if site.scope_type == 'OUTRO' %}selected{% endif %}>Outro</option>
-                        </select>
-                    </div>
-                    
-                    <div class="info-item">
-                        <label for="partner_company_edit" class="info-label">Fornecedora de Laudo/Projeto</label>
-                        <input type="text" name="partner_company" id="partner_company_edit" class="field-control" value="{{ site.partner_company|default:'' }}" placeholder="Nome da fornecedora" style="padding: 0.5rem; font-size: 0.85rem; border: 1px solid var(--border-color); border-radius: 8px;">
-                    </div>
-                    
-                    <div class="info-item" style="border-top: 1px dashed var(--border-color); padding-top: 0.75rem;">
-                        <span style="font-size: 0.7rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase;">Fase 1: Vistoria</span>
-                    </div>
-                    
-                    <div class="info-item">
-                        <label for="planned_survey_date_edit" class="info-label">Vistoria Planejada</label>
-                        <input type="date" name="planned_survey_date" id="planned_survey_date_edit" class="field-control" value="{{ site.planned_survey_date|date:'Y-m-d' }}" style="padding: 0.5rem; font-size: 0.85rem; border: 1px solid var(--border-color); border-radius: 8px;">
-                    </div>
-                    
-                    <div class="info-item">
-                        <label for="actual_survey_date_edit" class="info-label">Vistoria Realizada</label>
-                        <input type="date" name="actual_survey_date" id="actual_survey_date_edit" class="field-control" value="{{ site.actual_survey_date|date:'Y-m-d' }}" style="padding: 0.5rem; font-size: 0.85rem; border: 1px solid var(--border-color); border-radius: 8px;">
-                    </div>
-
-                    <div class="info-item" style="border-top: 1px dashed var(--border-color); padding-top: 0.75rem;">
-                        <span style="font-size: 0.7rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase;">Fase 2: Laudo</span>
-                    </div>
-                    
-                    <div class="info-item">
-                        <label for="planned_report_date_edit" class="info-label">Laudo Planejado</label>
-                        <input type="date" name="planned_report_date" id="planned_report_date_edit" class="field-control" value="{{ site.planned_report_date|date:'Y-m-d' }}" style="padding: 0.5rem; font-size: 0.85rem; border: 1px solid var(--border-color); border-radius: 8px;">
-                    </div>
-                    
-                    <div class="info-item">
-                        <label for="actual_report_date_edit" class="info-label">Laudo Realizado</label>
-                        <input type="date" name="actual_report_date" id="actual_report_date_edit" class="field-control" value="{{ site.actual_report_date|date:'Y-m-d' }}" style="padding: 0.5rem; font-size: 0.85rem; border: 1px solid var(--border-color); border-radius: 8px;">
-                    </div>
-                    
-                    <button type="submit" class="btn-submit" style="width: 100%; padding: 0.75rem; font-size: 0.85rem; margin-top: 0.5rem; background: var(--brand-primary); cursor: pointer; border-radius: 8px;">
-                        Salvar Alterações
-                        <i data-lucide="check" style="width: 16px; height: 16px;"></i>
-                    </button>
-                </div>
-            </form>
-        </div>
-        {% endif %}
+          {% endif %}
     </div>
 
     <!-- Coluna da Direita: Repositório e Upload de Mídias -->
@@ -531,15 +466,15 @@
                 {% endif %}
             </div>
             
-            <!-- Sempre exibe todas as etapas (Cadastrado, Acionado, Vistoriado, Finalizado) -->
+            <!-- Sempre exibe todas as 5 etapas -->
             <div style="display: flex; align-items: center; justify-content: space-between; position: relative; padding: 0 0.5rem;">
                 <!-- Linha de Fundo -->
-                <div style="position: absolute; top: 18px; left: 10%; right: 10%; height: 3px; background-color: #cbd5e1; z-index: 1;">
-                    <div style="height: 100%; width: {% if site.actual_report_date %}100%{% elif site.actual_survey_date %}83%{% elif site.partner_company %}50%{% else %}0%{% endif %}; background-color: var(--brand-primary); transition: width 0.4s ease;"></div>
+                <div style="position: absolute; top: 18px; left: 8%; right: 8%; height: 3px; background-color: #cbd5e1; z-index: 1;">
+                    <div style="height: 100%; width: {% if site.actual_report_date %}100%{% elif site.actual_survey_date %}62.5%{% elif site.partner_company %}37.5%{% else %}0%{% endif %}; background-color: var(--brand-primary); transition: width 0.4s ease;"></div>
                 </div>
                 
                 <!-- Etapa 1: Cadastrado -->
-                <div style="display: flex; flex-direction: column; align-items: center; gap: 0.4rem; z-index: 2; width: 22%; text-align: center;">
+                <div style="display: flex; flex-direction: column; align-items: center; gap: 0.4rem; z-index: 2; width: 18%; text-align: center;">
                     <div style="width: 34px; height: 34px; border-radius: 50%; background-color: var(--brand-primary); color: white; display: flex; align-items: center; justify-content: center; font-weight: 700; box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.15);">
                         <i data-lucide="check" style="width: 15px; height: 15px;"></i>
                     </div>
@@ -548,7 +483,7 @@
                 </div>
 
                 <!-- Etapa 2: ACIONADO PARA LAUDO/PROJETO -->
-                <div style="display: flex; flex-direction: column; align-items: center; gap: 0.4rem; z-index: 2; width: 22%; text-align: center;">
+                <div style="display: flex; flex-direction: column; align-items: center; gap: 0.4rem; z-index: 2; width: 18%; text-align: center;">
                     <div style="width: 34px; height: 34px; border-radius: 50%; background-color: {% if site.partner_company %}var(--brand-primary){% else %}#f1f5f9{% endif %}; color: {% if site.partner_company %}white{% else %}#64748b{% endif %}; display: flex; align-items: center; justify-content: center; font-weight: 700; border: 2px solid {% if site.partner_company %}var(--brand-primary){% else %}#cbd5e1{% endif %};">
                         {% if site.partner_company %}
                             <i data-lucide="check" style="width: 15px; height: 15px;"></i>
@@ -567,7 +502,7 @@
                 </div>
 
                 <!-- Etapa 3: Vistoria -->
-                <div style="display: flex; flex-direction: column; align-items: center; gap: 0.4rem; z-index: 2; width: 22%; text-align: center;">
+                <div style="display: flex; flex-direction: column; align-items: center; gap: 0.4rem; z-index: 2; width: 18%; text-align: center;">
                     <div style="width: 34px; height: 34px; border-radius: 50%; background-color: {% if site.actual_survey_date %}var(--brand-primary){% elif site.partner_company %}#fffbeb{% else %}#f1f5f9{% endif %}; color: {% if site.actual_survey_date %}white{% elif site.partner_company %}#d97706{% else %}#64748b{% endif %}; display: flex; align-items: center; justify-content: center; font-weight: 700; border: 2px {% if site.partner_company and not site.actual_survey_date %}dashed #f59e0b{% else %}solid {% if site.actual_survey_date %}var(--brand-primary){% else %}#cbd5e1{% endif %}{% endif %}; {% if site.partner_company and not site.actual_survey_date %}animation: pulse-ring-warning 2s infinite;{% endif %}">
                         {% if site.actual_survey_date %}
                             <i data-lucide="check" style="width: 15px; height: 15px;"></i>
@@ -590,8 +525,8 @@
                 </div>
 
                 <!-- Etapa 4: Laudo -->
-                <div style="display: flex; flex-direction: column; align-items: center; gap: 0.4rem; z-index: 2; width: 22%; text-align: center;">
-                    <div style="width: 34px; height: 34px; border-radius: 50%; background-color: {% if site.actual_report_date %}#10b981{% elif site.actual_survey_date %}#eff6ff{% else %}#f1f5f9{% endif %}; color: {% if site.actual_report_date %}white{% elif site.actual_survey_date %}#2563eb{% else %}#64748b{% endif %}; display: flex; align-items: center; justify-content: center; font-weight: 700; border: 2px {% if site.actual_survey_date and not site.actual_report_date %}dashed #3b82f6{% else %}solid {% if site.actual_report_date %}#10b981{% else %}#cbd5e1{% endif %}{% endif %}; {% if site.actual_survey_date and not site.actual_report_date %}animation: pulse-ring-info 2s infinite;{% endif %}">
+                <div style="display: flex; flex-direction: column; align-items: center; gap: 0.4rem; z-index: 2; width: 18%; text-align: center;">
+                    <div style="width: 34px; height: 34px; border-radius: 50%; background-color: {% if site.actual_report_date %}var(--brand-primary){% elif site.actual_survey_date %}#eff6ff{% else %}#f1f5f9{% endif %}; color: {% if site.actual_report_date %}white{% elif site.actual_survey_date %}#2563eb{% else %}#64748b{% endif %}; display: flex; align-items: center; justify-content: center; font-weight: 700; border: 2px {% if site.actual_survey_date and not site.actual_report_date %}dashed #3b82f6{% else %}solid {% if site.actual_report_date %}var(--brand-primary){% else %}#cbd5e1{% endif %}{% endif %}; {% if site.actual_survey_date and not site.actual_report_date %}animation: pulse-ring-info 2s infinite;{% endif %}">
                         {% if site.actual_report_date %}
                             <i data-lucide="check" style="width: 15px; height: 15px;"></i>
                         {% elif site.actual_survey_date %}
@@ -611,8 +546,86 @@
                         {% endif %}
                     </span>
                 </div>
+
+                <!-- Etapa 5: Finalizado -->
+                <div style="display: flex; flex-direction: column; align-items: center; gap: 0.4rem; z-index: 2; width: 18%; text-align: center;">
+                    <div style="width: 34px; height: 34px; border-radius: 50%; background-color: {% if site.actual_report_date %}#10b981{% else %}#f1f5f9{% endif %}; color: {% if site.actual_report_date %}white{% else %}#64748b{% endif %}; display: flex; align-items: center; justify-content: center; font-weight: 700; border: 2px solid {% if site.actual_report_date %}#10b981{% else %}#cbd5e1{% endif %};">
+                        {% if site.actual_report_date %}
+                            <i data-lucide="check" style="width: 15px; height: 15px;"></i>
+                        {% else %}
+                            5
+                        {% endif %}
+                    </div>
+                    <span style="font-size: 0.75rem; font-weight: 700; color: {% if site.actual_report_date %}var(--text-main){% else %}#94a3b8{% endif %};">Finalizado</span>
+                    <span style="font-size: 0.65rem; color: var(--text-muted);">
+                        {% if site.actual_report_date %}
+                            Concluído
+                        {% else %}
+                            Aguardando
+                        {% endif %}
+                    </span>
+                </div>
             </div>
         </div>
+
+        {% if user.role == 'ADMIN' or user.role == 'ENGINEER' %}
+        <!-- Painel de Gerenciamento de Prazos (Replanejamento) -->
+        <div style="border: 1px solid var(--border-color); border-radius: 12px; padding: 1.5rem; margin-bottom: 2rem; background: #f8fafc;">
+            <h4 style="font-family: var(--font-heading); font-size: 1.05rem; font-weight: 700; color: var(--text-main); margin-bottom: 1.25rem; display: flex; align-items: center; gap: 0.5rem;">
+                <i data-lucide="calendar" style="color: var(--brand-primary); width: 18px; height: 18px;"></i>
+                Gerenciar Cronograma
+            </h4>
+            
+            <form method="POST" action="{% url 'site_detail' pk=site.pk %}">
+                {% csrf_token %}
+                <input type="hidden" name="action" value="update_workflow">
+                
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.25rem; align-items: end;">
+                    <div class="field-group">
+                        <label for="scope_type_edit" class="info-label">Escopo do Acionamento</label>
+                        <select name="scope_type" id="scope_type_edit" class="field-control" required style="padding: 0.5rem; font-size: 0.85rem; border: 1px solid var(--border-color); border-radius: 8px; background: white;">
+                            <option value="LAUDO" {% if site.scope_type == 'LAUDO' %}selected{% endif %}>Laudo Técnico</option>
+                            <option value="PROJETO" {% if site.scope_type == 'PROJETO' %}selected{% endif %}>Projeto</option>
+                            <option value="OBRA" {% if site.scope_type == 'OBRA' %}selected{% endif %}>Obra / Instalação</option>
+                            <option value="OUTRO" {% if site.scope_type == 'OUTRO' %}selected{% endif %}>Outro</option>
+                        </select>
+                    </div>
+                    
+                    <div class="field-group">
+                        <label for="partner_company_edit" class="info-label">Fornecedora de Laudo/Projeto</label>
+                        <input type="text" name="partner_company" id="partner_company_edit" class="field-control" value="{{ site.partner_company|default:'' }}" placeholder="Nome da fornecedora" style="padding: 0.5rem; font-size: 0.85rem; border: 1px solid var(--border-color); border-radius: 8px; background: white;">
+                    </div>
+                    
+                    <div class="field-group">
+                        <label for="planned_survey_date_edit" class="info-label">Vistoria Planejada</label>
+                        <input type="date" name="planned_survey_date" id="planned_survey_date_edit" class="field-control" value="{{ site.planned_survey_date|date:'Y-m-d' }}" style="padding: 0.5rem; font-size: 0.85rem; border: 1px solid var(--border-color); border-radius: 8px; background: white;">
+                    </div>
+                    
+                    <div class="field-group">
+                        <label for="actual_survey_date_edit" class="info-label">Vistoria Realizada</label>
+                        <input type="date" name="actual_survey_date" id="actual_survey_date_edit" class="field-control" value="{{ site.actual_survey_date|date:'Y-m-d' }}" style="padding: 0.5rem; font-size: 0.85rem; border: 1px solid var(--border-color); border-radius: 8px; background: white;">
+                    </div>
+                    
+                    <div class="field-group">
+                        <label for="planned_report_date_edit" class="info-label">Laudo Planejado</label>
+                        <input type="date" name="planned_report_date" id="planned_report_date_edit" class="field-control" value="{{ site.planned_report_date|date:'Y-m-d' }}" style="padding: 0.5rem; font-size: 0.85rem; border: 1px solid var(--border-color); border-radius: 8px; background: white;">
+                    </div>
+                    
+                    <div class="field-group">
+                        <label for="actual_report_date_edit" class="info-label">Laudo Realizado</label>
+                        <input type="date" name="actual_report_date" id="actual_report_date_edit" class="field-control" value="{{ site.actual_report_date|date:'Y-m-d' }}" style="padding: 0.5rem; font-size: 0.85rem; border: 1px solid var(--border-color); border-radius: 8px; background: white;">
+                    </div>
+                    
+                    <div style="grid-column: 1 / -1; display: flex; justify-content: flex-end; margin-top: 0.5rem;">
+                        <button type="submit" class="btn-submit" style="padding: 0.75rem 2rem; font-size: 0.85rem; background: var(--brand-primary); cursor: pointer; border-radius: 8px; width: auto;">
+                            Salvar Alterações
+                            <i data-lucide="check" style="width: 16px; height: 16px;"></i>
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+        {% endif %}
 
         <h3>
             <i data-lucide="folder-archive" style="color: var(--brand-primary);"></i>
