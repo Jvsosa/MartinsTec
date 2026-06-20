@@ -526,67 +526,7 @@
         transition: width 0.8s ease-in-out;
     }
 
-    /* Grid de Ações Rápidas */
-    .quick-action-grid {
-        display: grid;
-        grid-template-columns: repeat(4, 1fr);
-        gap: 1.5rem;
-        margin-bottom: 2rem;
-    }
-    .quick-action-card {
-        background: var(--ent-bg-card);
-        border: 1px solid var(--ent-border);
-        border-radius: 16px;
-        padding: 1.15rem;
-        display: flex;
-        align-items: center;
-        gap: 1rem;
-        cursor: pointer;
-        text-decoration: none;
-        transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-    }
-    .quick-action-card:hover {
-        transform: translateY(-4px);
-        box-shadow: var(--ent-shadow-lg);
-        border-color: var(--ent-accent);
-    }
-    .quick-action-icon {
-        width: 44px; height: 44px;
-        border-radius: 10px;
-        background-color: #eff6ff;
-        color: var(--ent-accent);
-        display: flex; align-items: center; justify-content: center;
-        flex-shrink: 0;
-        transition: all 0.25s;
-    }
-    .quick-action-card:hover .quick-action-icon {
-        background-color: var(--ent-accent);
-        color: white;
-        transform: rotate(5deg);
-    }
-    .quick-action-details h4 {
-        font-family: var(--font-heading);
-        font-size: 0.92rem;
-        font-weight: 700;
-        color: var(--ent-primary);
-        margin-bottom: 0.15rem;
-    }
-    .quick-action-details p {
-        font-size: 0.75rem;
-        color: var(--ent-text-muted);
-    }
 
-    @media (max-width: 1200px) {
-        .quick-action-grid {
-            grid-template-columns: repeat(2, 1fr);
-        }
-    }
-    @media (max-width: 768px) {
-        .quick-action-grid {
-            grid-template-columns: 1fr;
-            gap: 1rem;
-        }
-    }
 
 </style>
 {% endblock %}
@@ -619,48 +559,6 @@
             </div>
         </div>
 
-        <!-- Ações Rápidas (Atalhos NOC) -->
-        <div class="quick-action-grid">
-            <a href="{% url 'site_list' %}#sites" class="quick-action-card" onclick="window.location.hash='#sites'">
-                <div class="quick-action-icon">
-                    <i data-lucide="search" style="width: 18px; height: 18px;"></i>
-                </div>
-                <div class="quick-action-details">
-                    <h4>Consultar Ativos</h4>
-                    <p>Filtros e mapeamento de sites</p>
-                </div>
-            </a>
-            
-            <a href="{% url 'site_list' %}#planilha" class="quick-action-card" onclick="window.location.hash='#planilha'">
-                <div class="quick-action-icon" style="background-color: #ecfdf5; color: #10B981;">
-                    <i data-lucide="file-spreadsheet" style="width: 18px; height: 18px;"></i>
-                </div>
-                <div class="quick-action-details">
-                    <h4>Inventário Mestre</h4>
-                    <p>Planilha física consolidada</p>
-                </div>
-            </a>
-            
-            <a href="{% url 'site_list' %}#prazos" class="quick-action-card" onclick="window.location.hash='#prazos'">
-                <div class="quick-action-icon" style="background-color: #fffbeb; color: #F59E0B;">
-                    <i data-lucide="calendar-days" style="width: 18px; height: 18px;"></i>
-                </div>
-                <div class="quick-action-details">
-                    <h4>Gestão de Prazos</h4>
-                    <p>Controle de cronogramas e vistorias</p>
-                </div>
-            </a>
-            
-            <a href="{% url 'site_list' %}#gerenciar" class="quick-action-card" onclick="window.location.hash='#gerenciar'">
-                <div class="quick-action-icon" style="background-color: #fdf2f8; color: #DB2777;">
-                    <i data-lucide="plus-circle" style="width: 18px; height: 18px;"></i>
-                </div>
-                <div class="quick-action-details">
-                    <h4>Novo Ativo</h4>
-                    <p>Adicionar site ao banco de dados</p>
-                </div>
-            </a>
-        </div>
 
         <!-- KPIs Modernos -->
         <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 1.5rem; margin-bottom: 2.5rem;">
