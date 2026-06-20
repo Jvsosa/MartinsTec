@@ -38,11 +38,7 @@
         }
 
         body {
-            background-color: var(--bg-primary);
-            background-image: 
-                radial-gradient(at 0% 0%, rgba(79, 70, 229, 0.03) 0px, transparent 50%),
-                radial-gradient(at 100% 100%, rgba(59, 130, 246, 0.03) 0px, transparent 50%);
-            background-attachment: fixed;
+            background-color: #f1f5f9;
             color: var(--text-primary);
             font-family: var(--font-family);
             line-height: 1.5;
@@ -253,7 +249,7 @@
             flex-direction: row;
             min-height: 100vh;
             width: 100vw;
-            background-color: var(--bg-primary);
+            background-color: #f1f5f9;
         }
 
         .sidebar {
@@ -267,7 +263,7 @@
             top: 0;
             height: 100vh;
             z-index: 1000;
-            padding: 2.25rem 1.25rem 1.5rem 1.25rem;
+            padding: 2.25rem 1rem 1.5rem 1rem;
             box-sizing: border-box;
         }
 
@@ -311,26 +307,25 @@
             display: flex;
             align-items: center;
             gap: 0.85rem;
-            padding: 0.8rem 1rem;
+            padding: 0.75rem 0.85rem;
             color: #475569;
             text-decoration: none;
-            font-size: 0.9rem;
+            font-size: 0.88rem;
             font-weight: 500;
-            border-radius: 12px;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            border-radius: 8px;
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
         .sidebar-link svg {
             width: 18px;
             height: 18px;
             color: #64748b;
-            transition: color 0.3s ease;
+            transition: color 0.25s ease;
         }
 
         .sidebar-link:hover {
             color: #0f172a;
             background: #f1f5f9;
-            transform: translateX(4px);
         }
 
         .sidebar-link:hover svg {
@@ -338,17 +333,14 @@
         }
 
         .sidebar-link.active {
-            color: #1e3a8a;
-            background: rgba(30, 58, 138, 0.06);
-            border-left: 4px solid #1e3a8a;
-            box-shadow: 0 2px 8px rgba(30, 58, 138, 0.04);
-            border-radius: 8px 12px 12px 8px;
-            padding-left: 0.85rem;
+            color: #ffffff;
+            background: #2563eb;
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.18);
             font-weight: 600;
         }
 
         .sidebar-link.active svg {
-            color: #1e3a8a;
+            color: #ffffff;
         }
 
         .sidebar-footer {
@@ -460,35 +452,60 @@
         {% if user.is_authenticated %}
         <!-- Barra Lateral de Navegação (Sidebar) -->
         <aside class="sidebar">
-            <a href="{% url 'site_list' %}" class="sidebar-logo">
-                <i data-lucide="radio"></i>
-                <span>MartinsTec</span>
+            <!-- Logo Corporativo MartinsTec -->
+            <a href="{% if request.resolver_match.url_name == 'site_list' %}#dashboard{% else %}{% url 'site_list' %}#dashboard{% endif %}" class="sidebar-logo-container" style="display: flex; align-items: center; gap: 0.75rem; text-decoration: none; margin-bottom: 1.5rem; padding-left: 0.5rem;">
+                <div style="width: 32px; height: 32px; background-color: #2563eb; border-radius: 8px; display: flex; align-items: center; justify-content: center; color: white; flex-shrink: 0; box-shadow: 0 2px 6px rgba(37,99,235,0.25);">
+                    <i data-lucide="wrench" style="width: 18px; height: 18px; color: white;"></i>
+                </div>
+                <span style="font-family: var(--font-title); font-weight: 800; font-size: 1.15rem; color: #0f172a; letter-spacing: -0.5px;">MartinsTec - ENG</span>
             </a>
+
+            <!-- Busca Rápida na Sidebar -->
+            <div class="sidebar-search" style="margin-bottom: 1.5rem; padding: 0 0.25rem; position: relative; display: flex; align-items: center;">
+                <i data-lucide="search" style="position: absolute; left: 0.95rem; color: #94a3b8; width: 14px; height: 14px; pointer-events: none;"></i>
+                <input type="text" id="sidebar-global-search" placeholder="Buscar..." style="width: 100%; padding: 0.5rem 0.75rem 0.5rem 2rem; border-radius: 8px; border: 1px solid #cbd5e1; font-size: 0.8rem; font-family: var(--font-family); background-color: #f8fafc; outline: none; transition: border-color 0.2s;" onkeyup="handleSidebarSearch(this.value)">
+            </div>
             
             <nav class="sidebar-menu">
-                <a href="{% url 'site_list' %}" class="sidebar-link active">
-                    <i data-lucide="radio"></i>
-                    <span>Sites de Telecom</span>
+                <a href="{% if request.resolver_match.url_name == 'site_list' %}#dashboard{% else %}{% url 'site_list' %}#dashboard{% endif %}" class="sidebar-link active">
+                    <i data-lucide="layout-dashboard"></i>
+                    <span>Dashboard</span>
+                    <i data-lucide="chevron-right" class="sidebar-chevron" style="margin-left: auto; width: 14px; height: 14px; display: block;"></i>
                 </a>
-                <a href="#" class="sidebar-link">
-                    <i data-lucide="map"></i>
-                    <span>Mapa de Torres</span>
+                <a href="{% if request.resolver_match.url_name == 'site_list' %}#sites{% else %}{% url 'site_list' %}#sites{% endif %}" class="sidebar-link">
+                    <i data-lucide="search"></i>
+                    <span>Buscar Site</span>
+                    <i data-lucide="chevron-right" class="sidebar-chevron" style="margin-left: auto; width: 14px; height: 14px; display: none;"></i>
                 </a>
-                <a href="#" class="sidebar-link">
-                    <i data-lucide="users"></i>
-                    <span>Equipe Técnica</span>
+                <a href="{% if request.resolver_match.url_name == 'site_list' %}#planilha{% else %}{% url 'site_list' %}#planilha{% endif %}" class="sidebar-link">
+                    <i data-lucide="table"></i>
+                    <span>Planilha Geral</span>
+                    <i data-lucide="chevron-right" class="sidebar-chevron" style="margin-left: auto; width: 14px; height: 14px; display: none;"></i>
                 </a>
-                <a href="#" class="sidebar-link">
-                    <i data-lucide="file-text"></i>
-                    <span>Relatórios</span>
+                <a href="{% if request.resolver_match.url_name == 'site_list' %}#prazos{% else %}{% url 'site_list' %}#prazos{% endif %}" class="sidebar-link">
+                    <i data-lucide="alert-triangle"></i>
+                    <span>Gestão de Prazos</span>
+                    <i data-lucide="chevron-right" class="sidebar-chevron" style="margin-left: auto; width: 14px; height: 14px; display: none;"></i>
                 </a>
-                <a href="#" class="sidebar-link">
+                <a href="{% if request.resolver_match.url_name == 'site_list' %}#gerenciar{% else %}{% url 'site_list' %}#gerenciar{% endif %}" class="sidebar-link">
                     <i data-lucide="settings"></i>
-                    <span>Configurações</span>
+                    <span>Gerenciar Site</span>
+                    <i data-lucide="chevron-right" class="sidebar-chevron" style="margin-left: auto; width: 14px; height: 14px; display: none;"></i>
+                </a>
+                <a href="{% if request.resolver_match.url_name == 'site_list' %}#anotacoes{% else %}{% url 'site_list' %}#anotacoes{% endif %}" class="sidebar-link">
+                    <i data-lucide="edit-3"></i>
+                    <span>Anotações</span>
+                    <i data-lucide="chevron-right" class="sidebar-chevron" style="margin-left: auto; width: 14px; height: 14px; display: none;"></i>
+                </a>
+
+                <!-- Link externo de suporte no rodape da menu -->
+                <a href="https://docs.google.com/spreadsheets" target="_blank" class="sidebar-link" style="margin-top: auto; color: #2563eb; font-weight: 600;">
+                    <i data-lucide="external-link" style="color: #2563eb;"></i>
+                    <span>Abrir Planilha Google</span>
                 </a>
             </nav>
             
-            <div class="sidebar-footer">
+            <div class="sidebar-footer" style="margin-top: 1rem;">
                 <div class="sidebar-user-info">
                     <div class="sidebar-user-avatar">{{ user.username|slice:":1"|upper }}</div>
                     <div class="sidebar-user-details">
@@ -525,6 +542,64 @@
     <script>
         // Inicializa os ícones Lucide
         lucide.createIcons();
+
+        // --- CONTROLE DE ROTAS SPA VIA HASH ---
+        function handleHashChange() {
+            const hash = window.location.hash || '#dashboard';
+            const views = ['dashboard', 'sites', 'planilha', 'prazos', 'gerenciar', 'anotacoes'];
+            const currentView = hash.substring(1);
+            
+            if (views.includes(currentView)) {
+                // Alterna visibilidade dos containers
+                views.forEach(v => {
+                    const el = document.getElementById(v + '-view');
+                    if (el) {
+                        el.style.display = (v === currentView) ? 'block' : 'none';
+                    }
+                });
+                
+                // Atualiza classe ativa e chevron na sidebar
+                document.querySelectorAll('.sidebar-link').forEach(link => {
+                    const href = link.getAttribute('href');
+                    if (href && (href.endsWith('#' + currentView) || href === '#' + currentView)) {
+                        link.classList.add('active');
+                        const chev = link.querySelector('.sidebar-chevron');
+                        if (chev) chev.style.display = 'block';
+                    } else {
+                        link.classList.remove('active');
+                        const chev = link.querySelector('.sidebar-chevron');
+                        if (chev) chev.style.display = 'none';
+                    }
+                });
+
+                // Força recalcular tamanho do mapa do Leaflet caso altere para tab de sites
+                if (currentView === 'sites' && typeof map !== 'undefined' && map) {
+                    setTimeout(() => {
+                        map.invalidateSize();
+                    }, 180);
+                }
+            }
+        }
+
+        function handleSidebarSearch(val) {
+            // Se não estiver na página do site_list, redireciona para lá
+            const searchInput = document.getElementById('site-search-input');
+            if (!searchInput) {
+                window.location.href = "{% url 'site_list' %}?q=" + encodeURIComponent(val) + "#sites";
+                return;
+            }
+            // Se estiver, atualiza o input de busca, ativa a aba de sites e executa a filtragem
+            searchInput.value = val;
+            window.location.hash = "#sites";
+            filterSites();
+        }
+
+        window.addEventListener('hashchange', handleHashChange);
+        window.addEventListener('DOMContentLoaded', () => {
+            if (document.getElementById('dashboard-view')) {
+                handleHashChange();
+            }
+        });
     </script>
 </body>
 </html>

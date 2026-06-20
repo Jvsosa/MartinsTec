@@ -1,6 +1,6 @@
 {% extends 'base.html' %}
 
-{% block title %}Painel de Controle - MartinsTec Engenharia{% endblock %}
+{% block title %}Painel de Controle - MartinsTec{% endblock %}
 
 {% block extra_head %}
 <!-- Leaflet.js (Mapas) -->
@@ -12,946 +12,900 @@
 
 <style>
     /* ----------------------------------
-       CABECALHO DO DASHBOARD (DARK THEME & GLASSMORPHISM)
+       LAYOUT E CONFIGURAÇÕES GERAIS (LIGHT CORPORATE)
        ---------------------------------- */
-    .dashboard-header-block {
-        background: linear-gradient(135deg, #0b0f19 0%, #1e293b 100%);
-        border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-        padding: 2.5rem 4rem 3rem 4rem;
-        color: #ffffff;
+    .dashboard-wrapper {
+        padding: 2rem 2.5rem;
+        width: 100%;
+        box-sizing: border-box;
         display: flex;
         flex-direction: column;
         gap: 2rem;
-        position: relative;
-        overflow: hidden;
     }
 
-    /* Detalhes de Background Tech */
-    .dashboard-header-block::before {
-        content: '';
-        position: absolute;
-        top: -50%;
-        left: -10%;
-        width: 300px;
-        height: 300px;
-        background: radial-gradient(circle, rgba(59, 130, 246, 0.15) 0%, transparent 70%);
-        pointer-events: none;
-    }
-    
-    .dashboard-header-block::after {
-        content: '';
-        position: absolute;
-        bottom: -30%;
-        right: -5%;
-        width: 400px;
-        height: 400px;
-        background: radial-gradient(circle, rgba(99, 102, 241, 0.12) 0%, transparent 70%);
-        pointer-events: none;
-    }
-
-    .dashboard-welcome-area {
+    .main-title-block {
         display: flex;
-        justify-content: space-between;
-        align-items: center;
-        z-index: 1;
+        flex-direction: column;
+        gap: 0.25rem;
+        margin-bottom: 0.5rem;
     }
 
-    .dashboard-welcome-area h2 {
+    .main-title-block h2 {
         font-family: var(--font-title);
-        font-size: 2.1rem;
-        font-weight: 800;
-        letter-spacing: -0.75px;
-        margin-bottom: 0.35rem;
-        background: linear-gradient(135deg, #ffffff 0%, #cbd5e1 100%);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
+        font-size: 1.85rem;
+        font-weight: 700;
+        color: #0f172a;
+        letter-spacing: -0.5px;
     }
 
-    .dashboard-welcome-area p {
-        color: #94a3b8;
-        font-size: 0.95rem;
-        font-weight: 400;
+    .main-title-block p {
+        color: #64748b;
+        font-size: 0.9rem;
+        font-weight: 450;
     }
 
-    /* Relógio Digital / Status Ativo */
-    .live-status-clock {
-        background: rgba(255, 255, 255, 0.04);
-        border: 1px solid rgba(255, 255, 255, 0.08);
-        padding: 0.5rem 1rem;
-        border-radius: 100px;
-        display: flex;
-        align-items: center;
-        gap: 0.65rem;
-        font-size: 0.85rem;
-        font-weight: 600;
-        color: #e2e8f0;
-        backdrop-filter: blur(10px);
+    /* Cards Brancos Limpos */
+    .white-card {
+        background: #ffffff;
+        border: 1px solid #e2e8f0;
+        border-radius: 12px;
+        padding: 1.5rem;
+        box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05), 0 1px 2px -1px rgba(0, 0, 0, 0.05);
     }
 
-    .pulse-indicator {
-        width: 8px;
-        height: 8px;
-        background-color: #10b981;
-        border-radius: 50%;
-        box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7);
-        animation: pulse-ring 2s infinite;
-    }
-
-    @keyframes pulse-ring {
-        0% {
-            transform: scale(0.95);
-            box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7);
-        }
-        70% {
-            transform: scale(1);
-            box-shadow: 0 0 0 6px rgba(16, 185, 129, 0);
-        }
-        100% {
-            transform: scale(0.95);
-            box-shadow: 0 0 0 0 rgba(16, 185, 129, 0);
-        }
-    }
-
-    /* Grid de KPIs */
-    .kpi-grid {
+    /* ----------------------------------
+       DASHBOARD: KPI GRID
+       ---------------------------------- */
+    .kpi-row {
         display: grid;
         grid-template-columns: repeat(4, 1fr);
         gap: 1.5rem;
-        z-index: 1;
     }
 
-    .kpi-card {
-        background: rgba(255, 255, 255, 0.04);
-        border: 1px solid rgba(255, 255, 255, 0.08);
-        backdrop-filter: blur(12px);
-        -webkit-backdrop-filter: blur(12px);
-        border-radius: 16px;
-        padding: 1.25rem 1.5rem;
+    .kpi-box {
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        min-height: 120px;
+    }
+
+    .kpi-box-header {
         display: flex;
         justify-content: space-between;
         align-items: center;
-        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+        margin-bottom: 1rem;
     }
 
-    .kpi-card:hover {
-        background: rgba(255, 255, 255, 0.07);
-        border-color: rgba(255, 255, 255, 0.15);
-        transform: translateY(-4px);
-        box-shadow: 0 12px 30px rgba(0, 0, 0, 0.2);
+    .kpi-box-label {
+        font-size: 0.72rem;
+        font-weight: 700;
+        color: #64748b;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
     }
 
-    .kpi-info {
+    .kpi-box-icon {
+        font-size: 1rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 32px;
+        height: 32px;
+        border-radius: 8px;
+    }
+
+    /* Icones e Cores dos KPIs */
+    .kpi-blue { background-color: rgba(37, 99, 235, 0.06); color: #2563eb; }
+    .kpi-green { background-color: rgba(16, 185, 129, 0.06); color: #10b981; }
+    .kpi-orange { background-color: rgba(245, 158, 11, 0.06); color: #f59e0b; }
+    .kpi-red { background-color: rgba(239, 68, 68, 0.06); color: #ef4444; }
+
+    .kpi-box-value {
+        font-size: 2.75rem;
+        font-weight: 700;
+        line-height: 1;
+        font-family: var(--font-title);
+    }
+
+    .val-blue { color: #2563eb; }
+    .val-green { color: #10b981; }
+    .val-orange { color: #f59e0b; }
+    .val-red { color: #ef4444; }
+
+    /* ----------------------------------
+       DASHBOARD: CHARTS ROW
+       ---------------------------------- */
+    .charts-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1.5rem;
+    }
+
+    .chart-card-header {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        border-bottom: 1px solid #f1f5f9;
+        padding-bottom: 0.75rem;
+        margin-bottom: 1rem;
+    }
+
+    .chart-card-header svg {
+        width: 16px;
+        height: 16px;
+    }
+
+    .chart-card-header h4 {
+        font-family: var(--font-title);
+        font-size: 0.95rem;
+        font-weight: 700;
+        color: #0f172a;
+    }
+
+    .chart-card-content {
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        min-height: 220px;
+    }
+
+    /* Meio circulo gauge */
+    .gauge-percentage-label {
+        position: absolute;
+        bottom: 35px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+    }
+
+    .gauge-percentage-val {
+        font-size: 1.6rem;
+        font-weight: 800;
+        color: #0f172a;
+        font-family: var(--font-title);
+    }
+
+    .gauge-percentage-sub {
+        font-size: 0.65rem;
+        color: #64748b;
+        font-weight: 700;
+        text-transform: uppercase;
+        margin-top: -0.15rem;
+    }
+
+    .chart-legend-under {
+        display: flex;
+        justify-content: center;
+        flex-wrap: wrap;
+        gap: 1rem;
+        margin-top: 1rem;
+        font-size: 0.78rem;
+        color: #475569;
+    }
+
+    .legend-item {
+        display: flex;
+        align-items: center;
+        gap: 0.35rem;
+    }
+
+    .legend-dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        display: inline-block;
+    }
+
+    /* ----------------------------------
+       DASHBOARD: URGENCIES TABLE PANEL
+       ---------------------------------- */
+    .urgency-panel {
         display: flex;
         flex-direction: column;
         gap: 0.25rem;
     }
 
-    .kpi-label {
-        font-size: 0.72rem;
-        color: #94a3b8;
-        font-weight: 700;
-        text-transform: uppercase;
-        letter-spacing: 1px;
-    }
-
-    .kpi-value {
-        font-family: var(--font-title);
-        font-size: 2.1rem;
-        font-weight: 800;
-        color: #ffffff;
-        line-height: 1;
-    }
-
-    .kpi-icon-badge {
-        width: 44px;
-        height: 44px;
-        border-radius: 12px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-    }
-
-    .kpi-icon-total { background: rgba(59, 130, 246, 0.15); color: #60a5fa; border: 1px solid rgba(59, 130, 246, 0.2); }
-    .kpi-icon-active { background: rgba(16, 185, 129, 0.15); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.2); }
-    .kpi-icon-maintenance { background: rgba(245, 158, 11, 0.15); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.2); }
-    .kpi-icon-files { background: rgba(168, 85, 247, 0.15); color: #c084fc; border: 1px solid rgba(168, 85, 247, 0.2); }
-
-    /* ----------------------------------
-       SEÇÃO VISUAL ANALYTICS (MAPA + GRÁFICOS + ATIVIDADES)
-       ---------------------------------- */
-    .dashboard-analytics-section {
-        display: grid;
-        grid-template-columns: 1.6fr 1fr;
-        gap: 2rem;
-        padding: 2.5rem 4rem 1rem 4rem;
-        max-width: 1700px;
-        margin: 0 auto;
-        width: 100%;
-        box-sizing: border-box;
-    }
-
-    /* Abas de Visualização (Mapa vs Gráficos) */
-    .analytics-main-card {
-        display: flex;
-        flex-direction: column;
-        gap: 1.5rem;
-    }
-
-    .analytics-tabs-header {
-        display: flex;
-        border-bottom: 1px solid var(--border);
-        padding-bottom: 0.1rem;
-        gap: 1rem;
-    }
-
-    .tab-btn {
-        background: none;
-        border: none;
-        padding: 0.75rem 1.25rem;
-        font-family: var(--font-family);
-        font-size: 0.9rem;
-        font-weight: 600;
-        color: var(--text-secondary);
-        cursor: pointer;
-        transition: all 0.25s;
-        border-bottom: 3px solid transparent;
+    .urgency-header {
         display: flex;
         align-items: center;
         gap: 0.5rem;
+        border-bottom: 1px solid #f1f5f9;
+        padding-bottom: 0.75rem;
+        margin-bottom: 1rem;
     }
 
-    .tab-btn svg {
+    .urgency-header svg {
         width: 16px;
         height: 16px;
+        color: #ef4444;
     }
 
-    .tab-btn:hover {
-        color: var(--primary);
+    .urgency-header h4 {
+        font-family: var(--font-title);
+        font-size: 0.95rem;
+        font-weight: 700;
+        color: #0f172a;
     }
 
-    .tab-btn.active {
-        color: var(--primary);
-        border-bottom-color: var(--primary);
-    }
-
-    .tab-content {
-        display: none;
+    .urgency-table-wrapper {
         width: 100%;
+        overflow-x: auto;
     }
 
-    .tab-content.active {
-        display: block;
-        animation: fadeIn 0.35s ease;
+    .urgency-table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 0.85rem;
+        text-align: left;
     }
 
-    @keyframes fadeIn {
-        from { opacity: 0; transform: translateY(4px); }
-        to { opacity: 1; transform: translateY(0); }
-    }
-
-    /* Gráficos Grid */
-    .charts-container-grid {
-        display: grid;
-        grid-template-columns: repeat(2, 1fr);
-        gap: 1.5rem;
-        min-height: 380px;
-        align-items: center;
-    }
-
-    .chart-wrapper {
+    .urgency-table th {
+        color: #64748b;
+        font-weight: 600;
+        padding: 0.6rem 0.75rem;
+        border-bottom: 1px solid #e2e8f0;
         background: #f8fafc;
-        border: 1px solid var(--border);
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .urgency-table td {
+        padding: 0.75rem;
+        border-bottom: 1px solid #f1f5f9;
+        vertical-align: middle;
+    }
+
+    .urgency-table tr:last-child td {
+        border-bottom: none;
+    }
+
+    .urgency-success-state {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 2.5rem 1.5rem;
+        color: #0d9488;
+        font-size: 0.88rem;
+        font-weight: 600;
+        gap: 0.75rem;
+    }
+
+    .urgency-success-state svg {
+        width: 32px;
+        height: 32px;
+        color: #10b981;
+    }
+
+    /* ----------------------------------
+       ABAS SPA: OUTRAS VIEWS (SITES, PLANILHA, GERENCIAR, ETC)
+       ---------------------------------- */
+    .view-container {
+        display: none;
+    }
+
+    /* View Sites (Busca e Cards) */
+    .sites-layout-grid {
+        display: grid;
+        grid-template-columns: 320px 1fr;
+        gap: 2rem;
+        align-items: start;
+    }
+
+    .filter-tabs-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        border-bottom: 1px solid #e2e8f0;
+        padding-bottom: 0.75rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .filter-tabs-row h3 {
+        font-family: var(--font-title);
+        font-size: 1.2rem;
+        font-weight: 700;
+        color: #0f172a;
+    }
+
+    .filter-tab-buttons {
+        display: flex;
+        background: #e2e8f0;
+        padding: 0.25rem;
+        border-radius: 8px;
+        gap: 0.15rem;
+    }
+
+    .filter-tab-btn {
+        background: none;
+        border: none;
+        padding: 0.35rem 0.75rem;
+        font-size: 0.72rem;
+        font-weight: 700;
+        color: #475569;
+        cursor: pointer;
+        border-radius: 6px;
+        transition: all 0.2s;
+        text-transform: uppercase;
+        letter-spacing: 0.25px;
+    }
+
+    .filter-tab-btn.active {
+        background: #ffffff;
+        color: #2563eb;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    }
+
+    /* Cards de Sites */
+    .sites-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(290px, 1fr));
+        gap: 1.25rem;
+    }
+
+    .site-card {
+        background: #ffffff;
+        border: 1px solid #e2e8f0;
         border-radius: 12px;
         padding: 1.25rem;
         display: flex;
         flex-direction: column;
-        align-items: center;
+        justify-content: space-between;
         gap: 1rem;
-    }
-
-    .chart-wrapper h5 {
-        font-family: var(--font-title);
-        font-size: 0.9rem;
-        font-weight: 700;
-        color: var(--text-primary);
-        width: 100%;
-        text-align: left;
-    }
-
-    .chart-wrapper canvas {
-        max-width: 100%;
-    }
-
-    /* Estilização Customizada do Mapa */
-    #map-container {
-        box-shadow: inset 0 2px 8px rgba(0,0,0,0.04);
-        z-index: 10;
-    }
-
-    /* Stream de Atividades Recentes */
-    .analytics-side-card {
-        display: flex;
-        flex-direction: column;
-        gap: 1.5rem;
-        max-height: 480px;
-    }
-
-    .analytics-side-card h3 {
-        font-family: var(--font-title);
-        font-size: 1.15rem;
-        font-weight: 700;
-        color: var(--text-primary);
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-        border-bottom: 1px solid var(--border);
-        padding-bottom: 0.75rem;
-    }
-
-    .activity-stream {
-        display: flex;
-        flex-direction: column;
-        gap: 1rem;
-        overflow-y: auto;
-        padding-right: 0.25rem;
-        flex: 1;
-    }
-
-    .activity-stream::-webkit-scrollbar {
-        width: 5px;
-    }
-
-    .activity-stream::-webkit-scrollbar-thumb {
-        background: #cbd5e1;
-        border-radius: 10px;
-    }
-
-    .activity-item {
-        display: flex;
-        gap: 0.85rem;
-        align-items: flex-start;
-        padding: 0.75rem;
-        border-radius: 10px;
-        background: #f8fafc;
-        border: 1px solid #f1f5f9;
-        transition: all 0.2s ease;
-    }
-
-    .activity-item:hover {
-        background: #f1f5f9;
-        border-color: #cbd5e1;
-    }
-
-    .activity-icon-wrapper {
-        width: 32px;
-        height: 32px;
-        border-radius: 8px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        flex-shrink: 0;
-    }
-
-    .activity-icon-wrapper svg {
-        width: 15px;
-        height: 15px;
-    }
-
-    .act-pdf { background: rgba(225, 29, 72, 0.08); color: var(--danger); }
-    .act-dwg { background: rgba(59, 130, 246, 0.08); color: var(--secondary); }
-    .act-img { background: rgba(13, 148, 136, 0.08); color: var(--success); }
-    .act-other { background: rgba(100, 116, 139, 0.08); color: var(--text-secondary); }
-
-    .activity-details {
-        display: flex;
-        flex-direction: column;
-        gap: 0.15rem;
-    }
-
-    .activity-text {
-        font-size: 0.82rem;
-        color: var(--text-primary);
-        line-height: 1.4;
-    }
-
-    .activity-file-link {
-        color: var(--accent);
-        text-decoration: none;
-        font-weight: 600;
-    }
-
-    .activity-file-link:hover {
-        text-decoration: underline;
-    }
-
-    .activity-time {
-        font-size: 0.72rem;
-        color: #94a3b8;
-    }
-
-    .empty-activities, .empty-sites {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        gap: 0.75rem;
-        color: #94a3b8;
-        font-size: 0.85rem;
-        text-align: center;
-        padding: 3rem 1.5rem;
-        flex: 1;
-    }
-
-    /* ----------------------------------
-       LAYOUT DE CONTEÚDO PRINCIPAL (SITES & CADASTRO)
-       ---------------------------------- */
-    .dashboard-body-layout {
-        padding: 1.5rem 4rem 3rem 4rem;
-        display: grid;
-        grid-template-columns: 340px 1fr;
-        gap: 2.5rem;
-        max-width: 1700px;
-        margin: 0 auto;
-        width: 100%;
-        box-sizing: border-box;
-    }
-
-    /* Coluna Lateral */
-    .dashboard-sidebar-column {
-        display: flex;
-        flex-direction: column;
-        gap: 1.75rem;
-    }
-
-    .search-box-container {
-        display: flex;
-        flex-direction: column;
-        gap: 0.65rem;
-    }
-
-    .search-box-container h3 {
-        font-family: var(--font-title);
-        font-size: 0.95rem;
-        font-weight: 700;
-        color: var(--text-primary);
-    }
-
-    .search-wrapper {
-        display: flex;
-        position: relative;
-        align-items: center;
-        width: 100%;
-    }
-
-    .search-wrapper svg {
-        position: absolute;
-        left: 1rem;
-        color: #64748b;
-        width: 16px;
-        height: 16px;
-    }
-
-    .search-input {
-        width: 100%;
-        padding: 0.75rem 1rem 0.75rem 2.4rem;
-        background: #ffffff;
-        border: 1px solid #cbd5e1;
-        border-radius: 12px;
-        font-size: 0.85rem;
-        font-family: var(--font-family);
-        color: var(--text-primary);
-        box-shadow: inset 0 1px 2px rgba(0,0,0,0.02);
+        box-shadow: 0 1px 3px 0 rgba(0,0,0,0.02);
         transition: all 0.25s ease;
     }
 
-    .search-input:focus {
-        outline: none;
-        border-color: var(--accent);
-        box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.08);
+    .site-card:hover {
+        transform: translateY(-2px);
+        border-color: #cbd5e1;
+        box-shadow: 0 8px 16px rgba(0,0,0,0.04);
     }
 
-    /* Formulario Card */
-    .form-card {
-        background: #ffffff;
-        border: 1px solid var(--border);
-        border-radius: 16px;
-        padding: 1.5rem;
-        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.02);
+    .site-card.border-active { border-top: 4px solid #10b981; }
+    .site-card.border-planned { border-top: 4px solid #f59e0b; }
+    .site-card.border-maintenance { border-top: 4px solid #3b82f6; }
+    .site-card.border-inactive { border-top: 4px solid #ef4444; }
+
+    .site-card-top {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
     }
 
-    .form-card h3 {
+    .site-card-title {
         font-family: var(--font-title);
         font-size: 1.1rem;
         font-weight: 700;
-        margin-bottom: 1.25rem;
-        color: var(--text-primary);
-        border-bottom: 1px solid var(--border);
-        padding-bottom: 0.65rem;
+        color: #1e3a8a;
     }
 
+    .site-card-name {
+        font-size: 0.85rem;
+        font-weight: 600;
+        color: #0f172a;
+    }
+
+    .status-badge {
+        font-size: 0.6rem;
+        padding: 0.15rem 0.45rem;
+        border-radius: 6px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.25px;
+    }
+
+    .status-active { background-color: rgba(16, 185, 129, 0.08); color: #065f46; border: 1px solid rgba(16, 185, 129, 0.15); }
+    .status-planned { background-color: rgba(245, 158, 11, 0.08); color: #9a3412; border: 1px solid rgba(245, 158, 11, 0.15); }
+    .status-maintenance { background-color: rgba(59, 130, 246, 0.08); color: #1e40af; border: 1px solid rgba(59, 130, 246, 0.15); }
+    .status-inactive { background-color: rgba(239, 68, 68, 0.08); color: #991b1b; border: 1px solid rgba(239, 68, 68, 0.15); }
+
+    .site-card-desc {
+        font-size: 0.78rem;
+        color: #64748b;
+        line-height: 1.5;
+        min-height: 2.3rem;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+
+    .site-card-meta {
+        background: #f8fafc;
+        border-radius: 8px;
+        padding: 0.6rem;
+        display: flex;
+        flex-direction: column;
+        gap: 0.35rem;
+        font-size: 0.75rem;
+        color: #64748b;
+        border: 1px solid #f1f5f9;
+    }
+
+    .meta-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .meta-val {
+        font-weight: 600;
+        color: #334155;
+    }
+
+    .site-card-btn {
+        width: 100%;
+        background: #f1f5f9;
+        color: #1e293b;
+        border-radius: 8px;
+        padding: 0.55rem;
+        font-size: 0.78rem;
+        font-weight: 700;
+        text-align: center;
+        text-decoration: none;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.35rem;
+        transition: all 0.2s;
+    }
+
+    .site-card-btn:hover {
+        background: #0f172a;
+        color: white;
+    }
+
+    /* ----------------------------------
+       FORM CARD E CONTROLES (CADASTRO)
+       ---------------------------------- */
     .field-group {
         display: flex;
         flex-direction: column;
-        gap: 0.4rem;
+        gap: 0.35rem;
         margin-bottom: 1rem;
     }
 
     .field-group label {
-        font-size: 0.72rem;
+        font-size: 0.7rem;
         font-weight: 700;
-        color: var(--text-secondary);
+        color: #64748b;
         text-transform: uppercase;
         letter-spacing: 0.5px;
     }
 
     .field-control {
         width: 100%;
-        padding: 0.65rem 0.85rem;
+        padding: 0.6rem 0.75rem;
         background: #f8fafc;
         border: 1px solid #cbd5e1;
         border-radius: 8px;
-        color: var(--text-primary);
+        color: #0f172a;
         font-family: var(--font-family);
         font-size: 0.85rem;
-        transition: all 0.2s ease;
+        transition: all 0.2s;
+        outline: none;
     }
 
     .field-control:focus {
-        outline: none;
-        border-color: var(--accent);
-        box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.08);
+        border-color: #2563eb;
         background: #ffffff;
+        box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.08);
     }
 
     .field-row {
         display: grid;
-        grid-template-columns: repeat(2, 1fr);
+        grid-template-columns: 1fr 1fr;
         gap: 0.75rem;
     }
 
-    /* Coluna Principal da Direita: Lista de Sites */
-    .sites-section-wrapper {
-        display: flex;
-        flex-direction: column;
-        gap: 1.5rem;
-    }
-
-    .sites-section-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        border-bottom: 1px solid var(--border);
-        padding-bottom: 0.75rem;
-    }
-
-    .sites-section-header h3 {
-        font-family: var(--font-title);
-        font-size: 1.25rem;
-        font-weight: 700;
-        color: var(--text-primary);
-    }
-
-    /* Filtro Snappy no Frontend */
-    .filter-tabs {
-        display: flex;
-        background: #e2e8f0;
-        padding: 0.25rem;
-        border-radius: 10px;
-        gap: 0.15rem;
-    }
-
-    .filter-tab {
-        background: none;
-        border: none;
-        padding: 0.4rem 0.85rem;
-        font-size: 0.75rem;
-        font-weight: 700;
-        color: #475569;
-        cursor: pointer;
-        border-radius: 8px;
-        transition: all 0.2s;
-        text-transform: uppercase;
-        letter-spacing: 0.25px;
-    }
-
-    .filter-tab.active {
-        background: #ffffff;
-        color: var(--primary);
-        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
-    }
-
-    /* Grid de Cards */
-    .sites-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-        gap: 1.5rem;
-    }
-
-    .site-card {
-        background: #ffffff;
-        border: 1px solid var(--border);
-        border-radius: 16px;
-        padding: 1.5rem;
-        display: flex;
-        flex-direction: column;
-        justify-content: space-between;
-        gap: 1.25rem;
-        position: relative;
-        transition: all 0.28s cubic-bezier(0.4, 0, 0.2, 1);
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.01);
-    }
-
-    .site-card:hover {
-        transform: translateY(-4px);
-        border-color: #cbd5e1;
-        box-shadow: 0 12px 24px rgba(0, 0, 0, 0.04);
-    }
-
-    /* Bordas temáticas sutis por status */
-    .site-card.site-active { border-left: 4px solid #10b981; }
-    .site-card.site-planned { border-left: 4px solid #f59e0b; }
-    .site-card.site-maintenance { border-left: 4px solid #3b82f6; }
-    .site-card.site-inactive { border-left: 4px solid #ef4444; }
-
-    .site-card-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: flex-start;
-    }
-
-    .site-info-wrapper {
-        display: flex;
-        flex-direction: column;
-        gap: 0.15rem;
-    }
-
-    .site-code-badge {
-        font-family: var(--font-title);
-        font-weight: 800;
-        font-size: 1.15rem;
-        color: #1e3a8a;
-        letter-spacing: -0.3px;
-    }
-
-    .site-name-title {
-        font-size: 0.9rem;
-        font-weight: 600;
-        color: var(--text-primary);
-    }
-
-    .status-badge {
-        font-size: 0.62rem;
-        padding: 0.2rem 0.5rem;
-        border-radius: 6px;
-        font-weight: 700;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-        display: inline-flex;
-        align-items: center;
-        gap: 0.25rem;
-    }
-
-    .status-badge::before {
-        content: '';
-        width: 5px;
-        height: 5px;
-        border-radius: 50%;
-        display: inline-block;
-    }
-
-    .status-planned { background: rgba(245, 158, 11, 0.08); color: #b45309; border: 1px solid rgba(245, 158, 11, 0.15); }
-    .status-planned::before { background-color: #f59e0b; }
-
-    .status-active { background: rgba(16, 185, 129, 0.08); color: #065f46; border: 1px solid rgba(16, 185, 129, 0.15); }
-    .status-active::before { background-color: #10b981; animation: blinker 1.5s linear infinite; }
-
-    .status-maintenance { background: rgba(59, 130, 246, 0.08); color: #1e40af; border: 1px solid rgba(59, 130, 246, 0.15); }
-    .status-maintenance::before { background-color: #3b82f6; }
-
-    .status-inactive { background: rgba(239, 68, 68, 0.08); color: #991b1b; border: 1px solid rgba(239, 68, 68, 0.15); }
-    .status-inactive::before { background-color: #ef4444; }
-
-    @keyframes blinker {
-        50% { opacity: 0; }
-    }
-
-    .site-description {
-        font-size: 0.8rem;
-        color: var(--text-secondary);
-        line-height: 1.5;
-        display: -webkit-box;
-        -webkit-line-clamp: 2;
-        -webkit-box-orient: vertical;
-        overflow: hidden;
-        min-height: 2.4rem;
-    }
-
-    .site-details-row {
-        background: #f8fafc;
-        border: 1px solid #f1f5f9;
-        border-radius: 10px;
-        padding: 0.75rem;
-        display: flex;
-        flex-direction: column;
-        gap: 0.45rem;
-        font-size: 0.78rem;
-        color: #64748b;
-    }
-
-    .site-detail-item {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-    }
-
-    .site-detail-item-left {
-        display: flex;
-        align-items: center;
-        gap: 0.45rem;
-    }
-
-    .site-detail-item svg {
-        width: 14px;
-        height: 14px;
-        color: #64748b;
-    }
-
-    .site-detail-val {
-        font-weight: 600;
-        color: var(--text-primary);
-    }
-
-    .btn-details {
-        width: 100%;
-        background: #f1f5f9;
-        color: #1e293b;
-        border-radius: 10px;
-        padding: 0.65rem;
-        font-size: 0.8rem;
-        font-weight: 700;
-        text-align: center;
-        text-decoration: none;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        gap: 0.4rem;
-        transition: all 0.25s ease;
-        border: 1px solid transparent;
-    }
-
-    .btn-details:hover {
-        background: #0b0f19;
-        color: #ffffff;
-        box-shadow: 0 4px 10px rgba(11, 15, 25, 0.15);
-    }
-
     .btn-submit {
-        background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);
+        background: #2563eb;
         color: white;
         border: none;
-        border-radius: 10px;
-        padding: 0.75rem;
+        border-radius: 8px;
+        padding: 0.7rem 1.25rem;
         font-weight: 600;
         font-family: var(--font-family);
+        font-size: 0.82rem;
         cursor: pointer;
-        transition: all 0.2s ease;
-        box-shadow: 0 4px 12px rgba(30, 58, 138, 0.15);
-        display: flex;
+        transition: all 0.2s;
+        display: inline-flex;
         align-items: center;
         justify-content: center;
-        gap: 0.4rem;
-        font-size: 0.85rem;
+        gap: 0.35rem;
+        box-shadow: 0 2px 4px rgba(37, 99, 235, 0.1);
     }
 
     .btn-submit:hover {
+        background: #1d4ed8;
         transform: translateY(-1px);
-        box-shadow: 0 6px 16px rgba(30, 58, 138, 0.25);
+        box-shadow: 0 4px 10px rgba(37, 99, 235, 0.2);
+    }
+
+    /* ----------------------------------
+       ANOTAÇÕES VIEW (LOCALSTORAGE PERSISTENTE)
+       ---------------------------------- */
+    .notepad-container {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+        height: 100%;
+    }
+
+    .notepad-textarea {
+        width: 100%;
+        height: 300px;
+        padding: 1rem;
+        border-radius: 12px;
+        border: 1px solid #cbd5e1;
+        font-family: var(--font-family);
+        font-size: 0.9rem;
+        line-height: 1.6;
+        resize: vertical;
+        outline: none;
+    }
+
+    .notepad-textarea:focus {
+        border-color: #2563eb;
+        box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.08);
     }
 
     /* Responsividade */
-    @media (max-width: 1100px) {
-        .dashboard-header-block {
-            padding: 2rem;
-        }
-        .kpi-grid {
-            grid-template-columns: repeat(2, 1fr);
-        }
-        .dashboard-analytics-section {
-            grid-template-columns: 1fr;
-            padding: 2rem;
-        }
-        .dashboard-body-layout {
-            grid-template-columns: 1fr;
-            padding: 2rem;
-        }
-        .charts-container-grid {
-            grid-template-columns: 1fr;
-            min-height: auto;
-        }
+    @media (max-width: 1024px) {
+        .kpi-row { grid-template-columns: repeat(2, 1fr); }
+        .charts-row { grid-template-columns: 1fr; }
+        .sites-layout-grid { grid-template-columns: 1fr; }
     }
 </style>
 {% endblock %}
 
 {% block content %}
-<!-- Banner de Estatísticas/KPIs (Fundo Escuro Tech) -->
-<div class="dashboard-header-block">
-    <div class="dashboard-welcome-area">
-        <div>
-            <h2>Painel de Engenharia de Telecom</h2>
-            <p>Visão geral e cadastro de ativos da rede de transmissão corporativa</p>
-        </div>
-        <div class="live-status-clock">
-            <span class="pulse-indicator"></span>
-            <span id="current-time-display">Carregando relógio...</span>
-        </div>
-    </div>
-
-    <div class="kpi-grid">
-        <!-- KPI 1: Total Sites -->
-        <div class="kpi-card">
-            <div class="kpi-info">
-                <span class="kpi-label">Total de Sites</span>
-                <span class="kpi-value">{{ total_sites|default:0 }}</span>
-            </div>
-            <div class="kpi-icon-badge kpi-icon-total">
-                <i data-lucide="radio"></i>
-            </div>
+<div class="dashboard-wrapper">
+    
+    <!-- 1. DASHBOARD VIEW (VISÃO GERAL) -->
+    <div id="dashboard-view" class="view-container" style="display: block;">
+        <div class="main-title-block">
+            <h2>Visão Geral</h2>
+            <p>Monitore cronogramas e prazos de implantação em tempo real</p>
         </div>
 
-        <!-- KPI 2: Ativos -->
-        <div class="kpi-card">
-            <div class="kpi-info">
-                <span class="kpi-label">Sites Ativos</span>
-                <span class="kpi-value">{{ active_sites|default:0 }}</span>
+        <!-- Linha de KPIs ( row de 4) -->
+        <div class="kpi-row" style="margin-top: 1rem;">
+            <!-- KPI 1: TOTAL DE SITES -->
+            <div class="white-card kpi-box">
+                <div class="kpi-box-header">
+                    <span class="kpi-box-label">Total de Sites</span>
+                    <div class="kpi-box-icon kpi-blue">
+                        <i data-lucide="table-properties" style="width: 16px; height: 16px;"></i>
+                    </div>
+                </div>
+                <span class="kpi-box-value val-blue">{{ total_sites|default:0 }}</span>
             </div>
-            <div class="kpi-icon-badge kpi-icon-active">
-                <i data-lucide="check-circle"></i>
+
+            <!-- KPI 2: SITES FINALIZADOS -->
+            <div class="white-card kpi-box">
+                <div class="kpi-box-header">
+                    <span class="kpi-box-label">Sites Finalizados</span>
+                    <div class="kpi-box-icon kpi-green">
+                        <i data-lucide="check-circle-2" style="width: 16px; height: 16px;"></i>
+                    </div>
+                </div>
+                <span class="kpi-box-value val-green">{{ active_sites|default:0 }}</span>
+            </div>
+
+            <!-- KPI 3: EM ALERTA (dropdown fictício + valor real de manutenção) -->
+            <div class="white-card kpi-box">
+                <div class="kpi-box-header">
+                    <div style="display: flex; flex-direction: column; gap: 0.15rem;">
+                        <span class="kpi-box-label">Em Alerta</span>
+                        <select style="border: none; font-size: 0.65rem; color: #f59e0b; background: none; font-weight: 700; cursor: pointer; outline: none; padding: 0;">
+                            <option>Até 30 dias</option>
+                            <option>Até 60 dias</option>
+                        </select>
+                    </div>
+                    <div class="kpi-box-icon kpi-orange">
+                        <i data-lucide="alert-circle" style="width: 16px; height: 16px;"></i>
+                    </div>
+                </div>
+                <span class="kpi-box-value val-orange">{{ maintenance_sites|default:0 }}</span>
+            </div>
+
+            <!-- KPI 4: PRAZOS VENCIDOS (Sites inativos) -->
+            <div class="white-card kpi-box">
+                <div class="kpi-box-header">
+                    <span class="kpi-box-label">Prazos Vencidos</span>
+                    <div class="kpi-box-icon kpi-red">
+                        <i data-lucide="alert-triangle" style="width: 16px; height: 16px;"></i>
+                    </div>
+                </div>
+                <span class="kpi-box-value val-red">{{ inactive_sites|default:0 }}</span>
             </div>
         </div>
 
-        <!-- KPI 3: Em Manutenção -->
-        <div class="kpi-card">
-            <div class="kpi-info">
-                <span class="kpi-label">Em Manutenção</span>
-                <span class="kpi-value">{{ maintenance_sites|default:0 }}</span>
+        <!-- Linha dos Gráficos (row de 2) -->
+        <div class="charts-row" style="margin-top: 1.5rem;">
+            <!-- Grafico 1: Taxa de Sucesso Geral (Meio círculo Gauge) -->
+            <div class="white-card">
+                <div class="chart-card-header">
+                    <i data-lucide="shield-check" style="color: #10b981;"></i>
+                    <h4>Taxa de Sucesso Geral</h4>
+                </div>
+                <div class="chart-card-content">
+                    <div style="width: 240px; height: 130px; position: relative;">
+                        <canvas id="gaugeChart"></canvas>
+                    </div>
+                    <div class="gauge-percentage-label">
+                        <span class="gauge-percentage-val" id="gauge-percent-text">0%</span>
+                        <span class="gauge-percentage-sub">Concluídos</span>
+                    </div>
+                    <p style="font-size: 0.78rem; color: #64748b; margin-top: 0.5rem;" id="gauge-fraction-text">0 de 0 sites finalizados</p>
+                </div>
             </div>
-            <div class="kpi-icon-badge kpi-icon-maintenance">
-                <i data-lucide="wrench"></i>
-            </div>
-        </div>
 
-        <!-- KPI 4: Arquivos Técnicos -->
-        <div class="kpi-card">
-            <div class="kpi-info">
-                <span class="kpi-label">Documentos</span>
-                <span class="kpi-value">{{ total_files|default:0 }}</span>
-            </div>
-            <div class="kpi-icon-badge kpi-icon-files">
-                <i data-lucide="folder-open"></i>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- Seção do Dashboard Principal (Mapa, Gráficos e Atividades Recentes) -->
-<div class="dashboard-analytics-section">
-    <!-- Coluna 1: Mapa ou Gráficos em Abas -->
-    <div class="glass-card analytics-main-card">
-        <div class="analytics-tabs-header">
-            <button class="tab-btn active" id="btn-map-tab" onclick="switchTab('map-tab')">
-                <i data-lucide="map"></i> Mapa de Cobertura
-            </button>
-            <button class="tab-btn" id="btn-charts-tab" onclick="switchTab('charts-tab')">
-                <i data-lucide="pie-chart"></i> Gráficos e Métricas
-            </button>
-        </div>
-
-        <!-- Aba do Mapa -->
-        <div class="tab-content active" id="map-tab">
-            <div id="map-container" style="height: 380px; border-radius: 12px; border: 1px solid var(--border);"></div>
-        </div>
-
-        <!-- Aba dos Gráficos -->
-        <div class="tab-content" id="charts-tab">
-            <div class="charts-container-grid">
-                <div class="chart-wrapper">
-                    <h5>Status Operacional dos Sites</h5>
-                    <div style="position: relative; height: 180px; width: 180px;">
+            <!-- Grafico 2: Distribuição por Operadora / Status -->
+            <div class="white-card">
+                <div class="chart-card-header">
+                    <i data-lucide="pie-chart" style="color: #2563eb;"></i>
+                    <h4>Distribuição por Status</h4>
+                </div>
+                <div class="chart-card-content" style="min-height: 200px;">
+                    <div style="width: 150px; height: 150px;">
                         <canvas id="statusDoughnutChart"></canvas>
                     </div>
-                </div>
-                <div class="chart-wrapper">
-                    <h5>Arquivos Técnicos por Categoria</h5>
-                    <div style="position: relative; height: 180px; width: 100%;">
-                        <canvas id="filesBarChart"></canvas>
+                    <div class="chart-legend-under" id="doughnut-legend">
+                        <!-- Gerado via JS -->
                     </div>
                 </div>
             </div>
         </div>
+
+        <!-- Urgências Operacionais / Atividades -->
+        <div class="white-card urgency-panel" style="margin-top: 1.5rem;">
+            <div class="urgency-header">
+                <i data-lucide="bell"></i>
+                <h4>Painel de Urgências Operacionais</h4>
+            </div>
+
+            <div class="urgency-table-wrapper">
+                {% if maintenance_sites > 0 or inactive_sites > 0 %}
+                <table class="urgency-table">
+                    <thead>
+                        <tr>
+                            <th>Site</th>
+                            <th>Etapa Crítica / Status</th>
+                            <th>Ação / Localização</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for site in sites %}
+                        {% if site.status == 'MAINTENANCE' or site.status == 'INACTIVE' %}
+                        <tr>
+                            <td style="font-weight: 700; color: #1e3a8a;">{{ site.site_id }}</td>
+                            <td>
+                                <span class="status-badge {% if site.status == 'MAINTENANCE' %}status-maintenance{% else %}status-inactive{% endif %}">
+                                    {{ site.get_status_display }}
+                                </span>
+                            </td>
+                            <td>
+                                <a href="{% url 'site_detail' pk=site.pk %}" class="btn-submit" style="padding: 0.35rem 0.75rem; font-size: 0.72rem; border-radius: 6px; text-decoration: none;">
+                                    Gerenciar Mídias
+                                </a>
+                            </td>
+                        </tr>
+                        {% endif %}
+                        {% endfor %}
+                    </tbody>
+                </table>
+                {% else %}
+                <div class="urgency-success-state">
+                    <i data-lucide="check-circle"></i>
+                    <span>Sistemas e prazos 100% em dia.</span>
+                </div>
+                {% endif %}
+            </div>
+        </div>
     </div>
 
-    <!-- Coluna 2: Atividades Recentes (Uploads no Repositório) -->
-    <div class="glass-card analytics-side-card">
-        <h3>
-            <i data-lucide="history" style="color: var(--primary);"></i>
-            Atividades Recentes
-        </h3>
-        <div class="activity-stream">
-            {% for act in recent_activities %}
-            <div class="activity-item">
-                <div class="activity-icon-wrapper {% if act.category == 'PDF' %}act-pdf{% elif act.category == 'DWG' %}act-dwg{% elif act.category == 'IMAGE' %}act-img{% else %}act-other{% endif %}">
-                    {% if act.category == 'PDF' %}
-                    <i data-lucide="file-text"></i>
-                    {% elif act.category == 'DWG' %}
-                    <i data-lucide="drafting-compass"></i>
-                    {% elif act.category == 'IMAGE' %}
-                    <i data-lucide="image"></i>
-                    {% else %}
-                    <i data-lucide="file"></i>
-                    {% endif %}
+
+    <!-- 2. BUSCAR SITE VIEW -->
+    <div id="sites-view" class="view-container">
+        <div class="main-title-block">
+            <h2>Buscar Ativos de Telecom</h2>
+            <p>Monitore e visualize a localização geográfica e o status dos sites cadastrados</p>
+        </div>
+
+        <div class="sites-layout-grid" style="margin-top: 1.5rem;">
+            <!-- Painel Esquerdo: Busca e Mapa -->
+            <div style="display: flex; flex-direction: column; gap: 1.5rem;">
+                <div class="white-card">
+                    <h3 style="font-family: var(--font-title); font-size: 0.95rem; font-weight: 700; margin-bottom: 0.75rem; color: #0f172a;">Filtrar Ativo</h3>
+                    <div class="search-wrapper">
+                        <i data-lucide="search" style="position: absolute; left: 1rem; color: #94a3b8; width: 16px; height: 16px; pointer-events: none;"></i>
+                        <input type="text" id="site-search-input" class="search-input" placeholder="Buscar por ID ou Nome..." onkeyup="filterSites()" style="width: 100%;">
+                    </div>
                 </div>
-                <div class="activity-details">
-                    <p class="activity-text">
-                        <strong>{{ act.uploaded_by.first_name|default:act.uploaded_by.username }}</strong> enviou 
-                        <a href="{% url 'download_file' file_id=act.id %}" class="activity-file-link" title="Baixar arquivo original">
-                            {{ act.file.name|slice:"15:" }}
+
+                <div class="white-card" style="padding: 0.5rem; overflow: hidden;">
+                    <div id="map-container" style="height: 300px; border-radius: 8px;"></div>
+                </div>
+            </div>
+
+            <!-- Painel Direito: Grid de Sites com Abas de Status -->
+            <div class="sites-section-wrapper">
+                <div class="filter-tabs-row">
+                    <h3>Sites Registrados</h3>
+                    <div class="filter-tab-buttons">
+                        <button class="filter-tab-btn active" onclick="setFilterStatus('ALL', this)">Todos</button>
+                        <button class="filter-tab-btn" onclick="setFilterStatus('ACTIVE', this)">Ativos</button>
+                        <button class="filter-tab-btn" onclick="setFilterStatus('PLANNED', this)">Planejados</button>
+                        <button class="filter-tab-btn" onclick="setFilterStatus('MAINTENANCE', this)">Manutenção</button>
+                        <button class="filter-tab-btn" onclick="setFilterStatus('INACTIVE', this)">Inativos</button>
+                    </div>
+                </div>
+
+                <div class="sites-grid" id="sites-grid-container">
+                    {% for site in sites %}
+                    <div class="site-card border-{{ site.status|lower }}" data-status="{{ site.status }}" data-name="{{ site.name|lower }}" data-code="{{ site.site_id|lower }}">
+                        <div class="site-card-top">
+                            <div class="site-info-wrapper">
+                                <span class="site-card-title">{{ site.site_id }}</span>
+                                <h4 class="site-card-name">{{ site.name }}</h4>
+                            </div>
+                            <span class="status-badge status-{{ site.status|lower }}">
+                                {{ site.get_status_display }}
+                            </span>
+                        </div>
+                        <p class="site-card-desc">{{ site.description|default:"Sem observações cadastradas." }}</p>
+                        
+                        <div class="site-card-meta">
+                            <div class="meta-row">
+                                <span>Coordenadas:</span>
+                                <span class="meta-val" style="font-size: 0.7rem;">{{ site.latitude|floatformat:4 }}, {{ site.longitude|floatformat:4 }}</span>
+                            </div>
+                            <div class="meta-row">
+                                <span>Documentos:</span>
+                                <span class="meta-val">{{ site.files.count }}</span>
+                            </div>
+                        </div>
+
+                        <a href="{% url 'site_detail' pk=site.pk %}" class="site-card-btn">
+                            Acessar Repositório
+                            <i data-lucide="arrow-right" style="width: 14px; height: 14px;"></i>
                         </a>
-                        para o site <strong>{{ act.site.site_id }}</strong>.
-                    </p>
-                    <span class="activity-time">
-                        {{ act.uploaded_at|date:"d/m/Y H:i" }}
-                    </span>
+                    </div>
+                    {% empty %}
+                    <div class="empty-sites" style="grid-column: 1 / -1; width: 100%;">
+                        <i data-lucide="radio" style="width: 44px; height: 44px; color: #cbd5e1;"></i>
+                        <p style="font-weight: 600; font-size: 0.95rem; color: #64748b;">Nenhum site de telecom localizado.</p>
+                    </div>
+                    {% endfor %}
+                </div>
+
+                <div id="no-filter-results" class="empty-sites" style="display: none; grid-column: 1 / -1; padding: 4rem 2rem; border: 1px dashed #cbd5e1; border-radius: 12px; flex-direction: column; align-items: center; justify-content: center; gap: 0.5rem; text-align: center;">
+                    <i data-lucide="search" style="width: 36px; height: 36px; color: #94a3b8;"></i>
+                    <p style="font-weight: 600; font-size: 0.95rem; color: #475569;">Nenhum site encontrado com os critérios de busca.</p>
                 </div>
             </div>
-            {% empty %}
-            <div class="empty-activities">
-                <i data-lucide="info" style="width: 28px; height: 28px;"></i>
-                <p>Nenhuma atividade de upload registrada no repositório.</p>
-            </div>
-            {% endfor %}
         </div>
     </div>
-</div>
 
-<!-- Grid de Conteúdo Principal (Sidebar de Busca/Cadastro + Lista de Cards Filtrável) -->
-<div class="dashboard-body-layout">
-    
-    <!-- Coluna da Esquerda: Filtro e Cadastro de Novo Site -->
-    <div class="dashboard-sidebar-column">
-        <!-- Busca -->
-        <div class="search-box-container">
-            <h3>Buscar Ativo</h3>
-            <div class="search-wrapper">
-                <i data-lucide="search"></i>
-                <input type="text" id="site-search-input" class="search-input" placeholder="Buscar por ID ou Nome..." onkeyup="filterSites()">
-            </div>
+
+    <!-- 3. PLANILHA GERAL VIEW -->
+    <div id="planilha-view" class="view-container">
+        <div class="main-title-block">
+            <h2>Planilha Geral de Transmissão</h2>
+            <p>Lista completa e exportável de todos os ativos de rede cadastrados</p>
         </div>
 
-        <!-- Formulário Lateral de Cadastro (Apenas para Admin e Engenheiros) -->
-        {% if user.role == 'ADMIN' or user.role == 'ENGINEER' %}
-        <div class="form-card">
-            <h3>Cadastrar Novo Site</h3>
+        <div class="white-card" style="margin-top: 1.5rem; overflow-x: auto; padding: 0.5rem;">
+            <table class="urgency-table" style="width: 100%;">
+                <thead>
+                    <tr>
+                        <th style="padding: 1rem 0.75rem;">ID do Site</th>
+                        <th>Nome Operacional</th>
+                        <th>Coordenadas</th>
+                        <th>Status</th>
+                        <th>Documentos</th>
+                        <th>Ações</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for site in sites %}
+                    <tr>
+                        <td style="font-weight: 700; color: #1e3a8a; padding: 1rem 0.75rem;">{{ site.site_id }}</td>
+                        <td>{{ site.name }}</td>
+                        <td style="font-size: 0.78rem; color: #64748b;">{{ site.latitude }}, {{ site.longitude }}</td>
+                        <td>
+                            <span class="status-badge status-{{ site.status|lower }}">
+                                {{ site.get_status_display }}
+                            </span>
+                        </td>
+                        <td style="text-align: center; font-weight: 600; color: #475569;">{{ site.files.count }}</td>
+                        <td>
+                            <a href="{% url 'site_detail' pk=site.pk %}" class="btn-submit" style="padding: 0.4rem 0.8rem; font-size: 0.75rem; border-radius: 6px; text-decoration: none;">
+                                Detalhes
+                            </a>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="6" style="text-align: center; padding: 3rem 0; color: #94a3b8;">Nenhum site cadastrado no sistema.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+
+    <!-- 4. GESTÃO DE PRAZOS VIEW -->
+    <div id="prazos-view" class="view-container">
+        <div class="main-title-block">
+            <h2>Gestão de Prazos de Implantação</h2>
+            <p>Acompanhamento de prazos, entregas físicas e manutenções de infraestrutura</p>
+        </div>
+
+        <div class="white-card" style="margin-top: 1.5rem;">
+            <div class="urgency-header">
+                <i data-lucide="clock" style="color: #f59e0b;"></i>
+                <h4>Cronogramas Ativos & Operações de Manutenção</h4>
+            </div>
+
+            {% if maintenance_sites > 0 %}
+            <table class="urgency-table">
+                <thead>
+                    <tr>
+                        <th>Código</th>
+                        <th>Nome</th>
+                        <th>Tipo / Etapa</th>
+                        <th>Última Atualização</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for site in sites %}
+                    {% if site.status == 'MAINTENANCE' %}
+                    <tr>
+                        <td style="font-weight: 700; color: #1e3a8a;">{{ site.site_id }}</td>
+                        <td>{{ site.name }}</td>
+                        <td style="font-weight: 600; color: #f59e0b;">Manutenção Técnica Geral</td>
+                        <td>{{ site.updated_at|date:"d/m/Y H:i" }}</td>
+                        <td>
+                            <span class="status-badge status-maintenance">Em Manutenção</span>
+                        </td>
+                    </tr>
+                    {% endif %}
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% else %}
+            <div class="urgency-success-state" style="color: #64748b;">
+                <i data-lucide="smile" style="color: #10b981; width: 44px; height: 44px;"></i>
+                <span style="font-weight: 700; font-size: 1rem; color: #0f172a; margin-top: 0.5rem;">Tudo no Prazo!</span>
+                <span>Não há sites em manutenção técnica ou com prazos expirados no momento.</span>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+
+    <!-- 5. GERENCIAR SITE VIEW (CADASTRO) -->
+    <div id="gerenciar-view" class="view-container">
+        <div class="main-title-block">
+            <h2>Gerenciamento e Cadastro de Sites</h2>
+            <p>Cadastre novos sites de telecomunicações e modifique as configurações dos ativos da rede</p>
+        </div>
+
+        <div class="white-card" style="margin-top: 1.5rem; max-width: 600px;">
+            <h3 style="font-family: var(--font-title); font-size: 1.1rem; font-weight: 700; margin-bottom: 1.25rem; color: #0f172a; border-bottom: 1px solid #f1f5f9; padding-bottom: 0.5rem;">Cadastrar Novo Ativo</h3>
+            
+            {% if user.role == 'ADMIN' or user.role == 'ENGINEER' %}
             <form method="POST" action="{% url 'site_list' %}">
                 {% csrf_token %}
                 <div class="field-group">
@@ -986,141 +940,73 @@
                 </div>
 
                 <div class="field-group">
-                    <label for="description">Observações / Infra</label>
-                    <textarea name="description" id="description" class="field-control" rows="3" placeholder="Torre, gerador, antenas..." style="resize: vertical;"></textarea>
+                    <label for="description">Observações / Infraestrutura</label>
+                    <textarea name="description" id="description" class="field-control" rows="4" placeholder="Torre metálica, gerador diesel, painéis fotovoltaicos..." style="resize: vertical;"></textarea>
                 </div>
 
-                <button type="submit" class="btn-submit" style="width: 100%;">
-                    Salvar Registro
-                </button>
+                <div style="display: flex; justify-content: flex-end; margin-top: 1rem;">
+                    <button type="submit" class="btn-submit">
+                        <i data-lucide="plus"></i> Cadastrar Site
+                    </button>
+                </div>
             </form>
+            {% else %}
+            <div style="text-align: center; padding: 2rem; color: #64748b; display: flex; flex-direction: column; align-items: center; gap: 0.75rem;">
+                <i data-lucide="lock" style="width: 32px; height: 32px; color: #f59e0b;"></i>
+                <p style="font-weight: 600;">Acesso Restrito</p>
+                <p style="font-size: 0.82rem;">Seu cargo de <strong>{{ user.get_role_display }}</strong> possui nível de acesso de consulta. Apenas Administradores e Engenheiros podem criar novos sites.</p>
+            </div>
+            {% endif %}
         </div>
-        {% else %}
-        <!-- Mensagem de Nível de Permissão -->
-        <div class="form-card" style="text-align: center; color: var(--text-secondary); font-size: 0.85rem; display: flex; flex-direction: column; gap: 0.75rem; align-items: center;">
-            <i data-lucide="lock" style="width: 24px; height: 24px; color: var(--warning);"></i>
-            <p>Seu perfil de <strong>{{ user.get_role_display }}</strong> permite apenas consultar e realizar downloads de mídias.</p>
-        </div>
-        {% endif %}
     </div>
 
-    <!-- Coluna da Direita: Grid de Cards dos Sites -->
-    <div class="sites-section-wrapper">
-        <div class="sites-section-header">
-            <h3>Sites Cadastrados</h3>
+
+    <!-- 6. ANOTAÇÕES VIEW -->
+    <div id="anotacoes-view" class="view-container">
+        <div class="main-title-block">
+            <h2>Bloco de Notas Técnica</h2>
+            <p>Anote observações de campo, lembretes de implantação ou rascunhos. Seus dados são salvos localmente.</p>
+        </div>
+
+        <div class="white-card notepad-container" style="margin-top: 1.5rem;">
+            <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #f1f5f9; padding-bottom: 0.75rem;">
+                <div style="display: flex; align-items: center; gap: 0.5rem;">
+                    <i data-lucide="file-edit" style="color: #2563eb;"></i>
+                    <h4 style="font-family: var(--font-title); font-size: 0.95rem; font-weight: 700; color: #0f172a;">Anotações do Engenheiro</h4>
+                </div>
+                <span id="save-status" style="font-size: 0.75rem; color: #10b981; font-weight: 600; display: none;">Salvo!</span>
+            </div>
             
-            <!-- Barra de Abas de Filtros Snappy -->
-            <div class="filter-tabs">
-                <button class="filter-tab active" onclick="setFilterStatus('ALL', this)">Todos</button>
-                <button class="filter-tab" onclick="setFilterStatus('ACTIVE', this)">Ativos</button>
-                <button class="filter-tab" onclick="setFilterStatus('PLANNED', this)">Planejados</button>
-                <button class="filter-tab" onclick="setFilterStatus('MAINTENANCE', this)">Manutenção</button>
-                <button class="filter-tab" onclick="setFilterStatus('INACTIVE', this)">Inativos</button>
-            </div>
-        </div>
-
-        <div class="sites-grid" id="sites-grid-container">
-            {% for site in sites %}
-            <div class="site-card site-{{ site.status|lower }}" data-status="{{ site.status }}" data-name="{{ site.name|lower }}" data-code="{{ site.site_id|lower }}">
-                <!-- Cabeçalho do Card (Código + Status) -->
-                <div class="site-card-header">
-                    <div class="site-info-wrapper">
-                        <span class="site-code-badge">{{ site.site_id }}</span>
-                        <h4 class="site-name-title">{{ site.name }}</h4>
-                    </div>
-                    <span class="status-badge status-{{ site.status|lower }}">
-                        {{ site.get_status_display }}
-                    </span>
-                </div>
-
-                <!-- Descrição e Infraestrutura -->
-                <p class="site-description">{{ site.description|default:"Sem observações de infraestrutura cadastradas." }}</p>
-
-                <!-- Detalhes do Local e Documentos -->
-                <div class="site-details-row">
-                    <div class="site-detail-item">
-                        <span class="site-detail-item-left">
-                            <i data-lucide="map-pin"></i> Coordenadas:
-                        </span>
-                        <span class="site-detail-val" style="font-size: 0.72rem;">{{ site.latitude|floatformat:4 }}, {{ site.longitude|floatformat:4 }}</span>
-                    </div>
-                    <div class="site-detail-item">
-                        <span class="site-detail-item-left">
-                            <i data-lucide="file-archive"></i> Arquivos no Repositório:
-                        </span>
-                        <span class="site-detail-val">{{ site.files.count }}</span>
-                    </div>
-                </div>
-
-                <!-- Botão de Acesso ao Repositório -->
-                <a href="{% url 'site_detail' pk=site.pk %}" class="btn-details">
-                    Acessar Repositório
-                    <i data-lucide="chevron-right" style="width: 14px; height: 14px;"></i>
-                </a>
-            </div>
-            {% empty %}
-            <div class="empty-sites" style="grid-column: 1 / -1;">
-                <i data-lucide="radio" style="width: 48px; height: 48px; color: #94a3b8; opacity: 0.5;"></i>
-                <p style="font-weight: 600; font-size: 1rem;">Nenhum site de telecom localizado.</p>
-                <p style="color: #64748b; font-size: 0.85rem; max-width: 320px; margin-top: -0.5rem;">
-                    Utilize o formulário à esquerda para cadastrar o primeiro ativo de transmissão de rede.
-                </p>
-            </div>
-            {% endfor %}
-        </div>
-        
-        <!-- Mensagem de Sem Resultados nos Filtros de Busca -->
-        <div id="no-filter-results" class="empty-sites" style="display: none; grid-column: 1 / -1; background: #ffffff; border: 1px dashed var(--border); border-radius: 16px; padding: 4rem 2rem;">
-            <i data-lucide="search-code" style="width: 44px; height: 44px; color: #94a3b8;"></i>
-            <p style="font-weight: 600; font-size: 1rem; color: var(--text-primary);">Nenhum site localizado com as regras de busca ou filtro ativos.</p>
-            <p style="color: #64748b; font-size: 0.85rem;">Tente ajustar as palavras-chave ou alterar o filtro de status selecionado.</p>
+            <textarea id="notepad-text" class="notepad-textarea" placeholder="Rascunhe suas anotações aqui... (As anotações permanecem gravadas neste navegador)" onkeyup="saveNotes(this.value)"></textarea>
         </div>
     </div>
+
 </div>
 
 <script>
-    // --- 1. CONFIGURAÇÕES DO RELÓGIO DIGITAL ---
-    function updateClock() {
-        const now = new Date();
-        const options = { 
-            timeZone: 'America/Sao_Paulo', 
-            hour: '2-digit', 
-            minute: '2-digit',
-            second: '2-digit',
-            hour12: false
-        };
-        const formatter = new Intl.DateTimeFormat('pt-BR', options);
-        document.getElementById('current-time-display').innerText = 'Fuso SP: ' + formatter.format(now);
-    }
-    setInterval(updateClock, 1000);
-    updateClock();
-
-    // --- 2. CONTROLE DAS ABAS DO DASHBOARD (MAPA VS GRÁFICOS) ---
-    let mapInitialized = false;
-    let map = null;
-
-    function switchTab(tabId) {
-        // Alternar classes ativa nos botões
-        document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
-        if (tabId === 'map-tab') {
-            document.getElementById('btn-map-tab').classList.add('active');
-        } else {
-            document.getElementById('btn-charts-tab').classList.add('active');
-        }
-
-        // Alternar conteúdo das abas
-        document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
-        document.getElementById(tabId).classList.add('active');
-
-        // Se abriu a aba de mapa, recalculamos o tamanho do Leaflet para renderizar as tiles corretamente
-        if (tabId === 'map-tab' && mapInitialized) {
-            setTimeout(() => {
-                map.invalidateSize();
-            }, 100);
+    // --- 1. BLOCO DE NOTAS (LOCALSTORAGE PERSISTENTE) ---
+    function loadNotes() {
+        const saved = localStorage.getItem('martinstec_notes');
+        if (saved) {
+            document.getElementById('notepad-text').value = saved;
         }
     }
+    
+    let saveTimeout = null;
+    function saveNotes(text) {
+        localStorage.setItem('martinstec_notes', text);
+        const statusSpan = document.getElementById('save-status');
+        statusSpan.style.display = 'inline';
+        
+        if (saveTimeout) clearTimeout(saveTimeout);
+        saveTimeout = setTimeout(() => {
+            statusSpan.style.display = 'none';
+        }, 1500);
+    }
+    
+    loadNotes();
 
-    // --- 3. DADOS DE SITES PARA O MAPA E GRÁFICOS ---
+    // --- 2. DADOS DE SITES ---
     const sitesData = [
         {% for site in sites %}
         {
@@ -1135,175 +1021,13 @@
         {% endfor %}
     ];
 
-    // --- 4. INICIALIZAÇÃO DO MAPA LEAFLET ---
-    document.addEventListener("DOMContentLoaded", function() {
-        // Inicializa o mapa centralizado no Brasil caso não haja sites
-        let defaultCenter = [-14.235, -51.925];
-        let defaultZoom = 4;
-
-        // Se houver sites cadastrados, calcula o centro médio
-        if (sitesData.length > 0) {
-            let sumLat = 0;
-            let sumLng = 0;
-            let validSites = 0;
-
-            sitesData.forEach(site => {
-                if (!isNaN(site.lat) && !isNaN(site.lng)) {
-                    sumLat += site.lat;
-                    sumLng += site.lng;
-                    validSites++;
-                }
-            });
-
-            if (validSites > 0) {
-                defaultCenter = [sumLat / validSites, sumLng / validSites];
-                defaultZoom = validSites === 1 ? 12 : 5;
-            }
-        }
-
-        map = L.map('map-container').setView(defaultCenter, defaultZoom);
-
-        // Tile layer elegante estilo voyager (CartoDB)
-        L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
-            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/attributions">CARTO</a>',
-            subdomains: 'abcd',
-            maxZoom: 20
-        }).addTo(map);
-
-        // Paleta de cores para pins do Leaflet
-        const statusColors = {
-            'ACTIVE': '#10b981',      // Verde
-            'PLANNED': '#f59e0b',     // Amarelo/Laranja
-            'MAINTENANCE': '#3b82f6', // Azul
-            'INACTIVE': '#ef4444'     // Vermelho
-        };
-
-        // Adiciona marcadores no mapa para cada site
-        const bounds = [];
-        sitesData.forEach(site => {
-            if (!isNaN(site.lat) && !isNaN(site.lng)) {
-                const color = statusColors[site.status] || '#64748b';
-                
-                // SVG Customizado em formato de Pin de Telecomunicações
-                const markerIcon = L.divIcon({
-                    html: `<div style="background-color: ${color}; width: 14px; height: 14px; border-radius: 50%; border: 2px solid white; box-shadow: 0 0 8px rgba(0,0,0,0.3);"></div>`,
-                    className: 'custom-pin-container',
-                    iconSize: [14, 14],
-                    iconAnchor: [7, 7]
-                });
-
-                const marker = L.marker([site.lat, site.lng], { icon: markerIcon }).addTo(map);
-                
-                const popupContent = `
-                    <div style="font-family: 'Inter', sans-serif; padding: 0.25rem;">
-                        <h4 style="margin: 0 0 0.25rem 0; font-size: 0.9rem; color: #1e3a8a; font-family: 'Outfit'; font-weight: 800;">${site.id}</h4>
-                        <p style="margin: 0 0 0.5rem 0; font-size: 0.8rem; font-weight: 600; color: #0f172a;">${site.name}</p>
-                        <p style="margin: 0 0 0.5rem 0; font-size: 0.72rem; color: #64748b;">
-                            Status: <span style="font-weight:700; color: ${color}">${site.statusDisplay}</span>
-                        </p>
-                        <a href="${site.url}" style="display: block; font-size: 0.75rem; text-decoration: none; background: #0b0f19; color: white; text-align: center; padding: 0.4rem; border-radius: 6px; font-weight: 600; transition: background 0.2s;">
-                            Acessar Repositório
-                        </a>
-                    </div>
-                `;
-                
-                marker.bindPopup(popupContent);
-                bounds.push([site.lat, site.lng]);
-            }
-        });
-
-        // Ajusta o zoom do mapa para enquadrar todos os pins
-        if (bounds.length > 1) {
-            map.fitBounds(bounds, { padding: [40, 40] });
-        }
-
-        mapInitialized = true;
-
-        // --- 5. GRÁFICOS DO DASHBOARD (CHART.JS) ---
-        // Gráfico de Pizza/Doughnut para Status
-        const doughnutCtx = document.getElementById('statusDoughnutChart').getContext('2d');
-        new Chart(doughnutCtx, {
-            type: 'doughnut',
-            data: {
-                labels: ['Ativos', 'Planejados', 'Manutenção', 'Inativos'],
-                datasets: [{
-                    data: [
-                        {{ active_sites|default:0 }},
-                        {{ planned_sites|default:0 }},
-                        {{ maintenance_sites|default:0 }},
-                        {{ inactive_sites|default:0 }}
-                    ],
-                    backgroundColor: ['#10b981', '#f59e0b', '#3b82f6', '#ef4444'],
-                    borderWidth: 2,
-                    borderColor: '#ffffff'
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: {
-                        position: 'right',
-                        labels: {
-                            boxWidth: 12,
-                            font: { size: 9, family: 'Inter' },
-                            padding: 6
-                        }
-                    }
-                },
-                cutout: '60%'
-            }
-        });
-
-        // Gráfico de Barras Horizontal para Categoria de Arquivos
-        const barCtx = document.getElementById('filesBarChart').getContext('2d');
-        new Chart(barCtx, {
-            type: 'bar',
-            data: {
-                labels: ['PDF', 'DWG', 'Foto', 'Outros'],
-                datasets: [{
-                    label: 'Arquivos',
-                    data: [
-                        {{ pdf_files|default:0 }},
-                        {{ dwg_files|default:0 }},
-                        {{ image_files|default:0 }},
-                        {{ other_files|default:0 }}
-                    ],
-                    backgroundColor: ['#f43f5e', '#3b82f6', '#10b981', '#64748b'],
-                    borderRadius: 6
-                }]
-            },
-            options: {
-                indexAxis: 'y',
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: { display: false }
-                },
-                scales: {
-                    x: {
-                        grid: { display: false },
-                        ticks: { stepSize: 1, font: { size: 9 } }
-                    },
-                    y: {
-                        grid: { display: false },
-                        ticks: { font: { size: 9, weight: 'bold' } }
-                    }
-                }
-            }
-        });
-    });
-
-    // --- 6. FILTRO SNAPPY DE SITES NO CLIENT-SIDE (BUSCA + TABS DE STATUS) ---
+    // --- 3. FILTRO DE SITES (CLIENT-SIDE) ---
     let currentFilterStatus = 'ALL';
 
     function setFilterStatus(status, element) {
         currentFilterStatus = status;
-        
-        // Altera aba de filtro ativa no CSS
-        document.querySelectorAll('.filter-tab').forEach(tab => tab.classList.remove('active'));
+        document.querySelectorAll('.filter-tab-btn').forEach(btn => btn.classList.remove('active'));
         element.classList.add('active');
-        
         filterSites();
     }
 
@@ -1317,10 +1041,7 @@
             const name = card.getAttribute('data-name');
             const code = card.getAttribute('data-code');
 
-            // Critério 1: Filtro de Status
             const matchStatus = (currentFilterStatus === 'ALL' || status === currentFilterStatus);
-
-            // Critério 2: Filtro de Busca
             const matchQuery = (name.includes(query) || code.includes(query));
 
             if (matchStatus && matchQuery) {
@@ -1331,7 +1052,6 @@
             }
         });
 
-        // Exibe ou oculta a tela de sem resultados
         const noResults = document.getElementById('no-filter-results');
         if (visibleCount === 0 && cards.length > 0) {
             noResults.style.display = 'flex';
@@ -1339,5 +1059,161 @@
             noResults.style.display = 'none';
         }
     }
+
+    // --- 4. MAPA LEAFLET ---
+    let mapInitialized = false;
+    let map = null;
+
+    function initMap() {
+        let defaultCenter = [-14.235, -51.925];
+        let defaultZoom = 4;
+
+        if (sitesData.length > 0) {
+            let sumLat = 0, sumLng = 0, validSites = 0;
+            sitesData.forEach(site => {
+                if (!isNaN(site.lat) && !isNaN(site.lng)) {
+                    sumLat += site.lat;
+                    sumLng += site.lng;
+                    validSites++;
+                }
+            });
+            if (validSites > 0) {
+                defaultCenter = [sumLat / validSites, sumLng / validSites];
+                defaultZoom = validSites === 1 ? 11 : 5;
+            }
+        }
+
+        map = L.map('map-container').setView(defaultCenter, defaultZoom);
+
+        L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/attributions">CARTO</a>',
+            subdomains: 'abcd',
+            maxZoom: 20
+        }).addTo(map);
+
+        const statusColors = {
+            'ACTIVE': '#10b981',
+            'PLANNED': '#f59e0b',
+            'MAINTENANCE': '#3b82f6',
+            'INACTIVE': '#ef4444'
+        };
+
+        const bounds = [];
+        sitesData.forEach(site => {
+            if (!isNaN(site.lat) && !isNaN(site.lng)) {
+                const color = statusColors[site.status] || '#64748b';
+                const markerIcon = L.divIcon({
+                    html: `<div style="background-color: ${color}; width: 12px; height: 12px; border-radius: 50%; border: 2px solid white; box-shadow: 0 1px 4px rgba(0,0,0,0.3);"></div>`,
+                    className: 'custom-pin',
+                    iconSize: [12, 12],
+                    iconAnchor: [6, 6]
+                });
+
+                const marker = L.marker([site.lat, site.lng], { icon: markerIcon }).addTo(map);
+                
+                const popupContent = `
+                    <div style="font-family: 'Inter', sans-serif; padding: 0.2rem; width: 160px;">
+                        <h4 style="margin:0 0 0.15rem 0; font-size:0.85rem; color:#1e3a8a; font-family:'Outfit'; font-weight:700;">${site.id}</h4>
+                        <p style="margin:0 0 0.4rem 0; font-size:0.75rem; font-weight:600; color:#0f172a;">${site.name}</p>
+                        <p style="margin:0 0 0.4rem 0; font-size:0.7rem; color:#64748b;">
+                            Status: <span style="font-weight:700; color:${color}">${site.statusDisplay}</span>
+                        </p>
+                        <a href="${site.url}" style="display:block; font-size:0.7rem; text-decoration:none; background:#2563eb; color:white; text-align:center; padding:0.35rem; border-radius:4px; font-weight:600;">
+                            Acessar Repositório
+                        </a>
+                    </div>
+                `;
+                marker.bindPopup(popupContent);
+                bounds.push([site.lat, site.lng]);
+            }
+        });
+
+        if (bounds.length > 1) {
+            map.fitBounds(bounds, { padding: [20, 20] });
+        }
+        mapInitialized = true;
+    }
+
+    // --- 5. GRÁFICOS DO DASHBOARD (CHART.JS) ---
+    document.addEventListener("DOMContentLoaded", function() {
+        initMap();
+
+        // Variáveis de contagem
+        const total = {{ total_sites|default:0 }};
+        const active = {{ active_sites|default:0 }};
+        const maintenance = {{ maintenance_sites|default:0 }};
+        const planned = {{ planned_sites|default:0 }};
+        const inactive = {{ inactive_sites|default:0 }};
+
+        // Taxa de Sucesso (Gauge Chart)
+        const percent = total > 0 ? Math.round((active / total) * 100) : 0;
+        document.getElementById('gauge-percent-text').innerText = percent + '%';
+        document.getElementById('gauge-fraction-text').innerText = `${active} de ${total} sites finalizados`;
+
+        const gaugeCtx = document.getElementById('gaugeChart').getContext('2d');
+        new Chart(gaugeCtx, {
+            type: 'doughnut',
+            data: {
+                datasets: [{
+                    data: [active, Math.max(0, total - active) || 1], // Previne divisão por zero se total for 0
+                    backgroundColor: [percent > 0 ? '#10b981' : '#cbd5e1', '#e2e8f0'],
+                    borderWidth: 0
+                }]
+            },
+            options: {
+                circumference: 180,
+                rotation: -90,
+                cutout: '82%',
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false },
+                    tooltip: { enabled: false }
+                }
+            }
+        });
+
+        // Gráfico de Pizza: Distribuição
+        const statusCtx = document.getElementById('statusDoughnutChart').getContext('2d');
+        new Chart(statusCtx, {
+            type: 'doughnut',
+            data: {
+                labels: ['Ativos', 'Planejados', 'Manutenção', 'Inativos'],
+                datasets: [{
+                    data: [active, planned, maintenance, inactive],
+                    backgroundColor: ['#10b981', '#f59e0b', '#3b82f6', '#ef4444'],
+                    borderWidth: 2,
+                    borderColor: '#ffffff'
+                }]
+            },
+            options: {
+                cutout: '80%',
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false }
+                }
+            }
+        });
+
+        // Gerar Legenda customizada
+        const legendContainer = document.getElementById('doughnut-legend');
+        const labels = ['Ativos', 'Planejados', 'Manutenção', 'Inativos'];
+        const values = [active, planned, maintenance, inactive];
+        const colors = ['#10b981', '#f59e0b', '#3b82f6', '#ef4444'];
+        
+        let legendHTML = '';
+        labels.forEach((label, idx) => {
+            const count = values[idx];
+            const p = total > 0 ? Math.round((count / total) * 100) : 0;
+            legendHTML += `
+                <div class="legend-item">
+                    <span class="legend-dot" style="background-color: ${colors[idx]}"></span>
+                    <span>${label}: <strong>${count} (${p}%)</strong></span>
+                </div>
+            `;
+        });
+        legendContainer.innerHTML = legendHTML;
+    });
 </script>
 {% endblock %}
