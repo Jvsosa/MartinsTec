@@ -50,6 +50,9 @@ def site_list(request):
         elif (site.planned_survey_date and site.planned_survey_date < today and not site.actual_survey_date) or \
              (site.planned_report_date and site.planned_report_date < today and not site.actual_report_date):
             new_status = Site.SiteStatus.INACTIVE
+        elif (not site.actual_survey_date and not site.planned_survey_date) or \
+             (not site.actual_report_date and not site.planned_report_date):
+            new_status = Site.SiteStatus.MAINTENANCE
         elif (site.planned_survey_date and today <= site.planned_survey_date <= today + timezone.timedelta(days=3) and not site.actual_survey_date) or \
              (site.planned_report_date and today <= site.planned_report_date <= today + timezone.timedelta(days=3) and not site.actual_report_date):
             new_status = Site.SiteStatus.MAINTENANCE
