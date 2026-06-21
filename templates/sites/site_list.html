@@ -816,7 +816,7 @@
                         </p>
                         {% endif %}
 
-                        <!-- Alerta visual de datas vencidas / em alerta -->
+                         <!-- Alerta visual de datas vencidas / em alerta / faltando planejamento -->
                         {% if site.status == 'INACTIVE' %}
                         <div style="background: #fef2f2; border: 1px solid #fee2e2; border-radius: 6px; padding: 0.4rem 0.6rem; font-size: 0.72rem; color: #991b1b; display: flex; align-items: center; gap: 0.35rem;">
                             <i data-lucide="alert-triangle" style="width: 12px; height: 12px; flex-shrink: 0; color: #dc2626;"></i>
@@ -826,6 +826,11 @@
                         <div style="background: #fffbeb; border: 1px solid #fef3c7; border-radius: 6px; padding: 0.4rem 0.6rem; font-size: 0.72rem; color: #92400e; display: flex; align-items: center; gap: 0.35rem;">
                             <i data-lucide="clock" style="width: 12px; height: 12px; flex-shrink: 0; color: #d97706;"></i>
                             <span><strong>Atenção no(a) {{ site.alert_stage }}:</strong> Vence em breve!</span>
+                        </div>
+                        {% elif not site.actual_survey_date and not site.planned_survey_date or not site.actual_report_date and not site.planned_report_date %}
+                        <div style="background: #eff6ff; border: 1px solid #dbeafe; border-radius: 6px; padding: 0.4rem 0.6rem; font-size: 0.72rem; color: #1e40af; display: flex; align-items: center; gap: 0.35rem;">
+                            <i data-lucide="help-circle" style="width: 12px; height: 12px; flex-shrink: 0; color: #2563eb;"></i>
+                            <span><strong>Falta Planejamento:</strong> Defina uma data de vistoria/laudo!</span>
                         </div>
                         {% endif %}
 
@@ -933,7 +938,23 @@
                             <td>{{ site.name }}</td>
                             <td><span style="font-size: 0.78rem; font-weight: 600; padding: 0.25rem 0.5rem; background: #f1f5f9; border-radius: 6px; color: #475569;">{{ site.get_scope_type_display }}</span></td>
                             <td style="font-weight: 600;">{{ site.partner_company|default:"-" }}</td>
-                            <td style="font-family: monospace; font-size: 0.85rem;">{{ site.planned_survey_date|date:"d/m/Y"|default:"--" }} / {{ site.planned_report_date|date:"d/m/Y"|default:"--" }}</td>
+                            <td style="font-family: monospace; font-size: 0.82rem;">
+                                {% if site.actual_survey_date %}
+                                    <span style="color: #166534; font-weight: 600;">✅ {{ site.actual_survey_date|date:"d/m/Y" }}</span>
+                                {% elif site.planned_survey_date %}
+                                    {{ site.planned_survey_date|date:"d/m/Y" }}
+                                {% else %}
+                                    <span style="color: #dc2626; font-weight: 700;">⚠️ FALTA</span>
+                                {% endif %}
+                                /
+                                {% if site.actual_report_date %}
+                                    <span style="color: #166534; font-weight: 600;">✅ {{ site.actual_report_date|date:"d/m/Y" }}</span>
+                                {% elif site.planned_report_date %}
+                                    {{ site.planned_report_date|date:"d/m/Y" }}
+                                {% else %}
+                                    <span style="color: #dc2626; font-weight: 700;">⚠️ FALTA</span>
+                                {% endif %}
+                            </td>
                             <td>
                                 <span class="status-badge badge-{{ site.status|lower }}" style="font-size: 0.65rem;">
                                     <span class="status-dot"></span>
