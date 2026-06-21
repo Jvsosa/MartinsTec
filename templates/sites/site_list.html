@@ -289,17 +289,17 @@
         border-radius: 50%;
     }
 
-    .badge-active { background: #ecfdf5; color: #1D4ED8; border: 1px solid #a7f3d0; }
-    .badge-active .status-dot { background-color: #1D4ED8; }
+    .badge-active { background: #ecfdf5; color: #01b574; border: 1px solid #a7f3d0; }
+    .badge-active .status-dot { background-color: #01b574; }
 
-    .badge-planned { background: #fffbeb; color: #d97706; border: 1px solid #fde68a; }
-    .badge-planned .status-dot { background-color: #d97706; }
+    .badge-planned { background: #eff6ff; color: #2563eb; border: 1px solid #bfdbfe; }
+    .badge-planned .status-dot { background-color: #2563eb; }
 
-    .badge-maintenance { background: #eff6ff; color: #2563eb; border: 1px solid #bfdbfe; }
-    .badge-maintenance .status-dot { background-color: #2563eb; }
+    .badge-maintenance { background: #fffbeb; color: #d97706; border: 1px solid #fde68a; }
+    .badge-maintenance .status-dot { background-color: #d97706; }
 
-    .badge-inactive { background: #fef2f2; color: #dc2626; border: 1px solid #fecaca; }
-    .badge-inactive .status-dot { background-color: #dc2626; }
+    .badge-inactive { background: #fef2f2; color: #ee5d50; border: 1px solid #fecaca; }
+    .badge-inactive .status-dot { background-color: #ee5d50; }
 
     /* Botões Corporativos */
     .btn-ent {
@@ -459,8 +459,8 @@
     }
 
     .modern-site-card[data-status="ACTIVE"]::before { background: var(--ent-success); }
-    .modern-site-card[data-status="PLANNED"]::before { background: var(--ent-warning); }
-    .modern-site-card[data-status="MAINTENANCE"]::before { background: var(--ent-accent); }
+    .modern-site-card[data-status="PLANNED"]::before { background: var(--ent-accent); }
+    .modern-site-card[data-status="MAINTENANCE"]::before { background: var(--ent-warning); }
     .modern-site-card[data-status="INACTIVE"]::before { background: var(--ent-danger); }
 
     .site-card-header {
@@ -667,26 +667,26 @@
                         <div class="progress-item">
                             <div class="progress-item-header">
                                 <span style="color: var(--ent-primary); font-weight: 600; display: flex; align-items: center; gap: 0.5rem;">
-                                    <span style="width: 8px; height: 8px; border-radius: 50%; background-color: #F59E0B; display: inline-block;"></span>
+                                    <span style="width: 8px; height: 8px; border-radius: 50%; background-color: #3B82F6; display: inline-block;"></span>
                                     Cadastrados
                                 </span>
                                 <span id="pct-planned-text" style="color: var(--ent-text-muted); font-weight: 700;">--</span>
                             </div>
                             <div class="progress-bar-bg">
-                                <div id="pct-planned-bar" class="progress-bar-fill" style="width: 0%; background-color: #F59E0B;"></div>
+                                <div id="pct-planned-bar" class="progress-bar-fill" style="width: 0%; background-color: #3B82F6;"></div>
                             </div>
                         </div>
 
                         <div class="progress-item">
                             <div class="progress-item-header">
                                 <span style="color: var(--ent-primary); font-weight: 600; display: flex; align-items: center; gap: 0.5rem;">
-                                    <span style="width: 8px; height: 8px; border-radius: 50%; background-color: #3B82F6; display: inline-block;"></span>
+                                    <span style="width: 8px; height: 8px; border-radius: 50%; background-color: #F59E0B; display: inline-block;"></span>
                                     Em Alerta
                                 </span>
                                 <span id="pct-maintenance-text" style="color: var(--ent-text-muted); font-weight: 700;">--</span>
                             </div>
                             <div class="progress-bar-bg">
-                                <div id="pct-maintenance-bar" class="progress-bar-fill" style="width: 0%; background-color: #3B82F6;"></div>
+                                <div id="pct-maintenance-bar" class="progress-bar-fill" style="width: 0%; background-color: #F59E0B;"></div>
                             </div>
                         </div>
 
@@ -1372,10 +1372,10 @@
         }).addTo(map);
 
         const statusColors = {
-            'ACTIVE': '#1D4ED8',
-            'PLANNED': '#d97706',
-            'MAINTENANCE': '#2563eb',
-            'INACTIVE': '#dc2626'
+            'ACTIVE': '#10B981',
+            'PLANNED': '#3B82F6',
+            'MAINTENANCE': '#F59E0B',
+            'INACTIVE': '#EF4444'
         };
 
         const bounds = [];
@@ -1567,7 +1567,7 @@
                 labels: ['Sites Finalizados', 'Cadastrados', 'Em Alerta', 'Prazos Vencidos'],
                 datasets: [{
                     data: [active, planned, maintenance, inactive],
-                    backgroundColor: ['#10B981', '#F59E0B', '#3B82F6', '#EF4444'],
+                    backgroundColor: ['#10B981', '#3B82F6', '#F59E0B', '#EF4444'],
                     borderWidth: 3,
                     borderColor: '#ffffff',
                     hoverOffset: 4
