@@ -441,6 +441,48 @@
                     </span>
             </div>
         </div>
+        
+        {% if user.role == 'ADMIN' or user.role == 'ENGINEER' %}
+        <!-- Card de Edição de Localização -->
+        <div class="glass-card info-card" style="margin-top: 2rem; padding: 1.5rem;">
+            <h3 style="font-family: var(--font-heading); font-size: 1.05rem; font-weight: 700; color: var(--text-main); border-bottom: 1px solid var(--border-color); padding-bottom: 0.5rem; margin-bottom: 1.25rem; display: flex; align-items: center; gap: 0.5rem;">
+                <i data-lucide="map-pin" style="color: var(--brand-primary); width: 18px; height: 18px;"></i>
+                Editar Localização
+            </h3>
+            
+            <form method="POST" action="{% url 'site_detail' pk=site.pk %}">
+                {% csrf_token %}
+                <input type="hidden" name="action" value="update_location">
+                
+                <div style="display: flex; flex-direction: column; gap: 1.25rem;">
+                    <div class="field-group">
+                        <label for="address_edit" class="info-label">Endereço</label>
+                        <div style="display: flex; gap: 0.4rem; width: 100%;">
+                            <input type="text" name="address" id="address_edit" class="field-control" value="{{ site.address|default:'' }}" placeholder="Rua, Cidade, etc." style="flex: 1; padding: 0.5rem; font-size: 0.85rem; border: 1px solid var(--border-color); border-radius: 8px; background: white;">
+                            <button type="button" id="btn-geocode-edit" class="btn-submit" onclick="geocodeAddressEdit()" style="flex-shrink: 0; padding: 0.5rem; background: var(--brand-primary); border-radius: 8px; width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; cursor: pointer; border: none;" title="Buscar coordenadas pelo endereço">
+                                <i data-lucide="search" style="width: 15px; height: 15px; color: white;"></i>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="field-group">
+                        <label for="latitude_edit" class="info-label">Latitude</label>
+                        <input type="number" step="0.000001" name="latitude" id="latitude_edit" class="field-control" value="{{ site.latitude|default:'' }}" style="padding: 0.5rem; font-size: 0.85rem; border: 1px solid var(--border-color); border-radius: 8px; background: white;">
+                    </div>
+
+                    <div class="field-group">
+                        <label for="longitude_edit" class="info-label">Longitude</label>
+                        <input type="number" step="0.000001" name="longitude" id="longitude_edit" class="field-control" value="{{ site.longitude|default:'' }}" style="padding: 0.5rem; font-size: 0.85rem; border: 1px solid var(--border-color); border-radius: 8px; background: white;">
+                    </div>
+
+                    <button type="submit" class="btn-submit" style="width: 100%; padding: 0.6rem; font-size: 0.85rem; background: var(--brand-primary); border-radius: 8px; font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 0.5rem; border: none; color: white;">
+                        Salvar Localização
+                        <i data-lucide="check" style="width: 16px; height: 16px;"></i>
+                    </button>
+                </div>
+            </form>
+        </div>
+        {% endif %}
     </div>
     </div>
 
@@ -607,26 +649,6 @@
                     <div class="field-group">
                         <label for="partner_company_edit" class="info-label">Fornecedora de Laudo/Projeto</label>
                         <input type="text" name="partner_company" id="partner_company_edit" class="field-control" value="{{ site.partner_company|default:'' }}" placeholder="Nome da fornecedora" style="padding: 0.5rem; font-size: 0.85rem; border: 1px solid var(--border-color); border-radius: 8px; background: white;">
-                    </div>
-                    
-                    <div class="field-group" style="grid-column: 1 / -1;">
-                        <label for="address_edit" class="info-label">Endereço (Opcional)</label>
-                        <div style="display: flex; gap: 0.5rem; width: 100%;">
-                            <input type="text" name="address" id="address_edit" class="field-control" value="{{ site.address|default:'' }}" placeholder="Rua, Número, Cidade, Estado..." style="flex: 1; padding: 0.5rem; font-size: 0.85rem; border: 1px solid var(--border-color); border-radius: 8px; background: white;">
-                            <button type="button" id="btn-geocode-edit" class="btn-submit" onclick="geocodeAddressEdit()" style="flex-shrink: 0; padding: 0.5rem 1rem; font-size: 0.85rem; background: var(--brand-primary); cursor: pointer; border-radius: 8px; width: auto;" title="Buscar coordenadas pelo endereço">
-                                <i data-lucide="search" style="width: 16px; height: 16px;"></i> Buscar
-                            </button>
-                        </div>
-                    </div>
-                    
-                    <div class="field-group">
-                        <label for="latitude_edit" class="info-label">Latitude</label>
-                        <input type="number" step="0.000001" name="latitude" id="latitude_edit" class="field-control" value="{{ site.latitude|default:'' }}" style="padding: 0.5rem; font-size: 0.85rem; border: 1px solid var(--border-color); border-radius: 8px; background: white;">
-                    </div>
-
-                    <div class="field-group">
-                        <label for="longitude_edit" class="info-label">Longitude</label>
-                        <input type="number" step="0.000001" name="longitude" id="longitude_edit" class="field-control" value="{{ site.longitude|default:'' }}" style="padding: 0.5rem; font-size: 0.85rem; border: 1px solid var(--border-color); border-radius: 8px; background: white;">
                     </div>
                     
                     <div class="field-group">

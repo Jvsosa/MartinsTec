@@ -143,9 +143,7 @@ class SiteGeocodingAndOptionalCoordsTests(TestCase):
         url = reverse('site_detail', kwargs={'pk': site.pk})
         
         post_data = {
-            'action': 'update_workflow',
-            'scope_type': 'PROJETO',
-            'partner_company': 'Fornecedora Alpha',
+            'action': 'update_location',
             'address': 'Av. Brigadeiro Faria Lima, 2000',
             'latitude': '-23.568910',
             'longitude': '-46.685240'

@@ -169,14 +169,6 @@ def site_detail(request, pk):
             site.scope_type = request.POST.get('scope_type')
             site.partner_company = request.POST.get('partner_company', '').strip() or None
             
-            site.address = request.POST.get('address', '').strip() or None
-            
-            lat_str = request.POST.get('latitude', '').strip()
-            site.latitude = lat_str if lat_str else None
-            
-            lng_str = request.POST.get('longitude', '').strip()
-            site.longitude = lng_str if lng_str else None
-            
             p_survey = request.POST.get('planned_survey_date')
             site.planned_survey_date = parse_date(p_survey) if p_survey else None
             
@@ -194,6 +186,28 @@ def site_detail(request, pk):
                 messages.success(request, "Fluxo de trabalho e prazos atualizados com sucesso!")
             except Exception as e:
                 messages.error(request, f"Erro ao atualizar prazos: {str(e)}")
+                
+            return redirect('site_detail', pk=pk)
+
+        # Ação 3: Atualização de localização (apenas ADMIN ou ENGINEER)
+        if action == 'update_location':
+            if request.user.role not in [User.Role.ADMIN, User.Role.ENGINEER]:
+                messages.error(request, "Seu cargo não possui permissão para atualizar localização.")
+                return redirect('site_detail', pk=pk)
+
+            site.address = request.POST.get('address', '').strip() or None
+            
+            lat_str = request.POST.get('latitude', '').strip()
+            site.latitude = lat_str if lat_str else None
+            
+            lng_str = request.POST.get('longitude', '').strip()
+            site.longitude = lng_str if lng_str else None
+
+            try:
+                site.save()
+                messages.success(request, "Localização do ativo atualizada com sucesso!")
+            except Exception as e:
+                messages.error(request, f"Erro ao atualizar localização: {str(e)}")
                 
             return redirect('site_detail', pk=pk)
 
