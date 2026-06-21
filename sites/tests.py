@@ -156,3 +156,13 @@ class SiteGeocodingAndOptionalCoordsTests(TestCase):
         self.assertEqual(float(site.latitude), -23.568910)
         self.assertEqual(float(site.longitude), -46.685240)
 
+    def test_site_without_planned_dates_gets_maintenance_status(self):
+        """Test that a Site created without planned dates gets the MAINTENANCE status automatically."""
+        site = Site.objects.create(
+            site_id='SITE_NO_PLAN_DATES',
+            name='Site Sem Planejamento',
+            planned_survey_date=None,
+            planned_report_date=None
+        )
+        self.assertEqual(site.status, Site.SiteStatus.MAINTENANCE)
+

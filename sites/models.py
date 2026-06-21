@@ -183,6 +183,9 @@ class Site(models.Model):
         elif (self.planned_survey_date and self.planned_survey_date < today and not self.actual_survey_date) or \
              (self.planned_report_date and self.planned_report_date < today and not self.actual_report_date):
             self.status = self.SiteStatus.INACTIVE
+        elif (not self.actual_survey_date and not self.planned_survey_date) or \
+             (not self.actual_report_date and not self.planned_report_date):
+            self.status = self.SiteStatus.MAINTENANCE
         elif (self.planned_survey_date and today <= self.planned_survey_date <= today + timezone.timedelta(days=3) and not self.actual_survey_date) or \
              (self.planned_report_date and today <= self.planned_report_date <= today + timezone.timedelta(days=3) and not self.actual_report_date):
             self.status = self.SiteStatus.MAINTENANCE

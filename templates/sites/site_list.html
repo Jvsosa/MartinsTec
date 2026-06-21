@@ -817,20 +817,20 @@
                         {% endif %}
 
                          <!-- Alerta visual de datas vencidas / em alerta / faltando planejamento -->
-                        {% if site.status == 'INACTIVE' %}
+                         {% if site.status == 'INACTIVE' %}
                         <div style="background: #fef2f2; border: 1px solid #fee2e2; border-radius: 6px; padding: 0.4rem 0.6rem; font-size: 0.72rem; color: #991b1b; display: flex; align-items: center; gap: 0.35rem;">
                             <i data-lucide="alert-triangle" style="width: 12px; height: 12px; flex-shrink: 0; color: #dc2626;"></i>
                             <span><strong>Atraso no(a) {{ site.overdue_stage }}:</strong> Vencido há {{ site.days_overdue }} dias!</span>
                         </div>
+                        {% elif not site.actual_survey_date and not site.planned_survey_date or not site.actual_report_date and not site.planned_report_date %}
+                        <div style="background: #fffbeb; border: 1px solid #fde68a; border-radius: 6px; padding: 0.4rem 0.6rem; font-size: 0.72rem; color: #b45309; display: flex; align-items: center; gap: 0.35rem;">
+                            <i data-lucide="help-circle" style="width: 12px; height: 12px; flex-shrink: 0; color: #d97706;"></i>
+                            <span><strong>Falta Planejamento:</strong> Defina uma data de vistoria/laudo!</span>
+                        </div>
                         {% elif site.status == 'MAINTENANCE' %}
-                        <div style="background: #fffbeb; border: 1px solid #fef3c7; border-radius: 6px; padding: 0.4rem 0.6rem; font-size: 0.72rem; color: #92400e; display: flex; align-items: center; gap: 0.35rem;">
+                        <div style="background: #fffbeb; border: 1px solid #fde68a; border-radius: 6px; padding: 0.4rem 0.6rem; font-size: 0.72rem; color: #b45309; display: flex; align-items: center; gap: 0.35rem;">
                             <i data-lucide="clock" style="width: 12px; height: 12px; flex-shrink: 0; color: #d97706;"></i>
                             <span><strong>Atenção no(a) {{ site.alert_stage }}:</strong> Vence em breve!</span>
-                        </div>
-                        {% elif not site.actual_survey_date and not site.planned_survey_date or not site.actual_report_date and not site.planned_report_date %}
-                        <div style="background: #eff6ff; border: 1px solid #dbeafe; border-radius: 6px; padding: 0.4rem 0.6rem; font-size: 0.72rem; color: #1e40af; display: flex; align-items: center; gap: 0.35rem;">
-                            <i data-lucide="help-circle" style="width: 12px; height: 12px; flex-shrink: 0; color: #2563eb;"></i>
-                            <span><strong>Falta Planejamento:</strong> Defina uma data de vistoria/laudo!</span>
                         </div>
                         {% endif %}
 
