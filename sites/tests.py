@@ -85,3 +85,76 @@ class SiteFileDeleteTests(TestCase):
         
         # Verify file is deleted physically from disk
         self.assertFalse(os.path.exists(file_path), "File should be removed physically from disk")
+
+
+class SiteGeocodingAndOptionalCoordsTests(TestCase):
+    def setUp(self):
+        self.user = User.objects.create_user(
+            username='engineer',
+            password='password123',
+            email='engineer@example.com',
+            role=User.Role.ENGINEER
+        )
+
+    def test_create_site_with_optional_coordinates(self):
+        """Test that we can create a Site with null coordinates and optional address."""
+        site = Site.objects.create(
+            site_id='SITE_NULL_COORDS',
+            name='Site Sem Coordenadas',
+            address='Av. Paulista, 1000, SP',
+            latitude=None,
+            longitude=None
+        )
+        self.assertEqual(site.address, 'Av. Paulista, 1000, SP')
+        self.assertNil = self.assertIsNone(site.latitude)
+        self.assertIsNone(site.longitude)
+
+    def test_site_list_post_creates_site_with_address_and_optional_coordinates(self):
+        """Test that the site creation view processes address and handles empty coordinates correctly."""
+        self.client.login(username='engineer', password='password123')
+        url = reverse('site_list')
+        
+        # Scenario 1: address only, empty coordinates
+        post_data = {
+            'site_id': 'SITE_ADDR_ONLY',
+            'name': 'Site com Endereço Apenas',
+            'address': 'Rua Augusta, 1500, São Paulo',
+            'latitude': '',
+            'longitude': '',
+            'scope_type': 'LAUDO'
+        }
+        response = self.client.post(url, post_data)
+        self.assertEqual(response.status_code, 302)
+        
+        site = Site.objects.get(site_id='SITE_ADDR_ONLY')
+        self.assertEqual(site.address, 'Rua Augusta, 1500, São Paulo')
+        self.assertIsNone(site.latitude)
+        self.assertIsNone(site.longitude)
+
+    def test_site_detail_post_updates_address_and_coordinates(self):
+        """Test that updating workflow details successfully saves address and coordinates."""
+        site = Site.objects.create(
+            site_id='SITE_EDIT_GEOLOC',
+            name='Site Edicao Geoloc',
+            latitude=None,
+            longitude=None
+        )
+        self.client.login(username='engineer', password='password123')
+        url = reverse('site_detail', kwargs={'pk': site.pk})
+        
+        post_data = {
+            'action': 'update_workflow',
+            'scope_type': 'PROJETO',
+            'partner_company': 'Fornecedora Alpha',
+            'address': 'Av. Brigadeiro Faria Lima, 2000',
+            'latitude': '-23.568910',
+            'longitude': '-46.685240'
+        }
+        response = self.client.post(url, post_data)
+        self.assertEqual(response.status_code, 302)
+        
+        site.refresh_from_db()
+        self.assertEqual(site.address, 'Av. Brigadeiro Faria Lima, 2000')
+        self.assertEqual(float(site.latitude), -23.568910)
+        self.assertEqual(float(site.longitude), -46.685240)
+

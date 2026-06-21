@@ -1087,14 +1087,24 @@
                         </div>
                     </div>
 
+                    <div class="form-group">
+                        <label for="modal_address">Endereço (Opcional)</label>
+                        <div style="display: flex; gap: 0.5rem; width: 100%;">
+                            <input type="text" name="address" id="modal_address" class="form-control" placeholder="Rua, Número, Cidade, Estado..." style="flex: 1;">
+                            <button type="button" id="btn-geocode" class="btn-ent btn-ent-outline" onclick="geocodeAddress()" style="flex-shrink: 0; padding: 0.75rem 1.25rem;" title="Buscar coordenadas pelo endereço">
+                                <i data-lucide="search" style="width: 16px; height: 16px;"></i> Buscar
+                            </button>
+                        </div>
+                    </div>
+
                     <div class="ent-form-grid">
                         <div class="form-group">
-                            <label for="modal_latitude">Latitude (WGS 84) <span style="color: var(--ent-danger);">*</span></label>
-                            <input type="number" name="latitude" id="modal_latitude" step="0.000001" class="form-control" placeholder="-23.550500" required oninput="updatePreviewMarker()">
+                            <label for="modal_latitude">Latitude (WGS 84)</label>
+                            <input type="number" name="latitude" id="modal_latitude" step="0.000001" class="form-control" placeholder="Ex: -23.550500" oninput="updatePreviewMarker()">
                         </div>
                         <div class="form-group">
-                            <label for="modal_longitude">Longitude (WGS 84) <span style="color: var(--ent-danger);">*</span></label>
-                            <input type="number" name="longitude" id="modal_longitude" step="0.000001" class="form-control" placeholder="-46.633300" required oninput="updatePreviewMarker()">
+                            <label for="modal_longitude">Longitude (WGS 84)</label>
+                            <input type="number" name="longitude" id="modal_longitude" step="0.000001" class="form-control" placeholder="Ex: -46.633300" oninput="updatePreviewMarker()">
                         </div>
                     </div>
 
@@ -1216,8 +1226,8 @@
         {
             id: "{{ site.site_id|escapejs }}",
             name: "{{ site.name|escapejs }}",
-            lat: parseFloat("{{ site.latitude }}".replace(',', '.')),
-            lng: parseFloat("{{ site.longitude }}".replace(',', '.')),
+            lat: {% if site.latitude %}parseFloat("{{ site.latitude }}".replace(',', '.')){% else %}NaN{% endif %},
+            lng: {% if site.longitude %}parseFloat("{{ site.longitude }}".replace(',', '.')){% else %}NaN{% endif %},
             status: "{{ site.status|escapejs }}",
             statusDisplay: "{{ site.get_status_display|escapejs }}",
             url: "{% url 'site_detail' pk=site.pk %}"
@@ -1349,6 +1359,44 @@
         {% endif %}
 
         mapInitialized = true;
+    }
+
+    // Geocodificação de endereço no modal de criação
+    async function geocodeAddress() {
+        const addressInput = document.getElementById('modal_address');
+        const address = addressInput.value.trim();
+        if (!address) {
+            showToast("Por favor, digite um endereço para buscar.", "warning");
+            return;
+        }
+        
+        const btn = document.getElementById('btn-geocode');
+        const originalHTML = btn.innerHTML;
+        btn.disabled = true;
+        btn.innerHTML = '<span class="spinner"></span>';
+        
+        try {
+            const response = await fetch(`https://nominatim.openstreetmap.org/search?format=json&limit=1&q=${encodeURIComponent(address)}`);
+            const data = await response.json();
+            if (data && data.length > 0) {
+                const result = data[0];
+                const lat = parseFloat(result.lat).toFixed(6);
+                const lng = parseFloat(result.lon).toFixed(6);
+                document.getElementById('modal_latitude').value = lat;
+                document.getElementById('modal_longitude').value = lng;
+                updatePreviewMarker();
+                showToast("Endereço localizado e marcador posicionado!", "success");
+            } else {
+                showToast("Endereço não localizado no mapa.", "warning");
+            }
+        } catch (error) {
+            console.error("Geocoding error:", error);
+            showToast("Erro ao conectar com o serviço de geolocalização.", "error");
+        } finally {
+            btn.disabled = false;
+            btn.innerHTML = originalHTML;
+            lucide.createIcons();
+        }
     }
 
     // --- 4.1. FUNÇÕES DO MODAL DE CRIAÇÃO ---

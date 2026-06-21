@@ -406,11 +406,24 @@
                     </div>
                 </div>
 
+                {% if site.address %}
+                <div class="info-item">
+                    <span class="info-label">Endereço</span>
+                    <span class="info-value" style="font-size: 0.9rem; color: var(--text-secondary);">
+                        {{ site.address }}
+                    </span>
+                </div>
+                {% endif %}
+
                 <div class="info-item">
                     <span class="info-label">Coordenadas Geográficas</span>
                     <span class="info-value" style="font-size: 0.9rem; color: var(--text-secondary);">
-                        Lat: {{ site.latitude }} <br>
-                        Lon: {{ site.longitude }}
+                        {% if site.latitude and site.longitude %}
+                            Lat: {{ site.latitude }} <br>
+                            Lon: {{ site.longitude }}
+                        {% else %}
+                            <span style="font-style: italic;">Não cadastradas</span>
+                        {% endif %}
                     </span>
                 </div>
 
@@ -594,6 +607,26 @@
                     <div class="field-group">
                         <label for="partner_company_edit" class="info-label">Fornecedora de Laudo/Projeto</label>
                         <input type="text" name="partner_company" id="partner_company_edit" class="field-control" value="{{ site.partner_company|default:'' }}" placeholder="Nome da fornecedora" style="padding: 0.5rem; font-size: 0.85rem; border: 1px solid var(--border-color); border-radius: 8px; background: white;">
+                    </div>
+                    
+                    <div class="field-group" style="grid-column: 1 / -1;">
+                        <label for="address_edit" class="info-label">Endereço (Opcional)</label>
+                        <div style="display: flex; gap: 0.5rem; width: 100%;">
+                            <input type="text" name="address" id="address_edit" class="field-control" value="{{ site.address|default:'' }}" placeholder="Rua, Número, Cidade, Estado..." style="flex: 1; padding: 0.5rem; font-size: 0.85rem; border: 1px solid var(--border-color); border-radius: 8px; background: white;">
+                            <button type="button" id="btn-geocode-edit" class="btn-submit" onclick="geocodeAddressEdit()" style="flex-shrink: 0; padding: 0.5rem 1rem; font-size: 0.85rem; background: var(--brand-primary); cursor: pointer; border-radius: 8px; width: auto;" title="Buscar coordenadas pelo endereço">
+                                <i data-lucide="search" style="width: 16px; height: 16px;"></i> Buscar
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="field-group">
+                        <label for="latitude_edit" class="info-label">Latitude</label>
+                        <input type="number" step="0.000001" name="latitude" id="latitude_edit" class="field-control" value="{{ site.latitude|default:'' }}" style="padding: 0.5rem; font-size: 0.85rem; border: 1px solid var(--border-color); border-radius: 8px; background: white;">
+                    </div>
+
+                    <div class="field-group">
+                        <label for="longitude_edit" class="info-label">Longitude</label>
+                        <input type="number" step="0.000001" name="longitude" id="longitude_edit" class="field-control" value="{{ site.longitude|default:'' }}" style="padding: 0.5rem; font-size: 0.85rem; border: 1px solid var(--border-color); border-radius: 8px; background: white;">
                     </div>
                     
                     <div class="field-group">
@@ -892,6 +925,43 @@
         const modal = document.getElementById('image-lightbox-modal');
         if (modal) {
             modal.style.display = 'none';
+        }
+    }
+
+    // Geocodificação de endereço no formulário de edição
+    async function geocodeAddressEdit() {
+        const addressInput = document.getElementById('address_edit');
+        const address = addressInput.value.trim();
+        if (!address) {
+            showToast("Por favor, digite um endereço para buscar.", "warning");
+            return;
+        }
+        
+        const btn = document.getElementById('btn-geocode-edit');
+        const originalHTML = btn.innerHTML;
+        btn.disabled = true;
+        btn.innerHTML = '<span class="spinner"></span>';
+        
+        try {
+            const response = await fetch(`https://nominatim.openstreetmap.org/search?format=json&limit=1&q=${encodeURIComponent(address)}`);
+            const data = await response.json();
+            if (data && data.length > 0) {
+                const result = data[0];
+                const lat = parseFloat(result.lat).toFixed(6);
+                const lng = parseFloat(result.lon).toFixed(6);
+                document.getElementById('latitude_edit').value = lat;
+                document.getElementById('longitude_edit').value = lng;
+                showToast("Endereço localizado e coordenadas atualizadas!", "success");
+            } else {
+                showToast("Endereço não localizado no mapa.", "warning");
+            }
+        } catch (error) {
+            console.error("Geocoding error:", error);
+            showToast("Erro ao conectar com o serviço de geolocalização.", "error");
+        } finally {
+            btn.disabled = false;
+            btn.innerHTML = originalHTML;
+            lucide.createIcons();
         }
     }
 </script>

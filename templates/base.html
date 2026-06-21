@@ -477,6 +477,22 @@
             }
         }
 
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 14px;
+            height: 14px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-top-color: currentColor;
+            border-radius: 50%;
+            animation: spin 0.8s infinite linear;
+            vertical-align: middle;
+        }
+
     </style>
     {% block extra_head %}{% endblock %}
 </head>
@@ -578,6 +594,45 @@
                     toast.remove();
                 }, 250);
             }
+        }
+
+        // Função global para exibir notificações/toasts do lado do cliente (JS)
+        function showToast(message, tags = 'info') {
+            let container = document.querySelector('.toast-container');
+            if (!container) {
+                container = document.createElement('div');
+                container.className = 'toast-container';
+                document.body.appendChild(container);
+            }
+            const id = 'toast-js-' + Date.now();
+            const toast = document.createElement('div');
+            toast.className = `toast-message ${tags}`;
+            toast.id = id;
+            
+            let iconName = "info";
+            if (tags.includes('success')) {
+                iconName = "check-circle";
+            } else if (tags.includes('error') || tags.includes('danger')) {
+                iconName = "x-circle";
+            } else if (tags.includes('warning')) {
+                iconName = "alert-triangle";
+            }
+            
+            toast.innerHTML = `
+                <div class="toast-icon ${tags}">
+                    <i data-lucide="${iconName}" style="width: 18px; height: 18px;"></i>
+                </div>
+                <div class="toast-content">${message}</div>
+                <button class="toast-close" onclick="closeToast('${id}')" title="Fechar">
+                    <i data-lucide="x" style="width: 16px; height: 16px;"></i>
+                </button>
+            `;
+            container.appendChild(toast);
+            lucide.createIcons();
+            
+            setTimeout(() => {
+                closeToast(id);
+            }, 5000);
         }
 
         // Auto-fechar os toasts após 5 segundos

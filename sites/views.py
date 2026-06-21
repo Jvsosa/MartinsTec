@@ -68,8 +68,9 @@ def site_list(request):
 
         site_id = request.POST.get('site_id').strip().upper()
         name = request.POST.get('name').strip()
-        latitude_str = request.POST.get('latitude')
-        longitude_str = request.POST.get('longitude')
+        address = request.POST.get('address', '').strip() or None
+        latitude_str = request.POST.get('latitude', '').strip() or None
+        longitude_str = request.POST.get('longitude', '').strip() or None
         scope_type = request.POST.get('scope_type')
         partner_company = request.POST.get('partner_company', '').strip() or None
         
@@ -85,6 +86,7 @@ def site_list(request):
             Site.objects.create(
                 site_id=site_id,
                 name=name,
+                address=address,
                 latitude=latitude_str,
                 longitude=longitude_str,
                 scope_type=scope_type,
@@ -166,6 +168,14 @@ def site_detail(request, pk):
 
             site.scope_type = request.POST.get('scope_type')
             site.partner_company = request.POST.get('partner_company', '').strip() or None
+            
+            site.address = request.POST.get('address', '').strip() or None
+            
+            lat_str = request.POST.get('latitude', '').strip()
+            site.latitude = lat_str if lat_str else None
+            
+            lng_str = request.POST.get('longitude', '').strip()
+            site.longitude = lng_str if lng_str else None
             
             p_survey = request.POST.get('planned_survey_date')
             site.planned_survey_date = parse_date(p_survey) if p_survey else None
