@@ -832,18 +832,44 @@
                         <div class="site-meta-list">
                             <div class="site-meta-item">
                                 <span class="site-meta-label">Escopo / Fornecedor</span>
-                                <span class="site-meta-val">{{ site.get_scope_type_display }}{% if site.partner_company %} / {{ site.partner_company }}{% endif %}</span>
-                            </div>
-                            <div class="site-meta-item">
-                                <span class="site-meta-label">Cronograma</span>
-                                <span class="site-meta-val" style="font-size: 0.75rem;">
-                                    Vistoria: {% if site.actual_survey_date %}✅{% else %}📅{% endif %} {{ site.planned_survey_date|date:"d/m/y"|default:"--" }} | 
-                                    Laudo: {% if site.actual_report_date %}✅{% else %}📅{% endif %} {{ site.planned_report_date|date:"d/m/y"|default:"--" }}
+                                <span class="site-meta-val" style="text-align: right; max-width: 170px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" title="{{ site.get_scope_type_display }}{% if site.partner_company %} / {{ site.partner_company }}{% endif %}">
+                                    {{ site.get_scope_type_display }}{% if site.partner_company %} / {{ site.partner_company }}{% endif %}
                                 </span>
                             </div>
                             <div class="site-meta-item">
                                 <span class="site-meta-label">Documentos</span>
                                 <span class="site-meta-val">{{ site.files.count }} arquivos</span>
+                            </div>
+                        </div>
+
+                        <!-- Bloco separado para o Cronograma não ficar espremido -->
+                        <div style="border-top: 1px dashed var(--ent-border); padding-top: 0.5rem; margin-top: 0.25rem;">
+                            <div style="font-size: 0.72rem; color: var(--ent-text-muted); font-weight: 600; margin-bottom: 0.25rem; text-transform: uppercase; letter-spacing: 0.05em;">Cronograma de Prazos</div>
+                            <div style="display: flex; gap: 0.5rem; font-size: 0.72rem; justify-content: space-between; background: #f8fafc; padding: 0.4rem 0.6rem; border-radius: 6px; border: 1px solid #f1f5f9;">
+                                <div style="display: flex; align-items: center; gap: 0.2rem;">
+                                    <span style="color: var(--ent-text-muted);">Vistoria:</span>
+                                    <span style="font-weight: 600; color: var(--ent-text-main);">
+                                        {% if site.actual_survey_date %}
+                                            ✅ {{ site.actual_survey_date|date:"d/m/y" }}
+                                        {% elif site.planned_survey_date %}
+                                            📅 {{ site.planned_survey_date|date:"d/m/y" }}
+                                        {% else %}
+                                            --
+                                        {% endif %}
+                                    </span>
+                                </div>
+                                <div style="display: flex; align-items: center; gap: 0.2rem;">
+                                    <span style="color: var(--ent-text-muted);">Laudo:</span>
+                                    <span style="font-weight: 600; color: var(--ent-text-main);">
+                                        {% if site.actual_report_date %}
+                                            ✅ {{ site.actual_report_date|date:"d/m/y" }}
+                                        {% elif site.planned_report_date %}
+                                            📅 {{ site.planned_report_date|date:"d/m/y" }}
+                                        {% else %}
+                                            --
+                                        {% endif %}
+                                    </span>
+                                </div>
                             </div>
                         </div>
 
