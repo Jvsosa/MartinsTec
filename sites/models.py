@@ -167,10 +167,26 @@ class Site(models.Model):
         three_days = today + timezone.timedelta(days=3)
         return bool(self.planned_report_date and not self.actual_report_date and today <= self.planned_report_date <= three_days)
 
-    def save(self, *args, **kwargs):
+    def recalculate_status(self):
         from django.utils import timezone
-        from django.utils.dateparse import parse_date
         today = timezone.localdate()
+        
+        if self.actual_report_date:
+            return self.SiteStatus.ACTIVE
+        elif (self.planned_survey_date and self.planned_survey_date < today and not self.actual_survey_date) or \
+             (self.planned_report_date and self.planned_report_date < today and not self.actual_report_date):
+            return self.SiteStatus.INACTIVE
+        elif (not self.actual_survey_date and not self.planned_survey_date) or \
+             (not self.actual_report_date and not self.planned_report_date):
+            return self.SiteStatus.MAINTENANCE
+        elif (self.planned_survey_date and today <= self.planned_survey_date <= today + timezone.timedelta(days=3) and not self.actual_survey_date) or \
+             (self.planned_report_date and today <= self.planned_report_date <= today + timezone.timedelta(days=3) and not self.actual_report_date):
+            return self.SiteStatus.MAINTENANCE
+        else:
+            return self.SiteStatus.PLANNED
+
+    def save(self, *args, **kwargs):
+        from django.utils.dateparse import parse_date
         
         # Garante que as datas sejam objetos datetime.date se forem strings
         for field in ['planned_survey_date', 'actual_survey_date', 'planned_report_date', 'actual_report_date']:
@@ -178,20 +194,7 @@ class Site(models.Model):
             if isinstance(val, str):
                 setattr(self, field, parse_date(val) if val else None)
         
-        if self.actual_report_date:
-            self.status = self.SiteStatus.ACTIVE
-        elif (self.planned_survey_date and self.planned_survey_date < today and not self.actual_survey_date) or \
-             (self.planned_report_date and self.planned_report_date < today and not self.actual_report_date):
-            self.status = self.SiteStatus.INACTIVE
-        elif (not self.actual_survey_date and not self.planned_survey_date) or \
-             (not self.actual_report_date and not self.planned_report_date):
-            self.status = self.SiteStatus.MAINTENANCE
-        elif (self.planned_survey_date and today <= self.planned_survey_date <= today + timezone.timedelta(days=3) and not self.actual_survey_date) or \
-             (self.planned_report_date and today <= self.planned_report_date <= today + timezone.timedelta(days=3) and not self.actual_report_date):
-            self.status = self.SiteStatus.MAINTENANCE
-        else:
-            self.status = self.SiteStatus.PLANNED
-            
+        self.status = self.recalculate_status()
         super().save(*args, **kwargs)
 
 

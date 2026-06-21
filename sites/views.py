@@ -45,20 +45,7 @@ def site_list(request):
     
     for site in Site.objects.all():
         old_status = site.status
-        if site.actual_report_date:
-            new_status = Site.SiteStatus.ACTIVE
-        elif (site.planned_survey_date and site.planned_survey_date < today and not site.actual_survey_date) or \
-             (site.planned_report_date and site.planned_report_date < today and not site.actual_report_date):
-            new_status = Site.SiteStatus.INACTIVE
-        elif (not site.actual_survey_date and not site.planned_survey_date) or \
-             (not site.actual_report_date and not site.planned_report_date):
-            new_status = Site.SiteStatus.MAINTENANCE
-        elif (site.planned_survey_date and today <= site.planned_survey_date <= today + timezone.timedelta(days=3) and not site.actual_survey_date) or \
-             (site.planned_report_date and today <= site.planned_report_date <= today + timezone.timedelta(days=3) and not site.actual_report_date):
-            new_status = Site.SiteStatus.MAINTENANCE
-        else:
-            new_status = Site.SiteStatus.PLANNED
-            
+        new_status = site.recalculate_status()
         if old_status != new_status:
             site.status = new_status
             site.save(update_fields=['status'])
@@ -159,6 +146,13 @@ def site_list(request):
 @login_required
 def site_detail(request, pk):
     site = get_object_or_404(Site, pk=pk)
+
+    # Garante que o status do site seja recalculado e atualizado no carregamento
+    old_status = site.status
+    new_status = site.recalculate_status()
+    if old_status != new_status:
+        site.status = new_status
+        site.save(update_fields=['status'])
 
     if request.method == 'POST':
         action = request.POST.get('action')
