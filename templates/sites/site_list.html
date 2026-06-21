@@ -848,7 +848,7 @@
                             <div style="display: flex; gap: 0.5rem; font-size: 0.72rem; justify-content: space-between; background: #f8fafc; padding: 0.4rem 0.6rem; border-radius: 6px; border: 1px solid #f1f5f9;">
                                 <div style="display: flex; align-items: center; gap: 0.2rem;">
                                     <span style="color: var(--ent-text-muted);">Vistoria:</span>
-                                    <span style="font-weight: 600; color: var(--ent-text-main);">
+                                    <span style="font-weight: 600; {% if site.actual_survey_date %}color: #166534;{% elif site.is_survey_overdue %}color: #dc2626;{% elif site.is_survey_alert %}color: #d97706;{% else %}color: var(--ent-text-main);{% endif %}">
                                         {% if site.actual_survey_date %}
                                             ✅ {{ site.actual_survey_date|date:"d/m/y" }}
                                         {% elif site.planned_survey_date %}
@@ -860,7 +860,7 @@
                                 </div>
                                 <div style="display: flex; align-items: center; gap: 0.2rem;">
                                     <span style="color: var(--ent-text-muted);">Laudo:</span>
-                                    <span style="font-weight: 600; color: var(--ent-text-main);">
+                                    <span style="font-weight: 600; {% if site.actual_report_date %}color: #166534;{% elif site.is_report_overdue %}color: #dc2626;{% elif site.is_report_alert %}color: #d97706;{% else %}color: var(--ent-text-main);{% endif %}">
                                         {% if site.actual_report_date %}
                                             ✅ {{ site.actual_report_date|date:"d/m/y" }}
                                         {% elif site.planned_report_date %}

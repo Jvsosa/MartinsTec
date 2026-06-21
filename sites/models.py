@@ -141,6 +141,32 @@ class Site(models.Model):
             stages.append("Laudo")
         return " e ".join(stages)
 
+    @property
+    def is_survey_overdue(self):
+        from django.utils import timezone
+        today = timezone.localdate()
+        return bool(self.planned_survey_date and not self.actual_survey_date and self.planned_survey_date < today)
+
+    @property
+    def is_survey_alert(self):
+        from django.utils import timezone
+        today = timezone.localdate()
+        three_days = today + timezone.timedelta(days=3)
+        return bool(self.planned_survey_date and not self.actual_survey_date and today <= self.planned_survey_date <= three_days)
+
+    @property
+    def is_report_overdue(self):
+        from django.utils import timezone
+        today = timezone.localdate()
+        return bool(self.planned_report_date and not self.actual_report_date and self.planned_report_date < today)
+
+    @property
+    def is_report_alert(self):
+        from django.utils import timezone
+        today = timezone.localdate()
+        three_days = today + timezone.timedelta(days=3)
+        return bool(self.planned_report_date and not self.actual_report_date and today <= self.planned_report_date <= three_days)
+
     def save(self, *args, **kwargs):
         from django.utils import timezone
         from django.utils.dateparse import parse_date
