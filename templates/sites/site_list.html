@@ -796,60 +796,53 @@
                     <button class="filter-pill" onclick="setFilterStatus('INACTIVE', this)">Prazos Vencidos</button>
                 </div>
 
-                <div class="ent-card" style="padding: 0; margin-top: 1rem;" id="sites-table-container">
-                    <div class="ent-table-wrapper">
-                        <table class="ent-table">
-                            <thead>
-                                <tr>
-                                    <th>ID Ativo</th>
-                                    <th>Denominação</th>
-                                    <th>Escopo / Fornecedora</th>
-                                    <th>Estado</th>
-                                    <th>Acervo</th>
-                                    <th style="text-align: right;">Ação</th>
-                                </tr>
-                            </thead>
-                            <tbody id="sites-table-body">
-                                {% for site in sites %}
-                                <tr class="modern-site-row" data-status="{{ site.status }}" data-name="{{ site.name|lower }}" data-code="{{ site.site_id|lower }}">
-                                    <td style="font-weight: 700; color: var(--ent-primary);">{{ site.site_id }}</td>
-                                    <td>
-                                        <div style="font-weight: 600; color: var(--ent-text-main);">{{ site.name }}</div>
-                                        {% if site.address %}
-                                            <div style="font-size: 0.75rem; color: var(--ent-text-muted); max-width: 250px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" title="{{ site.address }}">
-                                                <i data-lucide="map-pin" style="width: 10px; height: 10px; display: inline-block; vertical-align: middle; margin-right: 0.15rem;"></i>
-                                                {{ site.address }}
-                                            </div>
-                                        {% endif %}
-                                    </td>
-                                    <td>
-                                        <div style="font-weight: 600; font-size: 0.85rem; color: #475569;">{{ site.get_scope_type_display }}</div>
-                                        <div style="font-size: 0.75rem; color: var(--ent-text-muted);">{{ site.partner_company|default:"-" }}</div>
-                                    </td>
-                                    <td>
-                                        <span class="status-badge badge-{{ site.status|lower }}" style="font-size: 0.65rem;">
-                                            <span class="status-dot"></span>
-                                            {{ site.get_status_display }}
-                                        </span>
-                                    </td>
-                                    <td style="font-weight: 600; color: var(--ent-secondary); font-size: 0.85rem;">{{ site.files.count }} Docs</td>
-                                    <td style="text-align: right;">
-                                        <a href="{% url 'site_detail' pk=site.pk %}" class="btn-ent btn-ent-primary" style="padding: 0.35rem 0.8rem; font-size: 0.75rem;">
-                                            Acessar Data Room
-                                        </a>
-                                    </td>
-                                </tr>
-                                {% empty %}
-                                <tr>
-                                    <td colspan="6" style="text-align: center; padding: 4rem 2rem; color: var(--ent-text-muted);">
-                                        <i data-lucide="map-pin-off" style="width: 48px; height: 48px; color: var(--ent-text-muted); margin-bottom: 1rem; opacity: 0.5; display: block; margin-left: auto; margin-right: auto;"></i>
-                                        <h4 style="font-size: 1.1rem; font-weight: 600; color: var(--ent-secondary);">Nenhum site localizado no banco de dados.</h4>
-                                    </td>
-                                </tr>
-                                {% endfor %}
-                            </tbody>
-                        </table>
+                <div class="site-card-grid" id="sites-grid-container">
+                    {% for site in sites %}
+                    <div class="modern-site-card" data-status="{{ site.status }}" data-name="{{ site.name|lower }}" data-code="{{ site.site_id|lower }}">
+                        <div class="site-card-header">
+                            <div>
+                                <h3 class="site-card-id">{{ site.site_id }}</h3>
+                                <div class="site-card-name">{{ site.name }}</div>
+                            </div>
+                            <span class="status-badge badge-{{ site.status|lower }}">
+                                <span class="status-dot"></span>
+                                {{ site.get_status_display }}
+                            </span>
+                        </div>
+                        
+                        <p style="font-size: 0.85rem; color: var(--ent-text-muted); line-height: 1.5; margin-top: 0.25rem; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; height: 2.5rem;">
+                            {{ site.description|default:"Nenhuma observação técnica registrada." }}
+                        </p>
+
+                        <div class="site-meta-list">
+                            <div class="site-meta-item">
+                                <span class="site-meta-label">Escopo / Fornecedora</span>
+                                <span class="site-meta-val" style="font-weight: 600;">{{ site.get_scope_type_display }} / {{ site.partner_company|default:"-" }}</span>
+                            </div>
+                            <div class="site-meta-item">
+                                <span class="site-meta-label">Vistoria / Laudo</span>
+                                <span class="site-meta-val" style="font-family: monospace; font-size: 0.78rem;">
+                                    {{ site.planned_survey_date|date:"d/m/y"|default:"--" }} / {{ site.planned_report_date|date:"d/m/y"|default:"--" }}
+                                </span>
+                            </div>
+                            <div class="site-meta-item">
+                                <span class="site-meta-label">Acervo Físico/Digital</span>
+                                <span class="site-meta-val">{{ site.files.count }} Docs</span>
+                            </div>
+                        </div>
+
+                        <div style="margin-top: 0.5rem;">
+                            <a href="{% url 'site_detail' pk=site.pk %}" class="btn-ent btn-ent-primary" style="width: 100%;">
+                                Acessar Data Room
+                            </a>
+                        </div>
                     </div>
+                    {% empty %}
+                    <div style="grid-column: 1 / -1; padding: 4rem 2rem; text-align: center; background: white; border: 1px dashed var(--ent-border); border-radius: var(--ent-radius);">
+                        <i data-lucide="map-pin-off" style="width: 48px; height: 48px; color: var(--ent-text-muted); margin-bottom: 1rem; opacity: 0.5;"></i>
+                        <h4 style="font-size: 1.1rem; font-weight: 600; color: var(--ent-secondary);">Nenhum site localizado no banco de dados.</h4>
+                    </div>
+                    {% endfor %}
                 </div>
 
                 <div id="no-filter-results" style="display: none; padding: 4rem 2rem; text-align: center; background: white; border: 1px dashed var(--ent-border); border-radius: var(--ent-radius); margin-top: 1rem;">
@@ -1251,35 +1244,35 @@
 
     function filterSites() {
         const query = document.getElementById('site-search-input').value.toLowerCase().trim();
-        const rows = document.querySelectorAll('.modern-site-row');
+        const cards = document.querySelectorAll('.modern-site-card');
         let visibleCount = 0;
 
-        rows.forEach(row => {
-            const status = row.getAttribute('data-status');
-            const name = row.getAttribute('data-name');
-            const code = row.getAttribute('data-code');
+        cards.forEach(card => {
+            const status = card.getAttribute('data-status');
+            const name = card.getAttribute('data-name');
+            const code = card.getAttribute('data-code');
 
             const matchStatus = (currentFilterStatus === 'ALL' || status === currentFilterStatus);
             const matchQuery = (name.includes(query) || code.includes(query));
 
             if (matchStatus && matchQuery) {
-                row.style.display = 'table-row';
+                card.style.display = 'flex';
                 visibleCount++;
             } else {
-                row.style.display = 'none';
+                card.style.display = 'none';
             }
         });
 
         const noResults = document.getElementById('no-filter-results');
-        const tableContainer = document.getElementById('sites-table-container');
-        const totalRows = rows.length;
+        const gridContainer = document.getElementById('sites-grid-container');
+        const totalCards = cards.length;
 
-        if (visibleCount === 0 && totalRows > 0) {
+        if (visibleCount === 0 && totalCards > 0) {
             noResults.style.display = 'block';
-            if (tableContainer) tableContainer.style.display = 'none';
+            if (gridContainer) gridContainer.style.display = 'none';
         } else {
             noResults.style.display = 'none';
-            if (tableContainer) tableContainer.style.display = 'block';
+            if (gridContainer) gridContainer.style.display = 'grid';
         }
     }
 
