@@ -295,4 +295,37 @@ class SiteRolloutWorkflowTests(TestCase):
         site.refresh_from_db()
         self.assertEqual(site.reschedule_count, 1)
 
+    def test_delete_site_permitted(self):
+        """Test that Admin or Engineer can delete a site."""
+        self.client.login(username='engineer_workflow', password='password123')
+        site = Site.objects.create(
+            site_id='SITE_DELETE_OK',
+            name='Site to Delete'
+        )
+        url = reverse('delete_site', kwargs={'pk': site.pk})
+        response = self.client.post(url)
+        self.assertEqual(response.status_code, 302)
+        self.assertFalse(Site.objects.filter(site_id='SITE_DELETE_OK').exists())
+
+    def test_delete_site_restricted_for_technician(self):
+        """Test that Technician is not allowed to delete a site."""
+        from django.contrib.auth import get_user_model
+        User = get_user_model()
+        tech_user = User.objects.create_user(
+            username='tech_delete',
+            password='password123',
+            email='tech_delete@example.com',
+            role=User.Role.TECHNICIAN
+        )
+        self.client.login(username='tech_delete', password='password123')
+        site = Site.objects.create(
+            site_id='SITE_DELETE_FAIL',
+            name='Site Safe'
+        )
+        url = reverse('delete_site', kwargs={'pk': site.pk})
+        response = self.client.post(url)
+        self.assertEqual(response.status_code, 302)
+        self.assertTrue(Site.objects.filter(site_id='SITE_DELETE_FAIL').exists())
+
+
 

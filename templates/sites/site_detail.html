@@ -357,11 +357,21 @@
 
 {% block content %}
 <div class="detail-page-wrapper">
-    <div class="back-nav">
+    <div class="back-nav" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
         <a href="{% url 'site_list' %}#sites" class="back-link">
             <i data-lucide="arrow-left" style="width: 18px; height: 18px;"></i>
             Voltar para a Listagem de Sites
         </a>
+        
+        {% if user.role == 'ADMIN' or user.role == 'ENGINEER' %}
+        <form method="POST" action="{% url 'delete_site' pk=site.pk %}" onsubmit="return confirm('Tem certeza que deseja excluir permanentemente o site {{ site.site_id }} e todos os seus arquivos?');" style="margin: 0;">
+            {% csrf_token %}
+            <button type="submit" class="btn-submit" style="background: #e11d48; color: white; display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.5rem 1rem; border-radius: 8px; border: none; font-size: 0.85rem; font-weight: 600; cursor: pointer; box-shadow: 0 4px 12px rgba(225, 29, 72, 0.15); transition: background 0.2s;" onmouseover="this.style.background='#be123c';" onmouseout="this.style.background='#e11d48';">
+                <i data-lucide="trash-2" style="width: 16px; height: 16px;"></i>
+                Excluir Ativo / Site
+            </button>
+        </form>
+        {% endif %}
     </div>
 
 <div class="detail-layout">

@@ -473,3 +473,40 @@ def delete_file(request, file_id):
     site_file.delete()
     messages.success(request, "Arquivo excluído com sucesso!")
     return redirect('site_detail', pk=site_pk)
+
+
+# --- EXCLUSÃO SEGURA DE SITE / ATIVO (RBAC) ---
+@login_required
+def delete_site(request, pk):
+    site = get_object_or_404(Site, pk=pk)
+
+    # Restringe a permissão (apenas Admin ou Engenheiro)
+    if request.user.role not in [User.Role.ADMIN, User.Role.ENGINEER]:
+        messages.error(request, "Seu cargo não possui permissão para remover sites.")
+        return redirect('site_detail', pk=pk)
+
+    site_id = site.site_id
+
+    # Exclui os arquivos físicos associados do disco
+    import shutil
+    from django.conf import settings
+    
+    for site_file in site.files.all():
+        try:
+            if site_file.file and os.path.exists(site_file.file.path):
+                os.remove(site_file.file.path)
+        except Exception:
+            pass
+
+    site_dir = os.path.join(settings.MEDIA_ROOT, 'sites', site_id)
+    if os.path.exists(site_dir):
+        try:
+            shutil.rmtree(site_dir)
+        except Exception:
+            pass
+
+    # Exclui o site do banco de dados (cascade deleta os registros SiteFile)
+    site.delete()
+    messages.success(request, f"Site {site_id} removido com sucesso!")
+    return redirect('site_list')
+
