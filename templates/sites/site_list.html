@@ -991,146 +991,155 @@
             </div>
         </div>
 
-        <!-- Seletor de Sub-Abas de Relatórios (Analytics e Acompanhamento) -->
-        <div style="margin-bottom: 2rem; display: flex; gap: 0.75rem; border-bottom: 1px solid var(--ent-border); padding-bottom: 0.75rem;">
-            <button class="filter-pill active" id="btn-sub-prazos" onclick="switchRelatorioSubView('prazos-list')">
-                <i data-lucide="check-square" style="width: 16px; height: 16px; display: inline-block; vertical-align: middle;"></i> Auditoria de Prazos
-            </button>
-            <button class="filter-pill" id="btn-sub-analytics" onclick="switchRelatorioSubView('analytics')">
-                <i data-lucide="trending-up" style="width: 16px; height: 16px; display: inline-block; vertical-align: middle;"></i> Analytics & Gargalos
-            </button>
+        <!-- Tabela 1: Prazos Vencidos -->
+        <div class="ent-card" style="padding: 0; margin-bottom: 2.5rem; border: none; box-shadow: var(--ent-shadow-md);">
+            <div class="chart-header" style="padding: 2rem 2rem 1rem 2rem; margin: 0; border-bottom: 1px solid var(--ent-border); display: flex; justify-content: space-between; align-items: center;">
+                <div>
+                    <h3 class="chart-title" style="color: var(--ent-danger); display: flex; align-items: center; gap: 0.5rem;">
+                        <i data-lucide="clock" style="width: 20px; height: 20px;"></i> Prazos Vencidos (Cobrança Urgente)
+                    </h3>
+                    <p style="font-size: 0.8rem; color: var(--ent-text-muted); margin-top: 0.25rem;">Sites cujas vistorias ou laudos ultrapassaram a data planejada do parceiro.</p>
+                </div>
+                <span style="font-size: 0.75rem; font-weight: 700; color: var(--ent-danger); background: #fdeceb; padding: 0.35rem 0.75rem; border-radius: 20px;">{{ overdue_list.count }} pendente(s)</span>
+            </div>
+            <div class="ent-table-wrapper">
+                {% if overdue_list %}
+                <table class="ent-table">
+                    <thead>
+                        <tr>
+                            <th>Código</th>
+                            <th>Ativo / Site</th>
+                            <th>Parceiro</th>
+                            <th>Escopo</th>
+                            <th>Etapa Atrasada</th>
+                            <th>Prazos Planejados</th>
+                            <th>Atraso</th>
+                            <th style="text-align: right;">Ação</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for site in overdue_list %}
+                        <tr>
+                            <td style="font-weight: 700; color: var(--ent-primary);">{{ site.site_id }}</td>
+                            <td>{{ site.name }}</td>
+                            <td style="font-weight: 600;">{{ site.partner_company|default:"Sem Parceiro" }}</td>
+                            <td><span style="font-size: 0.78rem; font-weight: 600; padding: 0.25rem 0.5rem; background: #f1f5f9; border-radius: 6px; color: #475569;">{{ site.get_scope_type_display }}</span></td>
+                            <td style="color: var(--ent-danger); font-weight: 600;">{{ site.overdue_stage }}</td>
+                            <td style="font-size: 0.85rem; color: var(--ent-text-muted);">
+                                Vist: {{ site.planned_survey_date|date:"d/m/Y"|default:"--" }}<br>
+                                Laudo: {{ site.planned_report_date|date:"d/m/Y"|default:"--" }}
+                            </td>
+                            <td style="font-weight: 700; color: var(--ent-danger);">
+                                <i data-lucide="alert-circle" style="width: 14px; height: 14px; display: inline-block; vertical-align: middle; margin-right: 0.15rem;"></i>
+                                {{ site.days_overdue }} dias
+                            </td>
+                            <td style="text-align: right;">
+                                <a href="{% url 'site_detail' pk=site.pk %}" class="btn-ent btn-ent-primary" style="padding: 0.35rem 0.8rem; font-size: 0.75rem; background-color: var(--ent-danger);">
+                                    Cobrar / Replanejar
+                                </a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                {% else %}
+                <div style="padding: 4rem 2rem; text-align: center;">
+                    <i data-lucide="shield-check" style="width: 56px; height: 56px; color: var(--ent-success); margin-bottom: 1rem; opacity: 0.9;"></i>
+                    <h4 style="font-family: var(--font-heading); font-size: 1.3rem; font-weight: 700; color: var(--ent-primary);">Cronogramas em Dia</h4>
+                    <p style="font-size: 1rem; color: var(--ent-text-muted); margin-top: 0.5rem;">Nenhum acionamento de vistoria ou laudo parceiro está atrasado.</p>
+                </div>
+                {% endif %}
+            </div>
         </div>
 
-        <!-- Sub-Aba 1: Auditoria de Prazos -->
-        <div id="subview-prazos-list" style="display: block;">
-            <!-- Tabela 1: Prazos Vencidos -->
-            <div class="ent-card" style="padding: 0; margin-bottom: 2.5rem; border: none; box-shadow: var(--ent-shadow-md);">
-                <div class="chart-header" style="padding: 2rem 2rem 1rem 2rem; margin: 0; border-bottom: 1px solid var(--ent-border); display: flex; justify-content: space-between; align-items: center;">
-                    <div>
-                        <h3 class="chart-title" style="color: var(--ent-danger); display: flex; align-items: center; gap: 0.5rem;">
-                            <i data-lucide="clock" style="width: 20px; height: 20px;"></i> Prazos Vencidos (Cobrança Urgente)
-                        </h3>
-                        <p style="font-size: 0.8rem; color: var(--ent-text-muted); margin-top: 0.25rem;">Sites cujas vistorias ou laudos ultrapassaram a data planejada do parceiro.</p>
-                    </div>
-                    <span style="font-size: 0.75rem; font-weight: 700; color: var(--ent-danger); background: #fdeceb; padding: 0.35rem 0.75rem; border-radius: 20px;">{{ overdue_list.count }} pendente(s)</span>
+        <!-- Tabela 2: Prazos em Alerta -->
+        <div class="ent-card" style="padding: 0; border: none; box-shadow: var(--ent-shadow-md);">
+            <div class="chart-header" style="padding: 2rem 2rem 1rem 2rem; margin: 0; border-bottom: 1px solid var(--ent-border); display: flex; justify-content: space-between; align-items: center;">
+                <div>
+                    <h3 class="chart-title" style="color: var(--ent-warning); display: flex; align-items: center; gap: 0.5rem;">
+                        <i data-lucide="alert-triangle" style="width: 20px; height: 20px;"></i> Prazos em Alerta (Próximos 3 Dias)
+                    </h3>
+                    <p style="font-size: 0.8rem; color: var(--ent-text-muted); margin-top: 0.25rem;">Sites com datas de vistoria ou laudo próximas e sem data de realização.</p>
                 </div>
-                <div class="ent-table-wrapper">
-                    {% if overdue_list %}
-                    <table class="ent-table">
-                        <thead>
-                            <tr>
-                                <th>Código</th>
-                                <th>Ativo / Site</th>
-                                <th>Parceiro</th>
-                                <th>Escopo</th>
-                                <th>Etapa Atrasada</th>
-                                <th>Prazos Planejados</th>
-                                <th>Atraso</th>
-                                <th style="text-align: right;">Ação</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for site in overdue_list %}
-                            <tr>
-                                <td style="font-weight: 700; color: var(--ent-primary);">{{ site.site_id }}</td>
-                                <td>{{ site.name }}</td>
-                                <td style="font-weight: 600;">{{ site.partner_company|default:"Sem Parceiro" }}</td>
-                                <td><span style="font-size: 0.78rem; font-weight: 600; padding: 0.25rem 0.5rem; background: #f1f5f9; border-radius: 6px; color: #475569;">{{ site.get_scope_type_display }}</span></td>
-                                <td style="color: var(--ent-danger); font-weight: 600;">{{ site.overdue_stage }}</td>
-                                <td style="font-size: 0.85rem; color: var(--ent-text-muted);">
-                                    Vist: {{ site.planned_survey_date|date:"d/m/Y"|default:"--" }}<br>
+                <span style="font-size: 0.75rem; font-weight: 700; color: #d97706; background: #fffbeb; padding: 0.35rem 0.75rem; border-radius: 20px;">{{ alert_list.count }} em alerta</span>
+            </div>
+            <div class="ent-table-wrapper">
+                {% if alert_list %}
+                <table class="ent-table">
+                    <thead>
+                        <tr>
+                            <th>Código</th>
+                            <th>Ativo / Site</th>
+                            <th>Parceiro</th>
+                            <th>Escopo</th>
+                            <th>Etapa Próxima</th>
+                            <th>Data Prevista</th>
+                            <th>Status</th>
+                            <th style="text-align: right;">Ação</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for site in alert_list %}
+                        <tr>
+                            <td style="font-weight: 700; color: var(--ent-primary);">{{ site.site_id }}</td>
+                            <td>{{ site.name }}</td>
+                            <td style="font-weight: 600;">{{ site.partner_company|default:"Sem Parceiro" }}</td>
+                            <td><span style="font-size: 0.78rem; font-weight: 600; padding: 0.25rem 0.5rem; background: #f1f5f9; border-radius: 6px; color: #475569;">{{ site.get_scope_type_display }}</span></td>
+                            <td style="color: #d97706; font-weight: 600;">{{ site.alert_stage }}</td>
+                            <td style="font-size: 0.85rem; font-weight: 600; color: var(--ent-primary);">
+                                {% if "Vistoria" in site.alert_stage %}
+                                    Vistoria: {{ site.planned_survey_date|date:"d/m/Y" }}
+                                {% elif "Laudo" in site.alert_stage %}
+                                    Laudo: {{ site.planned_report_date|date:"d/m/Y" }}
+                                {% else %}
+                                    Vist: {{ site.planned_survey_date|date:"d/m/Y"|default:"--" }} <br>
                                     Laudo: {{ site.planned_report_date|date:"d/m/Y"|default:"--" }}
-                                </td>
-                                <td style="font-weight: 700; color: var(--ent-danger);">
-                                    <i data-lucide="alert-circle" style="width: 14px; height: 14px; display: inline-block; vertical-align: middle; margin-right: 0.15rem;"></i>
-                                    {{ site.days_overdue }} dias
-                                </td>
-                                <td style="text-align: right;">
-                                    <a href="{% url 'site_detail' pk=site.pk %}" class="btn-ent btn-ent-primary" style="padding: 0.35rem 0.8rem; font-size: 0.75rem; background-color: var(--ent-danger);">
-                                        Cobrar / Replanejar
-                                    </a>
-                                </td>
-                            </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
-                    {% else %}
-                    <div style="padding: 4rem 2rem; text-align: center;">
-                        <i data-lucide="shield-check" style="width: 56px; height: 56px; color: var(--ent-success); margin-bottom: 1rem; opacity: 0.9;"></i>
-                        <h4 style="font-family: var(--font-heading); font-size: 1.3rem; font-weight: 700; color: var(--ent-primary);">Cronogramas em Dia</h4>
-                        <p style="font-size: 1rem; color: var(--ent-text-muted); margin-top: 0.5rem;">Nenhum acionamento de vistoria ou laudo parceiro está atrasado.</p>
-                    </div>
-                    {% endif %}
+                                {% endif %}
+                            </td>
+                            <td><span class="status-badge badge-maintenance" style="font-size: 0.65rem;"><span class="status-dot"></span> Em Atenção</span></td>
+                            <td style="text-align: right;">
+                                <a href="{% url 'site_detail' pk=site.pk %}" class="btn-ent btn-ent-outline" style="padding: 0.35rem 0.8rem; font-size: 0.75rem;">
+                                    Gerenciar
+                                </a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                {% else %}
+                <div style="padding: 4rem 2rem; text-align: center; color: var(--ent-text-muted);">
+                    <i data-lucide="check-circle" style="width: 48px; height: 48px; color: var(--ent-success); margin-bottom: 0.75rem; opacity: 0.8;"></i>
+                    <h4 style="font-weight: 600; color: var(--ent-primary);">Nenhum alerta pendente</h4>
+                    <p style="font-size: 0.85rem;">Todos os cronogramas dos próximos dias estão tranquilos.</p>
                 </div>
+                {% endif %}
             </div>
+        </div>
+    </div>
 
-            <!-- Tabela 2: Prazos em Alerta -->
-            <div class="ent-card" style="padding: 0; border: none; box-shadow: var(--ent-shadow-md);">
-                <div class="chart-header" style="padding: 2rem 2rem 1rem 2rem; margin: 0; border-bottom: 1px solid var(--ent-border); display: flex; justify-content: space-between; align-items: center;">
-                    <div>
-                        <h3 class="chart-title" style="color: var(--ent-warning); display: flex; align-items: center; gap: 0.5rem;">
-                            <i data-lucide="alert-triangle" style="width: 20px; height: 20px;"></i> Prazos em Alerta (Próximos 3 Dias)
-                        </h3>
-                        <p style="font-size: 0.8rem; color: var(--ent-text-muted); margin-top: 0.25rem;">Sites com datas de vistoria ou laudo próximas e sem data de realização.</p>
-                    </div>
-                    <span style="font-size: 0.75rem; font-weight: 700; color: #d97706; background: #fffbeb; padding: 0.35rem 0.75rem; border-radius: 20px;">{{ alert_list.count }} em alerta</span>
-                </div>
-                <div class="ent-table-wrapper">
-                    {% if alert_list %}
-                    <table class="ent-table">
-                        <thead>
-                            <tr>
-                                <th>Código</th>
-                                <th>Ativo / Site</th>
-                                <th>Parceiro</th>
-                                <th>Escopo</th>
-                                <th>Etapa Próxima</th>
-                                <th>Data Prevista</th>
-                                <th>Status</th>
-                                <th style="text-align: right;">Ação</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for site in alert_list %}
-                            <tr>
-                                <td style="font-weight: 700; color: var(--ent-primary);">{{ site.site_id }}</td>
-                                <td>{{ site.name }}</td>
-                                <td style="font-weight: 600;">{{ site.partner_company|default:"Sem Parceiro" }}</td>
-                                <td><span style="font-size: 0.78rem; font-weight: 600; padding: 0.25rem 0.5rem; background: #f1f5f9; border-radius: 6px; color: #475569;">{{ site.get_scope_type_display }}</span></td>
-                                <td style="color: #d97706; font-weight: 600;">{{ site.alert_stage }}</td>
-                                <td style="font-size: 0.85rem; font-weight: 600; color: var(--ent-primary);">
-                                    {% if "Vistoria" in site.alert_stage %}
-                                        Vistoria: {{ site.planned_survey_date|date:"d/m/Y" }}
-                                    {% elif "Laudo" in site.alert_stage %}
-                                        Laudo: {{ site.planned_report_date|date:"d/m/Y" }}
-                                    {% else %}
-                                        Vist: {{ site.planned_survey_date|date:"d/m/Y"|default:"--" }} <br>
-                                        Laudo: {{ site.planned_report_date|date:"d/m/Y"|default:"--" }}
-                                    {% endif %}
-                                </td>
-                                <td><span class="status-badge badge-maintenance" style="font-size: 0.65rem;"><span class="status-dot"></span> Em Atenção</span></td>
-                                <td style="text-align: right;">
-                                    <a href="{% url 'site_detail' pk=site.pk %}" class="btn-ent btn-ent-outline" style="padding: 0.35rem 0.8rem; font-size: 0.75rem;">
-                                        Gerenciar
-                                    </a>
-                                </td>
-                            </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
-                    {% else %}
-                    <div style="padding: 4rem 2rem; text-align: center; color: var(--ent-text-muted);">
-                        <i data-lucide="check-circle" style="width: 48px; height: 48px; color: var(--ent-success); margin-bottom: 0.75rem; opacity: 0.8;"></i>
-                        <h4 style="font-weight: 600; color: var(--ent-primary);">Nenhum alerta pendente</h4>
-                        <p style="font-size: 0.85rem;">Todos os cronogramas dos próximos dias estão tranquilos.</p>
-                    </div>
-                    {% endif %}
-                </div>
+    <!-- ==========================================
+         VIEW 5: DESEMPENHO (ANALYTICS DE PARCEIROS)
+         ========================================== -->
+    <div id="analytics-view" class="view-container">
+        <div class="page-header">
+            <div class="page-header-text">
+                <h2>Análise de Desempenho e Lead Times</h2>
+                <p>Métricas de parceiros, tempos médios de atendimento e diagnóstico de gargalos operacionais.</p>
             </div>
         </div>
 
-        <!-- Sub-Aba 2: Analytics & Gargalos -->
-        <div id="subview-analytics" style="display: none;">
+        <!-- Seletor de Sub-Abas de Desempenho -->
+        <div style="margin-bottom: 2rem; display: flex; gap: 0.75rem; border-bottom: 1px solid var(--ent-border); padding-bottom: 0.75rem;">
+            <button class="filter-pill active" id="btn-sub-general" onclick="switchAnalyticsSubView('general')">
+                <i data-lucide="bar-chart-3" style="width: 16px; height: 16px; display: inline-block; vertical-align: middle;"></i> Visão Geral & Parceiros
+            </button>
+            <button class="filter-pill" id="btn-sub-detail" onclick="switchAnalyticsSubView('detail')">
+                <i data-lucide="radio-tower" style="width: 16px; height: 16px; display: inline-block; vertical-align: middle;"></i> Análise Site por Site
+            </button>
+        </div>
+
+        <!-- Sub-Aba A: Visão Geral & Parceiros -->
+        <div id="analytics-sub-general" style="display: block;">
             <!-- Painel de KPIs de Performance (Lead Times) -->
             <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem; margin-bottom: 2rem;">
                 <!-- Card 1: Tempo Acionamento -> Vistoria -->
@@ -1186,7 +1195,7 @@
             </div>
 
             <!-- Tabela de Performance dos Fornecedores -->
-            <div class="ent-card" style="padding: 0; margin-bottom: 2.5rem; border: none; box-shadow: var(--ent-shadow-md); background: white;">
+            <div class="ent-card" style="padding: 0; border: none; box-shadow: var(--ent-shadow-md); background: white;">
                 <div style="padding: 2rem 2rem 1rem 2rem; border-bottom: 1px solid var(--ent-border);">
                     <h3 style="font-family: var(--font-heading); font-size: 1.25rem; font-weight: 700; color: var(--ent-primary);">Performance Geral por Fornecedor</h3>
                     <p style="font-size: 0.8rem; color: var(--ent-text-muted); margin-top: 0.25rem;">Comparação estatística da agilidade e demandas pendentes de cada parceiro.</p>
@@ -1245,12 +1254,28 @@
                     {% endif %}
                 </div>
             </div>
+        </div>
+
+        <!-- Sub-Aba B: Análise Site por Site -->
+        <div id="analytics-sub-detail" style="display: none;">
+            <!-- Buscador para Análise Site por Site -->
+            <div class="ent-card" style="padding: 1.5rem; margin-bottom: 1.5rem; border: none; box-shadow: var(--ent-shadow-md); background: white;">
+                <div style="display: flex; gap: 0.75rem; width: 100%;">
+                    <div style="position: relative; flex: 1;">
+                        <i data-lucide="search" style="position: absolute; left: 1rem; top: 50%; transform: translateY(-50%); width: 18px; height: 18px; color: var(--ent-secondary);"></i>
+                        <input type="text" id="analytics-search-input" class="form-control" placeholder="Buscar por código ou nome do site..." style="padding-left: 2.75rem; height: 46px; border-radius: 8px;" onkeyup="filterAnalyticsSites()">
+                    </div>
+                </div>
+            </div>
 
             <!-- Tabela Detalhada de Gargalos de Ativos (Lead Times Individuais) -->
             <div class="ent-card" style="padding: 0; border: none; box-shadow: var(--ent-shadow-md); background: white;">
-                <div style="padding: 2rem 2rem 1rem 2rem; border-bottom: 1px solid var(--ent-border);">
-                    <h3 style="font-family: var(--font-heading); font-size: 1.25rem; font-weight: 700; color: var(--ent-primary);">Detalhamento de Lead Times e Gargalos por Site</h3>
-                    <p style="font-size: 0.8rem; color: var(--ent-text-muted); margin-top: 0.25rem;">Análise individual de cada site acionado para monitoramento detalhado de atrasos.</p>
+                <div style="padding: 2rem 2rem 1rem 2rem; border-bottom: 1px solid var(--ent-border); display: flex; justify-content: space-between; align-items: center;">
+                    <div>
+                        <h3 style="font-family: var(--font-heading); font-size: 1.25rem; font-weight: 700; color: var(--ent-primary);">Detalhamento de Lead Times e Gargalos por Site</h3>
+                        <p style="font-size: 0.8rem; color: var(--ent-text-muted); margin-top: 0.25rem;">Análise individual de cada site acionado para monitoramento detalhado de atrasos.</p>
+                    </div>
+                    <span id="analytics-filter-count" style="font-size: 0.75rem; font-weight: 700; color: var(--ent-accent); background: #eff6ff; padding: 0.35rem 0.75rem; border-radius: 20px;">{{ detailed_lead_times|length }} site(s)</span>
                 </div>
                 <div class="ent-table-wrapper">
                     {% if detailed_lead_times %}
@@ -1267,9 +1292,9 @@
                                 <th>Status</th>
                             </tr>
                         </thead>
-                        <tbody>
+                        <tbody id="analytics-table-body">
                             {% for item in detailed_lead_times %}
-                            <tr>
+                            <tr class="analytics-row" data-code="{{ item.site_id|lower }}" data-name="{{ item.name|lower }}" data-partner="{{ item.partner_company|lower }}">
                                 <td style="font-weight: 700; color: var(--ent-primary);">
                                     <a href="{% url 'site_detail' pk=item.id %}" style="color: inherit; text-decoration: none; border-bottom: 1px dashed var(--ent-secondary);">{{ item.site_id }}</a>
                                 </td>
@@ -1693,12 +1718,16 @@
         }
     }
 
-    // --- 4.2. CORREÇÃO DOS TILES CINZAS (Leaflet Map InvalidateSize) ---
+    // --- 4.2. CORREÇÃO DOS TILES CINZAS (Leaflet Map InvalidateSize) E CHART DE PERFORMANCE ---
     window.addEventListener('hashchange', () => {
         const hash = window.location.hash || '#dashboard';
         if (hash === '#sites' && mapInitialized && map) {
             setTimeout(() => {
                 map.invalidateSize();
+            }, 150);
+        } else if (hash === '#analytics') {
+            setTimeout(() => {
+                initPartnerChart();
             }, 150);
         }
     });
@@ -1708,6 +1737,10 @@
         if (hash === '#sites' && mapInitialized && map) {
             setTimeout(() => {
                 map.invalidateSize();
+            }, 300);
+        } else if (hash === '#analytics') {
+            setTimeout(() => {
+                initPartnerChart();
             }, 300);
         }
     });
@@ -1779,30 +1812,54 @@
             }
         });
 
-        // --- 6. GESTÃO DE SUB-ABAS DE RELATÓRIOS & GRÁFICO DE LEAD TIME ---
+        // --- 6. GESTÃO DE SUB-ABAS DE DESEMPENHO & GRÁFICO DE LEAD TIME ---
         let partnerChart = null;
 
-        window.switchRelatorioSubView = function(viewName) {
-            const subviewPrazos = document.getElementById('subview-prazos-list');
-            const subviewAnalytics = document.getElementById('subview-analytics');
-            const btnPrazos = document.getElementById('btn-sub-prazos');
-            const btnAnalytics = document.getElementById('btn-sub-analytics');
+        window.switchAnalyticsSubView = function(viewName) {
+            const subviewGeneral = document.getElementById('analytics-sub-general');
+            const subviewDetail = document.getElementById('analytics-sub-detail');
+            const btnGeneral = document.getElementById('btn-sub-general');
+            const btnDetail = document.getElementById('btn-sub-detail');
             
-            if (!subviewPrazos || !subviewAnalytics) return;
+            if (!subviewGeneral || !subviewDetail) return;
             
-            if (viewName === 'prazos-list') {
-                subviewPrazos.style.display = 'block';
-                subviewAnalytics.style.display = 'none';
-                btnPrazos.classList.add('active');
-                btnAnalytics.classList.remove('active');
-            } else {
-                subviewPrazos.style.display = 'none';
-                subviewAnalytics.style.display = 'block';
-                btnPrazos.classList.remove('active');
-                btnAnalytics.classList.add('active');
+            if (viewName === 'general') {
+                subviewGeneral.style.display = 'block';
+                subviewDetail.style.display = 'none';
+                btnGeneral.classList.add('active');
+                btnDetail.classList.remove('active');
                 
-                // Inicializa o gráfico quando a aba de analytics é aberta
+                // Inicializa o gráfico quando a sub-aba geral é aberta
                 setTimeout(initPartnerChart, 50);
+            } else {
+                subviewGeneral.style.display = 'none';
+                subviewDetail.style.display = 'block';
+                btnGeneral.classList.remove('active');
+                btnDetail.classList.add('active');
+            }
+        };
+
+        window.filterAnalyticsSites = function() {
+            const query = document.getElementById('analytics-search-input').value.toLowerCase().trim();
+            const rows = document.querySelectorAll('.analytics-row');
+            let visibleCount = 0;
+
+            rows.forEach(row => {
+                const code = row.getAttribute('data-code') || '';
+                const name = row.getAttribute('data-name') || '';
+                const partner = row.getAttribute('data-partner') || '';
+
+                if (code.includes(query) || name.includes(query) || partner.includes(query)) {
+                    row.style.display = '';
+                    visibleCount++;
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+
+            const countEl = document.getElementById('analytics-filter-count');
+            if (countEl) {
+                countEl.textContent = `${visibleCount} site(s)`;
             }
         };
 
