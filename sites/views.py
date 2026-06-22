@@ -121,6 +121,108 @@ def site_list(request):
     # Atividades recentes (Uploads)
     recent_activities = SiteFile.objects.select_related('site', 'uploaded_by').order_by('-uploaded_at')[:5]
 
+    # --- CÁLCULO DE MÉTRICAS E GARGALOS (LEAD TIMES E PERFORMANCE) ---
+    partner_data = {}
+    detailed_lead_times = []
+    
+    for s in Site.objects.all():
+        partner = s.partner_company
+        if not partner:
+            continue
+        partner = partner.strip()
+        if partner not in partner_data:
+            partner_data[partner] = {
+                'total_sites': 0,
+                'survey_times': [],
+                'report_times': [],
+                'total_times': [],
+                'pending_surveys': 0,
+                'pending_reports': 0,
+            }
+            
+        p_data = partner_data[partner]
+        p_data['total_sites'] += 1
+        
+        # 1. Acionamento -> Vistoria (Lead Time)
+        creation_date = timezone.localdate(s.created_at)
+        if s.actual_survey_date:
+            survey_days = (s.actual_survey_date - creation_date).days
+            p_data['survey_times'].append(max(0, survey_days))
+            survey_display = f"{survey_days} dias"
+        else:
+            p_data['pending_surveys'] += 1
+            elapsed_survey = (today - creation_date).days
+            survey_display = f"Pendente ({elapsed_survey}d)"
+            
+        # 2. Vistoria -> Laudo (Lead Time)
+        if s.actual_survey_date and s.actual_report_date:
+            report_days = (s.actual_report_date - s.actual_survey_date).days
+            p_data['report_times'].append(max(0, report_days))
+            report_display = f"{report_days} dias"
+        elif s.actual_survey_date and not s.actual_report_date:
+            p_data['pending_reports'] += 1
+            elapsed_report = (today - s.actual_survey_date).days
+            report_display = f"Pendente ({elapsed_report}d)"
+        else:
+            report_display = "--"
+            
+        # 3. Ciclo Total (Acionamento -> Laudo)
+        if s.actual_report_date:
+            total_days = (s.actual_report_date - creation_date).days
+            p_data['total_times'].append(max(0, total_days))
+            total_display = f"{total_days} dias"
+        else:
+            elapsed_total = (today - creation_date).days
+            total_display = f"Em andamento ({elapsed_total}d)"
+            
+        detailed_lead_times.append({
+            'id': s.id,
+            'site_id': s.site_id,
+            'name': s.name,
+            'partner_company': s.partner_company,
+            'scope_type': s.get_scope_type_display(),
+            'created_at': creation_date,
+            'actual_survey_date': s.actual_survey_date,
+            'actual_report_date': s.actual_report_date,
+            'survey_display': survey_display,
+            'report_display': report_display,
+            'total_display': total_display,
+            'status': s.status,
+            'get_status_display': s.get_status_display(),
+        })
+
+    # Agregar médias por parceiro e totais gerais
+    partner_stats = []
+    all_survey_days = []
+    all_report_days = []
+    all_total_days = []
+    
+    for partner, data in partner_data.items():
+        avg_survey = round(sum(data['survey_times']) / len(data['survey_times']), 1) if data['survey_times'] else None
+        avg_report = round(sum(data['report_times']) / len(data['report_times']), 1) if data['report_times'] else None
+        avg_total = round(sum(data['total_times']) / len(data['total_times']), 1) if data['total_times'] else None
+        
+        if avg_survey is not None:
+            all_survey_days.append(avg_survey)
+        if avg_report is not None:
+            all_report_days.append(avg_report)
+        if avg_total is not None:
+            all_total_days.append(avg_total)
+            
+        partner_stats.append({
+            'partner': partner,
+            'total_sites': data['total_sites'],
+            'avg_survey_days': avg_survey,
+            'avg_report_days': avg_report,
+            'avg_total_days': avg_total,
+            'pending_surveys': data['pending_surveys'],
+            'pending_reports': data['pending_reports'],
+        })
+        
+    overall_avg_survey = round(sum(all_survey_days) / len(all_survey_days), 1) if all_survey_days else None
+    overall_avg_report = round(sum(all_report_days) / len(all_report_days), 1) if all_report_days else None
+    overall_avg_total = round(sum(all_total_days) / len(all_total_days), 1) if all_total_days else None
+
     context = {
         'sites': sites,
         'query': query,
@@ -137,6 +239,11 @@ def site_list(request):
         'dwg_files': dwg_files,
         'other_files': other_files,
         'recent_activities': recent_activities,
+        'partner_stats': partner_stats,
+        'detailed_lead_times': detailed_lead_times,
+        'overall_avg_survey': overall_avg_survey,
+        'overall_avg_report': overall_avg_report,
+        'overall_avg_total': overall_avg_total,
     }
 
     return render(request, 'sites/site_list.html', context)

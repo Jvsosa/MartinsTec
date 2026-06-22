@@ -991,128 +991,315 @@
             </div>
         </div>
 
-        <!-- Tabela 1: Prazos Vencidos -->
-        <div class="ent-card" style="padding: 0; margin-bottom: 2.5rem; border: none; box-shadow: var(--ent-shadow-md);">
-            <div class="chart-header" style="padding: 2rem 2rem 1rem 2rem; margin: 0; border-bottom: 1px solid var(--ent-border); display: flex; justify-content: space-between; align-items: center;">
-                <div>
-                    <h3 class="chart-title" style="color: var(--ent-danger); display: flex; align-items: center; gap: 0.5rem;">
-                        <i data-lucide="clock" style="width: 20px; height: 20px;"></i> Prazos Vencidos (Cobrança Urgente)
-                    </h3>
-                    <p style="font-size: 0.8rem; color: var(--ent-text-muted); margin-top: 0.25rem;">Sites cujas vistorias ou laudos ultrapassaram a data planejada do parceiro.</p>
+        <!-- Seletor de Sub-Abas de Relatórios (Analytics e Acompanhamento) -->
+        <div style="margin-bottom: 2rem; display: flex; gap: 0.75rem; border-bottom: 1px solid var(--ent-border); padding-bottom: 0.75rem;">
+            <button class="filter-pill active" id="btn-sub-prazos" onclick="switchRelatorioSubView('prazos-list')">
+                <i data-lucide="check-square" style="width: 16px; height: 16px; display: inline-block; vertical-align: middle;"></i> Auditoria de Prazos
+            </button>
+            <button class="filter-pill" id="btn-sub-analytics" onclick="switchRelatorioSubView('analytics')">
+                <i data-lucide="trending-up" style="width: 16px; height: 16px; display: inline-block; vertical-align: middle;"></i> Analytics & Gargalos
+            </button>
+        </div>
+
+        <!-- Sub-Aba 1: Auditoria de Prazos -->
+        <div id="subview-prazos-list" style="display: block;">
+            <!-- Tabela 1: Prazos Vencidos -->
+            <div class="ent-card" style="padding: 0; margin-bottom: 2.5rem; border: none; box-shadow: var(--ent-shadow-md);">
+                <div class="chart-header" style="padding: 2rem 2rem 1rem 2rem; margin: 0; border-bottom: 1px solid var(--ent-border); display: flex; justify-content: space-between; align-items: center;">
+                    <div>
+                        <h3 class="chart-title" style="color: var(--ent-danger); display: flex; align-items: center; gap: 0.5rem;">
+                            <i data-lucide="clock" style="width: 20px; height: 20px;"></i> Prazos Vencidos (Cobrança Urgente)
+                        </h3>
+                        <p style="font-size: 0.8rem; color: var(--ent-text-muted); margin-top: 0.25rem;">Sites cujas vistorias ou laudos ultrapassaram a data planejada do parceiro.</p>
+                    </div>
+                    <span style="font-size: 0.75rem; font-weight: 700; color: var(--ent-danger); background: #fdeceb; padding: 0.35rem 0.75rem; border-radius: 20px;">{{ overdue_list.count }} pendente(s)</span>
                 </div>
-                <span style="font-size: 0.75rem; font-weight: 700; color: var(--ent-danger); background: #fdeceb; padding: 0.35rem 0.75rem; border-radius: 20px;">{{ overdue_list.count }} pendente(s)</span>
+                <div class="ent-table-wrapper">
+                    {% if overdue_list %}
+                    <table class="ent-table">
+                        <thead>
+                            <tr>
+                                <th>Código</th>
+                                <th>Ativo / Site</th>
+                                <th>Parceiro</th>
+                                <th>Escopo</th>
+                                <th>Etapa Atrasada</th>
+                                <th>Prazos Planejados</th>
+                                <th>Atraso</th>
+                                <th style="text-align: right;">Ação</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for site in overdue_list %}
+                            <tr>
+                                <td style="font-weight: 700; color: var(--ent-primary);">{{ site.site_id }}</td>
+                                <td>{{ site.name }}</td>
+                                <td style="font-weight: 600;">{{ site.partner_company|default:"Sem Parceiro" }}</td>
+                                <td><span style="font-size: 0.78rem; font-weight: 600; padding: 0.25rem 0.5rem; background: #f1f5f9; border-radius: 6px; color: #475569;">{{ site.get_scope_type_display }}</span></td>
+                                <td style="color: var(--ent-danger); font-weight: 600;">{{ site.overdue_stage }}</td>
+                                <td style="font-size: 0.85rem; color: var(--ent-text-muted);">
+                                    Vist: {{ site.planned_survey_date|date:"d/m/Y"|default:"--" }}<br>
+                                    Laudo: {{ site.planned_report_date|date:"d/m/Y"|default:"--" }}
+                                </td>
+                                <td style="font-weight: 700; color: var(--ent-danger);">
+                                    <i data-lucide="alert-circle" style="width: 14px; height: 14px; display: inline-block; vertical-align: middle; margin-right: 0.15rem;"></i>
+                                    {{ site.days_overdue }} dias
+                                </td>
+                                <td style="text-align: right;">
+                                    <a href="{% url 'site_detail' pk=site.pk %}" class="btn-ent btn-ent-primary" style="padding: 0.35rem 0.8rem; font-size: 0.75rem; background-color: var(--ent-danger);">
+                                        Cobrar / Replanejar
+                                    </a>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                    {% else %}
+                    <div style="padding: 4rem 2rem; text-align: center;">
+                        <i data-lucide="shield-check" style="width: 56px; height: 56px; color: var(--ent-success); margin-bottom: 1rem; opacity: 0.9;"></i>
+                        <h4 style="font-family: var(--font-heading); font-size: 1.3rem; font-weight: 700; color: var(--ent-primary);">Cronogramas em Dia</h4>
+                        <p style="font-size: 1rem; color: var(--ent-text-muted); margin-top: 0.5rem;">Nenhum acionamento de vistoria ou laudo parceiro está atrasado.</p>
+                    </div>
+                    {% endif %}
+                </div>
             </div>
-            <div class="ent-table-wrapper">
-                {% if overdue_list %}
-                <table class="ent-table">
-                    <thead>
-                        <tr>
-                            <th>Código</th>
-                            <th>Ativo / Site</th>
-                            <th>Parceiro</th>
-                            <th>Escopo</th>
-                            <th>Etapa Atrasada</th>
-                            <th>Prazos Planejados</th>
-                            <th>Atraso</th>
-                            <th style="text-align: right;">Ação</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for site in overdue_list %}
-                        <tr>
-                            <td style="font-weight: 700; color: var(--ent-primary);">{{ site.site_id }}</td>
-                            <td>{{ site.name }}</td>
-                            <td style="font-weight: 600;">{{ site.partner_company|default:"Sem Parceiro" }}</td>
-                            <td><span style="font-size: 0.78rem; font-weight: 600; padding: 0.25rem 0.5rem; background: #f1f5f9; border-radius: 6px; color: #475569;">{{ site.get_scope_type_display }}</span></td>
-                            <td style="color: var(--ent-danger); font-weight: 600;">{{ site.overdue_stage }}</td>
-                            <td style="font-size: 0.85rem; color: var(--ent-text-muted);">
-                                Vist: {{ site.planned_survey_date|date:"d/m/Y"|default:"--" }}<br>
-                                Laudo: {{ site.planned_report_date|date:"d/m/Y"|default:"--" }}
-                            </td>
-                            <td style="font-weight: 700; color: var(--ent-danger);">
-                                <i data-lucide="alert-circle" style="width: 14px; height: 14px; display: inline-block; vertical-align: middle; margin-right: 0.15rem;"></i>
-                                {{ site.days_overdue }} dias
-                            </td>
-                            <td style="text-align: right;">
-                                <a href="{% url 'site_detail' pk=site.pk %}" class="btn-ent btn-ent-primary" style="padding: 0.35rem 0.8rem; font-size: 0.75rem; background-color: var(--ent-danger);">
-                                    Cobrar / Replanejar
-                                </a>
-                            </td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-                {% else %}
-                <div style="padding: 4rem 2rem; text-align: center;">
-                    <i data-lucide="shield-check" style="width: 56px; height: 56px; color: var(--ent-success); margin-bottom: 1rem; opacity: 0.9;"></i>
-                    <h4 style="font-family: var(--font-heading); font-size: 1.3rem; font-weight: 700; color: var(--ent-primary);">Cronogramas em Dia</h4>
-                    <p style="font-size: 1rem; color: var(--ent-text-muted); margin-top: 0.5rem;">Nenhum acionamento de vistoria ou laudo parceiro está atrasado.</p>
+
+            <!-- Tabela 2: Prazos em Alerta -->
+            <div class="ent-card" style="padding: 0; border: none; box-shadow: var(--ent-shadow-md);">
+                <div class="chart-header" style="padding: 2rem 2rem 1rem 2rem; margin: 0; border-bottom: 1px solid var(--ent-border); display: flex; justify-content: space-between; align-items: center;">
+                    <div>
+                        <h3 class="chart-title" style="color: var(--ent-warning); display: flex; align-items: center; gap: 0.5rem;">
+                            <i data-lucide="alert-triangle" style="width: 20px; height: 20px;"></i> Prazos em Alerta (Próximos 3 Dias)
+                        </h3>
+                        <p style="font-size: 0.8rem; color: var(--ent-text-muted); margin-top: 0.25rem;">Sites com datas de vistoria ou laudo próximas e sem data de realização.</p>
+                    </div>
+                    <span style="font-size: 0.75rem; font-weight: 700; color: #d97706; background: #fffbeb; padding: 0.35rem 0.75rem; border-radius: 20px;">{{ alert_list.count }} em alerta</span>
                 </div>
-                {% endif %}
+                <div class="ent-table-wrapper">
+                    {% if alert_list %}
+                    <table class="ent-table">
+                        <thead>
+                            <tr>
+                                <th>Código</th>
+                                <th>Ativo / Site</th>
+                                <th>Parceiro</th>
+                                <th>Escopo</th>
+                                <th>Etapa Próxima</th>
+                                <th>Data Prevista</th>
+                                <th>Status</th>
+                                <th style="text-align: right;">Ação</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for site in alert_list %}
+                            <tr>
+                                <td style="font-weight: 700; color: var(--ent-primary);">{{ site.site_id }}</td>
+                                <td>{{ site.name }}</td>
+                                <td style="font-weight: 600;">{{ site.partner_company|default:"Sem Parceiro" }}</td>
+                                <td><span style="font-size: 0.78rem; font-weight: 600; padding: 0.25rem 0.5rem; background: #f1f5f9; border-radius: 6px; color: #475569;">{{ site.get_scope_type_display }}</span></td>
+                                <td style="color: #d97706; font-weight: 600;">{{ site.alert_stage }}</td>
+                                <td style="font-size: 0.85rem; font-weight: 600; color: var(--ent-primary);">
+                                    {% if "Vistoria" in site.alert_stage %}
+                                        Vistoria: {{ site.planned_survey_date|date:"d/m/Y" }}
+                                    {% elif "Laudo" in site.alert_stage %}
+                                        Laudo: {{ site.planned_report_date|date:"d/m/Y" }}
+                                    {% else %}
+                                        Vist: {{ site.planned_survey_date|date:"d/m/Y"|default:"--" }} <br>
+                                        Laudo: {{ site.planned_report_date|date:"d/m/Y"|default:"--" }}
+                                    {% endif %}
+                                </td>
+                                <td><span class="status-badge badge-maintenance" style="font-size: 0.65rem;"><span class="status-dot"></span> Em Atenção</span></td>
+                                <td style="text-align: right;">
+                                    <a href="{% url 'site_detail' pk=site.pk %}" class="btn-ent btn-ent-outline" style="padding: 0.35rem 0.8rem; font-size: 0.75rem;">
+                                        Gerenciar
+                                    </a>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                    {% else %}
+                    <div style="padding: 4rem 2rem; text-align: center; color: var(--ent-text-muted);">
+                        <i data-lucide="check-circle" style="width: 48px; height: 48px; color: var(--ent-success); margin-bottom: 0.75rem; opacity: 0.8;"></i>
+                        <h4 style="font-weight: 600; color: var(--ent-primary);">Nenhum alerta pendente</h4>
+                        <p style="font-size: 0.85rem;">Todos os cronogramas dos próximos dias estão tranquilos.</p>
+                    </div>
+                    {% endif %}
+                </div>
             </div>
         </div>
 
-        <!-- Tabela 2: Prazos em Alerta -->
-        <div class="ent-card" style="padding: 0; border: none; box-shadow: var(--ent-shadow-md);">
-            <div class="chart-header" style="padding: 2rem 2rem 1rem 2rem; margin: 0; border-bottom: 1px solid var(--ent-border); display: flex; justify-content: space-between; align-items: center;">
-                <div>
-                    <h3 class="chart-title" style="color: var(--ent-warning); display: flex; align-items: center; gap: 0.5rem;">
-                        <i data-lucide="alert-triangle" style="width: 20px; height: 20px;"></i> Prazos em Alerta (Próximos 3 Dias)
-                    </h3>
-                    <p style="font-size: 0.8rem; color: var(--ent-text-muted); margin-top: 0.25rem;">Sites com datas de vistoria ou laudo próximas e sem data de realização.</p>
+        <!-- Sub-Aba 2: Analytics & Gargalos -->
+        <div id="subview-analytics" style="display: none;">
+            <!-- Painel de KPIs de Performance (Lead Times) -->
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem; margin-bottom: 2rem;">
+                <!-- Card 1: Tempo Acionamento -> Vistoria -->
+                <div class="ent-card" style="background: white; border: none; box-shadow: var(--ent-shadow-md); padding: 1.5rem; display: flex; align-items: center; justify-content: space-between; border-left: 5px solid var(--ent-accent);">
+                    <div>
+                        <div style="font-size: 0.75rem; font-weight: 700; color: var(--ent-text-muted); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.5rem;">Acionamento → Vistoria</div>
+                        <div style="font-family: var(--font-heading); font-size: 2rem; font-weight: 700; color: var(--ent-primary); line-height: 1.2;">
+                            {{ overall_avg_survey|default:"--" }}{% if overall_avg_survey %} dias{% endif %}
+                        </div>
+                        <p style="font-size: 0.72rem; color: var(--ent-text-muted); margin-top: 0.35rem;">Tempo médio de agendamento/campo.</p>
+                    </div>
+                    <div style="width: 46px; height: 46px; border-radius: 10px; background: #eff6ff; color: var(--ent-accent); display: flex; align-items: center; justify-content: center;">
+                        <i data-lucide="calendar" style="width: 22px; height: 22px;"></i>
+                    </div>
                 </div>
-                <span style="font-size: 0.75rem; font-weight: 700; color: #d97706; background: #fffbeb; padding: 0.35rem 0.75rem; border-radius: 20px;">{{ alert_list.count }} em alerta</span>
+                <!-- Card 2: Tempo Vistoria -> Laudo -->
+                <div class="ent-card" style="background: white; border: none; box-shadow: var(--ent-shadow-md); padding: 1.5rem; display: flex; align-items: center; justify-content: space-between; border-left: 5px solid var(--ent-warning);">
+                    <div>
+                        <div style="font-size: 0.75rem; font-weight: 700; color: var(--ent-text-muted); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.5rem;">Vistoria → Laudo Concluído</div>
+                        <div style="font-family: var(--font-heading); font-size: 2rem; font-weight: 700; color: var(--ent-primary); line-height: 1.2;">
+                            {{ overall_avg_report|default:"--" }}{% if overall_avg_report %} dias{% endif %}
+                        </div>
+                        <p style="font-size: 0.72rem; color: var(--ent-text-muted); margin-top: 0.35rem;">Tempo médio de escrita técnica/revisão.</p>
+                    </div>
+                    <div style="width: 46px; height: 46px; border-radius: 10px; background: #fffbeb; color: var(--ent-warning); display: flex; align-items: center; justify-content: center;">
+                        <i data-lucide="file-text" style="width: 22px; height: 22px;"></i>
+                    </div>
+                </div>
+                <!-- Card 3: Tempo Total do Ciclo -->
+                <div class="ent-card" style="background: white; border: none; box-shadow: var(--ent-shadow-md); padding: 1.5rem; display: flex; align-items: center; justify-content: space-between; border-left: 5px solid var(--ent-success);">
+                    <div>
+                        <div style="font-size: 0.75rem; font-weight: 700; color: var(--ent-text-muted); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.5rem;">Ciclo Médio Total</div>
+                        <div style="font-family: var(--font-heading); font-size: 2rem; font-weight: 700; color: var(--ent-primary); line-height: 1.2;">
+                            {{ overall_avg_total|default:"--" }}{% if overall_avg_total %} dias{% endif %}
+                        </div>
+                        <p style="font-size: 0.72rem; color: var(--ent-text-muted); margin-top: 0.35rem;">Média total de ponta a ponta.</p>
+                    </div>
+                    <div style="width: 46px; height: 46px; border-radius: 10px; background: #ecfdf5; color: var(--ent-success); display: flex; align-items: center; justify-content: center;">
+                        <i data-lucide="gauge" style="width: 22px; height: 22px;"></i>
+                    </div>
+                </div>
             </div>
-            <div class="ent-table-wrapper">
-                {% if alert_list %}
-                <table class="ent-table">
-                    <thead>
-                        <tr>
-                            <th>Código</th>
-                            <th>Ativo / Site</th>
-                            <th>Parceiro</th>
-                            <th>Escopo</th>
-                            <th>Etapa Próxima</th>
-                            <th>Data Prevista</th>
-                            <th>Status</th>
-                            <th style="text-align: right;">Ação</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for site in alert_list %}
-                        <tr>
-                            <td style="font-weight: 700; color: var(--ent-primary);">{{ site.site_id }}</td>
-                            <td>{{ site.name }}</td>
-                            <td style="font-weight: 600;">{{ site.partner_company|default:"Sem Parceiro" }}</td>
-                            <td><span style="font-size: 0.78rem; font-weight: 600; padding: 0.25rem 0.5rem; background: #f1f5f9; border-radius: 6px; color: #475569;">{{ site.get_scope_type_display }}</span></td>
-                            <td style="color: #d97706; font-weight: 600;">{{ site.alert_stage }}</td>
-                            <td style="font-size: 0.85rem; font-weight: 600; color: var(--ent-primary);">
-                                {% if "Vistoria" in site.alert_stage %}
-                                    Vistoria: {{ site.planned_survey_date|date:"d/m/Y" }}
-                                {% elif "Laudo" in site.alert_stage %}
-                                    Laudo: {{ site.planned_report_date|date:"d/m/Y" }}
-                                {% else %}
-                                    Vist: {{ site.planned_survey_date|date:"d/m/Y"|default:"--" }} <br>
-                                    Laudo: {{ site.planned_report_date|date:"d/m/Y"|default:"--" }}
-                                {% endif %}
-                            </td>
-                            <td><span class="status-badge badge-maintenance" style="font-size: 0.65rem;"><span class="status-dot"></span> Em Atenção</span></td>
-                            <td style="text-align: right;">
-                                <a href="{% url 'site_detail' pk=site.pk %}" class="btn-ent btn-ent-outline" style="padding: 0.35rem 0.8rem; font-size: 0.75rem;">
-                                    Gerenciar
-                                </a>
-                            </td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-                {% else %}
-                <div style="padding: 4rem 2rem; text-align: center; color: var(--ent-text-muted);">
-                    <i data-lucide="check-circle" style="width: 48px; height: 48px; color: var(--ent-success); margin-bottom: 0.75rem; opacity: 0.8;"></i>
-                    <h4 style="font-weight: 600; color: var(--ent-primary);">Nenhum alerta pendente</h4>
-                    <p style="font-size: 0.85rem;">Todos os cronogramas dos próximos dias estão tranquilos.</p>
+
+            <!-- Gráfico de Comparação por Parceiro -->
+            <div class="ent-card" style="padding: 2rem; margin-bottom: 2.5rem; border: none; box-shadow: var(--ent-shadow-md); background: white;">
+                <h3 style="font-family: var(--font-heading); font-size: 1.2rem; font-weight: 700; color: var(--ent-primary); margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.5rem;">
+                    <i data-lucide="bar-chart-3" style="color: var(--ent-accent);"></i> Comparativo de Lead Times por Parceiro (Dias)
+                </h3>
+                <p style="font-size: 0.8rem; color: var(--ent-text-muted); margin-bottom: 1.5rem;">Comparação visual dos tempos médios de execução de vistoria e de laudo por fornecedor.</p>
+                <div style="height: 300px; position: relative;">
+                    <canvas id="partnerLeadTimeChart"></canvas>
                 </div>
-                {% endif %}
+            </div>
+
+            <!-- Tabela de Performance dos Fornecedores -->
+            <div class="ent-card" style="padding: 0; margin-bottom: 2.5rem; border: none; box-shadow: var(--ent-shadow-md); background: white;">
+                <div style="padding: 2rem 2rem 1rem 2rem; border-bottom: 1px solid var(--ent-border);">
+                    <h3 style="font-family: var(--font-heading); font-size: 1.25rem; font-weight: 700; color: var(--ent-primary);">Performance Geral por Fornecedor</h3>
+                    <p style="font-size: 0.8rem; color: var(--ent-text-muted); margin-top: 0.25rem;">Comparação estatística da agilidade e demandas pendentes de cada parceiro.</p>
+                </div>
+                <div class="ent-table-wrapper">
+                    {% if partner_stats %}
+                    <table class="ent-table">
+                        <thead>
+                            <tr>
+                                <th>Fornecedor / Empresa</th>
+                                <th>Projetos Atribuídos</th>
+                                <th>Tempo Médio Vistoria (Dias)</th>
+                                <th>Tempo Médio Laudo (Dias)</th>
+                                <th>Ciclo Médio Total (Dias)</th>
+                                <th>Vistorias Pendentes</th>
+                                <th>Laudos Pendentes</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for stat in partner_stats %}
+                            <tr>
+                                <td style="font-weight: 700; color: var(--ent-primary);">{{ stat.partner }}</td>
+                                <td style="font-weight: 600;">{{ stat.total_sites }}</td>
+                                <td style="font-weight: 600; color: {% if stat.avg_survey_days and stat.avg_survey_days > 15 %}var(--ent-danger){% elif stat.avg_survey_days and stat.avg_survey_days > 8 %}#d97706{% else %}var(--ent-success){% endif %};">
+                                    {{ stat.avg_survey_days|default:"--" }}
+                                </td>
+                                <td style="font-weight: 600; color: {% if stat.avg_report_days and stat.avg_report_days > 15 %}var(--ent-danger){% elif stat.avg_report_days and stat.avg_report_days > 8 %}#d97706{% else %}var(--ent-success){% endif %};">
+                                    {{ stat.avg_report_days|default:"--" }}
+                                </td>
+                                <td style="font-weight: 700; color: var(--ent-primary);">
+                                    {{ stat.avg_total_days|default:"--" }}
+                                </td>
+                                <td>
+                                    {% if stat.pending_surveys > 0 %}
+                                    <span style="font-size: 0.72rem; font-weight: 700; padding: 0.2rem 0.5rem; background: #fffbeb; color: #d97706; border-radius: 6px;">{{ stat.pending_surveys }} em andamento</span>
+                                    {% else %}
+                                    <span style="font-size: 0.72rem; font-weight: 600; color: var(--ent-success);">Nenhuma</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if stat.pending_reports > 0 %}
+                                    <span style="font-size: 0.72rem; font-weight: 700; padding: 0.2rem 0.5rem; background: #fdeceb; color: #dc2626; border-radius: 6px;">{{ stat.pending_reports }} em andamento</span>
+                                    {% else %}
+                                    <span style="font-size: 0.72rem; font-weight: 600; color: var(--ent-success);">Nenhum</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                    {% else %}
+                    <div style="padding: 3rem 2rem; text-align: center; color: var(--ent-text-muted);">
+                        <i data-lucide="bar-chart" style="width: 48px; height: 48px; margin-bottom: 0.75rem; opacity: 0.5;"></i>
+                        <p style="font-size: 0.9rem;">Nenhum parceiro de acionamento registrado.</p>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Tabela Detalhada de Gargalos de Ativos (Lead Times Individuais) -->
+            <div class="ent-card" style="padding: 0; border: none; box-shadow: var(--ent-shadow-md); background: white;">
+                <div style="padding: 2rem 2rem 1rem 2rem; border-bottom: 1px solid var(--ent-border);">
+                    <h3 style="font-family: var(--font-heading); font-size: 1.25rem; font-weight: 700; color: var(--ent-primary);">Detalhamento de Lead Times e Gargalos por Site</h3>
+                    <p style="font-size: 0.8rem; color: var(--ent-text-muted); margin-top: 0.25rem;">Análise individual de cada site acionado para monitoramento detalhado de atrasos.</p>
+                </div>
+                <div class="ent-table-wrapper">
+                    {% if detailed_lead_times %}
+                    <table class="ent-table">
+                        <thead>
+                            <tr>
+                                <th>Código</th>
+                                <th>Site / Ativo</th>
+                                <th>Fornecedor</th>
+                                <th>Data Acionamento</th>
+                                <th>Lead Time Vistoria</th>
+                                <th>Lead Time Laudo</th>
+                                <th>Tempo Total</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for item in detailed_lead_times %}
+                            <tr>
+                                <td style="font-weight: 700; color: var(--ent-primary);">
+                                    <a href="{% url 'site_detail' pk=item.id %}" style="color: inherit; text-decoration: none; border-bottom: 1px dashed var(--ent-secondary);">{{ item.site_id }}</a>
+                                </td>
+                                <td>{{ item.name }}</td>
+                                <td style="font-weight: 600;">{{ item.partner_company }}</td>
+                                <td style="font-size: 0.85rem; color: var(--ent-text-muted);">{{ item.created_at|date:"d/m/Y" }}</td>
+                                <td style="font-weight: 600; {% if "Pendente" in item.survey_display %}color: #d97706;{% endif %}">
+                                    {{ item.survey_display }}
+                                </td>
+                                <td style="font-weight: 600; {% if "Pendente" in item.report_display %}color: #dc2626;{% endif %}">
+                                    {{ item.report_display }}
+                                </td>
+                                <td style="font-weight: 700; color: var(--ent-primary);">{{ item.total_display }}</td>
+                                <td>
+                                    <span class="status-badge badge-{{ item.status|lower }}" style="font-size: 0.65rem;">
+                                        <span class="status-dot"></span>
+                                        {{ item.get_status_display }}
+                                    </span>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                    {% else %}
+                    <div style="padding: 3rem 2rem; text-align: center; color: var(--ent-text-muted);">
+                        <i data-lucide="radio-tower" style="width: 48px; height: 48px; margin-bottom: 0.75rem; opacity: 0.5;"></i>
+                        <p style="font-size: 0.9rem;">Nenhum site com fornecedor cadastrado para listar lead times.</p>
+                    </div>
+                    {% endif %}
+                </div>
             </div>
         </div>
     </div>
@@ -1591,6 +1778,148 @@
                 }
             }
         });
+
+        // --- 6. GESTÃO DE SUB-ABAS DE RELATÓRIOS & GRÁFICO DE LEAD TIME ---
+        let partnerChart = null;
+
+        window.switchRelatorioSubView = function(viewName) {
+            const subviewPrazos = document.getElementById('subview-prazos-list');
+            const subviewAnalytics = document.getElementById('subview-analytics');
+            const btnPrazos = document.getElementById('btn-sub-prazos');
+            const btnAnalytics = document.getElementById('btn-sub-analytics');
+            
+            if (!subviewPrazos || !subviewAnalytics) return;
+            
+            if (viewName === 'prazos-list') {
+                subviewPrazos.style.display = 'block';
+                subviewAnalytics.style.display = 'none';
+                btnPrazos.classList.add('active');
+                btnAnalytics.classList.remove('active');
+            } else {
+                subviewPrazos.style.display = 'none';
+                subviewAnalytics.style.display = 'block';
+                btnPrazos.classList.remove('active');
+                btnAnalytics.classList.add('active');
+                
+                // Inicializa o gráfico quando a aba de analytics é aberta
+                setTimeout(initPartnerChart, 50);
+            }
+        };
+
+        function initPartnerChart() {
+            if (partnerChart) {
+                partnerChart.resize();
+                return; 
+            }
+            
+            const canvas = document.getElementById('partnerLeadTimeChart');
+            if (!canvas) return;
+            
+            const ctx = canvas.getContext('2d');
+            
+            const labels = [];
+            const surveyData = [];
+            const reportData = [];
+            
+            {% for stat in partner_stats %}
+                labels.push("{{ stat.partner|escapejs }}");
+                surveyData.push({{ stat.avg_survey_days|default:0 }});
+                reportData.push({{ stat.avg_report_days|default:0 }});
+            {% endfor %}
+            
+            if (labels.length === 0) {
+                ctx.fillStyle = '#64748b';
+                ctx.font = "14px 'Inter', sans-serif";
+                ctx.fillText("Nenhum dado gráfico de parceiros disponível.", 10, 50);
+                return;
+            }
+            
+            partnerChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [
+                        {
+                            label: 'Acionamento até Vistoria (Méd. Dias)',
+                            data: surveyData,
+                            backgroundColor: '#2563EB', // Azul
+                            borderRadius: 6,
+                            borderWidth: 0,
+                            barPercentage: 0.6,
+                            categoryPercentage: 0.7
+                        },
+                        {
+                            label: 'Vistoria até Laudo (Méd. Dias)',
+                            data: reportData,
+                            backgroundColor: '#F59E0B', // Amarelo/Laranja
+                            borderRadius: 6,
+                            borderWidth: 0,
+                            barPercentage: 0.6,
+                            categoryPercentage: 0.7
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        x: {
+                            grid: {
+                                display: false
+                            },
+                            ticks: {
+                                font: {
+                                    family: "'Inter', sans-serif",
+                                    size: 12
+                                },
+                                color: '#64748b'
+                            }
+                        },
+                        y: {
+                            beginAtZero: true,
+                            grid: {
+                                color: '#f1f5f9'
+                            },
+                            ticks: {
+                                font: {
+                                    family: "'Inter', sans-serif",
+                                    size: 12
+                                },
+                                color: '#64748b',
+                                callback: function(value) {
+                                    return value + ' dias';
+                                }
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                            labels: {
+                                font: {
+                                    family: "'Inter', sans-serif",
+                                    size: 12,
+                                    weight: '500'
+                                },
+                                color: '#0f172a'
+                            }
+                        },
+                        tooltip: {
+                            backgroundColor: '#0f172a',
+                            titleFont: { family: "'Outfit', sans-serif", size: 13, weight: '700' },
+                            bodyFont: { family: "'Inter', sans-serif", size: 12 },
+                            padding: 12,
+                            cornerRadius: 8,
+                            callbacks: {
+                                label: function(context) {
+                                    return ' ' + context.dataset.label.split(' (')[0] + ': ' + context.raw + ' dias';
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
     });
 </script>
 {% endblock %}

@@ -166,3 +166,45 @@ class SiteGeocodingAndOptionalCoordsTests(TestCase):
         )
         self.assertEqual(site.status, Site.SiteStatus.MAINTENANCE)
 
+    def test_partner_analytics_lead_times(self):
+        """Test that partner lead times are correctly calculated in the dashboard view."""
+        from django.utils import timezone
+        import datetime
+        from unittest.mock import patch
+        
+        # Log in
+        self.client.login(username='engineer', password='password123')
+        
+        # Create a site with actual dates
+        site = Site.objects.create(
+            site_id='SITE_ANALYTICS_TEST',
+            name='Site Analytics',
+            partner_company='BTL_TEST',
+            actual_survey_date=timezone.localdate() - datetime.timedelta(days=6), # Completed survey 6 days ago
+            actual_report_date=timezone.localdate() - datetime.timedelta(days=2), # Completed report 2 days ago
+        )
+        
+        # Manually update created_at to 10 days ago (since auto_now_add makes it read-only on save)
+        Site.objects.filter(pk=site.pk).update(created_at=timezone.now() - datetime.timedelta(days=10))
+        
+        url = reverse('site_list')
+        
+        # Patch the copy function to bypass Django's Python 3.14 context copy bug
+        with patch('django.test.client.copy', lambda x: x):
+            response = self.client.get(url)
+            
+        self.assertEqual(response.status_code, 200)
+        
+        # Check context calculations
+        partner_stats = response.context['partner_stats']
+        # We expect BTL_TEST to be in partner_stats with average times:
+        # survey_days: created 10 days ago -> survey 6 days ago = 4 days
+        # report_days: survey 6 days ago -> report 2 days ago = 4 days
+        # total_days: 10 days ago -> 2 days ago = 8 days
+        btl_stat = next((item for item in partner_stats if item['partner'] == 'BTL_TEST'), None)
+        self.assertIsNotNone(btl_stat)
+        self.assertEqual(btl_stat['total_sites'], 1)
+        self.assertEqual(btl_stat['avg_survey_days'], 4.0)
+        self.assertEqual(btl_stat['avg_report_days'], 4.0)
+        self.assertEqual(btl_stat['avg_total_days'], 8.0)
+
