@@ -686,6 +686,7 @@
 
                             {% if user.role == 'ADMIN' or user.role == 'ENGINEER' %}
                             <div style="display: flex; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 1rem;">
+                                {% if site.access_status == 'NOT_STARTED' or site.access_status == 'NOT_REQUIRED' %}
                                 <form method="POST" action="{% url 'site_detail' pk=site.pk %}">
                                     {% csrf_token %}
                                     <input type="hidden" name="action" value="update_access">
@@ -698,19 +699,20 @@
                                 <form method="POST" action="{% url 'site_detail' pk=site.pk %}">
                                     {% csrf_token %}
                                     <input type="hidden" name="action" value="update_access">
-                                    <input type="hidden" name="access_action" value="release_access">
-                                    <button type="submit" class="btn-ent btn-ent-primary" style="padding: 0.4rem 0.75rem; font-size: 0.78rem; display: flex; align-items: center; gap: 0.35rem; border-radius: 6px; border: none; cursor: pointer; background-color: var(--brand-primary);">
-                                        <i data-lucide="check-circle" style="width: 14px; height: 14px;"></i>
-                                        Confirmar Acesso Liberado
-                                    </button>
-                                </form>
-                                <form method="POST" action="{% url 'site_detail' pk=site.pk %}">
-                                    {% csrf_token %}
-                                    <input type="hidden" name="action" value="update_access">
                                     <input type="hidden" name="access_action" value="skip_access">
                                     <button type="submit" class="btn-ent btn-ent-outline" style="padding: 0.4rem 0.75rem; font-size: 0.78rem; display: flex; align-items: center; gap: 0.35rem; border-radius: 6px; cursor: pointer; border-color: #cbd5e1; color: #64748b;" onmouseover="this.style.background='#f1f5f9'" onmouseout="this.style.background='transparent'">
                                         <i data-lucide="skip-forward" style="width: 14px; height: 14px;"></i>
                                         Pular Liberação (Não Necessário)
+                                    </button>
+                                </form>
+                                {% elif site.access_status == 'REQUESTED' %}
+                                <form method="POST" action="{% url 'site_detail' pk=site.pk %}">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="action" value="update_access">
+                                    <input type="hidden" name="access_action" value="release_access">
+                                    <button type="submit" class="btn-ent btn-ent-primary" style="padding: 0.4rem 0.75rem; font-size: 0.78rem; display: flex; align-items: center; gap: 0.35rem; border-radius: 6px; border: none; cursor: pointer; background-color: var(--brand-primary);">
+                                        <i data-lucide="check-circle" style="width: 14px; height: 14px;"></i>
+                                        Confirmar Acesso Liberado
                                     </button>
                                 </form>
                                 <form method="POST" action="{% url 'site_detail' pk=site.pk %}">
@@ -721,6 +723,17 @@
                                         Reiniciar Status
                                     </button>
                                 </form>
+                                {% elif site.access_status == 'RELEASED' %}
+                                <form method="POST" action="{% url 'site_detail' pk=site.pk %}">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="action" value="update_access">
+                                    <input type="hidden" name="access_action" value="reset_access">
+                                    <button type="submit" class="btn-ent btn-ent-outline" style="padding: 0.4rem 0.75rem; font-size: 0.78rem; display: flex; align-items: center; gap: 0.35rem; border-radius: 6px; cursor: pointer; border-color: #fee2e2; color: #ef4444;" onmouseover="this.style.background='#fef2f2'" onmouseout="this.style.background='transparent'">
+                                        <i data-lucide="rotate-ccw" style="width: 14px; height: 14px;"></i>
+                                        Alterar / Bloquear Acesso
+                                    </button>
+                                </form>
+                                {% endif %}
                             </div>
                             {% endif %}
                             
