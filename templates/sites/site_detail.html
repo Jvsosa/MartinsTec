@@ -4,6 +4,12 @@
 
 {% block extra_head %}
 <style>
+    :root {
+        --font-family: var(--font-main);
+        --font-title: var(--font-main);
+        --font-heading: var(--font-main);
+    }
+
     .back-nav {
         margin-bottom: 2rem;
     }
@@ -384,6 +390,64 @@
         border-radius: 12px;
         box-shadow: 0 2px 8px rgba(0,0,0,0.01);
     }
+
+    /* Button design system classes */
+    .btn-ent {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        padding: 0.45rem 1rem;
+        border-radius: 8px;
+        font-size: 0.8rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        text-decoration: none;
+        border: 1px solid transparent;
+        font-family: var(--font-family);
+        outline: none;
+    }
+
+    .btn-ent-primary {
+        background: linear-gradient(135deg, var(--brand-primary) 0%, #3b82f6 100%);
+        color: white;
+        box-shadow: 0 4px 10px rgba(37, 99, 235, 0.15);
+    }
+
+    .btn-ent-primary:hover {
+        background: linear-gradient(135deg, var(--brand-hover) 0%, var(--brand-primary) 100%);
+        box-shadow: 0 6px 15px rgba(37, 99, 235, 0.25);
+        transform: translateY(-1.5px);
+    }
+
+    .btn-ent-outline {
+        background-color: #f1f5f9;
+        color: #334155;
+        border-color: #e2e8f0;
+    }
+
+    .btn-ent-outline:hover {
+        background-color: #e2e8f0;
+        color: #0f172a;
+        border-color: #cbd5e1;
+        transform: translateY(-1px);
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+    }
+
+    .btn-ent-danger-outline {
+        background-color: #fff5f5;
+        color: #e11d48;
+        border-color: #fecaca;
+    }
+
+    .btn-ent-danger-outline:hover {
+        background-color: #ffe4e6;
+        color: #be123c;
+        border-color: #fda4af;
+        transform: translateY(-1px);
+        box-shadow: 0 4px 10px rgba(225, 29, 72, 0.05);
+    }
 </style>
 {% endblock %}
 
@@ -625,7 +689,7 @@
                                 Site recebido e registrado em <strong>{{ site.created_at|date:"d/m/Y" }}</strong> com o escopo de <strong>{{ site.get_scope_type_display }}</strong>.
                             </p>
                             <div style="display: flex; justify-content: flex-end; margin-top: 1rem; border-top: 1px dashed #e2e8f0; padding-top: 0.75rem;">
-                                <button type="button" onclick="selectStep(2)" class="btn-submit" style="padding: 0.35rem 0.75rem; font-size: 0.78rem; border-radius: 6px; cursor: pointer; background: var(--brand-primary); color: white; border: none; font-weight: 600; display: inline-flex; align-items: center; gap: 0.25rem;">
+                                <button type="button" onclick="selectStep(2)" class="btn-ent btn-ent-primary">
                                     Próxima Etapa
                                     <i data-lucide="arrow-right" style="width: 14px; height: 14px;"></i>
                                 </button>
@@ -691,7 +755,7 @@
                                     {% csrf_token %}
                                     <input type="hidden" name="action" value="update_access">
                                     <input type="hidden" name="access_action" value="request_access">
-                                    <button type="submit" class="btn-ent btn-ent-primary" style="padding: 0.4rem 0.75rem; font-size: 0.78rem; display: flex; align-items: center; gap: 0.35rem; border-radius: 6px; border: none; cursor: pointer;">
+                                    <button type="submit" class="btn-ent btn-ent-primary">
                                         <i data-lucide="mail" style="width: 14px; height: 14px;"></i>
                                         Solicitar Acesso ao Proprietário
                                     </button>
@@ -700,7 +764,7 @@
                                     {% csrf_token %}
                                     <input type="hidden" name="action" value="update_access">
                                     <input type="hidden" name="access_action" value="skip_access">
-                                    <button type="submit" class="btn-ent btn-ent-outline" style="padding: 0.4rem 0.75rem; font-size: 0.78rem; display: flex; align-items: center; gap: 0.35rem; border-radius: 6px; cursor: pointer; border-color: #cbd5e1; color: #64748b;" onmouseover="this.style.background='#f1f5f9'" onmouseout="this.style.background='transparent'">
+                                    <button type="submit" class="btn-ent btn-ent-outline">
                                         <i data-lucide="skip-forward" style="width: 14px; height: 14px;"></i>
                                         Pular Liberação (Não Necessário)
                                     </button>
@@ -710,7 +774,7 @@
                                     {% csrf_token %}
                                     <input type="hidden" name="action" value="update_access">
                                     <input type="hidden" name="access_action" value="release_access">
-                                    <button type="submit" class="btn-ent btn-ent-primary" style="padding: 0.4rem 0.75rem; font-size: 0.78rem; display: flex; align-items: center; gap: 0.35rem; border-radius: 6px; border: none; cursor: pointer; background-color: var(--brand-primary);">
+                                    <button type="submit" class="btn-ent btn-ent-primary">
                                         <i data-lucide="check-circle" style="width: 14px; height: 14px;"></i>
                                         Confirmar Acesso Liberado
                                     </button>
@@ -719,7 +783,7 @@
                                     {% csrf_token %}
                                     <input type="hidden" name="action" value="update_access">
                                     <input type="hidden" name="access_action" value="reset_access">
-                                    <button type="submit" class="btn-ent btn-ent-outline" style="padding: 0.4rem 0.75rem; font-size: 0.78rem; display: flex; align-items: center; gap: 0.35rem; border-radius: 6px; cursor: pointer; border-color: #fee2e2; color: #ef4444;" onmouseover="this.style.background='#fef2f2'" onmouseout="this.style.background='transparent'">
+                                    <button type="submit" class="btn-ent btn-ent-danger-outline">
                                         Reiniciar Status
                                     </button>
                                 </form>
@@ -728,7 +792,7 @@
                                     {% csrf_token %}
                                     <input type="hidden" name="action" value="update_access">
                                     <input type="hidden" name="access_action" value="reset_access">
-                                    <button type="submit" class="btn-ent btn-ent-outline" style="padding: 0.4rem 0.75rem; font-size: 0.78rem; display: flex; align-items: center; gap: 0.35rem; border-radius: 6px; cursor: pointer; border-color: #fee2e2; color: #ef4444;" onmouseover="this.style.background='#fef2f2'" onmouseout="this.style.background='transparent'">
+                                    <button type="submit" class="btn-ent btn-ent-danger-outline">
                                         <i data-lucide="rotate-ccw" style="width: 14px; height: 14px;"></i>
                                         Alterar / Bloquear Acesso
                                     </button>
@@ -738,11 +802,11 @@
                             {% endif %}
                             
                             <div style="display: flex; justify-content: space-between; margin-top: 1rem; border-top: 1px dashed #e2e8f0; padding-top: 0.75rem; width: 100%;">
-                                <button type="button" onclick="selectStep(1)" class="btn-ent btn-ent-outline" style="padding: 0.35rem 0.75rem; font-size: 0.78rem; border-radius: 6px; cursor: pointer; border: 1px solid #cbd5e1; color: #64748b; background: transparent; display: inline-flex; align-items: center; gap: 0.25rem;">
+                                <button type="button" onclick="selectStep(1)" class="btn-ent btn-ent-outline">
                                     <i data-lucide="arrow-left" style="width: 14px; height: 14px;"></i>
                                     Anterior
                                 </button>
-                                <button type="button" onclick="selectStep(3)" class="btn-submit" style="padding: 0.35rem 0.75rem; font-size: 0.78rem; border-radius: 6px; cursor: pointer; background: var(--brand-primary); color: white; border: none; font-weight: 600; display: inline-flex; align-items: center; gap: 0.25rem;">
+                                <button type="button" onclick="selectStep(3)" class="btn-ent btn-ent-primary">
                                     Próxima Etapa
                                     <i data-lucide="arrow-right" style="width: 14px; height: 14px;"></i>
                                 </button>
@@ -821,11 +885,11 @@
                             {% endif %}
                             
                             <div style="display: flex; justify-content: space-between; margin-top: 1rem; border-top: 1px dashed #e2e8f0; padding-top: 0.75rem; width: 100%;">
-                                <button type="button" onclick="selectStep(2)" class="btn-ent btn-ent-outline" style="padding: 0.35rem 0.75rem; font-size: 0.78rem; border-radius: 6px; cursor: pointer; border: 1px solid #cbd5e1; color: #64748b; background: transparent; display: inline-flex; align-items: center; gap: 0.25rem;">
+                                <button type="button" onclick="selectStep(2)" class="btn-ent btn-ent-outline">
                                     <i data-lucide="arrow-left" style="width: 14px; height: 14px;"></i>
                                     Anterior
                                 </button>
-                                <button type="button" onclick="selectStep(4)" class="btn-submit" style="padding: 0.35rem 0.75rem; font-size: 0.78rem; border-radius: 6px; cursor: pointer; background: var(--brand-primary); color: white; border: none; font-weight: 600; display: inline-flex; align-items: center; gap: 0.25rem;">
+                                <button type="button" onclick="selectStep(4)" class="btn-ent btn-ent-primary">
                                     Próxima Etapa
                                     <i data-lucide="arrow-right" style="width: 14px; height: 14px;"></i>
                                 </button>
@@ -924,7 +988,7 @@
                             </div>
 
                             <div style="display: flex; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 1rem;">
-                                <button type="button" onclick="toggleRescheduleForm()" class="btn-ent btn-ent-outline" style="padding: 0.4rem 0.75rem; font-size: 0.78rem; display: flex; align-items: center; gap: 0.35rem; border-radius: 6px; cursor: pointer; background: white; border: 1px solid #cbd5e1; color: #1e293b;">
+                                <button type="button" onclick="toggleRescheduleForm()" class="btn-ent btn-ent-outline" style="padding: 0.45rem 1rem; font-size: 0.8rem;">
                                     <i data-lucide="calendar-range" style="width: 14px; height: 14px;"></i>
                                     Replanejar Datas (Contratos)
                                 </button>
@@ -961,11 +1025,11 @@
                             {% endif %}
                             
                             <div style="display: flex; justify-content: space-between; margin-top: 1rem; border-top: 1px dashed #e2e8f0; padding-top: 0.75rem; width: 100%;">
-                                <button type="button" onclick="selectStep(3)" class="btn-ent btn-ent-outline" style="padding: 0.35rem 0.75rem; font-size: 0.78rem; border-radius: 6px; cursor: pointer; border: 1px solid #cbd5e1; color: #64748b; background: transparent; display: inline-flex; align-items: center; gap: 0.25rem;">
+                                <button type="button" onclick="selectStep(3)" class="btn-ent btn-ent-outline">
                                     <i data-lucide="arrow-left" style="width: 14px; height: 14px;"></i>
                                     Anterior
                                 </button>
-                                <button type="button" onclick="selectStep(5)" class="btn-submit" style="padding: 0.35rem 0.75rem; font-size: 0.78rem; border-radius: 6px; cursor: pointer; background: var(--brand-primary); color: white; border: none; font-weight: 600; display: inline-flex; align-items: center; gap: 0.25rem;">
+                                <button type="button" onclick="selectStep(5)" class="btn-ent btn-ent-primary">
                                     Próxima Etapa
                                     <i data-lucide="arrow-right" style="width: 14px; height: 14px;"></i>
                                 </button>
@@ -1045,7 +1109,7 @@
                             {% endif %}
                             
                             <div style="display: flex; justify-content: flex-start; margin-top: 1rem; border-top: 1px dashed #e2e8f0; padding-top: 0.75rem; width: 100%;">
-                                <button type="button" onclick="selectStep(4)" class="btn-ent btn-ent-outline" style="padding: 0.35rem 0.75rem; font-size: 0.78rem; border-radius: 6px; cursor: pointer; border: 1px solid #cbd5e1; color: #64748b; background: transparent; display: inline-flex; align-items: center; gap: 0.25rem;">
+                                <button type="button" onclick="selectStep(4)" class="btn-ent btn-ent-outline">
                                     <i data-lucide="arrow-left" style="width: 14px; height: 14px;"></i>
                                     Anterior
                                 </button>
