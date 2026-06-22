@@ -1382,8 +1382,23 @@
                             <input type="number" name="longitude" id="modal_longitude" step="0.000001" class="form-control" placeholder="Ex: -46.633300" oninput="updatePreviewMarker()">
                         </div>
                     </div>
-
-
+                    <div class="ent-form-grid">
+                        <div class="form-group">
+                            <label for="modal_site_type">Tipo de Estrutura (Rollout)</label>
+                            <select name="site_type" id="modal_site_type" class="form-control" required style="cursor: pointer;">
+                                <option value="NENHUM" selected>Não exige liberação</option>
+                                <option value="ROOFTOP">Rooftop (Topo de Prédio)</option>
+                                <option value="GREENFIELD">Greenfield (Torre no Solo)</option>
+                                <option value="OUTRO">Outros</option>
+                            </select>
+                        </div>
+                        <div style="display: flex; align-items: center; justify-content: center; height: 100%; padding-top: 1.5rem;">
+                            <div style="background: #f8fafc; border: 1px solid var(--ent-border); border-radius: 8px; padding: 0.5rem 0.75rem; font-size: 0.75rem; color: var(--ent-text-muted); display: flex; align-items: center; gap: 0.35rem; width: 100%; box-sizing: border-box;">
+                                <i data-lucide="info" style="width: 14px; height: 14px; flex-shrink: 0; color: var(--ent-accent);"></i>
+                                <span>Rooftop/Greenfield/Outros ativam o controle de liberação de acesso.</span>
+                            </div>
+                        </div>
+                    </div>
 
                     <div class="ent-form-grid">
                         <div class="form-group">

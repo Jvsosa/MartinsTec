@@ -208,3 +208,91 @@ class SiteGeocodingAndOptionalCoordsTests(TestCase):
         self.assertEqual(btl_stat['avg_report_days'], 4.0)
         self.assertEqual(btl_stat['avg_total_days'], 8.0)
 
+
+class SiteRolloutWorkflowTests(TestCase):
+    def setUp(self):
+        self.user = User.objects.create_user(
+            username='engineer_workflow',
+            password='password123',
+            email='engineer_workflow@example.com',
+            role=User.Role.ENGINEER
+        )
+
+    def test_default_access_status_based_on_site_type(self):
+        """Test that default access_status matches site_type on creation."""
+        # Rooftop requires access release (so status starts as NOT_STARTED)
+        site1 = Site.objects.create(
+            site_id='SITE_WF_ROOFTOP',
+            name='Site Rooftop',
+            site_type=Site.SiteType.ROOFTOP
+        )
+        self.assertEqual(site1.access_status, Site.AccessStatus.NOT_STARTED)
+
+        # NENHUM does not require access release (so status starts as NOT_REQUIRED)
+        site2 = Site.objects.create(
+            site_id='SITE_WF_NONE',
+            name='Site Sem Acesso',
+            site_type=Site.SiteType.NENHUM
+        )
+        self.assertEqual(site2.access_status, Site.AccessStatus.NOT_REQUIRED)
+
+    def test_access_workflow_transitions(self):
+        """Test transitioning access_status through update_access view actions."""
+        self.client.login(username='engineer_workflow', password='password123')
+        site = Site.objects.create(
+            site_id='SITE_TRANSITIONS',
+            name='Site Transicoes',
+            site_type=Site.SiteType.ROOFTOP
+        )
+        self.assertEqual(site.access_status, Site.AccessStatus.NOT_STARTED)
+
+        # Step 2a: Request access
+        url = reverse('site_detail', kwargs={'pk': site.pk})
+        response = self.client.post(url, {
+            'action': 'update_access',
+            'access_action': 'request_access'
+        })
+        self.assertEqual(response.status_code, 302)
+        site.refresh_from_db()
+        self.assertEqual(site.access_status, Site.AccessStatus.REQUESTED)
+        self.assertIsNotNone(site.access_requested_date)
+        self.assertIsNone(site.access_released_date)
+
+        # Step 2b: Release access
+        response = self.client.post(url, {
+            'action': 'update_access',
+            'access_action': 'release_access'
+        })
+        self.assertEqual(response.status_code, 302)
+        site.refresh_from_db()
+        self.assertEqual(site.access_status, Site.AccessStatus.RELEASED)
+        self.assertIsNotNone(site.access_released_date)
+
+    def test_reschedule_increments_counter(self):
+        """Test that modifying planned dates increments the reschedule_count."""
+        self.client.login(username='engineer_workflow', password='password123')
+        from django.utils import timezone
+        import datetime
+        
+        today = timezone.localdate()
+        site = Site.objects.create(
+            site_id='SITE_RESCHED_COUNT',
+            name='Site Replanejamento',
+            planned_survey_date=today,
+            planned_report_date=today + datetime.timedelta(days=5)
+        )
+        self.assertEqual(site.reschedule_count, 0)
+
+        # Post update with new dates to trigger reschedule
+        url = reverse('site_detail', kwargs={'pk': site.pk})
+        response = self.client.post(url, {
+            'action': 'update_workflow',
+            'scope_type': 'LAUDO',
+            'planned_survey_date': (today + datetime.timedelta(days=2)).strftime('%Y-%m-%d'),
+            'planned_report_date': (today + datetime.timedelta(days=7)).strftime('%Y-%m-%d')
+        })
+        self.assertEqual(response.status_code, 302)
+        site.refresh_from_db()
+        self.assertEqual(site.reschedule_count, 1)
+
+

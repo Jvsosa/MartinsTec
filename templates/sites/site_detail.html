@@ -392,6 +392,23 @@
                 </div>
 
                 <div class="info-item">
+                    <span class="info-label">Tipo de Estrutura</span>
+                    <span class="info-value" style="font-weight: 600;">{{ site.get_site_type_display }}</span>
+                </div>
+
+                {% if site.site_type != 'NENHUM' %}
+                <div class="info-item">
+                    <span class="info-label">Situação do Acesso</span>
+                    <div>
+                        <span class="status-badge {% if site.access_status == 'RELEASED' %}badge-active{% elif site.access_status == 'REQUESTED' %}badge-maintenance{% else %}badge-inactive{% endif %}" style="font-size: 0.65rem;">
+                            <span class="status-dot"></span>
+                            {{ site.get_access_status_display }}
+                        </span>
+                    </div>
+                </div>
+                {% endif %}
+
+                <div class="info-item">
                     <span class="info-label">Fornecedora de Laudo/Projeto</span>
                     <span class="info-value" style="font-weight: 600;">{{ site.partner_company|default:"Sem Fornecedora Vinculada" }}</span>
                 </div>
@@ -456,6 +473,15 @@
                 
                 <div style="display: flex; flex-direction: column; gap: 1.25rem;">
                     <div class="field-group">
+                        <label for="site_type_edit" class="info-label">Tipo de Estrutura</label>
+                        <select name="site_type" id="site_type_edit" class="field-control" required style="padding: 0.5rem; font-size: 0.85rem; border: 1px solid var(--border-color); border-radius: 8px; background: white;">
+                            <option value="NENHUM" {% if site.site_type == 'NENHUM' %}selected{% endif %}>Não exige liberação</option>
+                            <option value="ROOFTOP" {% if site.site_type == 'ROOFTOP' %}selected{% endif %}>Rooftop (Topo de Prédio)</option>
+                            <option value="GREENFIELD" {% if site.site_type == 'GREENFIELD' %}selected{% endif %}>Greenfield (Torre no Solo)</option>
+                            <option value="OUTRO" {% if site.site_type == 'OUTRO' %}selected{% endif %}>Outros</option>
+                        </select>
+                    </div>
+                    <div class="field-group">
                         <label for="address_edit" class="info-label">Endereço</label>
                         <div style="display: flex; gap: 0.4rem; width: 100%;">
                             <input type="text" name="address" id="address_edit" class="field-control" value="{{ site.address|default:'' }}" placeholder="Rua, Cidade, etc." style="flex: 1; padding: 0.5rem; font-size: 0.85rem; border: 1px solid var(--border-color); border-radius: 8px; background: white;">
@@ -484,203 +510,466 @@
         </div>
         {% endif %}
     </div>
-    </div>
 
     <!-- Coluna da Direita: Repositório e Upload de Mídias -->
-    <div class="glass-card repo-card">
-        <!-- Rastreamento Visual do Fluxo -->
-        <div style="border: 1px solid var(--border-color); border-radius: 12px; padding: 1.5rem; margin-bottom: 2rem; background: var(--bg-body);">
-            <h4 style="font-family: var(--font-heading); font-size: 1.05rem; font-weight: 700; color: var(--text-main); margin-bottom: 1.25rem; display: flex; align-items: center; gap: 0.5rem;">
-                <i data-lucide="git-pull-request" style="color: var(--brand-primary); width: 18px; height: 18px;"></i>
-                Acompanhamento do Fluxo de Trabalho (Fornecedora)
-            </h4>
-            
-            <!-- Descrição Textual Dinâmica da Etapa Atual -->
-            <div style="margin-top: -0.75rem; margin-bottom: 1.5rem; font-size: 0.9rem; font-weight: 600; color: var(--text-muted); display: flex; align-items: center; gap: 0.5rem;">
-                <span>Etapa Atual:</span>
-                {% if site.actual_report_date %}
-                    <span style="color: #10b981; background: #ecfdf5; padding: 0.25rem 0.75rem; border-radius: 20px; font-size: 0.8rem; display: inline-flex; align-items: center; gap: 0.35rem;">
-                        <span style="width: 6px; height: 6px; background-color: #10b981; border-radius: 50%;"></span>
-                        Concluído (Laudo/Projeto entregue)
+    <div>
+        <!-- Rastreamento Visual do Fluxo do Rollout Interativo -->
+        <div class="glass-card" style="border: 1px solid var(--border-color); border-radius: 20px; padding: 2rem; margin-bottom: 2.5rem; background: #ffffff; box-shadow: var(--shadow-md);">
+            <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-color); padding-bottom: 1rem; margin-bottom: 1.75rem;">
+                <h4 style="font-family: var(--font-heading); font-size: 1.25rem; font-weight: 700; color: var(--text-main); display: flex; align-items: center; gap: 0.6rem; margin: 0;">
+                    <i data-lucide="git-merge" style="color: var(--brand-primary); width: 22px; height: 22px;"></i>
+                    Fluxo de Implantação e Rollout do Ativo
+                </h4>
+                <div style="display: flex; align-items: center; gap: 0.5rem;">
+                    <span style="font-size: 0.72rem; text-transform: uppercase; font-weight: 700; color: var(--text-muted);">Progresso Geral:</span>
+                    <span style="font-size: 0.8rem; font-weight: 700; color: white; background: var(--brand-primary); padding: 0.25rem 0.6rem; border-radius: 20px;">
+                        {% if site.actual_report_date %}100%{% elif site.actual_survey_date %}80%{% elif site.planned_survey_date %}60%{% elif site.access_status == 'RELEASED' or site.site_type == 'NENHUM' %}40%{% elif site.access_status == 'REQUESTED' %}20%{% else %}10%{% endif %}
                     </span>
-                {% elif site.actual_survey_date %}
-                    <span style="color: #3b82f6; background: #eff6ff; padding: 0.25rem 0.75rem; border-radius: 20px; font-size: 0.8rem; display: inline-flex; align-items: center; gap: 0.35rem;">
-                        <span style="width: 6px; height: 6px; background-color: #3b82f6; border-radius: 50%;"></span>
-                        Vistoria Realizada ➔ Em Elaboração de Laudo/Projeto
-                    </span>
-                {% elif site.partner_company %}
-                    <span style="color: #f59e0b; background: #fffbeb; padding: 0.25rem 0.75rem; border-radius: 20px; font-size: 0.8rem; display: inline-flex; align-items: center; gap: 0.35rem;">
-                        <span style="width: 6px; height: 6px; background-color: #f59e0b; border-radius: 50%;"></span>
-                        Fornecedora Acionada ➔ Vistoria em Andamento
-                    </span>
-                {% else %}
-                    <span style="color: #64748b; background: #f1f5f9; padding: 0.25rem 0.75rem; border-radius: 20px; font-size: 0.8rem; display: inline-flex; align-items: center; gap: 0.35rem;">
-                        <span style="width: 6px; height: 6px; background-color: #64748b; border-radius: 50%;"></span>
-                        Aguardando Acionamento
-                    </span>
-                {% endif %}
-            </div>
-            
-            <!-- Sempre exibe todas as 5 etapas -->
-            <div style="display: flex; align-items: center; justify-content: space-between; position: relative; padding: 0 0.5rem;">
-                <!-- Linha de Fundo -->
-                <div style="position: absolute; top: 18px; left: 8%; right: 8%; height: 3px; background-color: #cbd5e1; z-index: 1;">
-                    <div style="height: 100%; width: {% if site.actual_report_date %}100%{% elif site.actual_survey_date %}62.5%{% elif site.partner_company %}37.5%{% else %}0%{% endif %}; background-color: var(--brand-primary); transition: width 0.4s ease;"></div>
                 </div>
+            </div>
+
+            <!-- Descritor da Situação Atual -->
+            <div style="background: #eff6ff; border: 1px solid #dbeafe; border-radius: 12px; padding: 1rem; margin-bottom: 2rem; display: flex; align-items: center; gap: 0.85rem;">
+                <div style="width: 38px; height: 38px; border-radius: 50%; background: white; border: 1px solid #bfdbfe; color: var(--brand-primary); display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                    <i data-lucide="compass" style="width: 20px; height: 20px;"></i>
+                </div>
+                <div>
+                    <h5 style="margin: 0; font-size: 0.88rem; font-weight: 700; color: var(--text-main);">Fase Atual:
+                        {% if site.actual_report_date %}
+                            Concluído - Laudo Finalizado e Entregue
+                        {% elif site.actual_survey_date %}
+                            Elaboração de Laudo/Projeto (Aguardando Parceiro)
+                        {% elif site.planned_survey_date %}
+                            Aguardando Vistoria em Campo (Agendada)
+                        {% elif site.access_status == 'RELEASED' or site.site_type == 'NENHUM' %}
+                            Aguardando Definição de Cronograma com o Parceiro
+                        {% elif site.access_status == 'REQUESTED' %}
+                            Aguardando Liberação de Acesso pelo Proprietário
+                        {% else %}
+                            Aguardando Solicitação de Acesso
+                        {% endif %}
+                    </h5>
+                    <p style="margin: 0.2rem 0 0 0; font-size: 0.78rem; color: var(--text-muted);">
+                        {% if site.actual_report_date %}
+                            Tudo pronto! Todas as etapas foram completadas e a documentação está armazenada.
+                        {% elif site.actual_survey_date %}
+                            A vistoria já foi realizada. O parceiro técnico tem a data planejada de {{ site.planned_report_date|date:"d/m/Y" }} para entregar o laudo/projeto.
+                        {% elif site.planned_survey_date %}
+                            A vistoria está agendada para o dia {{ site.planned_survey_date|date:"d/m/Y" }}.
+                        {% elif site.access_status == 'RELEASED' or site.site_type == 'NENHUM' %}
+                            O local está liberado para o acionamento! Defina as datas planejadas e informe o fornecedor técnico.
+                        {% elif site.access_status == 'REQUESTED' %}
+                            Foi solicitada a liberação de acesso ao proprietário do local no dia {{ site.access_requested_date|date:"d/m/Y" }}. Aguarde a confirmação de acesso.
+                        {% else %}
+                            Este site exige liberação de acesso. Solicite a entrada ao proprietário para iniciar o cronograma.
+                        {% endif %}
+                    </p>
+                </div>
+            </div>
+
+            <!-- Visual Stepper Stack -->
+            <div style="display: flex; flex-direction: column; gap: 1.5rem; position: relative;">
                 
-                <!-- Etapa 1: Cadastrado -->
-                <div style="display: flex; flex-direction: column; align-items: center; gap: 0.4rem; z-index: 2; width: 18%; text-align: center;">
-                    <div style="width: 34px; height: 34px; border-radius: 50%; background-color: var(--brand-primary); color: white; display: flex; align-items: center; justify-content: center; font-weight: 700; box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.15);">
-                        <i data-lucide="check" style="width: 15px; height: 15px;"></i>
+                <!-- Linha de conexão vertical entre etapas -->
+                <div style="position: absolute; top: 15px; bottom: 15px; left: 17px; width: 3px; background-color: #e2e8f0; z-index: 1;"></div>
+
+                <!-- ETAPA 1: ACIONAMENTO & CADASTRO -->
+                <div style="display: flex; gap: 1.25rem; position: relative; z-index: 2;">
+                    <div style="width: 36px; height: 36px; border-radius: 50%; background-color: #10b981; color: white; display: flex; align-items: center; justify-content: center; font-weight: 700; flex-shrink: 0; box-shadow: 0 0 0 4px #ecfdf5;">
+                        <i data-lucide="check" style="width: 18px; height: 18px;"></i>
                     </div>
-                    <span style="font-size: 0.75rem; font-weight: 700; color: var(--text-main);">Cadastrado</span>
-                    <span style="font-size: 0.65rem; color: var(--text-muted);">{{ site.created_at|date:"d/m/Y" }}</span>
+                    <div style="flex: 1; padding-top: 0.35rem;">
+                        <div style="display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap;">
+                            <h5 style="margin: 0; font-size: 0.95rem; font-weight: 700; color: var(--text-main);">Etapa 1: Acionamento e Cadastro do Escopo</h5>
+                            <span style="font-size: 0.68rem; font-weight: 700; background: #ecfdf5; color: #10b981; padding: 0.15rem 0.5rem; border-radius: 20px;">Concluído</span>
+                        </div>
+                        <p style="margin: 0.35rem 0 0 0; font-size: 0.8rem; color: var(--text-muted); line-height: 1.4;">
+                            Site recebido e registrado em <strong>{{ site.created_at|date:"d/m/Y" }}</strong> com o escopo de <strong>{{ site.get_scope_type_display }}</strong>.
+                        </p>
+                    </div>
                 </div>
 
-                <!-- Etapa 2: ACIONADO PARA LAUDO/PROJETO -->
-                <div style="display: flex; flex-direction: column; align-items: center; gap: 0.4rem; z-index: 2; width: 18%; text-align: center;">
-                    <div style="width: 34px; height: 34px; border-radius: 50%; background-color: {% if site.partner_company %}var(--brand-primary){% else %}#f1f5f9{% endif %}; color: {% if site.partner_company %}white{% else %}#64748b{% endif %}; display: flex; align-items: center; justify-content: center; font-weight: 700; border: 2px solid {% if site.partner_company %}var(--brand-primary){% else %}#cbd5e1{% endif %};">
-                        {% if site.partner_company %}
-                            <i data-lucide="check" style="width: 15px; height: 15px;"></i>
+                <!-- ETAPA 2: LIBERAÇÃO DE ACESSO (DINÂMICA) -->
+                {% if site.site_type != 'NENHUM' %}
+                <div style="display: flex; gap: 1.25rem; position: relative; z-index: 2;">
+                    <!-- Círculo indicador do estado da etapa -->
+                    <div style="width: 36px; height: 36px; border-radius: 50%; 
+                        {% if site.access_status == 'RELEASED' %}
+                            background-color: #10b981; color: white; box-shadow: 0 0 0 4px #ecfdf5;
+                        {% elif site.access_status == 'REQUESTED' %}
+                            background-color: #fffbeb; color: #d97706; border: 2px dashed #f59e0b; animation: pulse-ring-warning 2s infinite;
+                        {% else %}
+                            background-color: #f1f5f9; color: #64748b; border: 2px solid #cbd5e1;
+                        {% endif %}
+                        display: flex; align-items: center; justify-content: center; font-weight: 700; flex-shrink: 0;">
+                        {% if site.access_status == 'RELEASED' %}
+                            <i data-lucide="check" style="width: 18px; height: 18px;"></i>
+                        {% elif site.access_status == 'REQUESTED' %}
+                            <i data-lucide="key" style="width: 16px; height: 16px;"></i>
                         {% else %}
                             2
                         {% endif %}
                     </div>
-                    <span style="font-size: 0.62rem; font-weight: 700; color: {% if site.partner_company %}var(--text-main){% else %}#94a3b8{% endif %}; line-height: 1.2; text-align: center; max-width: 120px; display: inline-block;">ACIONADO PARA LAUDO/PROJETO</span>
-                    <span style="font-size: 0.65rem; color: var(--text-muted);" title="{{ site.partner_company|default:'Aguardando' }}">
-                        {% if site.partner_company %}
-                            {{ site.partner_company|truncatechars:12 }}
-                        {% else %}
-                            Aguardando
+                    
+                    <div style="flex: 1; padding-top: 0.35rem; background: #ffffff; border-radius: 12px; transition: all 0.2s;">
+                        <div style="display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap;">
+                            <h5 style="margin: 0; font-size: 0.95rem; font-weight: 700; color: {% if site.access_status == 'RELEASED' %}var(--text-main){% elif site.access_status == 'REQUESTED' %}#d97706{% else %}var(--text-muted){% endif %};">
+                                Etapa 2: Liberação de Acesso ao Local (Estrutura: {{ site.get_site_type_display }})
+                            </h5>
+                            {% if site.access_status == 'RELEASED' %}
+                                <span style="font-size: 0.68rem; font-weight: 700; background: #ecfdf5; color: #10b981; padding: 0.15rem 0.5rem; border-radius: 20px;">Liberado</span>
+                            {% elif site.access_status == 'REQUESTED' %}
+                                <span style="font-size: 0.68rem; font-weight: 700; background: #fffbeb; color: #d97706; padding: 0.15rem 0.5rem; border-radius: 20px;">Solicitado</span>
+                            {% else %}
+                                <span style="font-size: 0.68rem; font-weight: 700; background: #f1f5f9; color: #64748b; padding: 0.15rem 0.5rem; border-radius: 20px;">Não Iniciado</span>
+                            {% endif %}
+                        </div>
+                        
+                        <p style="margin: 0.35rem 0 0 0; font-size: 0.8rem; color: var(--text-muted); line-height: 1.4;">
+                            {% if site.access_status == 'RELEASED' %}
+                                Acesso liberado pelo proprietário em <strong>{{ site.access_released_date|date:"d/m/Y" }}</strong>. O local está liberado para campo.
+                            {% elif site.access_status == 'REQUESTED' %}
+                                Solicitação enviada em <strong>{{ site.access_requested_date|date:"d/m/Y" }}</strong>. Aguardando retorno do proprietário para liberar a vistoria.
+                            {% else %}
+                                Este site necessita de agendamento/liberação especial com o proprietário do local antes da visita do parceiro.
+                            {% endif %}
+                        </p>
+
+                        {% if user.role == 'ADMIN' or user.role == 'ENGINEER' %}
+                        <!-- Painel de Ações Rápidas de Acesso -->
+                        <div style="margin-top: 0.85rem; display: flex; gap: 0.5rem; flex-wrap: wrap;">
+                            {% if site.access_status == 'NOT_STARTED' %}
+                            <form method="POST" action="{% url 'site_detail' pk=site.pk %}">
+                                {% csrf_token %}
+                                <input type="hidden" name="action" value="update_access">
+                                <input type="hidden" name="access_action" value="request_access">
+                                <button type="submit" class="btn-ent btn-ent-primary" style="padding: 0.4rem 0.75rem; font-size: 0.78rem; display: flex; align-items: center; gap: 0.35rem; border-radius: 6px; border: none; cursor: pointer;">
+                                    <i data-lucide="mail" style="width: 14px; height: 14px;"></i>
+                                    Solicitar Acesso ao Proprietário
+                                </button>
+                            </form>
+                            <form method="POST" action="{% url 'site_detail' pk=site.pk %}">
+                                {% csrf_token %}
+                                <input type="hidden" name="action" value="update_access">
+                                <input type="hidden" name="access_action" value="skip_access">
+                                <button type="submit" class="btn-ent btn-ent-outline" style="padding: 0.4rem 0.75rem; font-size: 0.78rem; display: flex; align-items: center; gap: 0.35rem; border-radius: 6px; cursor: pointer;">
+                                    Não Exigir Acesso
+                                </button>
+                            </form>
+                            {% elif site.access_status == 'REQUESTED' %}
+                            <form method="POST" action="{% url 'site_detail' pk=site.pk %}">
+                                {% csrf_token %}
+                                <input type="hidden" name="action" value="update_access">
+                                <input type="hidden" name="access_action" value="release_access">
+                                <button type="submit" class="btn-ent btn-ent-primary" style="padding: 0.4rem 0.75rem; font-size: 0.78rem; display: flex; align-items: center; gap: 0.35rem; border-radius: 6px; border: none; cursor: pointer; background-color: var(--brand-primary);">
+                                    <i data-lucide="check-circle" style="width: 14px; height: 14px;"></i>
+                                    Confirmar Acesso Liberado
+                                </button>
+                            </form>
+                            <form method="POST" action="{% url 'site_detail' pk=site.pk %}">
+                                {% csrf_token %}
+                                <input type="hidden" name="action" value="update_access">
+                                <input type="hidden" name="access_action" value="reset_access">
+                                <button type="submit" class="btn-ent btn-ent-outline" style="padding: 0.4rem 0.75rem; font-size: 0.78rem; display: flex; align-items: center; gap: 0.35rem; border-radius: 6px; cursor: pointer; border-color: #fee2e2; color: #ef4444;" onmouseover="this.style.background='#fef2f2'" onmouseout="this.style.background='transparent'">
+                                    Reiniciar
+                                </button>
+                            </form>
+                            {% elif site.access_status == 'RELEASED' %}
+                            <form method="POST" action="{% url 'site_detail' pk=site.pk %}">
+                                {% csrf_token %}
+                                <input type="hidden" name="action" value="update_access">
+                                <input type="hidden" name="access_action" value="reset_access">
+                                <button type="submit" class="btn-ent btn-ent-outline" style="padding: 0.35rem 0.6rem; font-size: 0.75rem; border-radius: 6px; cursor: pointer;">
+                                    <i data-lucide="rotate-ccw" style="width: 12px; height: 12px; display: inline-block; vertical-align: middle;"></i> Alterar / Bloquear
+                                </button>
+                            </form>
+                            {% endif %}
+                        </div>
                         {% endif %}
-                    </span>
+                    </div>
+                </div>
+                {% endif %}
+
+                <!-- ETAPA 3: ACIONAMENTO DO PARCEIRO E CRONOGRAMA -->
+                <div style="display: flex; gap: 1.25rem; position: relative; z-index: 2;">
+                    <div style="width: 36px; height: 36px; border-radius: 50%; 
+                        {% if site.planned_survey_date and site.planned_report_date %}
+                            background-color: #10b981; color: white; box-shadow: 0 0 0 4px #ecfdf5;
+                        {% elif site.access_status == 'RELEASED' or site.site_type == 'NENHUM' %}
+                            background-color: #eff6ff; color: #2563eb; border: 2px dashed #3b82f6; animation: pulse-ring-info 2s infinite;
+                        {% else %}
+                            background-color: #f1f5f9; color: #64748b; border: 2px solid #cbd5e1;
+                        {% endif %}
+                        display: flex; align-items: center; justify-content: center; font-weight: 700; flex-shrink: 0;">
+                        {% if site.planned_survey_date and site.planned_report_date %}
+                            <i data-lucide="check" style="width: 18px; height: 18px;"></i>
+                        {% elif site.access_status == 'RELEASED' or site.site_type == 'NENHUM' %}
+                            <i data-lucide="calendar" style="width: 16px; height: 16px;"></i>
+                        {% else %}
+                            {% if site.site_type != 'NENHUM' %}3{% else %}2{% endif %}
+                        {% endif %}
+                    </div>
+                    
+                    <div style="flex: 1; padding-top: 0.35rem;">
+                        <div style="display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap;">
+                            <h5 style="margin: 0; font-size: 0.95rem; font-weight: 700; color: {% if site.planned_survey_date %}var(--text-main){% elif site.access_status == 'RELEASED' or site.site_type == 'NENHUM' %}#2563eb{% else %}var(--text-muted){% endif %};">
+                                Etapa {% if site.site_type != 'NENHUM' %}3{% else %}2{% endif %}: Acionamento do Fornecedor e Datas Planejadas
+                            </h5>
+                            {% if site.planned_survey_date and site.planned_report_date %}
+                                <span style="font-size: 0.68rem; font-weight: 700; background: #ecfdf5; color: #10b981; padding: 0.15rem 0.5rem; border-radius: 20px;">Planejado</span>
+                            {% elif site.access_status == 'RELEASED' or site.site_type == 'NENHUM' %}
+                                <span style="font-size: 0.68rem; font-weight: 700; background: #eff6ff; color: #2563eb; padding: 0.15rem 0.5rem; border-radius: 20px;">Aguardando Datas</span>
+                            {% else %}
+                                <span style="font-size: 0.68rem; font-weight: 700; background: #f1f5f9; color: #64748b; padding: 0.15rem 0.5rem; border-radius: 20px;">Bloqueado</span>
+                            {% endif %}
+                        </div>
+
+                        <p style="margin: 0.35rem 0 0 0; font-size: 0.8rem; color: var(--text-muted); line-height: 1.4;">
+                            {% if site.planned_survey_date and site.planned_report_date %}
+                                Parceiro acionado: <strong>{{ site.partner_company|default:"Sem Parceiro" }}</strong>. <br>
+                                Datas planejadas: Vistoria em <strong>{{ site.planned_survey_date|date:"d/m/Y" }}</strong> | Laudo em <strong>{{ site.planned_report_date|date:"d/m/Y" }}</strong>.
+                            {% else %}
+                                Assim que o local estiver liberado, peça as datas planejadas para o parceiro técnico responsável e adicione-as para que o site não fique sem acompanhamento.
+                            {% endif %}
+                        </p>
+
+                        <!-- Formulário Inline para adicionar datas se estiver desbloqueado mas sem datas definidas -->
+                        {% if site.access_status == 'RELEASED' or site.site_type == 'NENHUM' %}
+                            {% if not site.planned_survey_date or not site.planned_report_date %}
+                                {% if user.role == 'ADMIN' or user.role == 'ENGINEER' %}
+                                <div style="margin-top: 1rem; background: #f8fafc; border: 1px solid var(--border-color); border-radius: 8px; padding: 1rem;">
+                                    <h6 style="margin: 0 0 0.75rem 0; font-size: 0.8rem; font-weight: 700; color: var(--text-main);">Definir Planejamento Inicial</h6>
+                                    <form method="POST" action="{% url 'site_detail' pk=site.pk %}">
+                                        {% csrf_token %}
+                                        <input type="hidden" name="action" value="update_workflow">
+                                        <input type="hidden" name="scope_type" value="{{ site.scope_type }}">
+                                        
+                                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 0.75rem; align-items: end;">
+                                            <div class="field-group">
+                                                <label for="partner_company_stepper" style="font-size: 0.65rem;">Empresa Parceira</label>
+                                                <input type="text" name="partner_company" id="partner_company_stepper" class="field-control" placeholder="Ex: BTL" style="padding: 0.4rem; font-size: 0.8rem; border-radius: 6px; border: 1px solid var(--border-color); background: white;" required>
+                                            </div>
+                                            <div class="field-group">
+                                                <label for="planned_survey_stepper" style="font-size: 0.65rem;">Vistoria Planejada</label>
+                                                <input type="date" name="planned_survey_date" id="planned_survey_stepper" class="field-control" style="padding: 0.4rem; font-size: 0.8rem; border-radius: 6px; border: 1px solid var(--border-color); background: white;" required>
+                                            </div>
+                                            <div class="field-group">
+                                                <label for="planned_report_stepper" style="font-size: 0.65rem;">Laudo Planejado</label>
+                                                <input type="date" name="planned_report_date" id="planned_report_stepper" class="field-control" style="padding: 0.4rem; font-size: 0.8rem; border-radius: 6px; border: 1px solid var(--border-color); background: white;" required>
+                                            </div>
+                                            <button type="submit" class="btn-submit" style="padding: 0.5rem 1rem; font-size: 0.8rem; border-radius: 6px; width: 100%; border: none; cursor: pointer; font-weight: 700; height: 34px;">
+                                                Gravar Planejamento
+                                            </button>
+                                        </div>
+                                    </form>
+                                </div>
+                                {% endif %}
+                            {% endif %}
+                        {% endif %}
+                    </div>
                 </div>
 
-                <!-- Etapa 3: Vistoria -->
-                <div style="display: flex; flex-direction: column; align-items: center; gap: 0.4rem; z-index: 2; width: 18%; text-align: center;">
-                    <div style="width: 34px; height: 34px; border-radius: 50%; background-color: {% if site.actual_survey_date %}var(--brand-primary){% elif site.partner_company %}#fffbeb{% else %}#f1f5f9{% endif %}; color: {% if site.actual_survey_date %}white{% elif site.partner_company %}#d97706{% else %}#64748b{% endif %}; display: flex; align-items: center; justify-content: center; font-weight: 700; border: 2px {% if site.partner_company and not site.actual_survey_date %}dashed #f59e0b{% else %}solid {% if site.actual_survey_date %}var(--brand-primary){% else %}#cbd5e1{% endif %}{% endif %}; {% if site.partner_company and not site.actual_survey_date %}animation: pulse-ring-warning 2s infinite;{% endif %}">
+                <!-- ETAPA 4: ACOMPANHAMENTO E COBRANÇA (CAMPO) -->
+                <div style="display: flex; gap: 1.25rem; position: relative; z-index: 2;">
+                    <div style="width: 36px; height: 36px; border-radius: 50%; 
                         {% if site.actual_survey_date %}
-                            <i data-lucide="check" style="width: 15px; height: 15px;"></i>
-                        {% elif site.partner_company %}
-                            <i data-lucide="play" style="width: 14px; height: 14px; margin-left: 2px;"></i>
+                            background-color: #10b981; color: white; box-shadow: 0 0 0 4px #ecfdf5;
+                        {% elif site.planned_survey_date %}
+                            {% if site.is_survey_overdue or site.is_report_overdue %}
+                                background-color: #fef2f2; color: #ef4444; border: 2px solid #fecaca;
+                            {% else %}
+                                background-color: #fffbeb; color: #d97706; border: 2px dashed #f59e0b;
+                            {% endif %}
                         {% else %}
-                            3
+                            background-color: #f1f5f9; color: #64748b; border: 2px solid #cbd5e1;
                         {% endif %}
-                    </div>
-                    <span style="font-size: 0.75rem; font-weight: 700; color: {% if site.actual_survey_date %}var(--text-main){% elif site.partner_company %}#d97706{% else %}#94a3b8{% endif %};">Vistoria</span>
-                    <span style="font-size: 0.65rem; color: var(--text-muted);">
+                        display: flex; align-items: center; justify-content: center; font-weight: 700; flex-shrink: 0;">
                         {% if site.actual_survey_date %}
-                            {{ site.actual_survey_date|date:"d/m" }}
-                        {% elif site.partner_company %}
-                            <span style="color: #d97706; font-weight: 600;">Em campo</span>
+                            <i data-lucide="check" style="width: 18px; height: 18px;"></i>
+                        {% elif site.planned_survey_date %}
+                            <i data-lucide="bell" style="width: 16px; height: 16px;"></i>
                         {% else %}
-                            Aguardando
-                        {% endif %}
-                    </span>
-                </div>
-
-                <!-- Etapa 4: Laudo -->
-                <div style="display: flex; flex-direction: column; align-items: center; gap: 0.4rem; z-index: 2; width: 18%; text-align: center;">
-                    <div style="width: 34px; height: 34px; border-radius: 50%; background-color: {% if site.actual_report_date %}var(--brand-primary){% elif site.actual_survey_date %}#eff6ff{% else %}#f1f5f9{% endif %}; color: {% if site.actual_report_date %}white{% elif site.actual_survey_date %}#2563eb{% else %}#64748b{% endif %}; display: flex; align-items: center; justify-content: center; font-weight: 700; border: 2px {% if site.actual_survey_date and not site.actual_report_date %}dashed #3b82f6{% else %}solid {% if site.actual_report_date %}var(--brand-primary){% else %}#cbd5e1{% endif %}{% endif %}; {% if site.actual_survey_date and not site.actual_report_date %}animation: pulse-ring-info 2s infinite;{% endif %}">
-                        {% if site.actual_report_date %}
-                            <i data-lucide="check" style="width: 15px; height: 15px;"></i>
-                        {% elif site.actual_survey_date %}
-                            <i data-lucide="play" style="width: 14px; height: 14px; margin-left: 2px;"></i>
-                        {% else %}
-                            4
+                            {% if site.site_type != 'NENHUM' %}4{% else %}3{% endif %}
                         {% endif %}
                     </div>
-                    <span style="font-size: 0.75rem; font-weight: 700; color: {% if site.actual_report_date %}var(--text-main){% elif site.actual_survey_date %}#2563eb{% else %}#94a3b8{% endif %};">Laudo</span>
-                    <span style="font-size: 0.65rem; color: var(--text-muted);">
-                        {% if site.actual_report_date %}
-                            {{ site.actual_report_date|date:"d/m" }}
-                        {% elif site.actual_survey_date %}
-                            <span style="color: #2563eb; font-weight: 600;">Elaboração</span>
-                        {% else %}
-                            Aguardando
-                        {% endif %}
-                    </span>
-                </div>
 
-                <!-- Etapa 5: Finalizado -->
-                <div style="display: flex; flex-direction: column; align-items: center; gap: 0.4rem; z-index: 2; width: 18%; text-align: center;">
-                    <div style="width: 34px; height: 34px; border-radius: 50%; background-color: {% if site.actual_report_date %}#10b981{% else %}#f1f5f9{% endif %}; color: {% if site.actual_report_date %}white{% else %}#64748b{% endif %}; display: flex; align-items: center; justify-content: center; font-weight: 700; border: 2px solid {% if site.actual_report_date %}#10b981{% else %}#cbd5e1{% endif %};">
-                        {% if site.actual_report_date %}
-                            <i data-lucide="check" style="width: 15px; height: 15px;"></i>
-                        {% else %}
-                            5
+                    <div style="flex: 1; padding-top: 0.35rem;">
+                        <div style="display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap;">
+                            <h5 style="margin: 0; font-size: 0.95rem; font-weight: 700; color: {% if site.actual_survey_date %}var(--text-main){% elif site.planned_survey_date %}#d97706{% else %}var(--text-muted){% endif %};">
+                                Etapa {% if site.site_type != 'NENHUM' %}4{% else %}3{% endif %}: Acompanhamento de Campo e Cobrança
+                            </h5>
+                            {% if site.actual_survey_date %}
+                                <span style="font-size: 0.68rem; font-weight: 700; background: #ecfdf5; color: #10b981; padding: 0.15rem 0.5rem; border-radius: 20px;">Vistoria Realizada</span>
+                            {% elif site.planned_survey_date %}
+                                {% if site.is_survey_overdue or site.is_report_overdue %}
+                                    <span style="font-size: 0.68rem; font-weight: 700; background: #fef2f2; color: #ef4444; padding: 0.15rem 0.5rem; border-radius: 20px; animation: pulse-ring-warning 2s infinite;">Atrasado / Cobrar</span>
+                                {% else %}
+                                    <span style="font-size: 0.68rem; font-weight: 700; background: #fffbeb; color: #d97706; padding: 0.15rem 0.5rem; border-radius: 20px;">Em Acompanhamento</span>
+                                {% endif %}
+                            {% else %}
+                                <span style="font-size: 0.68rem; font-weight: 700; background: #f1f5f9; color: #64748b; padding: 0.15rem 0.5rem; border-radius: 20px;">Bloqueado</span>
+                            {% endif %}
+                        </div>
+
+                        <p style="margin: 0.35rem 0 0 0; font-size: 0.8rem; color: var(--text-muted); line-height: 1.4;">
+                            {% if site.actual_survey_date %}
+                                Vistoria realizada em <strong>{{ site.actual_survey_date|date:"d/m/Y" }}</strong>. Aguardando conclusão do laudo.
+                            {% elif site.planned_survey_date %}
+                                A data planejada de vistoria é <strong>{{ site.planned_survey_date|date:"d/m/Y" }}</strong>.
+                                {% if site.is_survey_overdue %}
+                                    <br><span style="color: #ef4444; font-weight: 700;">⚠️ ATENÇÃO: A vistoria está atrasada há {{ site.days_overdue }} dias! Entre em contato com o parceiro.</span>
+                                {% else %}
+                                    <br>No dia da vistoria, cobre a fornecedora. Se houver contratempo, reagende a data.
+                                {% endif %}
+                                {% if site.reschedule_count > 0 %}
+                                    <br><span style="font-size: 0.75rem; color: var(--text-muted); font-weight: 600;">(Este site já passou por {{ site.reschedule_count }} replanejamento(s) de cronograma).</span>
+                                {% endif %}
+                            {% else %}
+                                Aguarde as datas de planejamento do parceiro para acompanhar a execução de campo.
+                            {% endif %}
+                        </p>
+
+                        <!-- Ações Rápidas de Campo e Replanejamento -->
+                        {% if site.planned_survey_date and not site.actual_report_date %}
+                            {% if user.role == 'ADMIN' or user.role == 'ENGINEER' %}
+                            <div style="margin-top: 0.85rem; display: flex; gap: 0.5rem; flex-wrap: wrap;">
+                                {% if not site.actual_survey_date %}
+                                <form method="POST" action="{% url 'site_detail' pk=site.pk %}" style="display: inline-block;">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="action" value="update_workflow">
+                                    <input type="hidden" name="scope_type" value="{{ site.scope_type }}">
+                                    <input type="hidden" name="partner_company" value="{{ site.partner_company }}">
+                                    <input type="hidden" name="planned_survey_date" value="{{ site.planned_survey_date|date:'Y-m-d' }}">
+                                    <input type="hidden" name="planned_report_date" value="{{ site.planned_report_date|date:'Y-m-d' }}">
+                                    <input type="hidden" name="actual_survey_date" value="{% now 'Y-m-d' %}">
+                                    <button type="submit" class="btn-ent btn-ent-primary" style="padding: 0.4rem 0.75rem; font-size: 0.78rem; display: flex; align-items: center; gap: 0.35rem; border-radius: 6px; border: none; cursor: pointer;">
+                                        <i data-lucide="check" style="width: 14px; height: 14px;"></i>
+                                        Vistoria Realizada Hoje
+                                    </button>
+                                </form>
+                                {% endif %}
+
+                                <!-- Botão de Replanejamento -->
+                                <button onclick="toggleRescheduleForm()" class="btn-ent btn-ent-outline" style="padding: 0.4rem 0.75rem; font-size: 0.78rem; display: flex; align-items: center; gap: 0.35rem; border-radius: 6px; cursor: pointer;">
+                                    <i data-lucide="calendar-range" style="width: 14px; height: 14px;"></i>
+                                    Replanejar Datas (Contratos)
+                                </button>
+                            </div>
+
+                            <!-- Formulário de Replanejamento Oculto por Padrão -->
+                            <div id="reschedule-form-container" style="display: none; margin-top: 1rem; background: #fffbeb; border: 1px solid #fde68a; border-radius: 8px; padding: 1rem; animation: fadeIn 0.3s ease;">
+                                <h6 style="margin: 0 0 0.75rem 0; font-size: 0.8rem; font-weight: 700; color: #b45309; display: flex; align-items: center; gap: 0.35rem;">
+                                    <i data-lucide="alert-circle" style="width: 16px; height: 16px;"></i>
+                                    Registrar Replanejamento de Cronograma
+                                </h6>
+                                <form method="POST" action="{% url 'site_detail' pk=site.pk %}">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="action" value="update_workflow">
+                                    <input type="hidden" name="scope_type" value="{{ site.scope_type }}">
+                                    <input type="hidden" name="partner_company" value="{{ site.partner_company }}">
+                                    <input type="hidden" name="actual_survey_date" value="{{ site.actual_survey_date|date:'Y-m-d' }}">
+                                    
+                                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 0.75rem; align-items: end;">
+                                        <div class="field-group">
+                                            <label for="planned_survey_resched" style="font-size: 0.65rem; color: #b45309;">Nova Vistoria Planejada</label>
+                                            <input type="date" name="planned_survey_date" id="planned_survey_resched" class="field-control" value="{{ site.planned_survey_date|date:'Y-m-d' }}" style="padding: 0.4rem; font-size: 0.8rem; border-radius: 6px; border: 1px solid #fde68a; background: white;" required>
+                                        </div>
+                                        <div class="field-group">
+                                            <label for="planned_report_resched" style="font-size: 0.65rem; color: #b45309;">Novo Laudo Planejado</label>
+                                            <input type="date" name="planned_report_date" id="planned_report_resched" class="field-control" value="{{ site.planned_report_date|date:'Y-m-d' }}" style="padding: 0.4rem; font-size: 0.8rem; border-radius: 6px; border: 1px solid #fde68a; background: white;" required>
+                                        </div>
+                                        <button type="submit" class="btn-submit" style="padding: 0.5rem 1rem; font-size: 0.8rem; border-radius: 6px; width: 100%; border: none; cursor: pointer; font-weight: 700; height: 34px; background: #d97706; color: white;">
+                                            Confirmar Replanejamento
+                                        </button>
+                                    </div>
+                                </form>
+                            </div>
+                            {% endif %}
                         {% endif %}
                     </div>
-                    <span style="font-size: 0.75rem; font-weight: 700; color: {% if site.actual_report_date %}var(--text-main){% else %}#94a3b8{% endif %};">Finalizado</span>
-                    <span style="font-size: 0.65rem; color: var(--text-muted);">
-                        {% if site.actual_report_date %}
-                            Concluído
-                        {% else %}
-                            Aguardando
-                        {% endif %}
-                    </span>
                 </div>
+
+                <!-- ETAPA 5: ENTREGA E ARQUIVAMENTO -->
+                <div style="display: flex; gap: 1.25rem; position: relative; z-index: 2;">
+                    <div style="width: 36px; height: 36px; border-radius: 50%; 
+                        {% if site.actual_report_date %}
+                            background-color: #10b981; color: white; box-shadow: 0 0 0 4px #ecfdf5;
+                        {% else %}
+                            background-color: #f1f5f9; color: #64748b; border: 2px solid #cbd5e1;
+                        {% endif %}
+                        display: flex; align-items: center; justify-content: center; font-weight: 700; flex-shrink: 0;">
+                        {% if site.actual_report_date %}
+                            <i data-lucide="check" style="width: 18px; height: 18px;"></i>
+                        {% else %}
+                            {% if site.site_type != 'NENHUM' %}5{% else %}4{% endif %}
+                        {% endif %}
+                    </div>
+
+                    <div style="flex: 1; padding-top: 0.35rem;">
+                        <div style="display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap;">
+                            <h5 style="margin: 0; font-size: 0.95rem; font-weight: 700; color: {% if site.actual_report_date %}var(--text-main){% else %}var(--text-muted){% endif %};">
+                                Etapa {% if site.site_type != 'NENHUM' %}5{% else %}4{% endif %}: Entrega de Laudo & Armazenamento
+                            </h5>
+                            {% if site.actual_report_date %}
+                                <span style="font-size: 0.68rem; font-weight: 700; background: #ecfdf5; color: #10b981; padding: 0.15rem 0.5rem; border-radius: 20px;">Concluído</span>
+                            {% else %}
+                                <span style="font-size: 0.68rem; font-weight: 700; background: #f1f5f9; color: #64748b; padding: 0.15rem 0.5rem; border-radius: 20px;">Bloqueado</span>
+                            {% endif %}
+                        </div>
+
+                        <p style="margin: 0.35rem 0 0 0; font-size: 0.8rem; color: var(--text-muted); line-height: 1.4;">
+                            {% if site.actual_report_date %}
+                                O laudo técnico final foi entregue em <strong>{{ site.actual_report_date|date:"d/m/Y" }}</strong>.
+                                Todos os arquivos e registros estão arquivados com segurança no Data Room abaixo.
+                            {% else %}
+                                Assim que receber o laudo final ou o arquivo do projeto do parceiro, registre a data de entrega para fechar o ciclo de implantação deste site e anexe o arquivo correspondente no repositório.
+                            {% endif %}
+                        </p>
+
+                        <!-- Registro de Entrega Rápido se a vistoria estiver pronta mas o laudo pendente -->
+                        {% if site.actual_survey_date and not site.actual_report_date %}
+                            {% if user.role == 'ADMIN' or user.role == 'ENGINEER' %}
+                            <div style="margin-top: 1rem; background: #ecfdf5; border: 1px solid #a7f3d0; border-radius: 8px; padding: 1rem;">
+                                <h6 style="margin: 0 0 0.75rem 0; font-size: 0.8rem; font-weight: 700; color: #15803d; display: flex; align-items: center; gap: 0.35rem;">
+                                    <i data-lucide="check-circle" style="width: 16px; height: 16px;"></i>
+                                    Registrar Entrega de Laudo/Projeto
+                                </h6>
+                                <form method="POST" action="{% url 'site_detail' pk=site.pk %}">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="action" value="update_workflow">
+                                    <input type="hidden" name="scope_type" value="{{ site.scope_type }}">
+                                    <input type="hidden" name="partner_company" value="{{ site.partner_company }}">
+                                    <input type="hidden" name="planned_survey_date" value="{{ site.planned_survey_date|date:'Y-m-d' }}">
+                                    <input type="hidden" name="planned_report_date" value="{{ site.planned_report_date|date:'Y-m-d' }}">
+                                    <input type="hidden" name="actual_survey_date" value="{{ site.actual_survey_date|date:'Y-m-d' }}">
+                                    
+                                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 0.75rem; align-items: end;">
+                                        <div class="field-group">
+                                            <label for="actual_report_stepper" style="font-size: 0.65rem; color: #15803d;">Data de Entrega Realizada</label>
+                                            <input type="date" name="actual_report_date" id="actual_report_stepper" class="field-control" style="padding: 0.4rem; font-size: 0.8rem; border-radius: 6px; border: 1px solid #a7f3d0; background: white;" required>
+                                        </div>
+                                        <button type="submit" class="btn-submit" style="padding: 0.5rem 1rem; font-size: 0.8rem; border-radius: 6px; width: 100%; border: none; cursor: pointer; font-weight: 700; height: 34px; background: #10b981; color: white;">
+                                            Confirmar Recebimento do Laudo
+                                        </button>
+                                    </div>
+                                </form>
+                            </div>
+                            {% endif %}
+                        {% endif %}
+                    </div>
+                </div>
+
             </div>
         </div>
 
-        {% if user.role == 'ADMIN' or user.role == 'ENGINEER' %}
-        <!-- Painel de Gerenciamento de Prazos (Replanejamento) -->
-        <div style="border: 1px solid var(--border-color); border-radius: 12px; padding: 1.5rem; margin-bottom: 2rem; background: #f8fafc;">
-            <h4 style="font-family: var(--font-heading); font-size: 1.05rem; font-weight: 700; color: var(--text-main); margin-bottom: 1.25rem; display: flex; align-items: center; gap: 0.5rem;">
-                <i data-lucide="calendar" style="color: var(--brand-primary); width: 18px; height: 18px;"></i>
-                Gerenciar Cronograma
-            </h4>
-            
-            <form method="POST" action="{% url 'site_detail' pk=site.pk %}">
-                {% csrf_token %}
-                <input type="hidden" name="action" value="update_workflow">
-                
-                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.25rem; align-items: end;">
-                    <div class="field-group">
-                        <label for="scope_type_edit" class="info-label">Escopo do Acionamento</label>
-                        <select name="scope_type" id="scope_type_edit" class="field-control" required style="padding: 0.5rem; font-size: 0.85rem; border: 1px solid var(--border-color); border-radius: 8px; background: white;">
-                            <option value="LAUDO" {% if site.scope_type == 'LAUDO' %}selected{% endif %}>Laudo Técnico</option>
-                            <option value="PROJETO" {% if site.scope_type == 'PROJETO' %}selected{% endif %}>Projeto</option>
-                            <option value="OBRA" {% if site.scope_type == 'OBRA' %}selected{% endif %}>Obra / Instalação</option>
-                            <option value="OUTRO" {% if site.scope_type == 'OUTRO' %}selected{% endif %}>Outro</option>
-                        </select>
-                    </div>
-                    
-                    <div class="field-group">
-                        <label for="partner_company_edit" class="info-label">Fornecedora de Laudo/Projeto</label>
-                        <input type="text" name="partner_company" id="partner_company_edit" class="field-control" value="{{ site.partner_company|default:'' }}" placeholder="Nome da fornecedora" style="padding: 0.5rem; font-size: 0.85rem; border: 1px solid var(--border-color); border-radius: 8px; background: white;">
-                    </div>
-                    
-                    <div class="field-group">
-                        <label for="planned_survey_date_edit" class="info-label">Vistoria Planejada</label>
-                        <input type="date" name="planned_survey_date" id="planned_survey_date_edit" class="field-control" value="{{ site.planned_survey_date|date:'Y-m-d' }}" style="padding: 0.5rem; font-size: 0.85rem; border: 1px solid var(--border-color); border-radius: 8px; background: white;">
-                    </div>
-                    
-                    <div class="field-group">
-                        <label for="actual_survey_date_edit" class="info-label">Vistoria Realizada</label>
-                        <input type="date" name="actual_survey_date" id="actual_survey_date_edit" class="field-control" value="{{ site.actual_survey_date|date:'Y-m-d' }}" style="padding: 0.5rem; font-size: 0.85rem; border: 1px solid var(--border-color); border-radius: 8px; background: white;">
-                    </div>
-                    
-                    <div class="field-group">
-                        <label for="planned_report_date_edit" class="info-label">Laudo Planejado</label>
-                        <input type="date" name="planned_report_date" id="planned_report_date_edit" class="field-control" value="{{ site.planned_report_date|date:'Y-m-d' }}" style="padding: 0.5rem; font-size: 0.85rem; border: 1px solid var(--border-color); border-radius: 8px; background: white;">
-                    </div>
-                    
-                    <div class="field-group">
-                        <label for="actual_report_date_edit" class="info-label">Laudo Realizado</label>
-                        <input type="date" name="actual_report_date" id="actual_report_date_edit" class="field-control" value="{{ site.actual_report_date|date:'Y-m-d' }}" style="padding: 0.5rem; font-size: 0.85rem; border: 1px solid var(--border-color); border-radius: 8px; background: white;">
-                    </div>
-                    
-                    <div style="grid-column: 1 / -1; display: flex; justify-content: flex-end; margin-top: 0.5rem;">
-                        <button type="submit" class="btn-submit" style="padding: 0.75rem 2rem; font-size: 0.85rem; background: var(--brand-primary); cursor: pointer; border-radius: 8px; width: auto;">
-                            Salvar Alterações
-                            <i data-lucide="check" style="width: 16px; height: 16px;"></i>
-                        </button>
-                    </div>
-                </div>
-            </form>
-        </div>
-        {% endif %}
+        <script>
+            function toggleRescheduleForm() {
+                const el = document.getElementById('reschedule-form-container');
+                if (el) {
+                    el.style.display = el.style.display === 'none' ? 'block' : 'none';
+                }
+            }
+        </script>
 
         <h3>
             <i data-lucide="folder-archive" style="color: var(--brand-primary);"></i>

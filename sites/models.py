@@ -39,6 +39,18 @@ class Site(models.Model):
         OBRA = 'OBRA', 'Obra / Instalação'
         OUTRO = 'OUTRO', 'Outro'
 
+    class SiteType(models.TextChoices):
+        ROOFTOP = 'ROOFTOP', 'Rooftop'
+        GREENFIELD = 'GREENFIELD', 'Greenfield'
+        OUTRO = 'OUTRO', 'Outros'
+        NENHUM = 'NENHUM', 'Não exige liberação'
+
+    class AccessStatus(models.TextChoices):
+        NOT_STARTED = 'NOT_STARTED', 'Não Iniciado'
+        REQUESTED = 'REQUESTED', 'Acesso Solicitado'
+        RELEASED = 'RELEASED', 'Acesso Liberado'
+        NOT_REQUIRED = 'NOT_REQUIRED', 'Acesso Não Necessário'
+
     site_id = models.CharField(
         max_length=50, 
         unique=True, 
@@ -61,6 +73,34 @@ class Site(models.Model):
         blank=True,
         null=True,
         verbose_name="Fornecedora de Laudo/Projeto"
+    )
+
+    # Campos de Fluxo de Acesso do Rollout
+    site_type = models.CharField(
+        max_length=20,
+        choices=SiteType.choices,
+        default=SiteType.NENHUM,
+        verbose_name="Tipo de Estrutura"
+    )
+    access_status = models.CharField(
+        max_length=20,
+        choices=AccessStatus.choices,
+        default=AccessStatus.NOT_REQUIRED,
+        verbose_name="Situação do Acesso"
+    )
+    access_requested_date = models.DateField(
+        blank=True,
+        null=True,
+        verbose_name="Acesso Solicitado em"
+    )
+    access_released_date = models.DateField(
+        blank=True,
+        null=True,
+        verbose_name="Acesso Liberado em"
+    )
+    reschedule_count = models.IntegerField(
+        default=0,
+        verbose_name="Quantidade de Replanejamentos"
     )
 
     # Datas de Planejamento e Realização do Fluxo
@@ -189,11 +229,16 @@ class Site(models.Model):
         from django.utils.dateparse import parse_date
         
         # Garante que as datas sejam objetos datetime.date se forem strings
-        for field in ['planned_survey_date', 'actual_survey_date', 'planned_report_date', 'actual_report_date']:
+        for field in ['planned_survey_date', 'actual_survey_date', 'planned_report_date', 'actual_report_date', 'access_requested_date', 'access_released_date']:
             val = getattr(self, field)
             if isinstance(val, str):
                 setattr(self, field, parse_date(val) if val else None)
         
+        if self.site_type == self.SiteType.NENHUM:
+            self.access_status = self.AccessStatus.NOT_REQUIRED
+        elif self.access_status == self.AccessStatus.NOT_REQUIRED:
+            self.access_status = self.AccessStatus.NOT_STARTED
+
         self.status = self.recalculate_status()
         super().save(*args, **kwargs)
 

@@ -63,6 +63,7 @@ def site_list(request):
         longitude_str = request.POST.get('longitude', '').strip() or None
         scope_type = request.POST.get('scope_type')
         partner_company = request.POST.get('partner_company', '').strip() or None
+        site_type = request.POST.get('site_type', Site.SiteType.NENHUM)
         
         p_survey = request.POST.get('planned_survey_date')
         planned_survey_date = parse_date(p_survey) if p_survey else None
@@ -81,6 +82,7 @@ def site_list(request):
                 longitude=longitude_str,
                 scope_type=scope_type,
                 partner_company=partner_company,
+                site_type=site_type,
                 planned_survey_date=planned_survey_date,
                 planned_report_date=planned_report_date,
                 description=description
@@ -270,17 +272,30 @@ def site_detail(request, pk):
                 messages.error(request, "Seu cargo não possui permissão para atualizar prazos.")
                 return redirect('site_detail', pk=pk)
 
+            p_survey_str = request.POST.get('planned_survey_date')
+            p_survey = parse_date(p_survey_str) if p_survey_str else None
+            
+            p_report_str = request.POST.get('planned_report_date')
+            p_report = parse_date(p_report_str) if p_report_str else None
+
+            # Detectar replanejamento (mudança em datas planejadas que já existiam)
+            is_reschedule = False
+            if site.planned_survey_date and p_survey and site.planned_survey_date != p_survey:
+                is_reschedule = True
+            if site.planned_report_date and p_report and site.planned_report_date != p_report:
+                is_reschedule = True
+                
+            if is_reschedule:
+                site.reschedule_count += 1
+                messages.warning(request, f"Replanejamento registrado! Total de replanejamentos deste site: {site.reschedule_count}")
+
             site.scope_type = request.POST.get('scope_type')
             site.partner_company = request.POST.get('partner_company', '').strip() or None
-            
-            p_survey = request.POST.get('planned_survey_date')
-            site.planned_survey_date = parse_date(p_survey) if p_survey else None
+            site.planned_survey_date = p_survey
+            site.planned_report_date = p_report
             
             a_survey = request.POST.get('actual_survey_date')
             site.actual_survey_date = parse_date(a_survey) if a_survey else None
-            
-            p_report = request.POST.get('planned_report_date')
-            site.planned_report_date = parse_date(p_report) if p_report else None
             
             a_report = request.POST.get('actual_report_date')
             site.actual_report_date = parse_date(a_report) if a_report else None
@@ -293,12 +308,49 @@ def site_detail(request, pk):
                 
             return redirect('site_detail', pk=pk)
 
+        # Ação Nova: Atualização do fluxo de acesso (apenas ADMIN ou ENGINEER)
+        if action == 'update_access':
+            if request.user.role not in [User.Role.ADMIN, User.Role.ENGINEER]:
+                messages.error(request, "Seu cargo não possui permissão para atualizar controle de acesso.")
+                return redirect('site_detail', pk=pk)
+
+            access_action = request.POST.get('access_action')
+            from django.utils import timezone
+            today = timezone.localdate()
+
+            if access_action == 'request_access':
+                site.access_status = Site.AccessStatus.REQUESTED
+                site.access_requested_date = today
+                messages.success(request, "Acesso solicitado ao proprietário! Aguardando liberação.")
+            elif access_action == 'release_access':
+                site.access_status = Site.AccessStatus.RELEASED
+                site.access_released_date = today
+                messages.success(request, "Acesso liberado pelo proprietário! O parceiro já pode ser acionado.")
+            elif access_action == 'skip_access':
+                site.access_status = Site.AccessStatus.NOT_REQUIRED
+                site.access_requested_date = None
+                site.access_released_date = None
+                messages.info(request, "Fluxo de liberação de acesso ignorado (Não necessário).")
+            elif access_action == 'reset_access':
+                site.access_status = Site.AccessStatus.NOT_STARTED
+                site.access_requested_date = None
+                site.access_released_date = None
+                messages.info(request, "Controle de acesso reiniciado.")
+
+            try:
+                site.save()
+            except Exception as e:
+                messages.error(request, f"Erro ao salvar status de acesso: {str(e)}")
+                
+            return redirect('site_detail', pk=pk)
+
         # Ação 3: Atualização de localização (apenas ADMIN ou ENGINEER)
         if action == 'update_location':
             if request.user.role not in [User.Role.ADMIN, User.Role.ENGINEER]:
                 messages.error(request, "Seu cargo não possui permissão para atualizar localização.")
                 return redirect('site_detail', pk=pk)
 
+            site.site_type = request.POST.get('site_type', site.site_type)
             site.address = request.POST.get('address', '').strip() or None
             
             lat_str = request.POST.get('latitude', '').strip()
@@ -309,7 +361,7 @@ def site_detail(request, pk):
 
             try:
                 site.save()
-                messages.success(request, "Localização do ativo atualizada com sucesso!")
+                messages.success(request, "Localização e estrutura do ativo atualizadas com sucesso!")
             except Exception as e:
                 messages.error(request, f"Erro ao atualizar localização: {str(e)}")
                 
