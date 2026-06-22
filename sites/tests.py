@@ -268,6 +268,28 @@ class SiteRolloutWorkflowTests(TestCase):
         self.assertEqual(site.access_status, Site.AccessStatus.RELEASED)
         self.assertIsNotNone(site.access_released_date)
 
+        # Step 2c: Skip access
+        response = self.client.post(url, {
+            'action': 'update_access',
+            'access_action': 'skip_access'
+        })
+        self.assertEqual(response.status_code, 302)
+        site.refresh_from_db()
+        self.assertEqual(site.access_status, Site.AccessStatus.NOT_REQUIRED)
+        self.assertIsNone(site.access_requested_date)
+        self.assertIsNone(site.access_released_date)
+
+        # Step 2d: Reset access
+        response = self.client.post(url, {
+            'action': 'update_access',
+            'access_action': 'reset_access'
+        })
+        self.assertEqual(response.status_code, 302)
+        site.refresh_from_db()
+        self.assertEqual(site.access_status, Site.AccessStatus.NOT_STARTED)
+        self.assertIsNone(site.access_requested_date)
+        self.assertIsNone(site.access_released_date)
+
     def test_reschedule_increments_counter(self):
         """Test that modifying planned dates increments the reschedule_count."""
         self.client.login(username='engineer_workflow', password='password123')

@@ -236,8 +236,17 @@ class Site(models.Model):
         
         if self.site_type == self.SiteType.NENHUM:
             self.access_status = self.AccessStatus.NOT_REQUIRED
-        elif self.access_status == self.AccessStatus.NOT_REQUIRED:
-            self.access_status = self.AccessStatus.NOT_STARTED
+        else:
+            if not self.pk:
+                if self.access_status == self.AccessStatus.NOT_REQUIRED:
+                    self.access_status = self.AccessStatus.NOT_STARTED
+            else:
+                try:
+                    old_site = Site.objects.get(pk=self.pk)
+                    if old_site.site_type == self.SiteType.NENHUM:
+                        self.access_status = self.AccessStatus.NOT_STARTED
+                except Site.DoesNotExist:
+                    pass
 
         self.status = self.recalculate_status()
         super().save(*args, **kwargs)

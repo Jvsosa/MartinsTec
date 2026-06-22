@@ -352,6 +352,38 @@
             box-shadow: 0 0 0 0 rgba(59, 130, 246, 0);
         }
     }
+
+    .step-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0.5rem 0.75rem;
+        border-radius: 12px;
+        transition: all 0.25s ease;
+        border: 1px solid transparent;
+    }
+    .step-header:hover {
+        background: #f8fafc !important;
+    }
+    .step-active-header {
+        background: #eff6ff !important;
+        border-color: #bfdbfe !important;
+    }
+    .step-arrow {
+        transition: transform 0.25s ease;
+    }
+    .step-arrow-active {
+        transform: rotate(180deg);
+    }
+    .step-content {
+        display: none;
+        padding: 1rem;
+        margin-top: 0.5rem;
+        background: #f8fafc;
+        border: 1px solid var(--border-color);
+        border-radius: 12px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.01);
+    }
 </style>
 {% endblock %}
 
@@ -524,7 +556,7 @@
 
     <!-- Coluna da Direita: Repositório e Upload de Mídias -->
     <div>
-        <!-- Rastreamento Visual do Fluxo do Rollout Interativo -->
+        <!-- Rastreamento Visual do Fluxo do Rollout Interativo (Com Abas Clicáveis e Accordion) -->
         <div class="glass-card" style="border: 1px solid var(--border-color); border-radius: 20px; padding: 2rem; margin-bottom: 2.5rem; background: #ffffff; box-shadow: var(--shadow-md);">
             <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-color); padding-bottom: 1rem; margin-bottom: 1.75rem;">
                 <h4 style="font-family: var(--font-heading); font-size: 1.25rem; font-weight: 700; color: var(--text-main); display: flex; align-items: center; gap: 0.6rem; margin: 0;">
@@ -545,7 +577,7 @@
                     <i data-lucide="compass" style="width: 20px; height: 20px;"></i>
                 </div>
                 <div>
-                    <h5 style="margin: 0; font-size: 0.88rem; font-weight: 700; color: var(--text-main);">Fase Atual:
+                    <h5 style="margin: 0; font-size: 0.88rem; font-weight: 700; color: var(--text-main);">Fase Atual Recomendada:
                         {% if site.actual_report_date %}
                             Concluído - Laudo Finalizado e Entregue
                         {% elif site.actual_survey_date %}
@@ -561,59 +593,59 @@
                         {% endif %}
                     </h5>
                     <p style="margin: 0.2rem 0 0 0; font-size: 0.78rem; color: var(--text-muted);">
-                        {% if site.actual_report_date %}
-                            Tudo pronto! Todas as etapas foram completadas e a documentação está armazenada.
-                        {% elif site.actual_survey_date %}
-                            A vistoria já foi realizada. O parceiro técnico tem a data planejada de {{ site.planned_report_date|date:"d/m/Y" }} para entregar o laudo/projeto.
-                        {% elif site.planned_survey_date %}
-                            A vistoria está agendada para o dia {{ site.planned_survey_date|date:"d/m/Y" }}.
-                        {% elif site.access_status == 'RELEASED' or site.site_type == 'NENHUM' %}
-                            O local está liberado para o acionamento! Defina as datas planejadas e informe o fornecedor técnico.
-                        {% elif site.access_status == 'REQUESTED' %}
-                            Foi solicitada a liberação de acesso ao proprietário do local no dia {{ site.access_requested_date|date:"d/m/Y" }}. Aguarde a confirmação de acesso.
-                        {% else %}
-                            Este site exige liberação de acesso. Solicite a entrada ao proprietário para iniciar o cronograma.
-                        {% endif %}
+                        Clique em qualquer etapa abaixo para visualizar detalhes, pular fases ou atualizar informações diretamente!
                     </p>
                 </div>
             </div>
 
-            <!-- Visual Stepper Stack -->
-            <div style="display: flex; flex-direction: column; gap: 1.5rem; position: relative;">
+            <!-- Accordion Stepper Stack -->
+            <div style="display: flex; flex-direction: column; gap: 1.25rem; position: relative;">
                 
                 <!-- Linha de conexão vertical entre etapas -->
                 <div style="position: absolute; top: 15px; bottom: 15px; left: 17px; width: 3px; background-color: #e2e8f0; z-index: 1;"></div>
 
                 <!-- ETAPA 1: ACIONAMENTO & CADASTRO -->
                 <div style="display: flex; gap: 1.25rem; position: relative; z-index: 2;">
-                    <div style="width: 36px; height: 36px; border-radius: 50%; background-color: #10b981; color: white; display: flex; align-items: center; justify-content: center; font-weight: 700; flex-shrink: 0; box-shadow: 0 0 0 4px #ecfdf5;">
+                    <!-- Circle -->
+                    <div id="step-circle-1" onclick="selectStep(1)" style="cursor: pointer; width: 36px; height: 36px; border-radius: 50%; background-color: #10b981; color: white; display: flex; align-items: center; justify-content: center; font-weight: 700; flex-shrink: 0; transition: all 0.25s;">
                         <i data-lucide="check" style="width: 18px; height: 18px;"></i>
                     </div>
-                    <div style="flex: 1; padding-top: 0.35rem;">
-                        <div style="display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap;">
-                            <h5 style="margin: 0; font-size: 0.95rem; font-weight: 700; color: var(--text-main);">Etapa 1: Acionamento e Cadastro do Escopo</h5>
-                            <span style="font-size: 0.68rem; font-weight: 700; background: #ecfdf5; color: #10b981; padding: 0.15rem 0.5rem; border-radius: 20px;">Concluído</span>
+                    <!-- Right: Header + Content -->
+                    <div style="flex: 1;">
+                        <div id="step-header-1" class="step-header" onclick="selectStep(1)" style="cursor: pointer;">
+                            <div style="display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap;">
+                                <h5 style="margin: 0; font-size: 0.95rem; font-weight: 700; color: var(--text-main);">Etapa 1: Acionamento e Cadastro do Escopo</h5>
+                                <span style="font-size: 0.68rem; font-weight: 700; background: #ecfdf5; color: #10b981; padding: 0.15rem 0.5rem; border-radius: 20px;">Concluído</span>
+                            </div>
+                            <i id="step-arrow-1" class="step-arrow" data-lucide="chevron-down" style="width: 16px; height: 16px; color: var(--text-muted);"></i>
                         </div>
-                        <p style="margin: 0.35rem 0 0 0; font-size: 0.8rem; color: var(--text-muted); line-height: 1.4;">
-                            Site recebido e registrado em <strong>{{ site.created_at|date:"d/m/Y" }}</strong> com o escopo de <strong>{{ site.get_scope_type_display }}</strong>.
-                        </p>
+                        
+                        <div id="step-content-1" class="step-content">
+                            <p style="margin: 0; font-size: 0.82rem; color: var(--text-muted); line-height: 1.4;">
+                                Site recebido e registrado em <strong>{{ site.created_at|date:"d/m/Y" }}</strong> com o escopo de <strong>{{ site.get_scope_type_display }}</strong>.
+                            </p>
+                            <div style="display: flex; justify-content: flex-end; margin-top: 1rem; border-top: 1px dashed #e2e8f0; padding-top: 0.75rem;">
+                                <button type="button" onclick="selectStep(2)" class="btn-submit" style="padding: 0.35rem 0.75rem; font-size: 0.78rem; border-radius: 6px; cursor: pointer; background: var(--brand-primary); color: white; border: none; font-weight: 600; display: inline-flex; align-items: center; gap: 0.25rem;">
+                                    Próxima Etapa
+                                    <i data-lucide="arrow-right" style="width: 14px; height: 14px;"></i>
+                                </button>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
-                <!-- ETAPA 2: LIBERAÇÃO DE ACESSO (DINÂMICA) -->
-                {% if site.site_type != 'NENHUM' %}
+                <!-- ETAPA 2: LIBERAÇÃO DE ACESSO -->
                 <div style="display: flex; gap: 1.25rem; position: relative; z-index: 2;">
-                    <!-- Círculo indicador do estado da etapa -->
-                    <div style="width: 36px; height: 36px; border-radius: 50%; 
-                        {% if site.access_status == 'RELEASED' %}
-                            background-color: #10b981; color: white; box-shadow: 0 0 0 4px #ecfdf5;
+                    <!-- Circle -->
+                    <div id="step-circle-2" onclick="selectStep(2)" style="cursor: pointer; width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; flex-shrink: 0; transition: all 0.25s;
+                        {% if site.site_type == 'NENHUM' or site.access_status == 'RELEASED' or site.access_status == 'NOT_REQUIRED' %}
+                            background-color: #10b981; color: white;
                         {% elif site.access_status == 'REQUESTED' %}
                             background-color: #fffbeb; color: #d97706; border: 2px dashed #f59e0b; animation: pulse-ring-warning 2s infinite;
                         {% else %}
                             background-color: #f1f5f9; color: #64748b; border: 2px solid #cbd5e1;
-                        {% endif %}
-                        display: flex; align-items: center; justify-content: center; font-weight: 700; flex-shrink: 0;">
-                        {% if site.access_status == 'RELEASED' %}
+                        {% endif %}">
+                        {% if site.site_type == 'NENHUM' or site.access_status == 'RELEASED' or site.access_status == 'NOT_REQUIRED' %}
                             <i data-lucide="check" style="width: 18px; height: 18px;"></i>
                         {% elif site.access_status == 'REQUESTED' %}
                             <i data-lucide="key" style="width: 16px; height: 16px;"></i>
@@ -621,257 +653,274 @@
                             2
                         {% endif %}
                     </div>
-                    
-                    <div style="flex: 1; padding-top: 0.35rem; background: #ffffff; border-radius: 12px; transition: all 0.2s;">
-                        <div style="display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap;">
-                            <h5 style="margin: 0; font-size: 0.95rem; font-weight: 700; color: {% if site.access_status == 'RELEASED' %}var(--text-main){% elif site.access_status == 'REQUESTED' %}#d97706{% else %}var(--text-muted){% endif %};">
-                                Etapa 2: Liberação de Acesso ao Local (Estrutura: {{ site.get_site_type_display }})
-                            </h5>
-                            {% if site.access_status == 'RELEASED' %}
-                                <span style="font-size: 0.68rem; font-weight: 700; background: #ecfdf5; color: #10b981; padding: 0.15rem 0.5rem; border-radius: 20px;">Liberado</span>
-                            {% elif site.access_status == 'REQUESTED' %}
-                                <span style="font-size: 0.68rem; font-weight: 700; background: #fffbeb; color: #d97706; padding: 0.15rem 0.5rem; border-radius: 20px;">Solicitado</span>
-                            {% else %}
-                                <span style="font-size: 0.68rem; font-weight: 700; background: #f1f5f9; color: #64748b; padding: 0.15rem 0.5rem; border-radius: 20px;">Não Iniciado</span>
-                            {% endif %}
+                    <!-- Right: Header + Content -->
+                    <div style="flex: 1;">
+                        <div id="step-header-2" class="step-header" onclick="selectStep(2)" style="cursor: pointer;">
+                            <div style="display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap;">
+                                <h5 style="margin: 0; font-size: 0.95rem; font-weight: 700; color: var(--text-main);">Etapa 2: Liberação de Acesso ao Local</h5>
+                                {% if site.site_type == 'NENHUM' or site.access_status == 'NOT_REQUIRED' %}
+                                    <span style="font-size: 0.68rem; font-weight: 700; background: #eff6ff; color: #2563eb; padding: 0.15rem 0.5rem; border-radius: 20px;">Não Exigido</span>
+                                {% elif site.access_status == 'RELEASED' %}
+                                    <span style="font-size: 0.68rem; font-weight: 700; background: #ecfdf5; color: #10b981; padding: 0.15rem 0.5rem; border-radius: 20px;">Liberado</span>
+                                {% elif site.access_status == 'REQUESTED' %}
+                                    <span style="font-size: 0.68rem; font-weight: 700; background: #fffbeb; color: #d97706; padding: 0.15rem 0.5rem; border-radius: 20px; animation: pulse-ring-warning 2s infinite;">Solicitado</span>
+                                {% else %}
+                                    <span style="font-size: 0.68rem; font-weight: 700; background: #f1f5f9; color: #64748b; padding: 0.15rem 0.5rem; border-radius: 20px;">Pendente</span>
+                                {% endif %}
+                            </div>
+                            <i id="step-arrow-2" class="step-arrow" data-lucide="chevron-down" style="width: 16px; height: 16px; color: var(--text-muted);"></i>
                         </div>
                         
-                        <p style="margin: 0.35rem 0 0 0; font-size: 0.8rem; color: var(--text-muted); line-height: 1.4;">
-                            {% if site.access_status == 'RELEASED' %}
-                                Acesso liberado pelo proprietário em <strong>{{ site.access_released_date|date:"d/m/Y" }}</strong>. O local está liberado para campo.
-                            {% elif site.access_status == 'REQUESTED' %}
-                                Solicitação enviada em <strong>{{ site.access_requested_date|date:"d/m/Y" }}</strong>. Aguardando retorno do proprietário para liberar a vistoria.
-                            {% else %}
-                                Este site necessita de agendamento/liberação especial com o proprietário do local antes da visita do parceiro.
-                            {% endif %}
-                        </p>
+                        <div id="step-content-2" class="step-content">
+                            <p style="margin: 0 0 1rem 0; font-size: 0.82rem; color: var(--text-muted); line-height: 1.4;">
+                                {% if site.site_type == 'NENHUM' or site.access_status == 'NOT_REQUIRED' %}
+                                    Este ativo possui estrutura do tipo <strong>Não exige liberação</strong> ou a liberação de acesso foi dispensada.
+                                {% elif site.access_status == 'RELEASED' %}
+                                    Acesso liberado pelo proprietário em <strong>{{ site.access_released_date|date:"d/m/Y" }}</strong>. O local está livre para visitas de campo.
+                                {% elif site.access_status == 'REQUESTED' %}
+                                    Solicitação enviada em <strong>{{ site.access_requested_date|date:"d/m/Y" }}</strong>. Aguardando retorno do proprietário para liberar a vistoria.
+                                {% else %}
+                                    Este site necessita de agendamento/liberação especial com o proprietário do local antes da visita do parceiro.
+                                {% endif %}
+                            </p>
 
-                        {% if user.role == 'ADMIN' or user.role == 'ENGINEER' %}
-                        <!-- Painel de Ações Rápidas de Acesso -->
-                        <div style="margin-top: 0.85rem; display: flex; gap: 0.5rem; flex-wrap: wrap;">
-                            {% if site.access_status == 'NOT_STARTED' %}
-                            <form method="POST" action="{% url 'site_detail' pk=site.pk %}">
-                                {% csrf_token %}
-                                <input type="hidden" name="action" value="update_access">
-                                <input type="hidden" name="access_action" value="request_access">
-                                <button type="submit" class="btn-ent btn-ent-primary" style="padding: 0.4rem 0.75rem; font-size: 0.78rem; display: flex; align-items: center; gap: 0.35rem; border-radius: 6px; border: none; cursor: pointer;">
-                                    <i data-lucide="mail" style="width: 14px; height: 14px;"></i>
-                                    Solicitar Acesso ao Proprietário
-                                </button>
-                            </form>
-                            <form method="POST" action="{% url 'site_detail' pk=site.pk %}">
-                                {% csrf_token %}
-                                <input type="hidden" name="action" value="update_access">
-                                <input type="hidden" name="access_action" value="skip_access">
-                                <button type="submit" class="btn-ent btn-ent-outline" style="padding: 0.4rem 0.75rem; font-size: 0.78rem; display: flex; align-items: center; gap: 0.35rem; border-radius: 6px; cursor: pointer;">
-                                    Não Exigir Acesso
-                                </button>
-                            </form>
-                            {% elif site.access_status == 'REQUESTED' %}
-                            <form method="POST" action="{% url 'site_detail' pk=site.pk %}">
-                                {% csrf_token %}
-                                <input type="hidden" name="action" value="update_access">
-                                <input type="hidden" name="access_action" value="release_access">
-                                <button type="submit" class="btn-ent btn-ent-primary" style="padding: 0.4rem 0.75rem; font-size: 0.78rem; display: flex; align-items: center; gap: 0.35rem; border-radius: 6px; border: none; cursor: pointer; background-color: var(--brand-primary);">
-                                    <i data-lucide="check-circle" style="width: 14px; height: 14px;"></i>
-                                    Confirmar Acesso Liberado
-                                </button>
-                            </form>
-                            <form method="POST" action="{% url 'site_detail' pk=site.pk %}">
-                                {% csrf_token %}
-                                <input type="hidden" name="action" value="update_access">
-                                <input type="hidden" name="access_action" value="reset_access">
-                                <button type="submit" class="btn-ent btn-ent-outline" style="padding: 0.4rem 0.75rem; font-size: 0.78rem; display: flex; align-items: center; gap: 0.35rem; border-radius: 6px; cursor: pointer; border-color: #fee2e2; color: #ef4444;" onmouseover="this.style.background='#fef2f2'" onmouseout="this.style.background='transparent'">
-                                    Reiniciar
-                                </button>
-                            </form>
-                            {% elif site.access_status == 'RELEASED' %}
-                            <form method="POST" action="{% url 'site_detail' pk=site.pk %}">
-                                {% csrf_token %}
-                                <input type="hidden" name="action" value="update_access">
-                                <input type="hidden" name="access_action" value="reset_access">
-                                <button type="submit" class="btn-ent btn-ent-outline" style="padding: 0.35rem 0.6rem; font-size: 0.75rem; border-radius: 6px; cursor: pointer;">
-                                    <i data-lucide="rotate-ccw" style="width: 12px; height: 12px; display: inline-block; vertical-align: middle;"></i> Alterar / Bloquear
-                                </button>
-                            </form>
+                            {% if user.role == 'ADMIN' or user.role == 'ENGINEER' %}
+                            <div style="display: flex; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 1rem;">
+                                <form method="POST" action="{% url 'site_detail' pk=site.pk %}">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="action" value="update_access">
+                                    <input type="hidden" name="access_action" value="request_access">
+                                    <button type="submit" class="btn-ent btn-ent-primary" style="padding: 0.4rem 0.75rem; font-size: 0.78rem; display: flex; align-items: center; gap: 0.35rem; border-radius: 6px; border: none; cursor: pointer;">
+                                        <i data-lucide="mail" style="width: 14px; height: 14px;"></i>
+                                        Solicitar Acesso ao Proprietário
+                                    </button>
+                                </form>
+                                <form method="POST" action="{% url 'site_detail' pk=site.pk %}">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="action" value="update_access">
+                                    <input type="hidden" name="access_action" value="release_access">
+                                    <button type="submit" class="btn-ent btn-ent-primary" style="padding: 0.4rem 0.75rem; font-size: 0.78rem; display: flex; align-items: center; gap: 0.35rem; border-radius: 6px; border: none; cursor: pointer; background-color: var(--brand-primary);">
+                                        <i data-lucide="check-circle" style="width: 14px; height: 14px;"></i>
+                                        Confirmar Acesso Liberado
+                                    </button>
+                                </form>
+                                <form method="POST" action="{% url 'site_detail' pk=site.pk %}">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="action" value="update_access">
+                                    <input type="hidden" name="access_action" value="skip_access">
+                                    <button type="submit" class="btn-ent btn-ent-outline" style="padding: 0.4rem 0.75rem; font-size: 0.78rem; display: flex; align-items: center; gap: 0.35rem; border-radius: 6px; cursor: pointer; border-color: #cbd5e1; color: #64748b;" onmouseover="this.style.background='#f1f5f9'" onmouseout="this.style.background='transparent'">
+                                        <i data-lucide="skip-forward" style="width: 14px; height: 14px;"></i>
+                                        Pular Liberação (Não Necessário)
+                                    </button>
+                                </form>
+                                <form method="POST" action="{% url 'site_detail' pk=site.pk %}">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="action" value="update_access">
+                                    <input type="hidden" name="access_action" value="reset_access">
+                                    <button type="submit" class="btn-ent btn-ent-outline" style="padding: 0.4rem 0.75rem; font-size: 0.78rem; display: flex; align-items: center; gap: 0.35rem; border-radius: 6px; cursor: pointer; border-color: #fee2e2; color: #ef4444;" onmouseover="this.style.background='#fef2f2'" onmouseout="this.style.background='transparent'">
+                                        Reiniciar Status
+                                    </button>
+                                </form>
+                            </div>
                             {% endif %}
+                            
+                            <div style="display: flex; justify-content: space-between; margin-top: 1rem; border-top: 1px dashed #e2e8f0; padding-top: 0.75rem; width: 100%;">
+                                <button type="button" onclick="selectStep(1)" class="btn-ent btn-ent-outline" style="padding: 0.35rem 0.75rem; font-size: 0.78rem; border-radius: 6px; cursor: pointer; border: 1px solid #cbd5e1; color: #64748b; background: transparent; display: inline-flex; align-items: center; gap: 0.25rem;">
+                                    <i data-lucide="arrow-left" style="width: 14px; height: 14px;"></i>
+                                    Anterior
+                                </button>
+                                <button type="button" onclick="selectStep(3)" class="btn-submit" style="padding: 0.35rem 0.75rem; font-size: 0.78rem; border-radius: 6px; cursor: pointer; background: var(--brand-primary); color: white; border: none; font-weight: 600; display: inline-flex; align-items: center; gap: 0.25rem;">
+                                    Próxima Etapa
+                                    <i data-lucide="arrow-right" style="width: 14px; height: 14px;"></i>
+                                </button>
+                            </div>
                         </div>
-                        {% endif %}
                     </div>
                 </div>
-                {% endif %}
 
-                <!-- ETAPA 3: ACIONAMENTO DO PARCEIRO E CRONOGRAMA -->
                 <div style="display: flex; gap: 1.25rem; position: relative; z-index: 2;">
-                    <div style="width: 36px; height: 36px; border-radius: 50%; 
+                    <!-- Circle -->
+                    <div id="step-circle-3" onclick="selectStep(3)" style="cursor: pointer; width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; flex-shrink: 0; transition: all 0.25s;
                         {% if site.planned_survey_date and site.planned_report_date %}
-                            background-color: #10b981; color: white; box-shadow: 0 0 0 4px #ecfdf5;
-                        {% elif site.access_status == 'RELEASED' or site.site_type == 'NENHUM' %}
-                            background-color: #eff6ff; color: #2563eb; border: 2px dashed #3b82f6; animation: pulse-ring-info 2s infinite;
+                            background-color: #10b981; color: white;
                         {% else %}
                             background-color: #f1f5f9; color: #64748b; border: 2px solid #cbd5e1;
-                        {% endif %}
-                        display: flex; align-items: center; justify-content: center; font-weight: 700; flex-shrink: 0;">
+                        {% endif %}">
                         {% if site.planned_survey_date and site.planned_report_date %}
                             <i data-lucide="check" style="width: 18px; height: 18px;"></i>
-                        {% elif site.access_status == 'RELEASED' or site.site_type == 'NENHUM' %}
-                            <i data-lucide="calendar" style="width: 16px; height: 16px;"></i>
                         {% else %}
-                            {% if site.site_type != 'NENHUM' %}3{% else %}2{% endif %}
+                            3
                         {% endif %}
                     </div>
-                    
-                    <div style="flex: 1; padding-top: 0.35rem;">
-                        <div style="display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap;">
-                            <h5 style="margin: 0; font-size: 0.95rem; font-weight: 700; color: {% if site.planned_survey_date %}var(--text-main){% elif site.access_status == 'RELEASED' or site.site_type == 'NENHUM' %}#2563eb{% else %}var(--text-muted){% endif %};">
-                                Etapa {% if site.site_type != 'NENHUM' %}3{% else %}2{% endif %}: Acionamento do Fornecedor e Datas Planejadas
-                            </h5>
-                            {% if site.planned_survey_date and site.planned_report_date %}
-                                <span style="font-size: 0.68rem; font-weight: 700; background: #ecfdf5; color: #10b981; padding: 0.15rem 0.5rem; border-radius: 20px;">Planejado</span>
-                            {% elif site.access_status == 'RELEASED' or site.site_type == 'NENHUM' %}
-                                <span style="font-size: 0.68rem; font-weight: 700; background: #eff6ff; color: #2563eb; padding: 0.15rem 0.5rem; border-radius: 20px;">Aguardando Datas</span>
-                            {% else %}
-                                <span style="font-size: 0.68rem; font-weight: 700; background: #f1f5f9; color: #64748b; padding: 0.15rem 0.5rem; border-radius: 20px;">Bloqueado</span>
-                            {% endif %}
-                        </div>
-
-                        <p style="margin: 0.35rem 0 0 0; font-size: 0.8rem; color: var(--text-muted); line-height: 1.4;">
-                            {% if site.planned_survey_date and site.planned_report_date %}
-                                Parceiro acionado: <strong>{{ site.partner_company|default:"Sem Parceiro" }}</strong>. <br>
-                                Datas planejadas: Vistoria em <strong>{{ site.planned_survey_date|date:"d/m/Y" }}</strong> | Laudo em <strong>{{ site.planned_report_date|date:"d/m/Y" }}</strong>.
-                            {% else %}
-                                Assim que o local estiver liberado, peça as datas planejadas para o parceiro técnico responsável e adicione-as para que o site não fique sem acompanhamento.
-                            {% endif %}
-                        </p>
-
-                        <!-- Formulário Inline para adicionar datas se estiver desbloqueado mas sem datas definidas -->
-                        {% if site.access_status == 'RELEASED' or site.site_type == 'NENHUM' %}
-                            {% if not site.planned_survey_date or not site.planned_report_date %}
-                                {% if user.role == 'ADMIN' or user.role == 'ENGINEER' %}
-                                <div style="margin-top: 1rem; background: #f8fafc; border: 1px solid var(--border-color); border-radius: 8px; padding: 1rem;">
-                                    <h6 style="margin: 0 0 0.75rem 0; font-size: 0.8rem; font-weight: 700; color: var(--text-main);">Definir Planejamento Inicial</h6>
-                                    <form method="POST" action="{% url 'site_detail' pk=site.pk %}">
-                                        {% csrf_token %}
-                                        <input type="hidden" name="action" value="update_workflow">
-                                        <input type="hidden" name="scope_type" value="{{ site.scope_type }}">
-                                        
-                                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 0.75rem; align-items: end;">
-                                            <div class="field-group">
-                                                <label for="partner_company_stepper" style="font-size: 0.65rem;">Empresa Parceira</label>
-                                                <input type="text" name="partner_company" id="partner_company_stepper" class="field-control" placeholder="Ex: BTL" style="padding: 0.4rem; font-size: 0.8rem; border-radius: 6px; border: 1px solid var(--border-color); background: white;" required>
-                                            </div>
-                                            <div class="field-group">
-                                                <label for="planned_survey_stepper" style="font-size: 0.65rem;">Vistoria Planejada</label>
-                                                <input type="date" name="planned_survey_date" id="planned_survey_stepper" class="field-control" style="padding: 0.4rem; font-size: 0.8rem; border-radius: 6px; border: 1px solid var(--border-color); background: white;" required>
-                                            </div>
-                                            <div class="field-group">
-                                                <label for="planned_report_stepper" style="font-size: 0.65rem;">Laudo Planejado</label>
-                                                <input type="date" name="planned_report_date" id="planned_report_stepper" class="field-control" style="padding: 0.4rem; font-size: 0.8rem; border-radius: 6px; border: 1px solid var(--border-color); background: white;" required>
-                                            </div>
-                                            <button type="submit" class="btn-submit" style="padding: 0.5rem 1rem; font-size: 0.8rem; border-radius: 6px; width: 100%; border: none; cursor: pointer; font-weight: 700; height: 34px;">
-                                                Gravar Planejamento
-                                            </button>
-                                        </div>
-                                    </form>
-                                </div>
+                    <!-- Right: Header + Content -->
+                    <div style="flex: 1;">
+                        <div id="step-header-3" class="step-header" onclick="selectStep(3)" style="cursor: pointer;">
+                            <div style="display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap;">
+                                <h5 style="margin: 0; font-size: 0.95rem; font-weight: 700; color: var(--text-main);">Etapa 3: Acionamento do Fornecedor e Datas Planejadas</h5>
+                                {% if site.planned_survey_date and site.planned_report_date %}
+                                    <span style="font-size: 0.68rem; font-weight: 700; background: #ecfdf5; color: #10b981; padding: 0.15rem 0.5rem; border-radius: 20px;">Planejado</span>
+                                {% else %}
+                                    <span style="font-size: 0.68rem; font-weight: 700; background: #eff6ff; color: #2563eb; padding: 0.15rem 0.5rem; border-radius: 20px;">Aguardando Datas</span>
                                 {% endif %}
+                            </div>
+                            <i id="step-arrow-3" class="step-arrow" data-lucide="chevron-down" style="width: 16px; height: 16px; color: var(--text-muted);"></i>
+                        </div>
+                        
+                        <div id="step-content-3" class="step-content">
+                            <p style="margin: 0 0 1rem 0; font-size: 0.82rem; color: var(--text-muted); line-height: 1.4;">
+                                {% if site.planned_survey_date or site.planned_report_date %}
+                                    Parceiro acionado: <strong>{{ site.partner_company|default:"Sem Fornecedora" }}</strong>. <br>
+                                    Vistoria Planejada: <strong>{{ site.planned_survey_date|date:"d/m/Y"|default:"Não definida" }}</strong> | Laudo Planejado: <strong>{{ site.planned_report_date|date:"d/m/Y"|default:"Não definido" }}</strong>.
+                                {% else %}
+                                    Defina as datas planejadas para a vistoria técnica e para a entrega do laudo/projeto pelo parceiro técnico.
+                                {% endif %}
+                            </p>
+
+                            {% if user.role == 'ADMIN' or user.role == 'ENGINEER' %}
+                            <div style="background: #ffffff; border: 1px solid var(--border-color); border-radius: 8px; padding: 1rem;">
+                                <h6 style="margin: 0 0 0.75rem 0; font-size: 0.8rem; font-weight: 700; color: var(--text-main);">Definir/Atualizar Cronograma Planejado</h6>
+                                <form method="POST" action="{% url 'site_detail' pk=site.pk %}">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="action" value="update_workflow">
+                                    <input type="hidden" name="scope_type" value="{{ site.scope_type }}">
+                                    <input type="hidden" name="actual_survey_date" value="{{ site.actual_survey_date|date:'Y-m-d' }}">
+                                    <input type="hidden" name="actual_report_date" value="{{ site.actual_report_date|date:'Y-m-d' }}">
+                                    
+                                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 0.75rem; align-items: end;">
+                                        <div class="field-group">
+                                            <label for="partner_company_stepper" style="font-size: 0.65rem;">Empresa Parceira</label>
+                                            <input type="text" name="partner_company" id="partner_company_stepper" class="field-control" value="{{ site.partner_company|default:'' }}" placeholder="Ex: BTL" style="padding: 0.4rem; font-size: 0.8rem; border-radius: 6px; border: 1px solid var(--border-color); background: white;">
+                                        </div>
+                                        <div class="field-group">
+                                            <label for="planned_survey_stepper" style="font-size: 0.65rem;">Vistoria Planejada</label>
+                                            <input type="date" name="planned_survey_date" id="planned_survey_stepper" value="{{ site.planned_survey_date|date:'Y-m-d' }}" class="field-control" style="padding: 0.4rem; font-size: 0.8rem; border-radius: 6px; border: 1px solid var(--border-color); background: white;">
+                                        </div>
+                                        <div class="field-group">
+                                            <label for="planned_report_stepper" style="font-size: 0.65rem;">Laudo Planejado</label>
+                                            <input type="date" name="planned_report_date" id="planned_report_stepper" value="{{ site.planned_report_date|date:'Y-m-d' }}" class="field-control" style="padding: 0.4rem; font-size: 0.8rem; border-radius: 6px; border: 1px solid var(--border-color); background: white;">
+                                        </div>
+                                        <button type="submit" class="btn-submit" style="padding: 0.5rem 1rem; font-size: 0.8rem; border-radius: 6px; width: 100%; border: none; cursor: pointer; font-weight: 700; height: 34px;">
+                                            Salvar Datas
+                                        </button>
+                                    </div>
+                                </form>
+                            </div>
                             {% endif %}
-                        {% endif %}
+                            
+                            <div style="display: flex; justify-content: space-between; margin-top: 1rem; border-top: 1px dashed #e2e8f0; padding-top: 0.75rem; width: 100%;">
+                                <button type="button" onclick="selectStep(2)" class="btn-ent btn-ent-outline" style="padding: 0.35rem 0.75rem; font-size: 0.78rem; border-radius: 6px; cursor: pointer; border: 1px solid #cbd5e1; color: #64748b; background: transparent; display: inline-flex; align-items: center; gap: 0.25rem;">
+                                    <i data-lucide="arrow-left" style="width: 14px; height: 14px;"></i>
+                                    Anterior
+                                </button>
+                                <button type="button" onclick="selectStep(4)" class="btn-submit" style="padding: 0.35rem 0.75rem; font-size: 0.78rem; border-radius: 6px; cursor: pointer; background: var(--brand-primary); color: white; border: none; font-weight: 600; display: inline-flex; align-items: center; gap: 0.25rem;">
+                                    Próxima Etapa
+                                    <i data-lucide="arrow-right" style="width: 14px; height: 14px;"></i>
+                                </button>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
-                <!-- ETAPA 4: ACOMPANHAMENTO E COBRANÇA (CAMPO) -->
+                <!-- ETAPA 4: ACOMPANHAMENTO DE CAMPO E COBRANÇA -->
                 <div style="display: flex; gap: 1.25rem; position: relative; z-index: 2;">
-                    <div style="width: 36px; height: 36px; border-radius: 50%; 
+                    <!-- Circle -->
+                    <div id="step-circle-4" onclick="selectStep(4)" style="cursor: pointer; width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; flex-shrink: 0; transition: all 0.25s;
                         {% if site.actual_survey_date %}
-                            background-color: #10b981; color: white; box-shadow: 0 0 0 4px #ecfdf5;
+                            background-color: #10b981; color: white;
                         {% elif site.planned_survey_date %}
                             {% if site.is_survey_overdue or site.is_report_overdue %}
-                                background-color: #fef2f2; color: #ef4444; border: 2px solid #fecaca;
+                                background-color: #fef2f2; color: #ef4444; border: 2px solid #fecaca; animation: pulse-ring-warning 2s infinite;
                             {% else %}
                                 background-color: #fffbeb; color: #d97706; border: 2px dashed #f59e0b;
                             {% endif %}
                         {% else %}
                             background-color: #f1f5f9; color: #64748b; border: 2px solid #cbd5e1;
-                        {% endif %}
-                        display: flex; align-items: center; justify-content: center; font-weight: 700; flex-shrink: 0;">
+                        {% endif %}">
                         {% if site.actual_survey_date %}
                             <i data-lucide="check" style="width: 18px; height: 18px;"></i>
-                        {% elif site.planned_survey_date %}
-                            <i data-lucide="bell" style="width: 16px; height: 16px;"></i>
                         {% else %}
-                            {% if site.site_type != 'NENHUM' %}4{% else %}3{% endif %}
+                            4
                         {% endif %}
                     </div>
-
-                    <div style="flex: 1; padding-top: 0.35rem;">
-                        <div style="display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap;">
-                            <h5 style="margin: 0; font-size: 0.95rem; font-weight: 700; color: {% if site.actual_survey_date %}var(--text-main){% elif site.planned_survey_date %}#d97706{% else %}var(--text-muted){% endif %};">
-                                Etapa {% if site.site_type != 'NENHUM' %}4{% else %}3{% endif %}: Acompanhamento de Campo e Cobrança
-                            </h5>
-                            {% if site.actual_survey_date %}
-                                <span style="font-size: 0.68rem; font-weight: 700; background: #ecfdf5; color: #10b981; padding: 0.15rem 0.5rem; border-radius: 20px;">Vistoria Realizada</span>
-                            {% elif site.planned_survey_date %}
-                                {% if site.is_survey_overdue or site.is_report_overdue %}
-                                    <span style="font-size: 0.68rem; font-weight: 700; background: #fef2f2; color: #ef4444; padding: 0.15rem 0.5rem; border-radius: 20px; animation: pulse-ring-warning 2s infinite;">Atrasado / Cobrar</span>
+                    <!-- Right: Header + Content -->
+                    <div style="flex: 1;">
+                        <div id="step-header-4" class="step-header" onclick="selectStep(4)" style="cursor: pointer;">
+                            <div style="display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap;">
+                                <h5 style="margin: 0; font-size: 0.95rem; font-weight: 700; color: var(--text-main);">Etapa 4: Execução de Campo e Acompanhamento</h5>
+                                {% if site.actual_survey_date %}
+                                    <span style="font-size: 0.68rem; font-weight: 700; background: #ecfdf5; color: #10b981; padding: 0.15rem 0.5rem; border-radius: 20px;">Vistoria Realizada</span>
+                                {% elif site.planned_survey_date %}
+                                    {% if site.is_survey_overdue or site.is_report_overdue %}
+                                        <span style="font-size: 0.68rem; font-weight: 700; background: #fef2f2; color: #ef4444; padding: 0.15rem 0.5rem; border-radius: 20px; animation: pulse-ring-warning 2s infinite;">Atrasado / Cobrar</span>
+                                    {% else %}
+                                        <span style="font-size: 0.68rem; font-weight: 700; background: #fffbeb; color: #d97706; padding: 0.15rem 0.5rem; border-radius: 20px;">Em Campo</span>
+                                    {% endif %}
                                 {% else %}
-                                    <span style="font-size: 0.68rem; font-weight: 700; background: #fffbeb; color: #d97706; padding: 0.15rem 0.5rem; border-radius: 20px;">Em Acompanhamento</span>
+                                    <span style="font-size: 0.68rem; font-weight: 700; background: #f1f5f9; color: #64748b; padding: 0.15rem 0.5rem; border-radius: 20px;">Aguardando Planejamento</span>
                                 {% endif %}
-                            {% else %}
-                                <span style="font-size: 0.68rem; font-weight: 700; background: #f1f5f9; color: #64748b; padding: 0.15rem 0.5rem; border-radius: 20px;">Bloqueado</span>
-                            {% endif %}
+                            </div>
+                            <i id="step-arrow-4" class="step-arrow" data-lucide="chevron-down" style="width: 16px; height: 16px; color: var(--text-muted);"></i>
                         </div>
-
-                        <p style="margin: 0.35rem 0 0 0; font-size: 0.8rem; color: var(--text-muted); line-height: 1.4;">
-                            {% if site.actual_survey_date %}
-                                Vistoria realizada em <strong>{{ site.actual_survey_date|date:"d/m/Y" }}</strong>. Aguardando conclusão do laudo.
-                            {% elif site.planned_survey_date %}
-                                A data planejada de vistoria é <strong>{{ site.planned_survey_date|date:"d/m/Y" }}</strong>.
-                                {% if site.is_survey_overdue %}
-                                    <br><span style="color: #ef4444; font-weight: 700;">⚠️ ATENÇÃO: A vistoria está atrasada há {{ site.days_overdue }} dias! Entre em contato com o parceiro.</span>
+                        
+                        <div id="step-content-4" class="step-content">
+                            <p style="margin: 0 0 1rem 0; font-size: 0.82rem; color: var(--text-muted); line-height: 1.4;">
+                                {% if site.actual_survey_date %}
+                                    Vistoria técnica de campo realizada em <strong>{{ site.actual_survey_date|date:"d/m/Y" }}</strong>.
+                                {% elif site.planned_survey_date %}
+                                    Vistoria em campo agendada para: <strong>{{ site.planned_survey_date|date:"d/m/Y" }}</strong>.
+                                    {% if site.is_survey_overdue %}
+                                        <br><span style="color: #ef4444; font-weight: 700;">⚠️ ATENÇÃO: A vistoria está atrasada há {{ site.days_overdue }} dia(s)! Cobre o parceiro imediatamente.</span>
+                                    {% endif %}
                                 {% else %}
-                                    <br>No dia da vistoria, cobre a fornecedora. Se houver contratempo, reagende a data.
+                                    Sem agendamento planejado cadastrado na Etapa 3.
                                 {% endif %}
                                 {% if site.reschedule_count > 0 %}
-                                    <br><span style="font-size: 0.75rem; color: var(--text-muted); font-weight: 600;">(Este site já passou por {{ site.reschedule_count }} replanejamento(s) de cronograma).</span>
+                                    <br><span style="font-size: 0.75rem; color: #d97706; font-weight: 600;">(Este ativo já passou por {{ site.reschedule_count }} replanejamento(s) de cronograma).</span>
                                 {% endif %}
-                            {% else %}
-                                Aguarde as datas de planejamento do parceiro para acompanhar a execução de campo.
-                            {% endif %}
-                        </p>
+                            </p>
 
-                        <!-- Ações Rápidas de Campo e Replanejamento -->
-                        {% if site.planned_survey_date and not site.actual_report_date %}
                             {% if user.role == 'ADMIN' or user.role == 'ENGINEER' %}
-                            <div style="margin-top: 0.85rem; display: flex; gap: 0.5rem; flex-wrap: wrap;">
-                                {% if not site.actual_survey_date %}
-                                <form method="POST" action="{% url 'site_detail' pk=site.pk %}" style="display: inline-block;">
+                            <div style="background: #ffffff; border: 1px solid var(--border-color); border-radius: 8px; padding: 1rem; margin-bottom: 1rem;">
+                                <h6 style="margin: 0 0 0.75rem 0; font-size: 0.8rem; font-weight: 700; color: #10b981; display: flex; align-items: center; gap: 0.35rem;">
+                                    <i data-lucide="check-circle" style="width: 16px; height: 16px;"></i>
+                                    Registrar/Atualizar Realização da Vistoria
+                                </h6>
+                                <form method="POST" action="{% url 'site_detail' pk=site.pk %}">
                                     {% csrf_token %}
                                     <input type="hidden" name="action" value="update_workflow">
                                     <input type="hidden" name="scope_type" value="{{ site.scope_type }}">
-                                    <input type="hidden" name="partner_company" value="{{ site.partner_company }}">
+                                    <input type="hidden" name="partner_company" value="{{ site.partner_company|default:'' }}">
                                     <input type="hidden" name="planned_survey_date" value="{{ site.planned_survey_date|date:'Y-m-d' }}">
                                     <input type="hidden" name="planned_report_date" value="{{ site.planned_report_date|date:'Y-m-d' }}">
-                                    <input type="hidden" name="actual_survey_date" value="{% now 'Y-m-d' %}">
-                                    <button type="submit" class="btn-ent btn-ent-primary" style="padding: 0.4rem 0.75rem; font-size: 0.78rem; display: flex; align-items: center; gap: 0.35rem; border-radius: 6px; border: none; cursor: pointer;">
-                                        <i data-lucide="check" style="width: 14px; height: 14px;"></i>
-                                        Vistoria Realizada Hoje
-                                    </button>
+                                    <input type="hidden" name="actual_report_date" value="{{ site.actual_report_date|date:'Y-m-d' }}">
+                                    
+                                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 0.75rem; align-items: end;">
+                                        <div class="field-group">
+                                            <label for="actual_survey_stepper" style="font-size: 0.65rem; color: #10b981;">Data da Vistoria Realizada</label>
+                                            <div style="display: flex; gap: 0.4rem; align-items: center; width: 100%;">
+                                                <input type="date" name="actual_survey_date" id="actual_survey_stepper" value="{{ site.actual_survey_date|date:'Y-m-d' }}" class="field-control" style="padding: 0.4rem; font-size: 0.8rem; border-radius: 6px; border: 1px solid var(--border-color); background: white;">
+                                                <button type="button" onclick="document.getElementById('actual_survey_stepper').value='{% now 'Y-m-d' %}'" class="btn-submit" style="padding: 0.4rem 0.6rem; font-size: 0.8rem; background: #10b981; border: none; border-radius: 6px; color: white; cursor: pointer; height: 34px; flex-shrink: 0;" title="Definir como hoje">Hoje</button>
+                                                <button type="button" onclick="document.getElementById('actual_survey_stepper').value=''" class="btn-submit" style="padding: 0.4rem 0.6rem; font-size: 0.8rem; background: #ef4444; border: none; border-radius: 6px; color: white; cursor: pointer; height: 34px; flex-shrink: 0;" title="Limpar data">Limpar</button>
+                                            </div>
+                                        </div>
+                                        <button type="submit" class="btn-submit" style="padding: 0.5rem 1rem; font-size: 0.8rem; border-radius: 6px; width: 100%; border: none; cursor: pointer; font-weight: 700; height: 34px; background: #10b981; color: white;">
+                                            Confirmar Realização
+                                        </button>
+                                    </div>
                                 </form>
-                                {% endif %}
+                            </div>
 
-                                <!-- Botão de Replanejamento -->
-                                <button onclick="toggleRescheduleForm()" class="btn-ent btn-ent-outline" style="padding: 0.4rem 0.75rem; font-size: 0.78rem; display: flex; align-items: center; gap: 0.35rem; border-radius: 6px; cursor: pointer;">
+                            <div style="display: flex; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 1rem;">
+                                <button type="button" onclick="toggleRescheduleForm()" class="btn-ent btn-ent-outline" style="padding: 0.4rem 0.75rem; font-size: 0.78rem; display: flex; align-items: center; gap: 0.35rem; border-radius: 6px; cursor: pointer; background: white; border: 1px solid #cbd5e1; color: #1e293b;">
                                     <i data-lucide="calendar-range" style="width: 14px; height: 14px;"></i>
                                     Replanejar Datas (Contratos)
                                 </button>
                             </div>
 
-                            <!-- Formulário de Replanejamento Oculto por Padrão -->
-                            <div id="reschedule-form-container" style="display: none; margin-top: 1rem; background: #fffbeb; border: 1px solid #fde68a; border-radius: 8px; padding: 1rem; animation: fadeIn 0.3s ease;">
+                            <div id="reschedule-form-container" style="display: none; background: #fffbeb; border: 1px solid #fde68a; border-radius: 8px; padding: 1rem; margin-top: 1rem;">
                                 <h6 style="margin: 0 0 0.75rem 0; font-size: 0.8rem; font-weight: 700; color: #b45309; display: flex; align-items: center; gap: 0.35rem;">
                                     <i data-lucide="alert-circle" style="width: 16px; height: 16px;"></i>
-                                    Registrar Replanejamento de Cronograma
+                                    Registrar Replanejamento
                                 </h6>
                                 <form method="POST" action="{% url 'site_detail' pk=site.pk %}">
                                     {% csrf_token %}
@@ -879,6 +928,7 @@
                                     <input type="hidden" name="scope_type" value="{{ site.scope_type }}">
                                     <input type="hidden" name="partner_company" value="{{ site.partner_company }}">
                                     <input type="hidden" name="actual_survey_date" value="{{ site.actual_survey_date|date:'Y-m-d' }}">
+                                    <input type="hidden" name="actual_report_date" value="{{ site.actual_report_date|date:'Y-m-d' }}">
                                     
                                     <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 0.75rem; align-items: end;">
                                         <div class="field-group">
@@ -890,60 +940,70 @@
                                             <input type="date" name="planned_report_date" id="planned_report_resched" class="field-control" value="{{ site.planned_report_date|date:'Y-m-d' }}" style="padding: 0.4rem; font-size: 0.8rem; border-radius: 6px; border: 1px solid #fde68a; background: white;" required>
                                         </div>
                                         <button type="submit" class="btn-submit" style="padding: 0.5rem 1rem; font-size: 0.8rem; border-radius: 6px; width: 100%; border: none; cursor: pointer; font-weight: 700; height: 34px; background: #d97706; color: white;">
-                                            Confirmar Replanejamento
+                                            Gravar Replanejamento
                                         </button>
                                     </div>
                                 </form>
                             </div>
                             {% endif %}
-                        {% endif %}
+                            
+                            <div style="display: flex; justify-content: space-between; margin-top: 1rem; border-top: 1px dashed #e2e8f0; padding-top: 0.75rem; width: 100%;">
+                                <button type="button" onclick="selectStep(3)" class="btn-ent btn-ent-outline" style="padding: 0.35rem 0.75rem; font-size: 0.78rem; border-radius: 6px; cursor: pointer; border: 1px solid #cbd5e1; color: #64748b; background: transparent; display: inline-flex; align-items: center; gap: 0.25rem;">
+                                    <i data-lucide="arrow-left" style="width: 14px; height: 14px;"></i>
+                                    Anterior
+                                </button>
+                                <button type="button" onclick="selectStep(5)" class="btn-submit" style="padding: 0.35rem 0.75rem; font-size: 0.78rem; border-radius: 6px; cursor: pointer; background: var(--brand-primary); color: white; border: none; font-weight: 600; display: inline-flex; align-items: center; gap: 0.25rem;">
+                                    Próxima Etapa
+                                    <i data-lucide="arrow-right" style="width: 14px; height: 14px;"></i>
+                                </button>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
                 <!-- ETAPA 5: ENTREGA E ARQUIVAMENTO -->
                 <div style="display: flex; gap: 1.25rem; position: relative; z-index: 2;">
-                    <div style="width: 36px; height: 36px; border-radius: 50%; 
+                    <!-- Circle -->
+                    <div id="step-circle-5" onclick="selectStep(5)" style="cursor: pointer; width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; flex-shrink: 0; transition: all 0.25s;
                         {% if site.actual_report_date %}
-                            background-color: #10b981; color: white; box-shadow: 0 0 0 4px #ecfdf5;
+                            background-color: #10b981; color: white;
                         {% else %}
                             background-color: #f1f5f9; color: #64748b; border: 2px solid #cbd5e1;
-                        {% endif %}
-                        display: flex; align-items: center; justify-content: center; font-weight: 700; flex-shrink: 0;">
+                        {% endif %}">
                         {% if site.actual_report_date %}
                             <i data-lucide="check" style="width: 18px; height: 18px;"></i>
                         {% else %}
-                            {% if site.site_type != 'NENHUM' %}5{% else %}4{% endif %}
+                            5
                         {% endif %}
                     </div>
-
-                    <div style="flex: 1; padding-top: 0.35rem;">
-                        <div style="display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap;">
-                            <h5 style="margin: 0; font-size: 0.95rem; font-weight: 700; color: {% if site.actual_report_date %}var(--text-main){% else %}var(--text-muted){% endif %};">
-                                Etapa {% if site.site_type != 'NENHUM' %}5{% else %}4{% endif %}: Entrega de Laudo & Armazenamento
-                            </h5>
-                            {% if site.actual_report_date %}
-                                <span style="font-size: 0.68rem; font-weight: 700; background: #ecfdf5; color: #10b981; padding: 0.15rem 0.5rem; border-radius: 20px;">Concluído</span>
-                            {% else %}
-                                <span style="font-size: 0.68rem; font-weight: 700; background: #f1f5f9; color: #64748b; padding: 0.15rem 0.5rem; border-radius: 20px;">Bloqueado</span>
-                            {% endif %}
+                    <!-- Right: Header + Content -->
+                    <div style="flex: 1;">
+                        <div id="step-header-5" class="step-header" onclick="selectStep(5)" style="cursor: pointer;">
+                            <div style="display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap;">
+                                <h5 style="margin: 0; font-size: 0.95rem; font-weight: 700; color: var(--text-main);">Etapa 5: Entrega de Laudo & Armazenamento</h5>
+                                {% if site.actual_report_date %}
+                                    <span style="font-size: 0.68rem; font-weight: 700; background: #ecfdf5; color: #10b981; padding: 0.15rem 0.5rem; border-radius: 20px;">Concluído</span>
+                                {% else %}
+                                    <span style="font-size: 0.68rem; font-weight: 700; background: #f1f5f9; color: #64748b; padding: 0.15rem 0.5rem; border-radius: 20px;">Pendente</span>
+                                {% endif %}
+                            </div>
+                            <i id="step-arrow-5" class="step-arrow" data-lucide="chevron-down" style="width: 16px; height: 16px; color: var(--text-muted);"></i>
                         </div>
+                        
+                        <div id="step-content-5" class="step-content">
+                            <p style="margin: 0 0 1rem 0; font-size: 0.82rem; color: var(--text-muted); line-height: 1.4;">
+                                {% if site.actual_report_date %}
+                                    Laudo técnico entregue pelo parceiro em: <strong>{{ site.actual_report_date|date:"d/m/Y" }}</strong>.
+                                {% else %}
+                                    Registre a data de recebimento do laudo final para concluir o ciclo de rollout. Lembre-se de anexar os arquivos correspondentes no Data Room.
+                                {% endif %}
+                            </p>
 
-                        <p style="margin: 0.35rem 0 0 0; font-size: 0.8rem; color: var(--text-muted); line-height: 1.4;">
-                            {% if site.actual_report_date %}
-                                O laudo técnico final foi entregue em <strong>{{ site.actual_report_date|date:"d/m/Y" }}</strong>.
-                                Todos os arquivos e registros estão arquivados com segurança no Data Room abaixo.
-                            {% else %}
-                                Assim que receber o laudo final ou o arquivo do projeto do parceiro, registre a data de entrega para fechar o ciclo de implantação deste site e anexe o arquivo correspondente no repositório.
-                            {% endif %}
-                        </p>
-
-                        <!-- Registro de Entrega Rápido se a vistoria estiver pronta mas o laudo pendente -->
-                        {% if site.actual_survey_date and not site.actual_report_date %}
                             {% if user.role == 'ADMIN' or user.role == 'ENGINEER' %}
-                            <div style="margin-top: 1rem; background: #ecfdf5; border: 1px solid #a7f3d0; border-radius: 8px; padding: 1rem;">
+                            <div style="background: #ffffff; border: 1px solid var(--border-color); border-radius: 8px; padding: 1rem;">
                                 <h6 style="margin: 0 0 0.75rem 0; font-size: 0.8rem; font-weight: 700; color: #15803d; display: flex; align-items: center; gap: 0.35rem;">
                                     <i data-lucide="check-circle" style="width: 16px; height: 16px;"></i>
-                                    Registrar Entrega de Laudo/Projeto
+                                    Registrar Entrega
                                 </h6>
                                 <form method="POST" action="{% url 'site_detail' pk=site.pk %}">
                                     {% csrf_token %}
@@ -957,16 +1017,27 @@
                                     <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 0.75rem; align-items: end;">
                                         <div class="field-group">
                                             <label for="actual_report_stepper" style="font-size: 0.65rem; color: #15803d;">Data de Entrega Realizada</label>
-                                            <input type="date" name="actual_report_date" id="actual_report_stepper" class="field-control" style="padding: 0.4rem; font-size: 0.8rem; border-radius: 6px; border: 1px solid #a7f3d0; background: white;" required>
+                                            <div style="display: flex; gap: 0.4rem; align-items: center; width: 100%;">
+                                                <input type="date" name="actual_report_date" id="actual_report_stepper" value="{{ site.actual_report_date|date:'Y-m-d' }}" class="field-control" style="padding: 0.4rem; font-size: 0.8rem; border-radius: 6px; border: 1px solid var(--border-color); background: white;">
+                                                <button type="button" onclick="document.getElementById('actual_report_stepper').value='{% now 'Y-m-d' %}'" class="btn-submit" style="padding: 0.4rem 0.6rem; font-size: 0.8rem; background: #10b981; border: none; border-radius: 6px; color: white; cursor: pointer; height: 34px; flex-shrink: 0;" title="Definir como hoje">Hoje</button>
+                                                <button type="button" onclick="document.getElementById('actual_report_stepper').value=''" class="btn-submit" style="padding: 0.4rem 0.6rem; font-size: 0.8rem; background: #ef4444; border: none; border-radius: 6px; color: white; cursor: pointer; height: 34px; flex-shrink: 0;" title="Limpar data">Limpar</button>
+                                            </div>
                                         </div>
                                         <button type="submit" class="btn-submit" style="padding: 0.5rem 1rem; font-size: 0.8rem; border-radius: 6px; width: 100%; border: none; cursor: pointer; font-weight: 700; height: 34px; background: #10b981; color: white;">
-                                            Confirmar Recebimento do Laudo
+                                            Confirmar Entrega do Laudo
                                         </button>
                                     </div>
                                 </form>
                             </div>
                             {% endif %}
-                        {% endif %}
+                            
+                            <div style="display: flex; justify-content: flex-start; margin-top: 1rem; border-top: 1px dashed #e2e8f0; padding-top: 0.75rem; width: 100%;">
+                                <button type="button" onclick="selectStep(4)" class="btn-ent btn-ent-outline" style="padding: 0.35rem 0.75rem; font-size: 0.78rem; border-radius: 6px; cursor: pointer; border: 1px solid #cbd5e1; color: #64748b; background: transparent; display: inline-flex; align-items: center; gap: 0.25rem;">
+                                    <i data-lucide="arrow-left" style="width: 14px; height: 14px;"></i>
+                                    Anterior
+                                </button>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
@@ -974,12 +1045,79 @@
         </div>
 
         <script>
+            let defaultStep = 1;
+            {% if site.actual_report_date %}
+                defaultStep = 5;
+            {% elif site.actual_survey_date %}
+                defaultStep = 5;
+            {% elif site.planned_survey_date %}
+                defaultStep = 4;
+            {% elif site.access_status == 'RELEASED' or site.site_type == 'NENHUM' %}
+                defaultStep = 3;
+            {% elif site.access_status == 'REQUESTED' %}
+                defaultStep = 2;
+            {% else %}
+                defaultStep = 2;
+            {% endif %}
+
             function toggleRescheduleForm() {
                 const el = document.getElementById('reschedule-form-container');
                 if (el) {
                     el.style.display = el.style.display === 'none' ? 'block' : 'none';
                 }
             }
+
+            function selectStep(stepNum) {
+                for (let i = 1; i <= 5; i++) {
+                    const content = document.getElementById('step-content-' + i);
+                    const header = document.getElementById('step-header-' + i);
+                    const arrow = document.getElementById('step-arrow-' + i);
+                    const circle = document.getElementById('step-circle-' + i);
+                    
+                    if (content) content.style.display = 'none';
+                    if (header) {
+                        header.classList.remove('step-active-header');
+                    }
+                    if (arrow) {
+                        arrow.classList.remove('step-arrow-active');
+                    }
+                    if (circle) {
+                        circle.style.transform = 'scale(1)';
+                        circle.style.boxShadow = 'none';
+                    }
+                }
+                
+                const selectedContent = document.getElementById('step-content-' + stepNum);
+                const selectedHeader = document.getElementById('step-header-' + stepNum);
+                const selectedArrow = document.getElementById('step-arrow-' + stepNum);
+                const selectedCircle = document.getElementById('step-circle-' + stepNum);
+                
+                if (selectedContent) {
+                    selectedContent.style.display = 'block';
+                    selectedContent.style.opacity = 0;
+                    setTimeout(() => {
+                        selectedContent.style.transition = 'opacity 0.2s ease';
+                        selectedContent.style.opacity = 1;
+                    }, 10);
+                }
+                
+                if (selectedHeader) {
+                    selectedHeader.classList.add('step-active-header');
+                }
+                
+                if (selectedArrow) {
+                    selectedArrow.classList.add('step-arrow-active');
+                }
+                
+                if (selectedCircle) {
+                    selectedCircle.style.transform = 'scale(1.08)';
+                    selectedCircle.style.boxShadow = '0 0 0 4px rgba(59, 130, 246, 0.15)';
+                }
+            }
+
+            document.addEventListener('DOMContentLoaded', () => {
+                selectStep(defaultStep);
+            });
         </script>
 
         <h3>
