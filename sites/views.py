@@ -56,7 +56,8 @@ def site_list(request):
             messages.error(request, "Seu cargo não possui permissão para cadastrar sites.")
             return redirect('site_list')
 
-        site_id = request.POST.get('site_id').strip().upper()
+        site_id_raw = request.POST.get('site_id', '').strip().upper()
+        site_id = site_id_raw if site_id_raw else None
         name = request.POST.get('name').strip()
         address = request.POST.get('address', '').strip() or None
         latitude_str = request.POST.get('latitude', '').strip() or None
@@ -72,9 +73,9 @@ def site_list(request):
         planned_report_date = parse_date(p_report) if p_report else None
         
         description = request.POST.get('description')
-
+ 
         try:
-            Site.objects.create(
+            new_site = Site.objects.create(
                 site_id=site_id,
                 name=name,
                 address=address,
@@ -87,7 +88,7 @@ def site_list(request):
                 planned_report_date=planned_report_date,
                 description=description
             )
-            messages.success(request, f"Site {site_id} cadastrado com sucesso!")
+            messages.success(request, f"Site {new_site.site_id} cadastrado com sucesso!")
         except IntegrityError:
             messages.error(request, f"Erro: O ID do Site '{site_id}' já está cadastrado.")
         except Exception as e:

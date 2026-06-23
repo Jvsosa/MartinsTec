@@ -54,6 +54,7 @@ class Site(models.Model):
     site_id = models.CharField(
         max_length=50, 
         unique=True, 
+        blank=True,
         verbose_name="ID do Site (Código)"
     )
     name = models.CharField(max_length=100, verbose_name="Nome do Site")
@@ -383,6 +384,16 @@ class Site(models.Model):
             if isinstance(val, str):
                 setattr(self, field, parse_date(val) if val else None)
         
+        # Gera site_id se não foi preenchido
+        if not self.site_id:
+            import uuid
+            import re
+            prefix = re.sub(r'[^A-Z0-9]', '', self.name.upper())[:10] if self.name else "SITE"
+            if not prefix:
+                prefix = "SITE"
+            unique_suffix = uuid.uuid4().hex[:4].upper()
+            self.site_id = f"{prefix}_{unique_suffix}"
+
         # Sincroniza stages_status com os campos legados se for uma alteração nos campos legados
         self.sync_stages()
 

@@ -386,5 +386,31 @@ class SiteRolloutWorkflowTests(TestCase):
         self.assertEqual(site.stages_status['Acionamento BTL']['status'], 'PENDING')
         self.assertIsNone(site.stages_status['Acionamento BTL']['date'])
 
+    def test_auto_generate_site_id(self):
+        """Test that leaving site_id blank automatically generates a unique ID on create."""
+        self.client.login(username='engineer_workflow', password='password123')
+        
+        # Scenario 1: creation via view POST with empty site_id
+        url = reverse('site_list')
+        response = self.client.post(url, {
+            'site_id': '',
+            'name': 'RJPLB Site Test',
+            'scope_type': 'LAUDOS'
+        })
+        self.assertEqual(response.status_code, 302)
+        
+        # Verify the created site has a site_id starting with RJPLBSITE
+        site = Site.objects.filter(name='RJPLB Site Test').first()
+        self.assertIsNotNone(site)
+        self.assertTrue(site.site_id.startswith('RJPLBSITET'))
+        self.assertEqual(len(site.site_id.split('_')[-1]), 4)
+
+        # Scenario 2: direct ORM creation
+        site2 = Site.objects.create(
+            name='Central SP',
+            site_type=Site.SiteType.ROOFTOP
+        )
+        self.assertTrue(site2.site_id.startswith('CENTRALSP_'))
+
 
 
