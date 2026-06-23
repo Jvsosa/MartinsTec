@@ -998,6 +998,9 @@
                 }
 
                 function selectStep(stepNum) {
+                    const selectedContent = document.getElementById('step-content-' + stepNum);
+                    const isAlreadyOpen = selectedContent && selectedContent.style.display === 'block';
+
                     for (let i = 1; i <= totalSteps; i++) {
                         const content = document.getElementById('step-content-' + i);
                         const header = document.getElementById('step-header-' + i);
@@ -1017,31 +1020,32 @@
                         }
                     }
                     
-                    const selectedContent = document.getElementById('step-content-' + stepNum);
-                    const selectedHeader = document.getElementById('step-header-' + stepNum);
-                    const selectedArrow = document.getElementById('step-arrow-' + stepNum);
-                    const selectedCircle = document.getElementById('step-circle-' + stepNum);
-                    
-                    if (selectedContent) {
-                        selectedContent.style.display = 'block';
-                        selectedContent.style.opacity = 0;
-                        setTimeout(() => {
-                            selectedContent.style.transition = 'opacity 0.2s ease';
-                            selectedContent.style.opacity = 1;
-                        }, 10);
-                    }
-                    
-                    if (selectedHeader) {
-                        selectedHeader.classList.add('step-active-header');
-                    }
-                    
-                    if (selectedArrow) {
-                        selectedArrow.classList.add('step-arrow-active');
-                    }
-                    
-                    if (selectedCircle) {
-                        selectedCircle.style.transform = 'scale(1.08)';
-                        selectedCircle.style.boxShadow = '0 0 0 4px rgba(59, 130, 246, 0.15)';
+                    if (!isAlreadyOpen) {
+                        const selectedHeader = document.getElementById('step-header-' + stepNum);
+                        const selectedArrow = document.getElementById('step-arrow-' + stepNum);
+                        const selectedCircle = document.getElementById('step-circle-' + stepNum);
+                        
+                        if (selectedContent) {
+                            selectedContent.style.display = 'block';
+                            selectedContent.style.opacity = 0;
+                            setTimeout(() => {
+                                selectedContent.style.transition = 'opacity 0.2s ease';
+                                selectedContent.style.opacity = 1;
+                            }, 10);
+                        }
+                        
+                        if (selectedHeader) {
+                            selectedHeader.classList.add('step-active-header');
+                        }
+                        
+                        if (selectedArrow) {
+                            selectedArrow.classList.add('step-arrow-active');
+                        }
+                        
+                        if (selectedCircle) {
+                            selectedCircle.style.transform = 'scale(1.08)';
+                            selectedCircle.style.boxShadow = '0 0 0 4px rgba(59, 130, 246, 0.15)';
+                        }
                     }
                 }
 
