@@ -385,17 +385,17 @@ class SiteRolloutWorkflowTests(TestCase):
         
         url = reverse('site_detail', kwargs={'pk': site.pk})
         
-        # 1. Complete a generic stage e.g. "Acionamento BTL"
+        # 1. Complete a generic stage e.g. "Acionamento Parceiro"
         response = self.client.post(url, {
             'action': 'update_stage',
-            'stage_name': 'Acionamento BTL',
+            'stage_name': 'Acionamento Parceiro',
             'stage_status': 'DONE',
             'stage_date': '2026-06-23'
         })
         self.assertEqual(response.status_code, 302)
         site.refresh_from_db()
-        self.assertEqual(site.stages_status['Acionamento BTL']['status'], 'DONE')
-        self.assertEqual(site.stages_status['Acionamento BTL']['date'], '2026-06-23')
+        self.assertEqual(site.stages_status['Acionamento Parceiro']['status'], 'DONE')
+        self.assertEqual(site.stages_status['Acionamento Parceiro']['date'], '2026-06-23')
 
         # 2. Skip a generic stage e.g. "Projeto Reforço"
         response = self.client.post(url, {
@@ -410,13 +410,13 @@ class SiteRolloutWorkflowTests(TestCase):
         # 3. Reset a generic stage back to PENDING
         response = self.client.post(url, {
             'action': 'update_stage',
-            'stage_name': 'Acionamento BTL',
+            'stage_name': 'Acionamento Parceiro',
             'stage_status': 'PENDING'
         })
         self.assertEqual(response.status_code, 302)
         site.refresh_from_db()
-        self.assertEqual(site.stages_status['Acionamento BTL']['status'], 'PENDING')
-        self.assertIsNone(site.stages_status['Acionamento BTL']['date'])
+        self.assertEqual(site.stages_status['Acionamento Parceiro']['status'], 'PENDING')
+        self.assertIsNone(site.stages_status['Acionamento Parceiro']['date'])
 
     def test_optional_site_id(self):
         """Test that leaving site_id blank allows registering the site with null ID, and multiple blank IDs are allowed."""

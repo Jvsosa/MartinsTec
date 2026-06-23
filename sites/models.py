@@ -215,7 +215,7 @@ class Site(models.Model):
         return bool(self.planned_report_date and not self.actual_report_date and today <= self.planned_report_date <= three_days)
 
     SCOPE_STAGES = {
-        'LAUDOS': ['Acionamento BTL', 'Acesso', 'Vistoria', 'Laudo', 'Projeto Reforço'],
+        'LAUDOS': ['Acionamento Parceiro', 'Acesso', 'Vistoria', 'Laudo', 'Projeto Reforço'],
         'INSTALACAO': ['Acesso', 'Vistoria', 'QRF', 'WarRoom', 'PPI', 'Execução', 'ARQ'],
         'INFRA': ['Acesso', 'Vistoria', 'Projeto', 'Execução', 'RFI'],
         'FABRICA': ['Acesso', 'Vistoria', 'Projeto']
