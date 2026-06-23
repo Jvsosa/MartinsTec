@@ -448,6 +448,51 @@
         transform: translateY(-1px);
         box-shadow: 0 4px 10px rgba(225, 29, 72, 0.05);
     }
+
+    /* Estilos para Upload Inline por Categoria */
+    .btn-toggle-upload {
+        margin-left: auto;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 28px;
+        height: 28px;
+        border-radius: 8px;
+        border: 1px solid currentColor;
+        background: transparent;
+        color: inherit;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        padding: 0;
+    }
+    .btn-toggle-upload:hover {
+        background-color: rgba(0, 0, 0, 0.05);
+        transform: scale(1.05);
+    }
+    .category-upload-box {
+        background: #f8fafc;
+        border: 1px dashed var(--border-color);
+        border-radius: 12px;
+        padding: 1.25rem;
+        margin-bottom: 1.25rem;
+        animation: slideDown 0.25s ease-out;
+    }
+    .category-upload-fields {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 1rem;
+        align-items: flex-end;
+    }
+    @keyframes slideDown {
+        from {
+            opacity: 0;
+            transform: translateY(-10px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
 </style>
 {% endblock %}
 
@@ -1065,6 +1110,33 @@
             <div class="category-header category-header-pdf">
                 <i data-lucide="file-text" style="width: 20px; height: 20px;"></i>
                 <span>Relatórios Técnicos (PDF)</span>
+                <button type="button" class="btn-toggle-upload" onclick="toggleUploadForm('PDF')" title="Adicionar Relatório Técnico (PDF)">
+                    <i data-lucide="plus" style="width: 16px; height: 16px;"></i>
+                </button>
+            </div>
+            
+            <!-- Inline Upload Form PDF -->
+            <div id="upload-form-PDF" class="category-upload-box" style="display: none;">
+                <form method="POST" action="{% url 'site_detail' pk=site.pk %}" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    <input type="hidden" name="category" value="PDF">
+                    <div class="category-upload-fields">
+                        <div class="field-group" style="flex: 1; min-width: 200px;">
+                            <label for="file-PDF">Arquivo PDF</label>
+                            <input type="file" name="file" id="file-PDF" class="field-control" required>
+                        </div>
+                        <div class="field-group" style="flex: 2; min-width: 300px;">
+                            <label for="description-PDF">Descrição / Resumo do Conteúdo</label>
+                            <input type="text" name="description" id="description-PDF" class="field-control" placeholder="Ex: Laudo estrutural, relatório fotográfico..." required>
+                        </div>
+                        <div style="display: flex; align-items: flex-end;">
+                            <button type="submit" class="btn-submit" style="height: 42px; background: #e11d48; margin-bottom: 2px;">
+                                Enviar PDF
+                                <i data-lucide="upload" style="width: 16px; height: 16px;"></i>
+                            </button>
+                        </div>
+                    </div>
+                </form>
             </div>
             {% if files_by_category.PDF %}
                 <table class="file-table">
@@ -1112,6 +1184,33 @@
             <div class="category-header category-header-image">
                 <i data-lucide="image" style="width: 20px; height: 20px;"></i>
                 <span>Fotografias / Imagens</span>
+                <button type="button" class="btn-toggle-upload" onclick="toggleUploadForm('IMAGE')" title="Adicionar Fotografia / Imagem">
+                    <i data-lucide="plus" style="width: 16px; height: 16px;"></i>
+                </button>
+            </div>
+
+            <!-- Inline Upload Form IMAGE -->
+            <div id="upload-form-IMAGE" class="category-upload-box" style="display: none;">
+                <form method="POST" action="{% url 'site_detail' pk=site.pk %}" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    <input type="hidden" name="category" value="IMAGE">
+                    <div class="category-upload-fields">
+                        <div class="field-group" style="flex: 1; min-width: 200px;">
+                            <label for="file-IMAGE">Imagem (JPG, PNG, GIF)</label>
+                            <input type="file" name="file" id="file-IMAGE" class="field-control" accept="image/*" required>
+                        </div>
+                        <div class="field-group" style="flex: 2; min-width: 300px;">
+                            <label for="description-IMAGE">Descrição / Resumo do Conteúdo</label>
+                            <input type="text" name="description" id="description-IMAGE" class="field-control" placeholder="Ex: Vista frontal da torre, fotos dos equipamentos..." required>
+                        </div>
+                        <div style="display: flex; align-items: flex-end;">
+                            <button type="submit" class="btn-submit" style="height: 42px; background: #0d9488; margin-bottom: 2px;">
+                                Enviar Imagem
+                                <i data-lucide="upload" style="width: 16px; height: 16px;"></i>
+                            </button>
+                        </div>
+                    </div>
+                </form>
             </div>
             {% if files_by_category.IMAGE %}
                 <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 1.25rem;">
@@ -1156,6 +1255,33 @@
             <div class="category-header category-header-dwg">
                 <i data-lucide="drafting-compass" style="width: 20px; height: 20px;"></i>
                 <span>Plantas AutoCAD (DWG)</span>
+                <button type="button" class="btn-toggle-upload" onclick="toggleUploadForm('DWG')" title="Adicionar Planta AutoCAD (DWG)">
+                    <i data-lucide="plus" style="width: 16px; height: 16px;"></i>
+                </button>
+            </div>
+
+            <!-- Inline Upload Form DWG -->
+            <div id="upload-form-DWG" class="category-upload-box" style="display: none;">
+                <form method="POST" action="{% url 'site_detail' pk=site.pk %}" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    <input type="hidden" name="category" value="DWG">
+                    <div class="category-upload-fields">
+                        <div class="field-group" style="flex: 1; min-width: 200px;">
+                            <label for="file-DWG">Arquivo DWG</label>
+                            <input type="file" name="file" id="file-DWG" class="field-control" required>
+                        </div>
+                        <div class="field-group" style="flex: 2; min-width: 300px;">
+                            <label for="description-DWG">Descrição / Resumo do Conteúdo</label>
+                            <input type="text" name="description" id="description-DWG" class="field-control" placeholder="Ex: Planta baixa de locação, detalhe de fundação..." required>
+                        </div>
+                        <div style="display: flex; align-items: flex-end;">
+                            <button type="submit" class="btn-submit" style="height: 42px; background: #0284c7; margin-bottom: 2px;">
+                                Enviar DWG
+                                <i data-lucide="upload" style="width: 16px; height: 16px;"></i>
+                            </button>
+                        </div>
+                    </div>
+                </form>
             </div>
             {% if files_by_category.DWG %}
                 <table class="file-table">
@@ -1210,6 +1336,33 @@
             <div class="category-header category-header-other">
                 <i data-lucide="file-digit" style="width: 20px; height: 20px;"></i>
                 <span>Outros Arquivos</span>
+                <button type="button" class="btn-toggle-upload" onclick="toggleUploadForm('OTHER')" title="Adicionar Outro Arquivo">
+                    <i data-lucide="plus" style="width: 16px; height: 16px;"></i>
+                </button>
+            </div>
+
+            <!-- Inline Upload Form OTHER -->
+            <div id="upload-form-OTHER" class="category-upload-box" style="display: none;">
+                <form method="POST" action="{% url 'site_detail' pk=site.pk %}" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    <input type="hidden" name="category" value="OTHER">
+                    <div class="category-upload-fields">
+                        <div class="field-group" style="flex: 1; min-width: 200px;">
+                            <label for="file-OTHER">Arquivo (Qualquer formato)</label>
+                            <input type="file" name="file" id="file-OTHER" class="field-control" required>
+                        </div>
+                        <div class="field-group" style="flex: 2; min-width: 300px;">
+                            <label for="description-OTHER">Descrição / Resumo do Conteúdo</label>
+                            <input type="text" name="description" id="description-OTHER" class="field-control" placeholder="Ex: Planilha de cálculo, memoriais..." required>
+                        </div>
+                        <div style="display: flex; align-items: flex-end;">
+                            <button type="submit" class="btn-submit" style="height: 42px; background: #64748b; margin-bottom: 2px;">
+                                Enviar Arquivo
+                                <i data-lucide="upload" style="width: 16px; height: 16px;"></i>
+                            </button>
+                        </div>
+                    </div>
+                </form>
             </div>
             {% if files_by_category.OTHER %}
                 <table class="file-table">
@@ -1252,42 +1405,6 @@
             {% endif %}
         </div>
 
-        <!-- Formulário de Upload de Arquivo -->
-        <div class="upload-box">
-            <h4>
-                <i data-lucide="upload-cloud" style="color: var(--primary);"></i>
-                Enviar Novo Arquivo Técnica para o Site
-            </h4>
-            
-            <form method="POST" action="{% url 'site_detail' pk=site.pk %}" enctype="multipart/form-data" class="upload-form">
-                {% csrf_token %}
-                <div class="field-group">
-                    <label for="category">Categoria do Arquivo</label>
-                    <select name="category" id="category" class="field-control" style="background: var(--bg-tertiary);" required>
-                        {% for code, label in categories %}
-                        <option value="{{ code }}">{{ label }}</option>
-                        {% endfor %}
-                    </select>
-                </div>
-
-                <div class="field-group">
-                    <label for="file">Arquivo (PDF, DWG, Fotos)</label>
-                    <input type="file" name="file" id="file" class="field-control" required>
-                </div>
-
-                <div class="field-group full-width">
-                    <label for="description">Descrição / Resumo do Conteúdo</label>
-                    <input type="text" name="description" id="description" class="field-control" placeholder="Ex: Planta de fundação da torre, fotos dos conectores RF..." required>
-                </div>
-
-                <div class="full-width" style="display: flex; justify-content: flex-end;">
-                    <button type="submit" class="btn-submit" style="margin-top: 0.5rem;">
-                        Realizar Upload
-                        <i data-lucide="upload" style="width: 16px; height: 16px;"></i>
-                    </button>
-                </div>
-            </form>
-        </div>
     </div>
 </div>
 </div>
@@ -1304,6 +1421,22 @@
 </div>
 
 <script>
+    function toggleUploadForm(category) {
+        const form = document.getElementById('upload-form-' + category);
+        if (form) {
+            if (form.style.display === 'none') {
+                form.style.display = 'block';
+                const fileInput = document.getElementById('file-' + category);
+                if (fileInput) fileInput.focus();
+            } else {
+                form.style.display = 'none';
+            }
+        }
+        if (window.lucide) {
+            lucide.createIcons();
+        }
+    }
+
     function openLightboxModal(src, desc) {
         const modal = document.getElementById('image-lightbox-modal');
         const img = document.getElementById('lightbox-img');
