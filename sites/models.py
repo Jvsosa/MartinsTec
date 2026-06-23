@@ -34,10 +34,10 @@ class Site(models.Model):
         INACTIVE = 'INACTIVE', 'Prazo Vencido'
 
     class ScopeType(models.TextChoices):
-        LAUDO = 'LAUDO', 'Laudo Técnico'
-        PROJETO = 'PROJETO', 'Projeto'
-        OBRA = 'OBRA', 'Obra / Instalação'
-        OUTRO = 'OUTRO', 'Outro'
+        LAUDOS = 'LAUDOS', 'Laudos'
+        INSTALACAO = 'INSTALACAO', 'Instalação'
+        INFRA = 'INFRA', 'Infra'
+        FABRICA = 'FABRICA', 'Fabrica'
 
     class SiteType(models.TextChoices):
         ROOFTOP = 'ROOFTOP', 'Rooftop'
@@ -65,7 +65,7 @@ class Site(models.Model):
     scope_type = models.CharField(
         max_length=20,
         choices=ScopeType.choices,
-        default=ScopeType.LAUDO,
+        default=ScopeType.LAUDOS,
         verbose_name="Escopo do Acionamento"
     )
     partner_company = models.CharField(
@@ -101,6 +101,11 @@ class Site(models.Model):
     reschedule_count = models.IntegerField(
         default=0,
         verbose_name="Quantidade de Replanejamentos"
+    )
+    stages_status = models.JSONField(
+        default=dict,
+        blank=True,
+        verbose_name="Status das Etapas"
     )
 
     # Datas de Planejamento e Realização do Fluxo
@@ -207,23 +212,167 @@ class Site(models.Model):
         three_days = today + timezone.timedelta(days=3)
         return bool(self.planned_report_date and not self.actual_report_date and today <= self.planned_report_date <= three_days)
 
+    SCOPE_STAGES = {
+        'LAUDOS': ['Acionamento BTL', 'Acesso', 'Vistoria', 'Laudo', 'Projeto Reforço'],
+        'INSTALACAO': ['Acesso', 'Vistoria', 'QRF', 'WarRoom', 'PPI', 'Execução', 'ARQ'],
+        'INFRA': ['Acesso', 'Vistoria', 'Projeto', 'Execução', 'RFI'],
+        'FABRICA': ['Acesso', 'Vistoria', 'Projeto']
+    }
+
+    def get_stages_config(self):
+        return self.SCOPE_STAGES.get(self.scope_type, self.SCOPE_STAGES['LAUDOS'])
+
+    def sync_stages(self):
+        """Sincroniza o campo JSON stages_status com base nos campos de banco legados."""
+        stages = self.get_stages_config()
+        if not self.stages_status:
+            self.stages_status = {}
+            
+        new_status = {}
+        for s in stages:
+            if s in self.stages_status:
+                new_status[s] = self.stages_status[s]
+            else:
+                new_status[s] = {'status': 'PENDING', 'date': None}
+                
+        # 1. Acesso
+        if 'Acesso' in new_status:
+            if self.access_status == self.AccessStatus.RELEASED:
+                new_status['Acesso'] = {
+                    'status': 'DONE',
+                    'date': self.access_released_date.isoformat() if self.access_released_date else None
+                }
+            elif self.access_status == self.AccessStatus.NOT_REQUIRED:
+                new_status['Acesso'] = {'status': 'SKIPPED', 'date': None}
+            elif self.access_status == self.AccessStatus.NOT_STARTED:
+                if new_status['Acesso'].get('status') in ['DONE', 'SKIPPED']:
+                    new_status['Acesso'] = {'status': 'PENDING', 'date': None}
+                    
+        # 2. Vistoria
+        if 'Vistoria' in new_status:
+            if self.actual_survey_date:
+                new_status['Vistoria'] = {
+                    'status': 'DONE',
+                    'date': self.actual_survey_date.isoformat() if self.actual_survey_date else None
+                }
+            else:
+                if new_status['Vistoria'].get('status') == 'DONE':
+                    new_status['Vistoria'] = {'status': 'PENDING', 'date': None}
+                    
+        # 3. Laudo
+        if 'Laudo' in new_status:
+            if self.actual_report_date:
+                new_status['Laudo'] = {
+                    'status': 'DONE',
+                    'date': self.actual_report_date.isoformat() if self.actual_report_date else None
+                }
+            else:
+                if new_status['Laudo'].get('status') == 'DONE':
+                    new_status['Laudo'] = {'status': 'PENDING', 'date': None}
+                    
+        # 4. Projeto
+        if 'Projeto' in new_status:
+            if self.actual_report_date:
+                new_status['Projeto'] = {
+                    'status': 'DONE',
+                    'date': self.actual_report_date.isoformat() if self.actual_report_date else None
+                }
+            else:
+                if new_status['Projeto'].get('status') == 'DONE':
+                    new_status['Projeto'] = {'status': 'PENDING', 'date': None}
+                    
+        self.stages_status = new_status
+
+    def sync_to_legacy_fields(self):
+        """Sincroniza os campos legados de banco com base no JSON stages_status."""
+        if not self.stages_status:
+            return
+            
+        from django.utils.dateparse import parse_date
+        
+        # 1. Acesso
+        if 'Acesso' in self.stages_status:
+            st = self.stages_status['Acesso'].get('status', 'PENDING')
+            dt_str = self.stages_status['Acesso'].get('date')
+            dt = parse_date(dt_str) if dt_str else None
+            
+            if st == 'DONE':
+                self.access_status = self.AccessStatus.RELEASED
+                if dt:
+                    self.access_released_date = dt
+            elif st == 'SKIPPED':
+                self.access_status = self.AccessStatus.NOT_REQUIRED
+                self.access_released_date = None
+                self.access_requested_date = None
+            else:
+                if self.access_status not in [self.AccessStatus.REQUESTED, self.AccessStatus.NOT_STARTED]:
+                    self.access_status = self.AccessStatus.NOT_STARTED
+                    self.access_released_date = None
+                    self.access_requested_date = None
+                    
+        # 2. Vistoria
+        if 'Vistoria' in self.stages_status:
+            st = self.stages_status['Vistoria'].get('status', 'PENDING')
+            dt_str = self.stages_status['Vistoria'].get('date')
+            dt = parse_date(dt_str) if dt_str else None
+            
+            if st == 'DONE':
+                self.actual_survey_date = dt
+            elif st == 'SKIPPED':
+                self.actual_survey_date = None
+            else:
+                self.actual_survey_date = None
+                
+        # 3. Laudo
+        if 'Laudo' in self.stages_status:
+            st = self.stages_status['Laudo'].get('status', 'PENDING')
+            dt_str = self.stages_status['Laudo'].get('date')
+            dt = parse_date(dt_str) if dt_str else None
+            
+            if st == 'DONE':
+                self.actual_report_date = dt
+            elif st == 'SKIPPED':
+                self.actual_report_date = None
+            else:
+                self.actual_report_date = None
+                
+        # 4. Projeto
+        if 'Projeto' in self.stages_status:
+            st = self.stages_status['Projeto'].get('status', 'PENDING')
+            dt_str = self.stages_status['Projeto'].get('date')
+            dt = parse_date(dt_str) if dt_str else None
+            
+            if st == 'DONE':
+                self.actual_report_date = dt
+            elif st == 'SKIPPED':
+                self.actual_report_date = None
+            else:
+                self.actual_report_date = None
+
     def recalculate_status(self):
         from django.utils import timezone
         today = timezone.localdate()
         
-        if self.actual_report_date:
-            return self.SiteStatus.ACTIVE
-        elif (self.planned_survey_date and self.planned_survey_date < today and not self.actual_survey_date) or \
-             (self.planned_report_date and self.planned_report_date < today and not self.actual_report_date):
+        stages = self.get_stages_config()
+        if stages:
+            final_stage = stages[-1]
+            final_status = self.stages_status.get(final_stage, {}).get('status', 'PENDING')
+            if final_status in ['DONE', 'SKIPPED']:
+                return self.SiteStatus.ACTIVE
+        
+        if (self.planned_survey_date and self.planned_survey_date < today and not self.actual_survey_date) or \
+           (self.planned_report_date and self.planned_report_date < today and not self.actual_report_date):
             return self.SiteStatus.INACTIVE
-        elif (not self.actual_survey_date and not self.planned_survey_date) or \
-             (not self.actual_report_date and not self.planned_report_date):
+            
+        if (not self.actual_survey_date and not self.planned_survey_date) or \
+           (not self.actual_report_date and not self.planned_report_date):
             return self.SiteStatus.MAINTENANCE
-        elif (self.planned_survey_date and today <= self.planned_survey_date <= today + timezone.timedelta(days=3) and not self.actual_survey_date) or \
-             (self.planned_report_date and today <= self.planned_report_date <= today + timezone.timedelta(days=3) and not self.actual_report_date):
+            
+        if (self.planned_survey_date and today <= self.planned_survey_date <= today + timezone.timedelta(days=3) and not self.actual_survey_date) or \
+           (self.planned_report_date and today <= self.planned_report_date <= today + timezone.timedelta(days=3) and not self.actual_report_date):
             return self.SiteStatus.MAINTENANCE
-        else:
-            return self.SiteStatus.PLANNED
+            
+        return self.SiteStatus.PLANNED
 
     def save(self, *args, **kwargs):
         from django.utils.dateparse import parse_date
@@ -233,6 +382,9 @@ class Site(models.Model):
             val = getattr(self, field)
             if isinstance(val, str):
                 setattr(self, field, parse_date(val) if val else None)
+        
+        # Sincroniza stages_status com os campos legados se for uma alteração nos campos legados
+        self.sync_stages()
         
         if self.site_type == self.SiteType.NENHUM:
             self.access_status = self.AccessStatus.NOT_REQUIRED

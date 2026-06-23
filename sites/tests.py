@@ -121,7 +121,7 @@ class SiteGeocodingAndOptionalCoordsTests(TestCase):
             'address': 'Rua Augusta, 1500, São Paulo',
             'latitude': '',
             'longitude': '',
-            'scope_type': 'LAUDO'
+            'scope_type': 'LAUDOS'
         }
         response = self.client.post(url, post_data)
         self.assertEqual(response.status_code, 302)
@@ -309,7 +309,7 @@ class SiteRolloutWorkflowTests(TestCase):
         url = reverse('site_detail', kwargs={'pk': site.pk})
         response = self.client.post(url, {
             'action': 'update_workflow',
-            'scope_type': 'LAUDO',
+            'scope_type': 'LAUDOS',
             'planned_survey_date': (today + datetime.timedelta(days=2)).strftime('%Y-%m-%d'),
             'planned_report_date': (today + datetime.timedelta(days=7)).strftime('%Y-%m-%d')
         })
@@ -347,7 +347,51 @@ class SiteRolloutWorkflowTests(TestCase):
         url = reverse('delete_site', kwargs={'pk': site.pk})
         response = self.client.post(url)
         self.assertEqual(response.status_code, 302)
-        self.assertTrue(Site.objects.filter(site_id='SITE_DELETE_FAIL').exists())
+        self.assertTrue(Site.objects.filter(SITE_DELETE_FAIL=site.site_id).exists() if hasattr(self, 'dummy') else Site.objects.filter(site_id='SITE_DELETE_FAIL').exists())
+
+    def test_dynamic_update_stage_actions(self):
+        """Test that generic stages can be updated, skipped, and reset, and their statuses are saved in JSON."""
+        self.client.login(username='engineer_workflow', password='password123')
+        site = Site.objects.create(
+            site_id='SITE_DYN_STAGES',
+            name='Site Estágios Dinâmicos',
+            scope_type=Site.ScopeType.LAUDOS
+        )
+        
+        url = reverse('site_detail', kwargs={'pk': site.pk})
+        
+        # 1. Complete a generic stage e.g. "Acionamento BTL"
+        response = self.client.post(url, {
+            'action': 'update_stage',
+            'stage_name': 'Acionamento BTL',
+            'stage_status': 'DONE',
+            'stage_date': '2026-06-23'
+        })
+        self.assertEqual(response.status_code, 302)
+        site.refresh_from_db()
+        self.assertEqual(site.stages_status['Acionamento BTL']['status'], 'DONE')
+        self.assertEqual(site.stages_status['Acionamento BTL']['date'], '2026-06-23')
+
+        # 2. Skip a generic stage e.g. "Projeto Reforço"
+        response = self.client.post(url, {
+            'action': 'update_stage',
+            'stage_name': 'Projeto Reforço',
+            'stage_status': 'SKIPPED'
+        })
+        self.assertEqual(response.status_code, 302)
+        site.refresh_from_db()
+        self.assertEqual(site.stages_status['Projeto Reforço']['status'], 'SKIPPED')
+
+        # 3. Reset a generic stage back to PENDING
+        response = self.client.post(url, {
+            'action': 'update_stage',
+            'stage_name': 'Acionamento BTL',
+            'stage_status': 'PENDING'
+        })
+        self.assertEqual(response.status_code, 302)
+        site.refresh_from_db()
+        self.assertEqual(site.stages_status['Acionamento BTL']['status'], 'PENDING')
+        self.assertIsNone(site.stages_status['Acionamento BTL']['date'])
 
 
 

@@ -344,6 +344,49 @@ def site_detail(request, pk):
                 
             return redirect('site_detail', pk=pk)
 
+        # Ação Nova: Atualização de etapa dinâmica (apenas ADMIN ou ENGINEER)
+        if action == 'update_stage':
+            if request.user.role not in [User.Role.ADMIN, User.Role.ENGINEER]:
+                messages.error(request, "Seu cargo não possui permissão para atualizar etapas.")
+                return redirect('site_detail', pk=pk)
+
+            stage_name = request.POST.get('stage_name')
+            stage_status = request.POST.get('stage_status')  # 'PENDING', 'DONE', 'SKIPPED'
+            stage_date = request.POST.get('stage_date')
+
+            if not site.stages_status:
+                site.stages_status = {}
+
+            from django.utils import timezone
+            today = timezone.localdate()
+
+            if stage_status == 'DONE':
+                site.stages_status[stage_name] = {
+                    'status': 'DONE',
+                    'date': stage_date if stage_date else today.isoformat()
+                }
+            elif stage_status == 'SKIPPED':
+                site.stages_status[stage_name] = {
+                    'status': 'SKIPPED',
+                    'date': today.isoformat()
+                }
+            else:
+                site.stages_status[stage_name] = {
+                    'status': 'PENDING',
+                    'date': None
+                }
+
+            # Sincroniza o JSON de volta para os campos legados de banco
+            site.sync_to_legacy_fields()
+
+            try:
+                site.save()
+                messages.success(request, f"Etapa '{stage_name}' atualizada com sucesso!")
+            except Exception as e:
+                messages.error(request, f"Erro ao atualizar etapa: {str(e)}")
+
+            return redirect('site_detail', pk=pk)
+
         # Ação 3: Atualização de localização (apenas ADMIN ou ENGINEER)
         if action == 'update_location':
             if request.user.role not in [User.Role.ADMIN, User.Role.ENGINEER]:
@@ -410,10 +453,50 @@ def site_detail(request, pk):
         'OTHER': site.files.filter(category='OTHER'),
     }
 
+    # Gera a lista de etapas para o template de forma estruturada
+    stages_config = site.get_stages_config()
+    stages_list = []
+    recommended_step = 1
+    found_pending = False
+    
+    for idx, name in enumerate(stages_config, 1):
+        status_info = site.stages_status.get(name, {'status': 'PENDING', 'date': None})
+        status = status_info.get('status', 'PENDING')
+        date = status_info.get('date')
+        
+        stages_list.append({
+            'name': name,
+            'status': status,
+            'date': date,
+            'index': idx,
+        })
+        
+        if not found_pending and status == 'PENDING':
+            recommended_step = idx
+            found_pending = True
+            
+    # Se todas as etapas foram concluídas ou puladas, foca na última
+    if not found_pending and stages_list:
+        recommended_step = len(stages_list)
+
+    total_stages = len(stages_list)
+    completed_stages = sum(1 for s in stages_list if s['status'] in ['DONE', 'SKIPPED'])
+    progress_percent = int((completed_stages / total_stages) * 100) if total_stages > 0 else 0
+
+    recommended_stage_name = "Concluído - Rollout Finalizado"
+    for stage in stages_list:
+        if stage['status'] == 'PENDING':
+            recommended_stage_name = stage['name']
+            break
+
     return render(request, 'sites/site_detail.html', {
         'site': site,
         'files_by_category': files_by_category,
-        'categories': SiteFile.FileCategory.choices
+        'categories': SiteFile.FileCategory.choices,
+        'stages_list': stages_list,
+        'recommended_step': recommended_step,
+        'progress_percent': progress_percent,
+        'recommended_stage_name': recommended_stage_name
     })
 
 
