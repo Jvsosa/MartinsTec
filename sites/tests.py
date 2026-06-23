@@ -220,21 +220,14 @@ class SiteRolloutWorkflowTests(TestCase):
 
     def test_default_access_status_based_on_site_type(self):
         """Test that default access_status matches site_type on creation."""
-        # Rooftop requires access release (so status starts as NOT_STARTED)
-        site1 = Site.objects.create(
-            site_id='SITE_WF_ROOFTOP',
-            name='Site Rooftop',
-            site_type=Site.SiteType.ROOFTOP
-        )
-        self.assertEqual(site1.access_status, Site.AccessStatus.NOT_STARTED)
-
-        # NENHUM does not require access release (so status starts as NOT_REQUIRED)
-        site2 = Site.objects.create(
-            site_id='SITE_WF_NONE',
-            name='Site Sem Acesso',
-            site_type=Site.SiteType.NENHUM
-        )
-        self.assertEqual(site2.access_status, Site.AccessStatus.NOT_REQUIRED)
+        # All structure types require access release, so they should start as NOT_STARTED by default
+        for st in [Site.SiteType.ROOFTOP, Site.SiteType.GREENFIELD, Site.SiteType.INDOOR, Site.SiteType.STREET]:
+            site = Site.objects.create(
+                site_id=f'SITE_WF_{st}',
+                name=f'Site {st}',
+                site_type=st
+            )
+            self.assertEqual(site.access_status, Site.AccessStatus.NOT_STARTED)
 
     def test_access_workflow_transitions(self):
         """Test transitioning access_status through update_access view actions."""

@@ -502,7 +502,6 @@
                     <span class="info-value" style="font-weight: 600;">{{ site.get_site_type_display }}</span>
                 </div>
 
-                {% if site.site_type != 'NENHUM' %}
                 <div class="info-item">
                     <span class="info-label">Situação do Acesso</span>
                     <div>
@@ -512,7 +511,6 @@
                         </span>
                     </div>
                 </div>
-                {% endif %}
 
                 <div class="info-item">
                     <span class="info-label">Fornecedora de Laudo/Projeto</span>
@@ -581,10 +579,10 @@
                     <div class="field-group">
                         <label for="site_type_edit" class="info-label">Tipo de Estrutura</label>
                         <select name="site_type" id="site_type_edit" class="field-control" required style="padding: 0.5rem; font-size: 0.85rem; border: 1px solid var(--border-color); border-radius: 8px; background: white;">
-                            <option value="NENHUM" {% if site.site_type == 'NENHUM' %}selected{% endif %}>Não exige liberação</option>
                             <option value="ROOFTOP" {% if site.site_type == 'ROOFTOP' %}selected{% endif %}>Rooftop (Topo de Prédio)</option>
                             <option value="GREENFIELD" {% if site.site_type == 'GREENFIELD' %}selected{% endif %}>Greenfield (Torre no Solo)</option>
-                            <option value="OUTRO" {% if site.site_type == 'OUTRO' %}selected{% endif %}>Outros</option>
+                            <option value="INDOOR" {% if site.site_type == 'INDOOR' %}selected{% endif %}>Indoor</option>
+                            <option value="STREET" {% if site.site_type == 'STREET' %}selected{% endif %}>Street</option>
                         </select>
                     </div>
                     <div class="field-group">
@@ -694,8 +692,8 @@
                         <div id="step-content-{{ stage.index }}" class="step-content">
                             {% if stage.name == 'Acesso' %}
                                 <p style="margin: 0 0 1rem 0; font-size: 0.82rem; color: var(--text-muted); line-height: 1.4;">
-                                    {% if site.site_type == 'NENHUM' or site.access_status == 'NOT_REQUIRED' %}
-                                        Este ativo possui estrutura do tipo <strong>Não exige liberação</strong> ou a liberação de acesso foi dispensada.
+                                    {% if site.access_status == 'NOT_REQUIRED' %}
+                                        A liberação de acesso foi dispensada para este ativo.
                                     {% elif site.access_status == 'RELEASED' %}
                                         Acesso liberado pelo proprietário em <strong>{{ site.access_released_date|date:"d/m/Y" }}</strong>. O local está livre para visitas de campo.
                                     {% elif site.access_status == 'REQUESTED' %}

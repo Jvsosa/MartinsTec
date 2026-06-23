@@ -42,8 +42,8 @@ class Site(models.Model):
     class SiteType(models.TextChoices):
         ROOFTOP = 'ROOFTOP', 'Rooftop'
         GREENFIELD = 'GREENFIELD', 'Greenfield'
-        OUTRO = 'OUTRO', 'Outros'
-        NENHUM = 'NENHUM', 'Não exige liberação'
+        INDOOR = 'INDOOR', 'Indoor'
+        STREET = 'STREET', 'Street'
 
     class AccessStatus(models.TextChoices):
         NOT_STARTED = 'NOT_STARTED', 'Não Iniciado'
@@ -79,13 +79,13 @@ class Site(models.Model):
     site_type = models.CharField(
         max_length=20,
         choices=SiteType.choices,
-        default=SiteType.NENHUM,
+        default=SiteType.ROOFTOP,
         verbose_name="Tipo de Estrutura"
     )
     access_status = models.CharField(
         max_length=20,
         choices=AccessStatus.choices,
-        default=AccessStatus.NOT_REQUIRED,
+        default=AccessStatus.NOT_STARTED,
         verbose_name="Situação do Acesso"
     )
     access_requested_date = models.DateField(
@@ -385,20 +385,6 @@ class Site(models.Model):
         
         # Sincroniza stages_status com os campos legados se for uma alteração nos campos legados
         self.sync_stages()
-        
-        if self.site_type == self.SiteType.NENHUM:
-            self.access_status = self.AccessStatus.NOT_REQUIRED
-        else:
-            if not self.pk:
-                if self.access_status == self.AccessStatus.NOT_REQUIRED:
-                    self.access_status = self.AccessStatus.NOT_STARTED
-            else:
-                try:
-                    old_site = Site.objects.get(pk=self.pk)
-                    if old_site.site_type == self.SiteType.NENHUM:
-                        self.access_status = self.AccessStatus.NOT_STARTED
-                except Site.DoesNotExist:
-                    pass
 
         self.status = self.recalculate_status()
         super().save(*args, **kwargs)

@@ -63,7 +63,7 @@ def site_list(request):
         longitude_str = request.POST.get('longitude', '').strip() or None
         scope_type = request.POST.get('scope_type')
         partner_company = request.POST.get('partner_company', '').strip() or None
-        site_type = request.POST.get('site_type', Site.SiteType.NENHUM)
+        site_type = request.POST.get('site_type', Site.SiteType.ROOFTOP)
         
         p_survey = request.POST.get('planned_survey_date')
         planned_survey_date = parse_date(p_survey) if p_survey else None
