@@ -1635,10 +1635,11 @@
         if (bounds.length > 1) {
             map.fitBounds(bounds, { padding: [30, 30] });
         }
-
-
-
         mapInitialized = true;
+        if (window.location.hash === '#sites') {
+            setTimeout(() => { if (map) map.invalidateSize(); }, 100);
+            setTimeout(() => { if (map) map.invalidateSize(); }, 300);
+        }
     }
 
     // Geocodificação de endereço no modal de criação
@@ -1729,12 +1730,18 @@
     }
 
     // --- 4.2. CORREÇÃO DOS TILES CINZAS (Leaflet Map InvalidateSize) E CHART DE PERFORMANCE ---
+    function checkAndInvalidateMap() {
+        if (map && mapInitialized) {
+            map.invalidateSize();
+        }
+    }
+
     window.addEventListener('hashchange', () => {
         const hash = window.location.hash || '#dashboard';
-        if (hash === '#sites' && mapInitialized && map) {
-            setTimeout(() => {
-                map.invalidateSize();
-            }, 150);
+        if (hash === '#sites') {
+            setTimeout(checkAndInvalidateMap, 50);
+            setTimeout(checkAndInvalidateMap, 200);
+            setTimeout(checkAndInvalidateMap, 500);
         } else if (hash === '#analytics') {
             setTimeout(() => {
                 initPartnerChart();
@@ -1744,10 +1751,10 @@
     
     document.addEventListener('DOMContentLoaded', () => {
         const hash = window.location.hash || '#dashboard';
-        if (hash === '#sites' && mapInitialized && map) {
-            setTimeout(() => {
-                map.invalidateSize();
-            }, 300);
+        if (hash === '#sites') {
+            setTimeout(checkAndInvalidateMap, 100);
+            setTimeout(checkAndInvalidateMap, 300);
+            setTimeout(checkAndInvalidateMap, 600);
         } else if (hash === '#analytics') {
             setTimeout(() => {
                 initPartnerChart();
