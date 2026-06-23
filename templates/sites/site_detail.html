@@ -984,8 +984,9 @@
                 </div>
                 {% endfor %}
             </div>
+        </div>
 
-            <!-- Accordion script -->
+        <!-- Accordion script -->
             <script>
                 let defaultStep = {{ recommended_step }};
                 const totalSteps = {{ stages_list|length }};
@@ -1054,7 +1055,7 @@
                 });
             </script>
 
-        <h3>
+        <h3 style="margin-top: 3rem; margin-bottom: 1.5rem;">
             <i data-lucide="folder-archive" style="color: var(--brand-primary);"></i>
             Repositório de Documentação Técnica
         </h3>
