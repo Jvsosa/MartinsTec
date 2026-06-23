@@ -88,7 +88,7 @@ def site_list(request):
                 planned_report_date=planned_report_date,
                 description=description
             )
-            messages.success(request, f"Site {new_site.site_id} cadastrado com sucesso!")
+            messages.success(request, f"Site {new_site.site_id or new_site.name} cadastrado com sucesso!")
         except IntegrityError:
             messages.error(request, f"Erro: O ID do Site '{site_id}' já está cadastrado.")
         except Exception as e:
