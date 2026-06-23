@@ -388,12 +388,46 @@ def site_detail(request, pk):
 
             return redirect('site_detail', pk=pk)
 
-        # Ação 3: Atualização de localização (apenas ADMIN ou ENGINEER)
+        # Ação 3: Atualização de localização e ficha técnica (apenas ADMIN ou ENGINEER)
         if action == 'update_location':
             if request.user.role not in [User.Role.ADMIN, User.Role.ENGINEER]:
-                messages.error(request, "Seu cargo não possui permissão para atualizar localização.")
+                messages.error(request, "Seu cargo não possui permissão para atualizar as informações do site.")
                 return redirect('site_detail', pk=pk)
 
+            # Editar ID do site (Código)
+            if 'site_id' in request.POST:
+                site_id_input = request.POST.get('site_id', '').strip() or None
+                if site_id_input and site_id_input != site.site_id:
+                    if Site.objects.exclude(pk=site.pk).filter(site_id=site_id_input).exists():
+                        messages.error(request, f"Erro: Já existe um site cadastrado com o ID {site_id_input}.")
+                        return redirect('site_detail', pk=pk)
+                site.site_id = site_id_input
+
+            # Editar Nome do site
+            if 'name' in request.POST:
+                name_input = request.POST.get('name', '').strip()
+                if not name_input:
+                    messages.error(request, "Erro: O nome do site não pode ser vazio.")
+                    return redirect('site_detail', pk=pk)
+                site.name = name_input
+
+            # Editar Escopo do site
+            if 'scope_type' in request.POST:
+                scope_type_input = request.POST.get('scope_type')
+                if scope_type_input in [Site.ScopeType.LAUDOS, Site.ScopeType.INSTALACAO, Site.ScopeType.INFRA, Site.ScopeType.FABRICA]:
+                    site.scope_type = scope_type_input
+
+            # Editar Parceiro / Fornecedora
+            if 'partner_company' in request.POST:
+                site.partner_company = request.POST.get('partner_company', '').strip() or None
+
+            # Editar Situação do Acesso
+            if 'access_status' in request.POST:
+                access_status_input = request.POST.get('access_status')
+                if access_status_input in [Site.AccessStatus.NOT_STARTED, Site.AccessStatus.REQUESTED, Site.AccessStatus.RELEASED, Site.AccessStatus.NOT_REQUIRED]:
+                    site.access_status = access_status_input
+
+            # Editar Tipo de estrutura e outros campos de geolocalização
             site.site_type = request.POST.get('site_type', site.site_type)
             site.address = request.POST.get('address', '').strip() or None
             
@@ -403,11 +437,15 @@ def site_detail(request, pk):
             lng_str = request.POST.get('longitude', '').strip()
             site.longitude = lng_str if lng_str else None
 
+            # Editar Descrição / Observações
+            if 'description' in request.POST:
+                site.description = request.POST.get('description', '').strip() or None
+
             try:
                 site.save()
-                messages.success(request, "Localização e estrutura do ativo atualizadas com sucesso!")
+                messages.success(request, "Informações do site e ficha técnica atualizadas com sucesso!")
             except Exception as e:
-                messages.error(request, f"Erro ao atualizar localização: {str(e)}")
+                messages.error(request, f"Erro ao atualizar informações do site: {str(e)}")
                 
             return redirect('site_detail', pk=pk)
 

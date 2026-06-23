@@ -609,11 +609,11 @@
         </div>
         
         {% if user.role == 'ADMIN' or user.role == 'ENGINEER' %}
-        <!-- Card de Edição de Localização -->
+        <!-- Card de Edição de Informações do Site -->
         <div class="glass-card info-card" style="margin-top: 2rem; padding: 1.5rem;">
             <h3 style="font-family: var(--font-heading); font-size: 1.05rem; font-weight: 700; color: var(--text-main); border-bottom: 1px solid var(--border-color); padding-bottom: 0.5rem; margin-bottom: 1.25rem; display: flex; align-items: center; gap: 0.5rem;">
-                <i data-lucide="map-pin" style="color: var(--brand-primary); width: 18px; height: 18px;"></i>
-                Editar Localização
+                <i data-lucide="edit-3" style="color: var(--brand-primary); width: 18px; height: 18px;"></i>
+                Editar Informações do Ativo
             </h3>
             
             <form method="POST" action="{% url 'site_detail' pk=site.pk %}">
@@ -621,15 +621,55 @@
                 <input type="hidden" name="action" value="update_location">
                 
                 <div style="display: flex; flex-direction: column; gap: 1.25rem;">
-                    <div class="field-group">
-                        <label for="site_type_edit" class="info-label">Tipo de Estrutura</label>
-                        <select name="site_type" id="site_type_edit" class="field-control" required style="padding: 0.5rem; font-size: 0.85rem; border: 1px solid var(--border-color); border-radius: 8px; background: white;">
-                            <option value="ROOFTOP" {% if site.site_type == 'ROOFTOP' %}selected{% endif %}>Rooftop (Topo de Prédio)</option>
-                            <option value="GREENFIELD" {% if site.site_type == 'GREENFIELD' %}selected{% endif %}>Greenfield (Torre no Solo)</option>
-                            <option value="INDOOR" {% if site.site_type == 'INDOOR' %}selected{% endif %}>Indoor</option>
-                            <option value="STREET" {% if site.site_type == 'STREET' %}selected{% endif %}>Street</option>
-                        </select>
+                    
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                        <div class="field-group">
+                            <label for="site_id_edit" class="info-label">ID do Site</label>
+                            <input type="text" name="site_id" id="site_id_edit" class="field-control" value="{{ site.site_id|default:'' }}" placeholder="Código do site (opcional)" style="padding: 0.5rem; font-size: 0.85rem; border: 1px solid var(--border-color); border-radius: 8px; background: white;">
+                        </div>
+                        <div class="field-group">
+                            <label for="name_edit" class="info-label">Nome do Site</label>
+                            <input type="text" name="name" id="name_edit" class="field-control" value="{{ site.name }}" required style="padding: 0.5rem; font-size: 0.85rem; border: 1px solid var(--border-color); border-radius: 8px; background: white;">
+                        </div>
                     </div>
+
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                        <div class="field-group">
+                            <label for="scope_type_edit" class="info-label">Escopo do Acionamento</label>
+                            <select name="scope_type" id="scope_type_edit" class="field-control" required style="padding: 0.5rem; font-size: 0.85rem; border: 1px solid var(--border-color); border-radius: 8px; background: white;">
+                                <option value="LAUDOS" {% if site.scope_type == 'LAUDOS' %}selected{% endif %}>Laudos</option>
+                                <option value="INSTALACAO" {% if site.scope_type == 'INSTALACAO' %}selected{% endif %}>Instalação</option>
+                                <option value="INFRA" {% if site.scope_type == 'INFRA' %}selected{% endif %}>Infra</option>
+                                <option value="FABRICA" {% if site.scope_type == 'FABRICA' %}selected{% endif %}>Fabrica</option>
+                            </select>
+                        </div>
+                        <div class="field-group">
+                            <label for="site_type_edit" class="info-label">Tipo de Estrutura</label>
+                            <select name="site_type" id="site_type_edit" class="field-control" required style="padding: 0.5rem; font-size: 0.85rem; border: 1px solid var(--border-color); border-radius: 8px; background: white;">
+                                <option value="ROOFTOP" {% if site.site_type == 'ROOFTOP' %}selected{% endif %}>Rooftop</option>
+                                <option value="GREENFIELD" {% if site.site_type == 'GREENFIELD' %}selected{% endif %}>Greenfield</option>
+                                <option value="INDOOR" {% if site.site_type == 'INDOOR' %}selected{% endif %}>Indoor</option>
+                                <option value="STREET" {% if site.site_type == 'STREET' %}selected{% endif %}>Street</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                        <div class="field-group">
+                            <label for="access_status_edit" class="info-label">Situação do Acesso</label>
+                            <select name="access_status" id="access_status_edit" class="field-control" required style="padding: 0.5rem; font-size: 0.85rem; border: 1px solid var(--border-color); border-radius: 8px; background: white;">
+                                <option value="NOT_STARTED" {% if site.access_status == 'NOT_STARTED' %}selected{% endif %}>Não Iniciado</option>
+                                <option value="REQUESTED" {% if site.access_status == 'REQUESTED' %}selected{% endif %}>Acesso Solicitado</option>
+                                <option value="RELEASED" {% if site.access_status == 'RELEASED' %}selected{% endif %}>Acesso Liberado</option>
+                                <option value="NOT_REQUIRED" {% if site.access_status == 'NOT_REQUIRED' %}selected{% endif %}>Acesso Não Necessário</option>
+                            </select>
+                        </div>
+                        <div class="field-group">
+                            <label for="partner_company_edit" class="info-label">Fornecedora</label>
+                            <input type="text" name="partner_company" id="partner_company_edit" class="field-control" value="{{ site.partner_company|default:'' }}" placeholder="Sem Fornecedora" style="padding: 0.5rem; font-size: 0.85rem; border: 1px solid var(--border-color); border-radius: 8px; background: white;">
+                        </div>
+                    </div>
+
                     <div class="field-group">
                         <label for="address_edit" class="info-label">Endereço</label>
                         <div style="display: flex; gap: 0.4rem; width: 100%;">
@@ -640,18 +680,24 @@
                         </div>
                     </div>
                     
-                    <div class="field-group">
-                        <label for="latitude_edit" class="info-label">Latitude</label>
-                        <input type="number" step="0.000001" name="latitude" id="latitude_edit" class="field-control" value="{{ site.latitude|default:'' }}" style="padding: 0.5rem; font-size: 0.85rem; border: 1px solid var(--border-color); border-radius: 8px; background: white;">
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                        <div class="field-group">
+                            <label for="latitude_edit" class="info-label">Latitude</label>
+                            <input type="number" step="0.000001" name="latitude" id="latitude_edit" class="field-control" value="{{ site.latitude|default:'' }}" style="padding: 0.5rem; font-size: 0.85rem; border: 1px solid var(--border-color); border-radius: 8px; background: white;">
+                        </div>
+                        <div class="field-group">
+                            <label for="longitude_edit" class="info-label">Longitude</label>
+                            <input type="number" step="0.000001" name="longitude" id="longitude_edit" class="field-control" value="{{ site.longitude|default:'' }}" style="padding: 0.5rem; font-size: 0.85rem; border: 1px solid var(--border-color); border-radius: 8px; background: white;">
+                        </div>
                     </div>
 
                     <div class="field-group">
-                        <label for="longitude_edit" class="info-label">Longitude</label>
-                        <input type="number" step="0.000001" name="longitude" id="longitude_edit" class="field-control" value="{{ site.longitude|default:'' }}" style="padding: 0.5rem; font-size: 0.85rem; border: 1px solid var(--border-color); border-radius: 8px; background: white;">
+                        <label for="description_edit" class="info-label">Descrição da Estrutura / Observações</label>
+                        <textarea name="description" id="description_edit" class="field-control" rows="3" placeholder="Ex: Detalhes específicos..." style="padding: 0.5rem; font-size: 0.85rem; border: 1px solid var(--border-color); border-radius: 8px; background: white; font-family: var(--font-family);">{{ site.description|default:'' }}</textarea>
                     </div>
 
                     <button type="submit" class="btn-submit" style="width: 100%; padding: 0.6rem; font-size: 0.85rem; background: var(--brand-primary); border-radius: 8px; font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 0.5rem; border: none; color: white;">
-                        Salvar Localização
+                        Salvar Informações
                         <i data-lucide="check" style="width: 16px; height: 16px;"></i>
                     </button>
                 </div>

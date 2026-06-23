@@ -156,6 +156,38 @@ class SiteGeocodingAndOptionalCoordsTests(TestCase):
         self.assertEqual(float(site.latitude), -23.568910)
         self.assertEqual(float(site.longitude), -46.685240)
 
+    def test_site_detail_post_updates_all_fields(self):
+        """Test that updating site details successfully saves ID, Name, Scope, Partner, and Access Status."""
+        site = Site.objects.create(
+            site_id='SITE_EDIT_ALL_OLD',
+            name='Site Antigo Nome',
+            scope_type='LAUDOS',
+            partner_company='Parceiro Antigo',
+            access_status='NOT_STARTED'
+        )
+        self.client.login(username='engineer', password='password123')
+        url = reverse('site_detail', kwargs={'pk': site.pk})
+        
+        post_data = {
+            'action': 'update_location',
+            'site_id': 'SITE_EDIT_ALL_NEW',
+            'name': 'Site Novo Nome',
+            'scope_type': 'INSTALACAO',
+            'partner_company': 'Parceiro Novo',
+            'access_status': 'RELEASED',
+            'description': 'Nova descricao editada'
+        }
+        response = self.client.post(url, post_data)
+        self.assertEqual(response.status_code, 302)
+        
+        site.refresh_from_db()
+        self.assertEqual(site.site_id, 'SITE_EDIT_ALL_NEW')
+        self.assertEqual(site.name, 'Site Novo Nome')
+        self.assertEqual(site.scope_type, 'INSTALACAO')
+        self.assertEqual(site.partner_company, 'Parceiro Novo')
+        self.assertEqual(site.access_status, 'RELEASED')
+        self.assertEqual(site.description, 'Nova descricao editada')
+
     def test_site_without_planned_dates_gets_maintenance_status(self):
         """Test that a Site created without planned dates gets the MAINTENANCE status automatically."""
         site = Site.objects.create(
