@@ -532,16 +532,15 @@
             </h3>
             
             <div class="info-list">
-                <div class="info-item">
-                    <span class="info-label">Nome do Site</span>
-                    <span class="info-value text-gradient" style="font-family: var(--font-title); font-weight: 700; font-size: 1.3rem; color: var(--text-main);">
+                <div class="info-item" style="gap: 0.2rem; margin-bottom: 0.5rem;">
+                    <div style="font-family: var(--font-title); font-weight: 700; font-size: 1.35rem; color: var(--text-main); line-height: 1.2;">
                         {{ site.name }}
-                    </span>
-                </div>
-
-                <div class="info-item">
-                    <span class="info-label">ID do Site</span>
-                    <span class="info-value" style="font-size: 0.95rem; font-weight: 600; color: var(--text-secondary);">{{ site.site_id|default:"Sem ID cadastrado" }}</span>
+                    </div>
+                    {% if site.site_id %}
+                    <div style="font-size: 0.95rem; font-weight: 600; color: var(--text-secondary);">
+                        {{ site.site_id }}
+                    </div>
+                    {% endif %}
                 </div>
 
                 <div class="info-item">
