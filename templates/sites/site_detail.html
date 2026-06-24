@@ -795,35 +795,64 @@
                                 </p>
 
                                 {% if user.role == 'ADMIN' or user.role == 'ENGINEER' %}
-                                <div style="background: #ffffff; border: 1px solid var(--border-color); border-radius: 8px; padding: 1rem; margin-bottom: 1rem;">
-                                    <h6 style="margin: 0 0 0.75rem 0; font-size: 0.8rem; font-weight: 700; color: #10b981; display: flex; align-items: center; gap: 0.35rem;">
-                                        <i data-lucide="check-circle" style="width: 16px; height: 16px;"></i>
-                                        Registrar/Atualizar Realização da Vistoria
-                                    </h6>
-                                    <form method="POST" action="{% url 'site_detail' pk=site.pk %}">
-                                        {% csrf_token %}
-                                        <input type="hidden" name="action" value="update_workflow">
-                                        <input type="hidden" name="scope_type" value="{{ site.scope_type }}">
-                                        <input type="hidden" name="partner_company" value="{{ site.partner_company|default:'' }}">
-                                        <input type="hidden" name="planned_survey_date" value="{{ site.planned_survey_date|date:'Y-m-d' }}">
-                                        <input type="hidden" name="planned_report_date" value="{{ site.planned_report_date|date:'Y-m-d' }}">
-                                        <input type="hidden" name="actual_report_date" value="{{ site.actual_report_date|date:'Y-m-d' }}">
-                                        
-                                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 0.75rem; align-items: end;">
-                                            <div class="field-group">
-                                                <label for="actual_survey_stepper" style="font-size: 0.65rem; color: #10b981;">Data da Vistoria Realizada</label>
-                                                <div style="display: flex; gap: 0.4rem; align-items: center; width: 100%;">
-                                                    <input type="date" name="actual_survey_date" id="actual_survey_stepper" value="{{ site.actual_survey_date|date:'Y-m-d' }}" class="field-control" style="padding: 0.4rem; font-size: 0.8rem; border-radius: 6px; border: 1px solid var(--border-color); background: white;">
-                                                    <button type="button" onclick="document.getElementById('actual_survey_stepper').value='{% now 'Y-m-d' %}'" class="btn-submit" style="padding: 0.4rem 0.6rem; font-size: 0.8rem; background: #10b981; border: none; border-radius: 6px; color: white; cursor: pointer; height: 34px; flex-shrink: 0;" title="Definir como hoje">Hoje</button>
-                                                    <button type="button" onclick="document.getElementById('actual_survey_stepper').value=''" class="btn-submit" style="padding: 0.4rem 0.6rem; font-size: 0.8rem; background: #ef4444; border: none; border-radius: 6px; color: white; cursor: pointer; height: 34px; flex-shrink: 0;" title="Limpar data">Limpar</button>
+                                    {% if not site.planned_survey_date %}
+                                    <div style="background: #ffffff; border: 1px solid var(--border-color); border-radius: 8px; padding: 1rem; margin-bottom: 1rem;">
+                                        <h6 style="margin: 0 0 0.75rem 0; font-size: 0.8rem; font-weight: 700; color: var(--brand-primary); display: flex; align-items: center; gap: 0.35rem;">
+                                            <i data-lucide="calendar" style="width: 16px; height: 16px;"></i>
+                                            Agendar/Planejar Vistoria Técnica
+                                        </h6>
+                                        <form method="POST" action="{% url 'site_detail' pk=site.pk %}">
+                                            {% csrf_token %}
+                                            <input type="hidden" name="action" value="update_workflow">
+                                            <input type="hidden" name="scope_type" value="{{ site.scope_type }}">
+                                            <input type="hidden" name="partner_company" value="{{ site.partner_company|default:'' }}">
+                                            <input type="hidden" name="planned_report_date" value="{{ site.planned_report_date|date:'Y-m-d' }}">
+                                            <input type="hidden" name="actual_survey_date" value="{{ site.actual_survey_date|date:'Y-m-d' }}">
+                                            <input type="hidden" name="actual_report_date" value="{{ site.actual_report_date|date:'Y-m-d' }}">
+                                            
+                                            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 0.75rem; align-items: end;">
+                                                <div class="field-group">
+                                                    <label for="planned_survey_stepper_new" style="font-size: 0.65rem; color: var(--brand-primary);">Data Planejada da Vistoria</label>
+                                                    <input type="date" name="planned_survey_date" id="planned_survey_stepper_new" class="field-control" required style="padding: 0.4rem; font-size: 0.8rem; border-radius: 6px; border: 1px solid var(--border-color); background: white; height: 34px; box-sizing: border-box;">
                                                 </div>
+                                                <button type="submit" class="btn-submit" style="padding: 0.5rem 1rem; font-size: 0.8rem; border-radius: 6px; width: 100%; border: none; cursor: pointer; font-weight: 700; height: 34px; background: var(--brand-primary); color: white;">
+                                                    Salvar Agendamento
+                                                </button>
                                             </div>
-                                            <button type="submit" class="btn-submit" style="padding: 0.5rem 1rem; font-size: 0.8rem; border-radius: 6px; width: 100%; border: none; cursor: pointer; font-weight: 700; height: 34px; background: #10b981; color: white;">
-                                                Confirmar Realização
-                                            </button>
-                                        </div>
-                                    </form>
-                                </div>
+                                        </form>
+                                    </div>
+                                    {% else %}
+                                    <div style="background: #ffffff; border: 1px solid var(--border-color); border-radius: 8px; padding: 1rem; margin-bottom: 1rem;">
+                                        <h6 style="margin: 0 0 0.75rem 0; font-size: 0.8rem; font-weight: 700; color: #10b981; display: flex; align-items: center; gap: 0.35rem;">
+                                            <i data-lucide="check-circle" style="width: 16px; height: 16px;"></i>
+                                            Registrar Realização da Vistoria
+                                        </h6>
+                                        <form method="POST" action="{% url 'site_detail' pk=site.pk %}">
+                                            {% csrf_token %}
+                                            <input type="hidden" name="action" value="update_workflow">
+                                            <input type="hidden" name="scope_type" value="{{ site.scope_type }}">
+                                            <input type="hidden" name="partner_company" value="{{ site.partner_company|default:'' }}">
+                                            <input type="hidden" name="planned_survey_date" value="{{ site.planned_survey_date|date:'Y-m-d' }}">
+                                            <input type="hidden" name="planned_report_date" value="{{ site.planned_report_date|date:'Y-m-d' }}">
+                                            <input type="hidden" name="actual_report_date" value="{{ site.actual_report_date|date:'Y-m-d' }}">
+                                            
+                                            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 0.75rem; align-items: end;">
+                                                <div class="field-group">
+                                                    <label for="actual_survey_stepper" style="font-size: 0.65rem; color: #10b981;">Data da Vistoria Realizada</label>
+                                                    <div style="display: flex; gap: 0.4rem; align-items: center; width: 100%;">
+                                                        <input type="date" name="actual_survey_date" id="actual_survey_stepper" value="{{ site.actual_survey_date|date:'Y-m-d' }}" class="field-control" style="padding: 0.4rem; font-size: 0.8rem; border-radius: 6px; border: 1px solid var(--border-color); background: white;">
+                                                        <button type="button" onclick="document.getElementById('actual_survey_stepper').value='{% now 'Y-m-d' %}'" class="btn-submit" style="padding: 0.4rem 0.6rem; font-size: 0.8rem; background: #10b981; border: none; border-radius: 6px; color: white; cursor: pointer; height: 34px; flex-shrink: 0;" title="Definir como hoje">Hoje</button>
+                                                        <button type="button" onclick="document.getElementById('actual_survey_stepper').value=''" class="btn-submit" style="padding: 0.4rem 0.6rem; font-size: 0.8rem; background: #ef4444; border: none; border-radius: 6px; color: white; cursor: pointer; height: 34px; flex-shrink: 0;" title="Limpar data">Limpar</button>
+                                                    </div>
+                                                </div>
+                                                <button type="submit" class="btn-submit" style="padding: 0.5rem 1rem; font-size: 0.8rem; border-radius: 6px; width: 100%; border: none; cursor: pointer; font-weight: 700; height: 34px; background: #10b981; color: white;">
+                                                    Confirmar Realização
+                                                </button>
+                                            </div>
+                                        </form>
+                                    </div>
+                                    {% endif %}
+                                {% endif %}
 
                                 <div style="display: flex; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 1rem;">
                                     <button type="button" onclick="toggleRescheduleForm()" class="btn-ent btn-ent-outline">
