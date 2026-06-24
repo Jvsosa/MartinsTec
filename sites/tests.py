@@ -448,4 +448,51 @@ class SiteRolloutWorkflowTests(TestCase):
         self.assertIsNone(site2.site_id)
 
 
+class SiteOperatorTests(TestCase):
+    def setUp(self):
+        self.user = User.objects.create_user(
+            username='engineer_operator',
+            password='password123',
+            email='eng_op@example.com',
+            role=User.Role.ENGINEER
+        )
+
+    def test_create_site_with_operator(self):
+        """Test that we can create a Site with a specific operator choice."""
+        self.client.login(username='engineer_operator', password='password123')
+        url = reverse('site_list')
+        response = self.client.post(url, {
+            'site_id': 'SITE_OP_01',
+            'name': 'Site Tim Test',
+            'scope_type': 'LAUDOS',
+            'operator': 'TIM'
+        })
+        self.assertEqual(response.status_code, 302)
+        site = Site.objects.get(site_id='SITE_OP_01')
+        self.assertEqual(site.operator, 'TIM')
+        self.assertEqual(site.get_operator_display(), 'Tim')
+
+    def test_edit_site_operator(self):
+        """Test that we can edit a Site's operator choice via site_detail view."""
+        site = Site.objects.create(
+            site_id='SITE_OP_02',
+            name='Site Claro Test',
+            scope_type=Site.ScopeType.LAUDOS,
+            operator='CLARO'
+        )
+        self.client.login(username='engineer_operator', password='password123')
+        url = reverse('site_detail', kwargs={'pk': site.pk})
+        response = self.client.post(url, {
+            'action': 'update_location',
+            'site_id': 'SITE_OP_02',
+            'name': 'Site Claro Test Edit',
+            'operator': 'VIVO'
+        })
+        self.assertEqual(response.status_code, 302)
+        site.refresh_from_db()
+        self.assertEqual(site.operator, 'VIVO')
+        self.assertEqual(site.name, 'Site Claro Test Edit')
+
+
+
 

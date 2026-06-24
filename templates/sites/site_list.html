@@ -793,7 +793,7 @@
 
                 <div class="site-card-grid" id="sites-grid-container">
                     {% for site in sites %}
-                    <div class="modern-site-card" data-status="{{ site.status }}" data-name="{{ site.name|lower }}" data-code="{{ site.site_id|lower }}">
+                    <div class="modern-site-card" data-status="{{ site.status }}" data-name="{{ site.name|lower }}" data-code="{{ site.site_id|lower }}" data-operator="{{ site.operator|default:""|lower }}">
                         <div class="site-card-header">
                             <div>
                                 <h3 class="site-card-name">{{ site.name }}</h3>
@@ -830,6 +830,12 @@
                         {% endif %}
 
                         <div class="site-meta-list">
+                            {% if site.operator %}
+                            <div class="site-meta-item">
+                                <span class="site-meta-label">Operadora</span>
+                                <span class="site-meta-val" style="font-weight: 600;">{{ site.get_operator_display }}</span>
+                            </div>
+                            {% endif %}
                             <div class="site-meta-item">
                                 <span class="site-meta-label">Escopo / Fornecedor</span>
                                 <span class="site-meta-val" style="text-align: right; max-width: 170px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" title="{{ site.get_scope_type_display }}{% if site.partner_company %} / {{ site.partner_company }}{% endif %}">
@@ -1387,12 +1393,21 @@
                                 <option value="STREET">Street</option>
                             </select>
                         </div>
-                        <div style="display: flex; align-items: center; justify-content: center; height: 100%; padding-top: 1.5rem;">
-                            <div style="background: #f8fafc; border: 1px solid var(--ent-border); border-radius: 8px; padding: 0.5rem 0.75rem; font-size: 0.75rem; color: var(--ent-text-muted); display: flex; align-items: center; gap: 0.35rem; width: 100%; box-sizing: border-box;">
-                                <i data-lucide="info" style="width: 14px; height: 14px; flex-shrink: 0; color: var(--ent-accent);"></i>
-                                <span>Todas as estruturas ativam o controle de liberação de acesso.</span>
-                            </div>
+                        <div class="form-group">
+                            <label for="modal_operator">Operadora</label>
+                            <select name="operator" id="modal_operator" class="form-control" style="cursor: pointer;">
+                                <option value="" selected>Não Especificada</option>
+                                <option value="VIVO">Vivo</option>
+                                <option value="TIM">Tim</option>
+                                <option value="CLARO">Claro</option>
+                                <option value="OI">Oi</option>
+                                <option value="OUTRO">Outro</option>
+                            </select>
                         </div>
+                    </div>
+                    <div style="background: #f8fafc; border: 1px solid var(--ent-border); border-radius: 8px; padding: 0.5rem 0.75rem; font-size: 0.75rem; color: var(--ent-text-muted); display: flex; align-items: center; gap: 0.35rem; width: 100%; box-sizing: border-box; margin-bottom: 1.15rem;">
+                        <i data-lucide="info" style="width: 14px; height: 14px; flex-shrink: 0; color: var(--ent-accent);"></i>
+                        <span>Todas as estruturas ativam o controle de liberação de acesso.</span>
                     </div>
 
                     <div class="ent-form-grid">
@@ -1536,9 +1551,10 @@
             const status = card.getAttribute('data-status');
             const name = card.getAttribute('data-name');
             const code = card.getAttribute('data-code');
+            const operator = card.getAttribute('data-operator') || '';
 
             const matchStatus = (currentFilterStatus === 'ALL' || status === currentFilterStatus);
-            const matchQuery = (name.includes(query) || code.includes(query));
+            const matchQuery = (name.includes(query) || code.includes(query) || operator.includes(query));
 
             if (matchStatus && matchQuery) {
                 card.style.display = 'flex';

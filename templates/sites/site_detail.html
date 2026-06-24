@@ -554,6 +554,11 @@
                 </div>
 
                 <div class="info-item">
+                    <span class="info-label">Operadora</span>
+                    <span class="info-value" style="font-weight: 600;">{{ site.get_operator_display|default:"Não Especificada" }}</span>
+                </div>
+
+                <div class="info-item">
                     <span class="info-label">Situação do Acesso</span>
                     <div>
                         <span class="status-badge {% if site.access_status == 'RELEASED' %}badge-active{% elif site.access_status == 'REQUESTED' %}badge-maintenance{% else %}badge-inactive{% endif %}" style="font-size: 0.65rem;">
@@ -1490,6 +1495,24 @@
 
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
                     <div class="field-group">
+                        <label for="operator_edit" class="info-label">Operadora</label>
+                        <select name="operator" id="operator_edit" class="field-control" style="padding: 0.5rem; font-size: 0.85rem; border: 1px solid var(--border-color); border-radius: 8px; background: white;">
+                            <option value="" {% if not site.operator %}selected{% endif %}>Não Especificada</option>
+                            <option value="VIVO" {% if site.operator == 'VIVO' %}selected{% endif %}>Vivo</option>
+                            <option value="TIM" {% if site.operator == 'TIM' %}selected{% endif %}>Tim</option>
+                            <option value="CLARO" {% if site.operator == 'CLARO' %}selected{% endif %}>Claro</option>
+                            <option value="OI" {% if site.operator == 'OI' %}selected{% endif %}>Oi</option>
+                            <option value="OUTRO" {% if site.operator == 'OUTRO' %}selected{% endif %}>Outro</option>
+                        </select>
+                    </div>
+                    <div class="field-group">
+                        <label for="partner_company_edit" class="info-label">Fornecedora</label>
+                        <input type="text" name="partner_company" id="partner_company_edit" class="field-control" value="{{ site.partner_company|default:'' }}" placeholder="Sem Fornecedora" style="padding: 0.5rem; font-size: 0.85rem; border: 1px solid var(--border-color); border-radius: 8px; background: white;">
+                    </div>
+                </div>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                    <div class="field-group">
                         <label for="access_status_edit" class="info-label">Situação do Acesso</label>
                         <select name="access_status" id="access_status_edit" class="field-control" required style="padding: 0.5rem; font-size: 0.85rem; border: 1px solid var(--border-color); border-radius: 8px; background: white;">
                             <option value="NOT_STARTED" {% if site.access_status == 'NOT_STARTED' %}selected{% endif %}>Não Iniciado</option>
@@ -1498,9 +1521,8 @@
                             <option value="NOT_REQUIRED" {% if site.access_status == 'NOT_REQUIRED' %}selected{% endif %}>Acesso Não Necessário</option>
                         </select>
                     </div>
-                    <div class="field-group">
-                        <label for="partner_company_edit" class="info-label">Fornecedora</label>
-                        <input type="text" name="partner_company" id="partner_company_edit" class="field-control" value="{{ site.partner_company|default:'' }}" placeholder="Sem Fornecedora" style="padding: 0.5rem; font-size: 0.85rem; border: 1px solid var(--border-color); border-radius: 8px; background: white;">
+                    <div class="field-group" style="visibility: hidden;">
+                        <!-- Spacer -->
                     </div>
                 </div>
 

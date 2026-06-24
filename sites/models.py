@@ -51,6 +51,13 @@ class Site(models.Model):
         RELEASED = 'RELEASED', 'Acesso Liberado'
         NOT_REQUIRED = 'NOT_REQUIRED', 'Acesso Não Necessário'
 
+    class Operator(models.TextChoices):
+        VIVO = 'VIVO', 'Vivo'
+        TIM = 'TIM', 'Tim'
+        CLARO = 'CLARO', 'Claro'
+        OI = 'OI', 'Oi'
+        OUTRO = 'OUTRO', 'Outro'
+
     site_id = models.CharField(
         max_length=50, 
         unique=True, 
@@ -59,6 +66,13 @@ class Site(models.Model):
         verbose_name="ID do Site (Código)"
     )
     name = models.CharField(max_length=100, verbose_name="Nome do Site")
+    operator = models.CharField(
+        max_length=20,
+        choices=Operator.choices,
+        blank=True,
+        null=True,
+        verbose_name="Operadora"
+    )
     address = models.CharField(max_length=255, blank=True, null=True, verbose_name="Endereço")
     latitude = models.DecimalField(max_digits=9, decimal_places=6, blank=True, null=True, verbose_name="Latitude")
     longitude = models.DecimalField(max_digits=9, decimal_places=6, blank=True, null=True, verbose_name="Longitude")

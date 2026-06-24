@@ -65,6 +65,7 @@ def site_list(request):
         scope_type = request.POST.get('scope_type')
         partner_company = request.POST.get('partner_company', '').strip() or None
         site_type = request.POST.get('site_type', Site.SiteType.ROOFTOP)
+        operator = request.POST.get('operator', '').strip() or None
         
         p_survey = request.POST.get('planned_survey_date')
         planned_survey_date = parse_date(p_survey) if p_survey else None
@@ -84,6 +85,7 @@ def site_list(request):
                 scope_type=scope_type,
                 partner_company=partner_company,
                 site_type=site_type,
+                operator=operator,
                 planned_survey_date=planned_survey_date,
                 planned_report_date=planned_report_date,
                 description=description
@@ -429,6 +431,10 @@ def site_detail(request, pk):
                 access_status_input = request.POST.get('access_status')
                 if access_status_input in [Site.AccessStatus.NOT_STARTED, Site.AccessStatus.REQUESTED, Site.AccessStatus.RELEASED, Site.AccessStatus.NOT_REQUIRED]:
                     site.access_status = access_status_input
+
+            # Editar Operadora
+            if 'operator' in request.POST:
+                site.operator = request.POST.get('operator', '').strip() or None
 
             # Editar Tipo de estrutura e outros campos de geolocalização
             site.site_type = request.POST.get('site_type', site.site_type)
