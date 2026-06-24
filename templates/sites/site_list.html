@@ -467,7 +467,7 @@
         align-items: flex-start;
     }
 
-    .site-card-id {
+    .site-card-name {
         font-family: var(--font-heading);
         font-size: 1.05rem;
         font-weight: 700;
@@ -475,7 +475,7 @@
         margin-bottom: 0.1rem;
     }
 
-    .site-card-name {
+    .site-card-id {
         font-size: 0.8rem;
         color: var(--ent-text-muted);
         font-weight: 600;
@@ -796,8 +796,8 @@
                     <div class="modern-site-card" data-status="{{ site.status }}" data-name="{{ site.name|lower }}" data-code="{{ site.site_id|lower }}">
                         <div class="site-card-header">
                             <div>
-                                <h3 class="site-card-id">{{ site.site_id }}</h3>
-                                <div class="site-card-name" style="font-weight: 700; color: var(--ent-text-main);">{{ site.name }}</div>
+                                <h3 class="site-card-name">{{ site.name }}</h3>
+                                <div class="site-card-id">{{ site.site_id|default:"" }}</div>
                             </div>
                             <span class="status-badge badge-{{ site.status|lower }}">
                                 <span class="status-dot"></span>
