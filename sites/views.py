@@ -629,15 +629,16 @@ def delete_site(request, pk):
         except Exception:
             pass
 
-    site_dir = os.path.join(settings.MEDIA_ROOT, 'sites', site_id)
-    if os.path.exists(site_dir):
-        try:
-            shutil.rmtree(site_dir)
-        except Exception:
-            pass
+    if site_id:
+        site_dir = os.path.join(settings.MEDIA_ROOT, 'sites', site_id)
+        if os.path.exists(site_dir):
+            try:
+                shutil.rmtree(site_dir)
+            except Exception:
+                pass
 
     # Exclui o site do banco de dados (cascade deleta os registros SiteFile)
     site.delete()
-    messages.success(request, f"Site {site_id} removido com sucesso!")
+    messages.success(request, f"Site {site_id or site.name} removido com sucesso!")
     return redirect('site_list')
 

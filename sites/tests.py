@@ -493,6 +493,19 @@ class SiteOperatorTests(TestCase):
         self.assertEqual(site.operator, 'VIVO')
         self.assertEqual(site.name, 'Site Claro Test Edit')
 
+    def test_delete_site_with_null_site_id(self):
+        """Test that a site with null site_id can be deleted without causing a TypeError/500 error."""
+        site = Site.objects.create(
+            site_id=None,
+            name='Site Null ID Test',
+            scope_type=Site.ScopeType.LAUDOS
+        )
+        self.client.login(username='engineer_operator', password='password123')
+        url = reverse('delete_site', kwargs={'pk': site.pk})
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 302)
+        self.assertFalse(Site.objects.filter(pk=site.pk).exists())
+
 
 
 
