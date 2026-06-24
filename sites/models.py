@@ -209,6 +209,12 @@ class Site(models.Model):
         return bool(self.planned_survey_date and not self.actual_survey_date and self.planned_survey_date < today)
 
     @property
+    def is_survey_due(self):
+        from django.utils import timezone
+        today = timezone.localdate()
+        return bool(self.planned_survey_date and not self.actual_survey_date and self.planned_survey_date <= today)
+
+    @property
     def is_survey_alert(self):
         from django.utils import timezone
         today = timezone.localdate()

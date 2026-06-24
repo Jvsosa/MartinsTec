@@ -315,6 +315,40 @@ class SiteRolloutWorkflowTests(TestCase):
         self.assertIsNone(site.access_requested_date)
         self.assertIsNone(site.access_released_date)
 
+    def test_is_survey_due_property(self):
+        """Test is_survey_due property behavior under different date configurations."""
+        from django.utils import timezone
+        import datetime
+        
+        today = timezone.localdate()
+        site = Site.objects.create(
+            site_id='SITE_DUE_PROP',
+            name='Site Due Property'
+        )
+        
+        # 1. No planned survey date -> is_survey_due should be False
+        self.assertFalse(site.is_survey_due)
+
+        # 2. Planned survey date in the future -> is_survey_due should be False
+        site.planned_survey_date = today + datetime.timedelta(days=1)
+        site.save()
+        self.assertFalse(site.is_survey_due)
+
+        # 3. Planned survey date today -> is_survey_due should be True
+        site.planned_survey_date = today
+        site.save()
+        self.assertTrue(site.is_survey_due)
+
+        # 4. Planned survey date in the past -> is_survey_due should be True
+        site.planned_survey_date = today - datetime.timedelta(days=2)
+        site.save()
+        self.assertTrue(site.is_survey_due)
+
+        # 5. Survey already realized -> is_survey_due should be False
+        site.actual_survey_date = today
+        site.save()
+        self.assertFalse(site.is_survey_due)
+
     def test_reschedule_increments_counter(self):
         """Test that modifying planned dates increments the reschedule_count."""
         self.client.login(username='engineer_workflow', password='password123')
