@@ -1,6 +1,6 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
-from .models import User, Site, SiteFile
+from .models import User, Site, SiteFile, SiteRescheduleHistory
 
 # Configuração do painel de administração do Usuário Customizado
 class CustomUserAdmin(UserAdmin):
@@ -13,11 +13,18 @@ class CustomUserAdmin(UserAdmin):
         ('Informações de Cargo', {'fields': ('role',)}),
     )
 
+class SiteRescheduleHistoryInline(admin.TabularInline):
+    model = SiteRescheduleHistory
+    extra = 0
+    readonly_fields = ['previous_planned_survey_date', 'new_planned_survey_date', 'previous_planned_report_date', 'new_planned_report_date', 'reason', 'created_at', 'created_by']
+    can_delete = False
+
 # Configuração do painel de administração do Site
 class SiteAdmin(admin.ModelAdmin):
     list_display = ['site_id', 'name', 'latitude', 'longitude', 'status', 'created_at']
     list_filter = ['status']
     search_fields = ['site_id', 'name']
+    inlines = [SiteRescheduleHistoryInline]
 
 # Configuração do painel de administração de Arquivos
 class SiteFileAdmin(admin.ModelAdmin):

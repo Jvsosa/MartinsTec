@@ -463,3 +463,34 @@ class SiteFile(models.Model):
 
     def __str__(self):
         return f"{self.site.site_id} - {self.get_category_display()} - {os.path.basename(self.file.name)}"
+
+
+class SiteRescheduleHistory(models.Model):
+    site = models.ForeignKey(
+        Site,
+        on_delete=models.CASCADE,
+        related_name='reschedule_histories',
+        verbose_name="Site"
+    )
+    previous_planned_survey_date = models.DateField(blank=True, null=True, verbose_name="Vistoria Planejada Anterior")
+    new_planned_survey_date = models.DateField(blank=True, null=True, verbose_name="Nova Vistoria Planejada")
+    previous_planned_report_date = models.DateField(blank=True, null=True, verbose_name="Laudo Planejado Anterior")
+    new_planned_report_date = models.DateField(blank=True, null=True, verbose_name="Novo Laudo Planejado")
+    reason = models.TextField(blank=True, null=True, verbose_name="Motivo do Replanejamento")
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name="Registrado em")
+    created_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        verbose_name="Registrado por"
+    )
+
+    class Meta:
+        verbose_name = "Histórico de Replanejamento"
+        verbose_name_plural = "Históricos de Replanejamento"
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return f"{self.site.name} - {self.created_at.strftime('%d/%m/%Y %H:%M')}"
+

@@ -342,6 +342,42 @@ class SiteRolloutWorkflowTests(TestCase):
         site.refresh_from_db()
         self.assertEqual(site.reschedule_count, 1)
 
+    def test_reschedule_creates_history(self):
+        """Test that rescheduling creates a SiteRescheduleHistory log record."""
+        self.client.login(username='engineer_workflow', password='password123')
+        from django.utils import timezone
+        import datetime
+        from .models import SiteRescheduleHistory
+        
+        today = timezone.localdate()
+        site = Site.objects.create(
+            site_id='SITE_RESCHED_HIST',
+            name='Site Histórico Replanejamento',
+            planned_survey_date=today,
+            planned_report_date=today + datetime.timedelta(days=5)
+        )
+        self.assertEqual(site.reschedule_histories.count(), 0)
+
+        # Post update with new dates and reason to trigger reschedule
+        url = reverse('site_detail', kwargs={'pk': site.pk})
+        response = self.client.post(url, {
+            'action': 'update_workflow',
+            'scope_type': 'LAUDOS',
+            'planned_survey_date': (today + datetime.timedelta(days=2)).strftime('%Y-%m-%d'),
+            'planned_report_date': (today + datetime.timedelta(days=7)).strftime('%Y-%m-%d'),
+            'reschedule_reason': 'Chuva forte'
+        })
+        self.assertEqual(response.status_code, 302)
+        site.refresh_from_db()
+        self.assertEqual(site.reschedule_count, 1)
+        self.assertEqual(site.reschedule_histories.count(), 1)
+        
+        history = site.reschedule_histories.first()
+        self.assertEqual(history.previous_planned_survey_date, today)
+        self.assertEqual(history.new_planned_survey_date, today + datetime.timedelta(days=2))
+        self.assertEqual(history.reason, 'Chuva forte')
+        self.assertEqual(history.created_by.username, 'engineer_workflow')
+
     def test_delete_site_permitted(self):
         """Test that Admin or Engineer can delete a site."""
         self.client.login(username='engineer_workflow', password='password123')

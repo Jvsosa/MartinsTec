@@ -5,7 +5,7 @@ from django.contrib.auth import login, logout, authenticate
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.http import FileResponse, Http404, HttpResponseForbidden
-from .models import Site, SiteFile, User
+from .models import Site, SiteFile, User, SiteRescheduleHistory
 from django.db import IntegrityError
 from django.utils.dateparse import parse_date
 
@@ -289,6 +289,16 @@ def site_detail(request, pk):
                 is_reschedule = True
                 
             if is_reschedule:
+                reason = request.POST.get('reschedule_reason', '').strip() or None
+                SiteRescheduleHistory.objects.create(
+                    site=site,
+                    previous_planned_survey_date=site.planned_survey_date,
+                    new_planned_survey_date=p_survey,
+                    previous_planned_report_date=site.planned_report_date,
+                    new_planned_report_date=p_report,
+                    reason=reason,
+                    created_by=request.user
+                )
                 site.reschedule_count += 1
                 messages.warning(request, f"Replanejamento registrado! Total de replanejamentos deste site: {site.reschedule_count}")
 
