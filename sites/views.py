@@ -323,11 +323,13 @@ def site_detail(request, pk):
 
             if access_action == 'request_access':
                 site.access_status = Site.AccessStatus.REQUESTED
-                site.access_requested_date = today
+                req_date_str = request.POST.get('access_requested_date')
+                site.access_requested_date = parse_date(req_date_str) if req_date_str else today
                 messages.success(request, "Acesso solicitado ao proprietário! Aguardando liberação.")
             elif access_action == 'release_access':
                 site.access_status = Site.AccessStatus.RELEASED
-                site.access_released_date = today
+                rel_date_str = request.POST.get('access_released_date')
+                site.access_released_date = parse_date(rel_date_str) if rel_date_str else today
                 messages.success(request, "Acesso liberado pelo proprietário! O parceiro já pode ser acionado.")
             elif access_action == 'skip_access':
                 site.access_status = Site.AccessStatus.NOT_REQUIRED

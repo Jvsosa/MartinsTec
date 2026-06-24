@@ -713,41 +713,53 @@
                                 </p>
 
                                 {% if user.role == 'ADMIN' or user.role == 'ENGINEER' %}
-                                <div style="display: flex; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 1rem;">
+                                <div style="display: flex; gap: 1rem; flex-wrap: wrap; margin-bottom: 1rem; align-items: flex-end;">
                                     {% if site.access_status == 'NOT_STARTED' or site.access_status == 'NOT_REQUIRED' %}
-                                    <form method="POST" action="{% url 'site_detail' pk=site.pk %}">
+                                    <form method="POST" action="{% url 'site_detail' pk=site.pk %}" style="display: flex; gap: 0.75rem; align-items: flex-end; flex-wrap: wrap;">
                                         {% csrf_token %}
                                         <input type="hidden" name="action" value="update_access">
                                         <input type="hidden" name="access_action" value="request_access">
-                                        <button type="submit" class="btn-ent btn-ent-primary">
+                                        
+                                        <div style="display: flex; flex-direction: column; gap: 0.25rem;">
+                                            <label for="access_requested_date" style="font-size: 0.72rem; color: var(--text-secondary); font-weight: 600;">Data da Solicitação (Opcional)</label>
+                                            <input type="date" name="access_requested_date" id="access_requested_date" class="field-control" style="padding: 0.4rem 0.6rem; font-size: 0.8rem; border: 1px solid var(--border-color); border-radius: 6px; width: 145px; background: white; height: 34px; box-sizing: border-box;">
+                                        </div>
+
+                                        <button type="submit" class="btn-ent btn-ent-primary" style="height: 34px; padding: 0 1rem; display: inline-flex; align-items: center; gap: 0.35rem;">
                                             <i data-lucide="mail" style="width: 14px; height: 14px;"></i>
                                             Solicitar Acesso ao Proprietário
                                         </button>
                                     </form>
-                                    <form method="POST" action="{% url 'site_detail' pk=site.pk %}">
+                                    <form method="POST" action="{% url 'site_detail' pk=site.pk %}" style="display: flex; align-items: flex-end; height: 34px;">
                                         {% csrf_token %}
                                         <input type="hidden" name="action" value="update_access">
                                         <input type="hidden" name="access_action" value="skip_access">
-                                        <button type="submit" class="btn-ent btn-ent-outline">
+                                        <button type="submit" class="btn-ent btn-ent-outline" style="height: 34px;">
                                             <i data-lucide="skip-forward" style="width: 14px; height: 14px;"></i>
                                             Pular Liberação (Não Necessário)
                                         </button>
                                     </form>
                                     {% elif site.access_status == 'REQUESTED' %}
-                                    <form method="POST" action="{% url 'site_detail' pk=site.pk %}">
+                                    <form method="POST" action="{% url 'site_detail' pk=site.pk %}" style="display: flex; gap: 0.75rem; align-items: flex-end; flex-wrap: wrap;">
                                         {% csrf_token %}
                                         <input type="hidden" name="action" value="update_access">
                                         <input type="hidden" name="access_action" value="release_access">
-                                        <button type="submit" class="btn-ent btn-ent-primary">
+                                        
+                                        <div style="display: flex; flex-direction: column; gap: 0.25rem;">
+                                            <label for="access_released_date" style="font-size: 0.72rem; color: var(--text-secondary); font-weight: 600;">Data da Liberação (Opcional)</label>
+                                            <input type="date" name="access_released_date" id="access_released_date" class="field-control" style="padding: 0.4rem 0.6rem; font-size: 0.8rem; border: 1px solid var(--border-color); border-radius: 6px; width: 145px; background: white; height: 34px; box-sizing: border-box;">
+                                        </div>
+
+                                        <button type="submit" class="btn-ent btn-ent-primary" style="height: 34px; padding: 0 1rem; display: inline-flex; align-items: center; gap: 0.35rem;">
                                             <i data-lucide="check-circle" style="width: 14px; height: 14px;"></i>
                                             Confirmar Acesso Liberado
                                         </button>
                                     </form>
-                                    <form method="POST" action="{% url 'site_detail' pk=site.pk %}">
+                                    <form method="POST" action="{% url 'site_detail' pk=site.pk %}" style="display: flex; align-items: flex-end; height: 34px;">
                                         {% csrf_token %}
                                         <input type="hidden" name="action" value="update_access">
                                         <input type="hidden" name="access_action" value="reset_access">
-                                        <button type="submit" class="btn-ent btn-ent-danger-outline">
+                                        <button type="submit" class="btn-ent btn-ent-danger-outline" style="height: 34px;">
                                             Reiniciar Status
                                         </button>
                                     </form>

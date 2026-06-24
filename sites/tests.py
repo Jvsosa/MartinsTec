@@ -506,6 +506,39 @@ class SiteOperatorTests(TestCase):
         self.assertEqual(response.status_code, 302)
         self.assertFalse(Site.objects.filter(pk=site.pk).exists())
 
+    def test_custom_access_dates(self):
+        """Test that update_access action accepts and parses custom request/release dates."""
+        site = Site.objects.create(
+            site_id='SITE_ACCESS_DATE_TEST',
+            name='Access Date Site',
+            scope_type=Site.ScopeType.LAUDOS,
+            access_status=Site.AccessStatus.NOT_STARTED
+        )
+        self.client.login(username='engineer_operator', password='password123')
+        url = reverse('site_detail', kwargs={'pk': site.pk})
+        
+        # 1. Request access with a custom past date
+        response = self.client.post(url, {
+            'action': 'update_access',
+            'access_action': 'request_access',
+            'access_requested_date': '2026-05-10'
+        })
+        self.assertEqual(response.status_code, 302)
+        site.refresh_from_db()
+        self.assertEqual(site.access_status, Site.AccessStatus.REQUESTED)
+        self.assertEqual(site.access_requested_date.isoformat(), '2026-05-10')
+
+        # 2. Release access with a custom past date
+        response = self.client.post(url, {
+            'action': 'update_access',
+            'access_action': 'release_access',
+            'access_released_date': '2026-05-15'
+        })
+        self.assertEqual(response.status_code, 302)
+        site.refresh_from_db()
+        self.assertEqual(site.access_status, Site.AccessStatus.RELEASED)
+        self.assertEqual(site.access_released_date.isoformat(), '2026-05-15')
+
 
 
 
