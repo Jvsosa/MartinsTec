@@ -538,6 +538,7 @@ class SiteOperatorTests(TestCase):
         site.refresh_from_db()
         self.assertEqual(site.access_status, Site.AccessStatus.RELEASED)
         self.assertEqual(site.access_released_date.isoformat(), '2026-05-15')
+        self.assertEqual(site.access_lead_time, 5)
 
 
 

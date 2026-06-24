@@ -228,6 +228,12 @@ class Site(models.Model):
         three_days = today + timezone.timedelta(days=3)
         return bool(self.planned_report_date and not self.actual_report_date and today <= self.planned_report_date <= three_days)
 
+    @property
+    def access_lead_time(self):
+        if self.access_requested_date and self.access_released_date:
+            return (self.access_released_date - self.access_requested_date).days
+        return None
+
     SCOPE_STAGES = {
         'LAUDOS': ['Acionamento Parceiro', 'Acesso', 'Vistoria', 'Laudo', 'Projeto Reforço'],
         'INSTALACAO': ['Acesso', 'Vistoria', 'QRF', 'WarRoom', 'PPI', 'Execução', 'ARQ'],

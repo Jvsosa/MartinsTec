@@ -704,7 +704,7 @@
                                     {% if site.access_status == 'NOT_REQUIRED' %}
                                         A liberação de acesso foi dispensada para este ativo.
                                     {% elif site.access_status == 'RELEASED' %}
-                                        Acesso liberado pelo proprietário em <strong>{{ site.access_released_date|date:"d/m/Y" }}</strong>. O local está livre para visitas de campo.
+                                        Acesso liberado pelo proprietário em <strong>{{ site.access_released_date|date:"d/m/Y" }}</strong> (Solicitado em {{ site.access_requested_date|date:"d/m/Y" }}{% if site.access_lead_time is not None %} - levou {{ site.access_lead_time }} dia{% if site.access_lead_time != 1 %}s{% endif %}{% endif %}). O local está livre para visitas de campo.
                                     {% elif site.access_status == 'REQUESTED' %}
                                         Solicitação enviada em <strong>{{ site.access_requested_date|date:"d/m/Y" }}</strong>. Aguardando retorno do proprietário para liberar a vistoria.
                                     {% else %}
