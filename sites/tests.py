@@ -517,6 +517,10 @@ class SiteOperatorTests(TestCase):
         self.client.login(username='engineer_operator', password='password123')
         url = reverse('site_detail', kwargs={'pk': site.pk})
         
+        # Test rendering of the page
+        render_response = self.client.get(url)
+        self.assertEqual(render_response.status_code, 200)
+        
         # 1. Request access with a custom past date
         response = self.client.post(url, {
             'action': 'update_access',
