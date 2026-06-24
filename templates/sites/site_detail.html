@@ -910,6 +910,73 @@
                                 </div>
                                 {% endif %}
 
+                            {% elif stage.name == 'Acionamento Parceiro' %}
+                                <p style="margin: 0 0 1rem 0; font-size: 0.82rem; color: var(--text-muted); line-height: 1.4;">
+                                    {% if stage.status == 'DONE' %}
+                                        Parceiro acionado em <strong>{{ stage.date|date:"d/m/Y"|default:stage.date }}</strong>. <br>
+                                        Parceiro registrado: <strong>{{ site.partner_company|default:"Sem Fornecedora Vinculada" }}</strong>.
+                                    {% elif stage.status == 'SKIPPED' %}
+                                        Esta etapa foi desconsiderada/pulada.
+                                    {% else %}
+                                        Aguardando acionamento da empresa parceira de laudos/projetos.
+                                    {% endif %}
+                                </p>
+
+                                {% if user.role == 'ADMIN' or user.role == 'ENGINEER' %}
+                                <div style="background: #ffffff; border: 1px solid var(--border-color); border-radius: 8px; padding: 1rem; margin-bottom: 1rem;">
+                                    <h6 style="margin: 0 0 0.75rem 0; font-size: 0.8rem; font-weight: 700; color: var(--brand-primary); display: flex; align-items: center; gap: 0.35rem;">
+                                        <i data-lucide="bell" style="width: 16px; height: 16px;"></i>
+                                        {% if stage.status == 'DONE' %}Atualizar Acionamento{% else %}Registrar Acionamento de Parceiro{% endif %}
+                                    </h6>
+                                    <form method="POST" action="{% url 'site_detail' pk=site.pk %}">
+                                        {% csrf_token %}
+                                        <input type="hidden" name="action" value="update_stage">
+                                        <input type="hidden" name="stage_name" value="Acionamento Parceiro">
+                                        <input type="hidden" name="stage_status" value="DONE">
+                                        
+                                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 0.75rem; align-items: end;">
+                                            <div class="field-group">
+                                                <label for="partner_company_stepper" style="font-size: 0.65rem;">Nome do Parceiro Acionado</label>
+                                                <input type="text" name="partner_company" id="partner_company_stepper" value="{{ site.partner_company|default:'' }}" class="field-control" style="padding: 0.4rem; font-size: 0.8rem; border-radius: 6px; border: 1px solid var(--border-color); background: white;" placeholder="Ex: BTL" required>
+                                            </div>
+                                            <div class="field-group">
+                                                <label for="stage_date_stepper" style="font-size: 0.65rem;">Data do Acionamento</label>
+                                                <input type="date" name="stage_date" id="stage_date_stepper" value="{% if stage.date %}{{ stage.date }}{% else %}{% now 'Y-m-d' %}{% endif %}" class="field-control" style="padding: 0.4rem; font-size: 0.8rem; border-radius: 6px; border: 1px solid var(--border-color); background: white;" required>
+                                            </div>
+                                            <button type="submit" class="btn-submit" style="padding: 0.5rem 1rem; font-size: 0.8rem; border-radius: 6px; width: 100%; border: none; cursor: pointer; font-weight: 700; height: 34px; background: var(--brand-primary); color: white;">
+                                                Confirmar Acionamento
+                                            </button>
+                                        </div>
+                                    </form>
+                                </div>
+                                
+                                <div style="display: flex; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 1rem;">
+                                    {% if stage.status == 'DONE' or stage.status == 'SKIPPED' %}
+                                    <form method="POST" action="{% url 'site_detail' pk=site.pk %}" style="display:inline;">
+                                        {% csrf_token %}
+                                        <input type="hidden" name="action" value="update_stage">
+                                        <input type="hidden" name="stage_name" value="Acionamento Parceiro">
+                                        <input type="hidden" name="stage_status" value="PENDING">
+                                        <button type="submit" class="btn-ent btn-ent-danger-outline">
+                                            <i data-lucide="rotate-ccw" style="width: 14px; height: 14px;"></i>
+                                            Reiniciar Etapa
+                                        </button>
+                                    </form>
+                                    {% else %}
+                                    <form method="POST" action="{% url 'site_detail' pk=site.pk %}" style="display:inline;">
+                                        {% csrf_token %}
+                                        <input type="hidden" name="action" value="update_stage">
+                                        <input type="hidden" name="stage_name" value="Acionamento Parceiro">
+                                        <input type="hidden" name="stage_status" value="SKIPPED">
+                                        <button type="submit" class="btn-ent btn-ent-outline">
+                                            <i data-lucide="skip-forward" style="width: 14px; height: 14px;"></i>
+                                            Pular Etapa
+                                        </button>
+                                    </form>
+                                    {% endif %}
+                                </div>
+                                {% endif %}
+
                             {% else %}
                                 <!-- Generic dynamic stage form -->
                                 <p style="margin: 0 0 1rem 0; font-size: 0.82rem; color: var(--text-muted); line-height: 1.4;">

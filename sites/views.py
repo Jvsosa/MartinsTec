@@ -377,6 +377,9 @@ def site_detail(request, pk):
                     'date': None
                 }
 
+            if 'partner_company' in request.POST:
+                site.partner_company = request.POST.get('partner_company', '').strip() or None
+
             # Sincroniza o JSON de volta para os campos legados de banco
             site.sync_to_legacy_fields()
 

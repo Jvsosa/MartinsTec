@@ -390,12 +390,14 @@ class SiteRolloutWorkflowTests(TestCase):
             'action': 'update_stage',
             'stage_name': 'Acionamento Parceiro',
             'stage_status': 'DONE',
-            'stage_date': '2026-06-23'
+            'stage_date': '2026-06-23',
+            'partner_company': 'Parceiro BTL'
         })
         self.assertEqual(response.status_code, 302)
         site.refresh_from_db()
         self.assertEqual(site.stages_status['Acionamento Parceiro']['status'], 'DONE')
         self.assertEqual(site.stages_status['Acionamento Parceiro']['date'], '2026-06-23')
+        self.assertEqual(site.partner_company, 'Parceiro BTL')
 
         # 2. Skip a generic stage e.g. "Projeto Reforço"
         response = self.client.post(url, {
