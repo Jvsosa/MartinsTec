@@ -685,6 +685,8 @@
                                     <span style="font-size: 0.68rem; font-weight: 700; background: #ecfdf5; color: #10b981; padding: 0.15rem 0.5rem; border-radius: 20px;">Concluído</span>
                                 {% elif stage.status == 'SKIPPED' %}
                                     <span style="font-size: 0.68rem; font-weight: 700; background: #f1f5f9; color: #64748b; padding: 0.15rem 0.5rem; border-radius: 20px;">Ignorado</span>
+                                {% elif stage.name == 'Acesso' and site.access_status == 'REQUESTED' %}
+                                    <span style="font-size: 0.68rem; font-weight: 700; background: #eff6ff; color: #1e40af; padding: 0.15rem 0.5rem; border-radius: 20px;">Aguardando liberação</span>
                                 {% else %}
                                     <span style="font-size: 0.68rem; font-weight: 700; background: #fffbeb; color: #d97706; padding: 0.15rem 0.5rem; border-radius: 20px;">Pendente</span>
                                 {% endif %}
