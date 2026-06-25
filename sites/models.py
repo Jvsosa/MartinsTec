@@ -247,7 +247,7 @@ class Site(models.Model):
         return None
 
     SCOPE_STAGES = {
-        'LAUDOS': ['Acionamento Parceiro', 'Acesso', 'Vistoria', 'Laudo', 'Projeto Reforço'],
+        'LAUDOS': ['Acionamento Parceiro', 'Acesso', 'Vistoria', 'Laudo'],
         'INSTALACAO': ['Acesso', 'Vistoria', 'QRF', 'WarRoom', 'PPI', 'Execução', 'ARQ'],
         'INFRA': ['Acesso', 'Vistoria', 'Projeto', 'Execução', 'RFI'],
         'FABRICA': ['Acesso', 'Vistoria', 'Projeto']

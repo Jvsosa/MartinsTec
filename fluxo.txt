@@ -1,8 +1,21 @@
 Escopos E Etapas
 
 
-Laudos > Acionamento Parceiro > Acesso > Vistoria > Laudo > Projeto Reforço
+Laudos > Acionamento Parceiro > Acesso > Vistoria > Laudo
 Instalação - Acesso > Vistoria > QRF > WarRoom > PPI > Execução > ARQ
-Infra > Acesso > Vistoria > Projeto > Execução > RFI
-Fabrica > Acesso > Vistoria > Projeto 
+Infra > Acesso > Vistoria > Projeto > Execução > RFI (Pode Conter Relatorio)
+Fabrica > Acesso > Vistoria > Projeto (Pode Conter Relatorio)
 
+
+
+Correções
+
+Corrigir etapas com replanjeamento, deixar todas no mesmo padrão, no padrado do QRF, ficou mais bonito
+Corrigir que alguns escopos nao está gerando o historico de replanjeamento igual no escopo de Laudos
+
+
+Adicionar
+
+Calendario, podendo colocar eventos/anotações para avisar no dia
+Melhorar dashboard, com mais informações Ex: um grafico redondo mostrando qual operadora tem mais sites
+Navbar, mudar interface da navbar, deixando com menas cara de IA

@@ -1004,7 +1004,7 @@
                                             <br><span style="color: #ef4444; font-weight: 700;">⚠️ ATENÇÃO: O laudo está atrasado há {{ site.days_overdue }} dia(s)! Cobre o parceiro imediatamente.</span>
                                         {% endif %}
                                     {% else %}
-                                        Aguardando definição de planejamento para a entrega do Laudo/Projeto.
+                                        Aguardando definição de planejamento para a entrega do {{ stage.name }}.
                                     {% endif %}
                                 </p>
 
@@ -1027,7 +1027,7 @@
                                             
                                             <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 0.75rem; align-items: end;">
                                                 <div class="field-group">
-                                                    <label for="planned_report_stepper_new" style="font-size: 0.65rem; color: var(--brand-primary);">Data Planejada do Laudo/Projeto</label>
+                                                    <label for="planned_report_stepper_new" style="font-size: 0.65rem; color: var(--brand-primary);">Data Planejada do {{ stage.name }}</label>
                                                     <input type="date" name="planned_report_date" id="planned_report_stepper_new" class="field-control" required style="padding: 0.4rem; font-size: 0.8rem; border-radius: 6px; border: 1px solid var(--border-color); background: white; height: 34px; box-sizing: border-box;">
                                                 </div>
                                                 <button type="submit" class="btn-submit" style="padding: 0.5rem 1rem; font-size: 0.8rem; border-radius: 6px; width: 100%; border: none; cursor: pointer; font-weight: 700; height: 34px; background: var(--brand-primary); color: white;">
@@ -1042,10 +1042,10 @@
                                     <div id="report-question-box" style="background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 12px; padding: 1.25rem; margin-bottom: 1.25rem; box-shadow: var(--shadow-sm);">
                                         <h6 style="margin: 0 0 0.75rem 0; font-size: 0.85rem; font-weight: 700; color: #1e40af; display: flex; align-items: center; gap: 0.4rem;">
                                             <i data-lucide="help-circle" style="width: 18px; height: 18px; color: #3b82f6;"></i>
-                                            Confirmação de Entrega do Laudo/Projeto
+                                            Confirmação de Entrega do {{ stage.name }}
                                         </h6>
                                         <p style="margin: 0 0 1.25rem 0; font-size: 0.82rem; color: #1e3a8a; line-height: 1.45;">
-                                            A data planejada para a entrega do Laudo/Projeto (<strong>{{ site.planned_report_date|date:"d/m/Y" }}</strong>) chegou. A entrega foi realizada com sucesso?
+                                            A data planejada para a entrega do {{ stage.name }} (<strong>{{ site.planned_report_date|date:"d/m/Y" }}</strong>) chegou. A entrega foi realizada com sucesso?
                                         </p>
                                         <div style="display: flex; gap: 0.75rem; flex-wrap: wrap;">
                                             <button type="button" onclick="handleReportDecision('yes')" class="btn-ent btn-ent-primary">
@@ -1064,7 +1064,7 @@
                                     <div id="report-realization-container" style="{% if site.is_report_due %}display: none;{% endif %} background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 8px; padding: 1rem; margin-bottom: 1rem;">
                                         <h6 style="margin: 0 0 0.75rem 0; font-size: 0.8rem; font-weight: 700; color: #166534; display: flex; align-items: center; gap: 0.35rem;">
                                             <i data-lucide="check-circle" style="width: 16px; height: 16px;"></i>
-                                            Registrar Entrega do Laudo/Projeto
+                                            Registrar Entrega do {{ stage.name }}
                                         </h6>
                                         <form method="POST" action="{% url 'site_detail' pk=site.pk %}">
                                             {% csrf_token %}
@@ -1120,7 +1120,7 @@
                                 <div id="reschedule-report-form-container" style="display: none; background: #fff7ed; border: 1px solid #fed7aa; border-radius: 8px; padding: 1rem; margin-bottom: 1rem;">
                                     <h6 style="margin: 0 0 0.75rem 0; font-size: 0.8rem; font-weight: 700; color: #92400e; display: flex; align-items: center; gap: 0.35rem;">
                                         <i data-lucide="calendar-days" style="width: 16px; height: 16px;"></i>
-                                        Replanejar — Laudo/Projeto
+                                        Replanejar — {{ stage.name }}
                                     </h6>
                                     <form method="POST" action="{% url 'site_detail' pk=site.pk %}">
                                         {% csrf_token %}
