@@ -1001,6 +1001,9 @@
                                         Entregue pelo parceiro em: <strong>{{ site.actual_report_date|date:"d/m/Y" }}</strong>.
                                     {% elif site.planned_report_date %}
                                         Entrega planejada para: <strong>{{ site.planned_report_date|date:"d/m/Y" }}</strong>.
+                                        {% if site.is_report_overdue %}
+                                            <br><span style="color: #ef4444; font-weight: 700;">⚠️ ATENÇÃO: O laudo está atrasado há {{ site.days_overdue }} dia(s)! Cobre o parceiro imediatamente.</span>
+                                        {% endif %}
                                     {% else %}
                                         Aguardando definição de planejamento para a entrega do Laudo/Projeto.
                                     {% endif %}
@@ -1236,6 +1239,9 @@
                                         Esta etapa foi desconsiderada/pulada.
                                     {% elif stage.planned_date %}
                                         Etapa agendada para: <strong>{{ stage.planned_date|date:"d/m/Y" }}</strong>.
+                                        {% if stage.is_overdue %}
+                                            <br><span style="color: #ef4444; font-weight: 700;">⚠️ ATENÇÃO: A etapa {{ stage.name }} está atrasada há {{ stage.days_overdue }} dia(s)! Cobre o parceiro imediatamente.</span>
+                                        {% endif %}
                                         {% if stage.reschedule_count > 0 %}
                                             <br><span style="font-size: 0.75rem; color: #d97706; font-weight: 600;">({{ stage.reschedule_count }} replanejamento(s))</span>
                                         {% endif %}

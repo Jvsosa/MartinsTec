@@ -610,6 +610,9 @@ def site_detail(request, pk):
 
         # is_due: planned date has arrived and stage not yet done/skipped
         is_due = bool(planned_date_obj and status == 'PENDING' and planned_date_obj <= today)
+        # is_overdue: planned date has already passed (strictly before today)
+        is_overdue = bool(planned_date_obj and status == 'PENDING' and planned_date_obj < today)
+        days_overdue = (today - planned_date_obj).days if is_overdue else 0
 
         stages_list.append({
             'name': name,
@@ -618,6 +621,8 @@ def site_detail(request, pk):
             'index': idx,
             'planned_date': planned_date_obj,
             'is_due': is_due,
+            'is_overdue': is_overdue,
+            'days_overdue': days_overdue,
             'reschedule_count': reschedule_count,
             'reschedule_history': history,
         })
