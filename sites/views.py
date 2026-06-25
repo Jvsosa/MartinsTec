@@ -375,20 +375,31 @@ def site_detail(request, pk):
             from django.utils import timezone
             today = timezone.localdate()
 
+            # Preserve planned_date and reschedule_history when updating status
+            existing = site.stages_status.get(stage_name, {})
+            planned_date_existing = existing.get('planned_date')
+            history_existing = existing.get('reschedule_history', [])
+
             if stage_status == 'DONE':
                 site.stages_status[stage_name] = {
                     'status': 'DONE',
-                    'date': stage_date if stage_date else today.isoformat()
+                    'date': stage_date if stage_date else today.isoformat(),
+                    'planned_date': planned_date_existing,
+                    'reschedule_history': history_existing,
                 }
             elif stage_status == 'SKIPPED':
                 site.stages_status[stage_name] = {
                     'status': 'SKIPPED',
-                    'date': today.isoformat()
+                    'date': today.isoformat(),
+                    'planned_date': planned_date_existing,
+                    'reschedule_history': history_existing,
                 }
             else:
                 site.stages_status[stage_name] = {
                     'status': 'PENDING',
-                    'date': None
+                    'date': None,
+                    'planned_date': planned_date_existing,
+                    'reschedule_history': history_existing,
                 }
 
             if 'partner_company' in request.POST:
@@ -402,6 +413,71 @@ def site_detail(request, pk):
                 messages.success(request, f"Etapa '{stage_name}' atualizada com sucesso!")
             except Exception as e:
                 messages.error(request, f"Erro ao atualizar etapa: {str(e)}")
+
+            return redirect('site_detail', pk=pk)
+
+        # Ação Nova: Definir data planejada de etapa genérica
+        if action == 'plan_stage':
+            if request.user.role not in [User.Role.ADMIN, User.Role.ENGINEER]:
+                messages.error(request, "Sem permissão para planejar etapas.")
+                return redirect('site_detail', pk=pk)
+
+            stage_name = request.POST.get('stage_name')
+            planned_date_str = request.POST.get('stage_planned_date')
+
+            if not site.stages_status:
+                site.stages_status = {}
+
+            existing = site.stages_status.get(stage_name, {'status': 'PENDING', 'date': None, 'reschedule_history': []})
+            existing['planned_date'] = planned_date_str if planned_date_str else None
+            if 'reschedule_history' not in existing:
+                existing['reschedule_history'] = []
+            site.stages_status[stage_name] = existing
+
+            try:
+                site.save(update_fields=['stages_status'])
+                messages.success(request, f"Data planejada para '{stage_name}' definida com sucesso!")
+            except Exception as e:
+                messages.error(request, f"Erro ao salvar data planejada: {str(e)}")
+
+            return redirect('site_detail', pk=pk)
+
+        # Ação Nova: Replanejar etapa genérica (nova data + motivo + histórico)
+        if action == 'reschedule_stage':
+            if request.user.role not in [User.Role.ADMIN, User.Role.ENGINEER]:
+                messages.error(request, "Sem permissão para replanejar etapas.")
+                return redirect('site_detail', pk=pk)
+
+            stage_name = request.POST.get('stage_name')
+            new_planned_date_str = request.POST.get('stage_planned_date')
+            reason = request.POST.get('reschedule_reason', '').strip() or None
+
+            if not site.stages_status:
+                site.stages_status = {}
+
+            existing = site.stages_status.get(stage_name, {'status': 'PENDING', 'date': None})
+            old_planned = existing.get('planned_date')
+
+            # Registra no histórico interno do JSON
+            history = existing.get('reschedule_history', [])
+            history.append({
+                'previous_date': old_planned,
+                'new_date': new_planned_date_str,
+                'reason': reason,
+                'by': request.user.get_full_name() or request.user.username,
+            })
+            existing['planned_date'] = new_planned_date_str
+            existing['reschedule_history'] = history
+            site.stages_status[stage_name] = existing
+
+            # Incrementa contador geral de replanejamentos do site
+            site.reschedule_count = (site.reschedule_count or 0) + 1
+
+            try:
+                site.save(update_fields=['stages_status', 'reschedule_count'])
+                messages.warning(request, f"Replanejamento da etapa '{stage_name}' registrado! Total: {site.reschedule_count}")
+            except Exception as e:
+                messages.error(request, f"Erro ao replanejar etapa: {str(e)}")
 
             return redirect('site_detail', pk=pk)
 
@@ -519,22 +595,37 @@ def site_detail(request, pk):
     recommended_step = 1
     found_pending = False
     
+    from django.utils import timezone as tz
+    from django.utils.dateparse import parse_date as _parse_date
+    today = tz.localdate()
+
     for idx, name in enumerate(stages_config, 1):
         status_info = site.stages_status.get(name, {'status': 'PENDING', 'date': None})
         status = status_info.get('status', 'PENDING')
         date = status_info.get('date')
-        
+        planned_date_str = status_info.get('planned_date')
+        planned_date_obj = _parse_date(planned_date_str) if planned_date_str else None
+        history = status_info.get('reschedule_history', [])
+        reschedule_count = len(history)
+
+        # is_due: planned date has arrived and stage not yet done/skipped
+        is_due = bool(planned_date_obj and status == 'PENDING' and planned_date_obj <= today)
+
         stages_list.append({
             'name': name,
             'status': status,
             'date': date,
             'index': idx,
+            'planned_date': planned_date_obj,
+            'is_due': is_due,
+            'reschedule_count': reschedule_count,
+            'reschedule_history': history,
         })
-        
+
         if not found_pending and status == 'PENDING':
             recommended_step = idx
             found_pending = True
-            
+
     # Se todas as etapas foram concluídas ou puladas, foca na última
     if not found_pending and stages_list:
         recommended_step = len(stages_list)

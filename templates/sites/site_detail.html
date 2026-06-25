@@ -1223,56 +1223,186 @@
 
                             {% else %}
                                 <!-- Generic dynamic stage form -->
+                                {% comment %}
+                                    stage.planned_date comes from stages_status[name].planned_date (passed via context)
+                                {% endcomment %}
                                 <p style="margin: 0 0 1rem 0; font-size: 0.82rem; color: var(--text-muted); line-height: 1.4;">
                                     {% if stage.status == 'DONE' %}
                                         Etapa concluída em <strong>{{ stage.date|date:"d/m/Y"|default:stage.date }}</strong>.
+                                        {% if stage.planned_date %}
+                                            Planejado para: <strong>{{ stage.planned_date|date:"d/m/Y" }}</strong>.
+                                        {% endif %}
                                     {% elif stage.status == 'SKIPPED' %}
                                         Esta etapa foi desconsiderada/pulada.
+                                    {% elif stage.planned_date %}
+                                        Etapa agendada para: <strong>{{ stage.planned_date|date:"d/m/Y" }}</strong>.
+                                        {% if stage.reschedule_count > 0 %}
+                                            <br><span style="font-size: 0.75rem; color: #d97706; font-weight: 600;">({{ stage.reschedule_count }} replanejamento(s))</span>
+                                        {% endif %}
                                     {% else %}
-                                        Etapa de {{ stage.name }} aguardando conclusão ou liberação.
+                                        Etapa de {{ stage.name }} aguardando definição de data planejada.
                                     {% endif %}
                                 </p>
 
                                 {% if user.role == 'ADMIN' or user.role == 'ENGINEER' %}
-                                <div style="display: flex; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 1rem;">
-                                    {% if stage.status == 'PENDING' %}
-                                    <form method="POST" action="{% url 'site_detail' pk=site.pk %}">
-                                        {% csrf_token %}
-                                        <input type="hidden" name="action" value="update_stage">
-                                        <input type="hidden" name="stage_name" value="{{ stage.name }}">
-                                        <input type="hidden" name="stage_status" value="DONE">
-                                        <div style="display: flex; gap: 0.4rem; align-items: center;">
-                                            <input type="date" name="stage_date" class="field-control" style="padding: 0.4rem; font-size: 0.8rem; border-radius: 6px; border: 1px solid var(--border-color); background: white; width: 140px;" required>
-                                            <button type="submit" class="btn-ent btn-ent-primary">
-                                                <i data-lucide="check-circle" style="width: 14px; height: 14px;"></i>
-                                                Concluir Etapa
-                                            </button>
+                                    {% if stage.status == 'PENDING' or stage.status == 'IN_PROGRESS' %}
+
+                                        {% if not stage.planned_date %}
+                                        <!-- Card: Agendar data planejada da etapa -->
+                                        <div style="background: #ffffff; border: 1px solid var(--border-color); border-radius: 8px; padding: 1rem; margin-bottom: 1rem;">
+                                            <h6 style="margin: 0 0 0.75rem 0; font-size: 0.8rem; font-weight: 700; color: var(--brand-primary); display: flex; align-items: center; gap: 0.35rem;">
+                                                <i data-lucide="calendar" style="width: 16px; height: 16px;"></i>
+                                                Agendar/Planejar {{ stage.name }}
+                                            </h6>
+                                            <form method="POST" action="{% url 'site_detail' pk=site.pk %}">
+                                                {% csrf_token %}
+                                                <input type="hidden" name="action" value="plan_stage">
+                                                <input type="hidden" name="stage_name" value="{{ stage.name }}">
+                                                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 0.75rem; align-items: end;">
+                                                    <div class="field-group">
+                                                        <label style="font-size: 0.65rem; color: var(--brand-primary);">Data Planejada — {{ stage.name }}</label>
+                                                        <input type="date" name="stage_planned_date" class="field-control" required style="padding: 0.4rem; font-size: 0.8rem; border-radius: 6px; border: 1px solid var(--border-color); background: white; height: 34px; box-sizing: border-box;">
+                                                    </div>
+                                                    <button type="submit" class="btn-submit" style="padding: 0.5rem 1rem; font-size: 0.8rem; border-radius: 6px; width: 100%; border: none; cursor: pointer; font-weight: 700; height: 34px; background: var(--brand-primary); color: white;">
+                                                        Salvar Agendamento
+                                                    </button>
+                                                </div>
+                                            </form>
                                         </div>
-                                    </form>
-                                    <form method="POST" action="{% url 'site_detail' pk=site.pk %}">
-                                        {% csrf_token %}
-                                        <input type="hidden" name="action" value="update_stage">
-                                        <input type="hidden" name="stage_name" value="{{ stage.name }}">
-                                        <input type="hidden" name="stage_status" value="SKIPPED">
-                                        <button type="submit" class="btn-ent btn-ent-outline">
-                                            <i data-lucide="skip-forward" style="width: 14px; height: 14px;"></i>
-                                            Pular Etapa
-                                        </button>
-                                    </form>
-                                    {% else %}
-                                    <form method="POST" action="{% url 'site_detail' pk=site.pk %}">
-                                        {% csrf_token %}
-                                        <input type="hidden" name="action" value="update_stage">
-                                        <input type="hidden" name="stage_name" value="{{ stage.name }}">
-                                        <input type="hidden" name="stage_status" value="PENDING">
-                                        <button type="submit" class="btn-ent btn-ent-danger-outline">
-                                            <i data-lucide="rotate-ccw" style="width: 14px; height: 14px;"></i>
-                                            Reiniciar Etapa
-                                        </button>
-                                    </form>
-                                    {% endif %}
-                                </div>
-                                {% endif %}
+                                        {% else %}
+                                        <!-- Caixa de pergunta quando a data planejada chegou -->
+                                        {% if stage.is_due %}
+                                        <div id="generic-question-box-{{ stage.index }}" style="background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 12px; padding: 1.25rem; margin-bottom: 1.25rem; box-shadow: var(--shadow-sm);">
+                                            <h6 style="margin: 0 0 0.75rem 0; font-size: 0.85rem; font-weight: 700; color: #1e40af; display: flex; align-items: center; gap: 0.4rem;">
+                                                <i data-lucide="help-circle" style="width: 18px; height: 18px; color: #3b82f6;"></i>
+                                                Confirmação — {{ stage.name }}
+                                            </h6>
+                                            <p style="margin: 0 0 1.25rem 0; font-size: 0.82rem; color: #1e3a8a; line-height: 1.45;">
+                                                A data planejada para <strong>{{ stage.name }}</strong> (<strong>{{ stage.planned_date|date:"d/m/Y" }}</strong>) chegou. A etapa foi concluída com sucesso?
+                                            </p>
+                                            <div style="display: flex; gap: 0.75rem; flex-wrap: wrap;">
+                                                <button type="button" onclick="handleGenericDecision({{ stage.index }}, 'yes')" class="btn-ent btn-ent-primary">
+                                                    <i data-lucide="check-circle" style="width: 14px; height: 14px;"></i>
+                                                    Sim, foi concluída
+                                                </button>
+                                                <button type="button" onclick="handleGenericDecision({{ stage.index }}, 'no')" class="btn-ent btn-ent-danger-outline">
+                                                    <i data-lucide="calendar-x" style="width: 14px; height: 14px;"></i>
+                                                    Não, preciso replanejar
+                                                </button>
+                                            </div>
+                                        </div>
+                                        {% endif %}
+
+                                        <!-- Container de conclusão da etapa -->
+                                        <div id="generic-realization-{{ stage.index }}" style="display: none; background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 8px; padding: 1rem; margin-bottom: 1rem;">
+                                            <h6 style="margin: 0 0 0.75rem 0; font-size: 0.8rem; font-weight: 700; color: #166534;">
+                                                <i data-lucide="check-circle" style="width: 16px; height: 16px;"></i>
+                                                Registrar Conclusão — {{ stage.name }}
+                                            </h6>
+                                            <form method="POST" action="{% url 'site_detail' pk=site.pk %}">
+                                                {% csrf_token %}
+                                                <input type="hidden" name="action" value="update_stage">
+                                                <input type="hidden" name="stage_name" value="{{ stage.name }}">
+                                                <input type="hidden" name="stage_status" value="DONE">
+                                                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 0.75rem; align-items: end;">
+                                                    <div class="field-group">
+                                                        <label style="font-size: 0.65rem; color: #166534;">Data de Conclusão</label>
+                                                        <input type="date" name="stage_date" class="field-control" required style="padding: 0.4rem; font-size: 0.8rem; border-radius: 6px; border: 1px solid #bbf7d0; background: white; height: 34px; box-sizing: border-box;">
+                                                    </div>
+                                                    <button type="submit" class="btn-ent btn-ent-primary" style="height: 34px;">
+                                                        <i data-lucide="save" style="width: 14px; height: 14px;"></i>
+                                                        Confirmar Conclusão
+                                                    </button>
+                                                </div>
+                                                {% if stage.is_due %}
+                                                <div style="margin-top: 0.5rem; display: flex; justify-content: flex-end;">
+                                                    <button type="button" onclick="cancelGenericDecision({{ stage.index }})" style="background: transparent; color: #6b7280; font-size: 0.75rem; border: none; font-weight: 600; cursor: pointer;">Voltar</button>
+                                                </div>
+                                                {% endif %}
+                                            </form>
+                                        </div>
+
+                                        <!-- Container de replanejamento da etapa -->
+                                        <div id="generic-reschedule-{{ stage.index }}" style="display: none; background: #fff7ed; border: 1px solid #fed7aa; border-radius: 8px; padding: 1rem; margin-bottom: 1rem;">
+                                            <h6 style="margin: 0 0 0.75rem 0; font-size: 0.8rem; font-weight: 700; color: #92400e;">
+                                                <i data-lucide="calendar-days" style="width: 16px; height: 16px;"></i>
+                                                Replanejar — {{ stage.name }}
+                                            </h6>
+                                            <form method="POST" action="{% url 'site_detail' pk=site.pk %}">
+                                                {% csrf_token %}
+                                                <input type="hidden" name="action" value="reschedule_stage">
+                                                <input type="hidden" name="stage_name" value="{{ stage.name }}">
+                                                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; margin-bottom: 0.75rem;">
+                                                    <div class="field-group">
+                                                        <label style="font-size: 0.65rem; color: #92400e;">Nova Data Planejada</label>
+                                                        <input type="date" name="stage_planned_date" class="field-control" required style="padding: 0.4rem; font-size: 0.8rem; border-radius: 6px; border: 1px solid #fed7aa; background: white; height: 34px; box-sizing: border-box;">
+                                                    </div>
+                                                    <div class="field-group">
+                                                        <label style="font-size: 0.65rem; color: #92400e;">Motivo do Replanejamento *</label>
+                                                        <input type="text" name="reschedule_reason" class="field-control" required placeholder="Ex: Parceiro indisponível..." style="padding: 0.4rem; font-size: 0.8rem; border-radius: 6px; border: 1px solid #fed7aa; background: white; height: 34px; box-sizing: border-box;">
+                                                    </div>
+                                                </div>
+                                                <div style="display: flex; gap: 0.5rem; align-items: center;">
+                                                    <button type="submit" class="btn-ent btn-ent-danger-outline" style="font-size: 0.8rem;">
+                                                        <i data-lucide="rotate-cw" style="width: 14px; height: 14px;"></i>
+                                                        Confirmar Replanejamento
+                                                    </button>
+                                                    {% if stage.is_due %}
+                                                    <button type="button" onclick="cancelGenericDecision({{ stage.index }})" style="background: transparent; color: #6b7280; font-size: 0.75rem; border: none; font-weight: 600; cursor: pointer;">Voltar</button>
+                                                    {% endif %}
+                                                </div>
+                                            </form>
+                                        </div>
+
+                                        <!-- Botões de ação: Concluir, Replanejar, Pular -->
+                                        <div style="display: flex; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 1rem;">
+                                            {% if not stage.is_due %}
+                                            <form method="POST" action="{% url 'site_detail' pk=site.pk %}">
+                                                {% csrf_token %}
+                                                <input type="hidden" name="action" value="update_stage">
+                                                <input type="hidden" name="stage_name" value="{{ stage.name }}">
+                                                <input type="hidden" name="stage_status" value="DONE">
+                                                <div style="display: flex; gap: 0.4rem; align-items: center;">
+                                                    <input type="date" name="stage_date" class="field-control" style="padding: 0.4rem; font-size: 0.8rem; border-radius: 6px; border: 1px solid var(--border-color); background: white; width: 140px;" required>
+                                                    <button type="submit" class="btn-ent btn-ent-primary">
+                                                        <i data-lucide="check-circle" style="width: 14px; height: 14px;"></i>
+                                                        Concluir Etapa
+                                                    </button>
+                                                </div>
+                                            </form>
+                                            {% endif %}
+                                            <button type="button" onclick="toggleGenericReschedule({{ stage.index }})" class="btn-ent btn-ent-outline">
+                                                <i data-lucide="calendar-days" style="width: 14px; height: 14px;"></i>
+                                                Replanejar {{ stage.name }}
+                                            </button>
+                                            <form method="POST" action="{% url 'site_detail' pk=site.pk %}">
+                                                {% csrf_token %}
+                                                <input type="hidden" name="action" value="update_stage">
+                                                <input type="hidden" name="stage_name" value="{{ stage.name }}">
+                                                <input type="hidden" name="stage_status" value="SKIPPED">
+                                                <button type="submit" class="btn-ent btn-ent-outline">
+                                                    <i data-lucide="skip-forward" style="width: 14px; height: 14px;"></i>
+                                                    Pular Etapa
+                                                </button>
+                                            </form>
+                                        </div>
+                                        {% endif %}{# end not stage.planned_date #}
+
+                                    {% else %}{# DONE or SKIPPED #}
+                                    <div style="display: flex; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 1rem;">
+                                        <form method="POST" action="{% url 'site_detail' pk=site.pk %}">
+                                            {% csrf_token %}
+                                            <input type="hidden" name="action" value="update_stage">
+                                            <input type="hidden" name="stage_name" value="{{ stage.name }}">
+                                            <input type="hidden" name="stage_status" value="PENDING">
+                                            <button type="submit" class="btn-ent btn-ent-danger-outline">
+                                                <i data-lucide="rotate-ccw" style="width: 14px; height: 14px;"></i>
+                                                Reiniciar Etapa
+                                            </button>
+                                        </form>
+                                    </div>
+                                    {% endif %}{# end status check #}
+                                {% endif %}{# end user.role #}
                             {% endif %}
 
                             <!-- Navigation buttons inside all stepper contents -->
@@ -1389,6 +1519,49 @@
                     if (questionBox) questionBox.style.display = 'block';
                     if (realizationContainer) realizationContainer.style.display = 'none';
                     if (rescheduleContainer) rescheduleContainer.style.display = 'none';
+                }
+
+                // --- Funções para etapas genéricas (QRF, WarRoom, PPI, Execução, ARQ, RFI, Projeto Reforço) ---
+                function handleGenericDecision(stageIndex, decision) {
+                    const questionBox = document.getElementById('generic-question-box-' + stageIndex);
+                    const realizationContainer = document.getElementById('generic-realization-' + stageIndex);
+                    const rescheduleContainer = document.getElementById('generic-reschedule-' + stageIndex);
+
+                    if (decision === 'yes') {
+                        if (questionBox) questionBox.style.display = 'none';
+                        if (realizationContainer) { realizationContainer.style.display = 'block'; realizationContainer.scrollIntoView({ behavior: 'smooth', block: 'nearest' }); }
+                        if (rescheduleContainer) rescheduleContainer.style.display = 'none';
+                    } else if (decision === 'no') {
+                        if (questionBox) questionBox.style.display = 'none';
+                        if (realizationContainer) realizationContainer.style.display = 'none';
+                        if (rescheduleContainer) { rescheduleContainer.style.display = 'block'; rescheduleContainer.scrollIntoView({ behavior: 'smooth', block: 'nearest' }); }
+                    }
+                }
+
+                function cancelGenericDecision(stageIndex) {
+                    const questionBox = document.getElementById('generic-question-box-' + stageIndex);
+                    const realizationContainer = document.getElementById('generic-realization-' + stageIndex);
+                    const rescheduleContainer = document.getElementById('generic-reschedule-' + stageIndex);
+
+                    if (questionBox) questionBox.style.display = 'block';
+                    if (realizationContainer) realizationContainer.style.display = 'none';
+                    if (rescheduleContainer) rescheduleContainer.style.display = 'none';
+                }
+
+                function toggleGenericReschedule(stageIndex) {
+                    const rescheduleContainer = document.getElementById('generic-reschedule-' + stageIndex);
+                    const questionBox = document.getElementById('generic-question-box-' + stageIndex);
+                    const realizationContainer = document.getElementById('generic-realization-' + stageIndex);
+
+                    if (rescheduleContainer) {
+                        const isOpen = rescheduleContainer.style.display === 'block';
+                        rescheduleContainer.style.display = isOpen ? 'none' : 'block';
+                        if (!isOpen) {
+                            if (questionBox) questionBox.style.display = 'none';
+                            if (realizationContainer) realizationContainer.style.display = 'none';
+                            rescheduleContainer.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                        }
+                    }
                 }
 
                 function selectStep(stepNum) {
