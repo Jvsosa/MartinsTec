@@ -603,8 +603,13 @@ def site_detail(request, pk):
         status_info = site.stages_status.get(name, {'status': 'PENDING', 'date': None})
         status = status_info.get('status', 'PENDING')
         date = status_info.get('date')
-        planned_date_str = status_info.get('planned_date')
-        planned_date_obj = _parse_date(planned_date_str) if planned_date_str else None
+        if name == 'Vistoria':
+            planned_date_obj = site.planned_survey_date
+        elif name in ['Laudo', 'Projeto']:
+            planned_date_obj = site.planned_report_date
+        else:
+            planned_date_str = status_info.get('planned_date')
+            planned_date_obj = _parse_date(planned_date_str) if planned_date_str else None
         history = status_info.get('reschedule_history', [])
         reschedule_count = len(history)
 

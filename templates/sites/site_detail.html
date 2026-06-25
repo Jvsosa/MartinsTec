@@ -748,6 +748,12 @@
                                     <span style="font-size: 0.68rem; font-weight: 700; background: #f1f5f9; color: #64748b; padding: 0.15rem 0.5rem; border-radius: 20px;">Ignorado</span>
                                 {% elif stage.name == 'Acesso' and site.access_status == 'REQUESTED' %}
                                     <span style="font-size: 0.68rem; font-weight: 700; background: #eff6ff; color: #1e40af; padding: 0.15rem 0.5rem; border-radius: 20px;">Aguardando liberação</span>
+                                {% elif stage.planned_date %}
+                                    {% if stage.is_overdue %}
+                                        <span style="font-size: 0.68rem; font-weight: 700; background: #fdf2f2; color: #b91c1c; border: 1px solid #fca5a5; padding: 0.15rem 0.5rem; border-radius: 20px;">Atrasada ({{ stage.planned_date|date:"d/m" }})</span>
+                                    {% else %}
+                                        <span style="font-size: 0.68rem; font-weight: 700; background: #eff6ff; color: #1d4ed8; border: 1px solid #bfdbfe; padding: 0.15rem 0.5rem; border-radius: 20px;">Agendada ({{ stage.planned_date|date:"d/m" }})</span>
+                                    {% endif %}
                                 {% else %}
                                     <span style="font-size: 0.68rem; font-weight: 700; background: #fffbeb; color: #d97706; padding: 0.15rem 0.5rem; border-radius: 20px;">Pendente</span>
                                 {% endif %}
