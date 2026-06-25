@@ -837,13 +837,13 @@
                             {% elif stage.name == 'Vistoria' %}
                                 <div style="margin-bottom: 1rem;">
                                     {% if site.actual_survey_date %}
-                                        <div style="background: #f0fdf4; border: 1px solid #bbf7d0; border-left: 4px solid #22c55e; border-radius: 8px; padding: 0.75rem 1rem; display: flex; align-items: center; gap: 0.5rem; color: #166534; font-size: 0.8rem;">
+                                        <div style="background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 8px; padding: 0.75rem 1rem; display: flex; align-items: center; gap: 0.5rem; color: #166534; font-size: 0.8rem;">
                                             <i data-lucide="check-circle" style="width: 16px; height: 16px; color: #22c55e; flex-shrink: 0;"></i>
                                             <span>Vistoria técnica de campo realizada em <strong>{{ site.actual_survey_date|date:"d/m/Y" }}</strong>.</span>
                                         </div>
                                     {% elif site.planned_survey_date %}
                                         {% if site.is_survey_overdue %}
-                                            <div style="background: #fdf2f2; border: 1px solid #fde8e8; border-left: 4px solid #ef4444; border-radius: 8px; padding: 0.75rem 1rem; display: flex; flex-direction: column; gap: 0.4rem;">
+                                            <div style="background: #fdf2f2; border: 1px solid #fde8e8; border-radius: 8px; padding: 0.75rem 1rem; display: flex; flex-direction: column; gap: 0.4rem;">
                                                 <div style="display: flex; align-items: center; gap: 0.5rem; color: #991b1b; font-size: 0.8rem; font-weight: 700;">
                                                     <i data-lucide="alert-triangle" style="width: 16px; height: 16px; color: #ef4444; flex-shrink: 0;"></i>
                                                     <span>A vistoria técnica de campo está atrasada há {{ site.days_overdue }} dia(s)! Cobre o parceiro imediatamente.</span>
@@ -858,7 +858,7 @@
                                                 </div>
                                             </div>
                                         {% else %}
-                                            <div style="background: #f0fdf4; border: 1px solid #dcfce7; border-left: 4px solid #22c55e; border-radius: 8px; padding: 0.75rem 1rem; display: flex; align-items: center; justify-content: space-between; gap: 0.75rem; flex-wrap: wrap;">
+                                            <div style="background: #f0fdf4; border: 1px solid #dcfce7; border-radius: 8px; padding: 0.75rem 1rem; display: flex; align-items: center; justify-content: space-between; gap: 0.75rem; flex-wrap: wrap;">
                                                 <div style="display: flex; align-items: center; gap: 0.5rem; color: #166534; font-size: 0.8rem;">
                                                     <i data-lucide="calendar" style="width: 16px; height: 16px; color: #22c55e; flex-shrink: 0;"></i>
                                                     <span>Vistoria técnica de campo agendada para: <strong>{{ site.planned_survey_date|date:"d/m/Y" }}</strong></span>
@@ -871,7 +871,7 @@
                                             </div>
                                         {% endif %}
                                     {% else %}
-                                        <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-left: 4px solid #94a3b8; border-radius: 8px; padding: 0.75rem 1rem; display: flex; align-items: center; gap: 0.5rem; color: #475569; font-size: 0.8rem;">
+                                        <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 0.75rem 1rem; display: flex; align-items: center; gap: 0.5rem; color: #475569; font-size: 0.8rem;">
                                             <i data-lucide="clock" style="width: 16px; height: 16px; color: #94a3b8; flex-shrink: 0;"></i>
                                             <span>Aguardando definição de planejamento para a vistoria técnica de campo.</span>
                                         </div>
@@ -1024,13 +1024,13 @@
                             {% elif stage.name == 'Laudo' or stage.name == 'Projeto' %}
                                 <div style="margin-bottom: 1rem;">
                                     {% if site.actual_report_date %}
-                                        <div style="background: #f0fdf4; border: 1px solid #bbf7d0; border-left: 4px solid #22c55e; border-radius: 8px; padding: 0.75rem 1rem; display: flex; align-items: center; gap: 0.5rem; color: #166534; font-size: 0.8rem;">
+                                        <div style="background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 8px; padding: 0.75rem 1rem; display: flex; align-items: center; gap: 0.5rem; color: #166534; font-size: 0.8rem;">
                                             <i data-lucide="check-circle" style="width: 16px; height: 16px; color: #22c55e; flex-shrink: 0;"></i>
                                             <span>{{ stage.name }} entregue em <strong>{{ site.actual_report_date|date:"d/m/Y" }}</strong>.</span>
                                         </div>
                                     {% elif site.planned_report_date %}
                                         {% if site.is_report_overdue %}
-                                            <div style="background: #fdf2f2; border: 1px solid #fde8e8; border-left: 4px solid #ef4444; border-radius: 8px; padding: 0.75rem 1rem; display: flex; flex-direction: column; gap: 0.4rem;">
+                                            <div style="background: #fdf2f2; border: 1px solid #fde8e8; border-radius: 8px; padding: 0.75rem 1rem; display: flex; flex-direction: column; gap: 0.4rem;">
                                                 <div style="display: flex; align-items: center; gap: 0.5rem; color: #991b1b; font-size: 0.8rem; font-weight: 700;">
                                                     <i data-lucide="alert-triangle" style="width: 16px; height: 16px; color: #ef4444; flex-shrink: 0;"></i>
                                                     <span>O {{ stage.name|lower }} está atrasado há {{ site.days_overdue }} dia(s)! Cobre o parceiro imediatamente.</span>
@@ -1045,7 +1045,7 @@
                                                 </div>
                                             </div>
                                         {% else %}
-                                            <div style="background: #f0fdf4; border: 1px solid #dcfce7; border-left: 4px solid #22c55e; border-radius: 8px; padding: 0.75rem 1rem; display: flex; align-items: center; justify-content: space-between; gap: 0.75rem; flex-wrap: wrap;">
+                                            <div style="background: #f0fdf4; border: 1px solid #dcfce7; border-radius: 8px; padding: 0.75rem 1rem; display: flex; align-items: center; justify-content: space-between; gap: 0.75rem; flex-wrap: wrap;">
                                                 <div style="display: flex; align-items: center; gap: 0.5rem; color: #166534; font-size: 0.8rem;">
                                                     <i data-lucide="calendar" style="width: 16px; height: 16px; color: #22c55e; flex-shrink: 0;"></i>
                                                     <span>Entrega de {{ stage.name|lower }} planejada para: <strong>{{ site.planned_report_date|date:"d/m/Y" }}</strong></span>
@@ -1058,7 +1058,7 @@
                                             </div>
                                         {% endif %}
                                     {% else %}
-                                        <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-left: 4px solid #94a3b8; border-radius: 8px; padding: 0.75rem 1rem; display: flex; align-items: center; gap: 0.5rem; color: #475569; font-size: 0.8rem;">
+                                        <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 0.75rem 1rem; display: flex; align-items: center; gap: 0.5rem; color: #475569; font-size: 0.8rem;">
                                             <i data-lucide="clock" style="width: 16px; height: 16px; color: #94a3b8; flex-shrink: 0;"></i>
                                             <span>Aguardando definição de planejamento para a entrega do {{ stage.name }}.</span>
                                         </div>
@@ -1285,18 +1285,18 @@
                                 {% endcomment %}
                                 <div style="margin-bottom: 1rem;">
                                     {% if stage.status == 'DONE' %}
-                                        <div style="background: #f0fdf4; border: 1px solid #bbf7d0; border-left: 4px solid #22c55e; border-radius: 8px; padding: 0.75rem 1rem; display: flex; align-items: center; gap: 0.5rem; color: #166534; font-size: 0.8rem;">
+                                        <div style="background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 8px; padding: 0.75rem 1rem; display: flex; align-items: center; gap: 0.5rem; color: #166534; font-size: 0.8rem;">
                                             <i data-lucide="check-circle" style="width: 16px; height: 16px; color: #22c55e; flex-shrink: 0;"></i>
                                             <span>Etapa concluída em <strong>{{ stage.date|date:"d/m/Y"|default:stage.date }}</strong>.{% if stage.planned_date %} Planejado para: <strong>{{ stage.planned_date|date:"d/m/Y" }}</strong>.{% endif %}</span>
                                         </div>
                                     {% elif stage.status == 'SKIPPED' %}
-                                        <div style="background: #f1f5f9; border: 1px solid #e2e8f0; border-left: 4px solid #64748b; border-radius: 8px; padding: 0.75rem 1rem; display: flex; align-items: center; gap: 0.5rem; color: #475569; font-size: 0.8rem;">
+                                        <div style="background: #f1f5f9; border: 1px solid #e2e8f0; border-radius: 8px; padding: 0.75rem 1rem; display: flex; align-items: center; gap: 0.5rem; color: #475569; font-size: 0.8rem;">
                                             <i data-lucide="skip-forward" style="width: 16px; height: 16px; color: #64748b; flex-shrink: 0;"></i>
                                             <span>Esta etapa foi desconsiderada/pulada.</span>
                                         </div>
                                     {% elif stage.planned_date %}
                                         {% if stage.is_overdue %}
-                                            <div style="background: #fdf2f2; border: 1px solid #fde8e8; border-left: 4px solid #ef4444; border-radius: 8px; padding: 0.75rem 1rem; display: flex; flex-direction: column; gap: 0.4rem;">
+                                            <div style="background: #fdf2f2; border: 1px solid #fde8e8; border-radius: 8px; padding: 0.75rem 1rem; display: flex; flex-direction: column; gap: 0.4rem;">
                                                 <div style="display: flex; align-items: center; gap: 0.5rem; color: #991b1b; font-size: 0.8rem; font-weight: 700;">
                                                     <i data-lucide="alert-triangle" style="width: 16px; height: 16px; color: #ef4444; flex-shrink: 0;"></i>
                                                     <span>A etapa {{ stage.name }} está atrasada há {{ stage.days_overdue }} dia(s)! Cobre o parceiro imediatamente.</span>
@@ -1311,7 +1311,7 @@
                                                 </div>
                                             </div>
                                         {% else %}
-                                            <div style="background: #f0fdf4; border: 1px solid #dcfce7; border-left: 4px solid #22c55e; border-radius: 8px; padding: 0.75rem 1rem; display: flex; align-items: center; justify-content: space-between; gap: 0.75rem; flex-wrap: wrap;">
+                                            <div style="background: #f0fdf4; border: 1px solid #dcfce7; border-radius: 8px; padding: 0.75rem 1rem; display: flex; align-items: center; justify-content: space-between; gap: 0.75rem; flex-wrap: wrap;">
                                                 <div style="display: flex; align-items: center; gap: 0.5rem; color: #166534; font-size: 0.8rem;">
                                                     <i data-lucide="calendar" style="width: 16px; height: 16px; color: #22c55e; flex-shrink: 0;"></i>
                                                     <span>Etapa de {{ stage.name }} agendada para: <strong>{{ stage.planned_date|date:"d/m/Y" }}</strong></span>
@@ -1324,7 +1324,7 @@
                                             </div>
                                         {% endif %}
                                     {% else %}
-                                        <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-left: 4px solid #94a3b8; border-radius: 8px; padding: 0.75rem 1rem; display: flex; align-items: center; gap: 0.5rem; color: #475569; font-size: 0.8rem;">
+                                        <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 0.75rem 1rem; display: flex; align-items: center; gap: 0.5rem; color: #475569; font-size: 0.8rem;">
                                             <i data-lucide="clock" style="width: 16px; height: 16px; color: #94a3b8; flex-shrink: 0;"></i>
                                             <span>Etapa de {{ stage.name }} aguardando definição de data planejada.</span>
                                         </div>
