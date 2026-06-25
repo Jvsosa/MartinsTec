@@ -1006,6 +1006,9 @@
                                     {% else %}
                                         Aguardando definição de planejamento para a entrega do {{ stage.name }}.
                                     {% endif %}
+                                    {% if site.reschedule_count > 0 %}
+                                        <br><span style="font-size: 0.75rem; color: #d97706; font-weight: 600;">(Este ativo já passou por {{ site.reschedule_count }} replanejamento(s) de cronograma).</span>
+                                    {% endif %}
                                 </p>
 
                                 {% if user.role == 'ADMIN' or user.role == 'ENGINEER' %}
