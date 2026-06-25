@@ -228,6 +228,12 @@ class Site(models.Model):
         return bool(self.planned_report_date and not self.actual_report_date and self.planned_report_date < today)
 
     @property
+    def is_report_due(self):
+        from django.utils import timezone
+        today = timezone.localdate()
+        return bool(self.planned_report_date and not self.actual_report_date and self.planned_report_date <= today)
+
+    @property
     def is_report_alert(self):
         from django.utils import timezone
         today = timezone.localdate()

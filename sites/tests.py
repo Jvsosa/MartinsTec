@@ -349,6 +349,40 @@ class SiteRolloutWorkflowTests(TestCase):
         site.save()
         self.assertFalse(site.is_survey_due)
 
+    def test_is_report_due_property(self):
+        """Test is_report_due property behavior under different date configurations."""
+        from django.utils import timezone
+        import datetime
+        
+        today = timezone.localdate()
+        site = Site.objects.create(
+            site_id='SITE_REP_DUE_P',
+            name='Site Report Due Property'
+        )
+        
+        # 1. No planned report date -> is_report_due should be False
+        self.assertFalse(site.is_report_due)
+
+        # 2. Planned report date in the future -> is_report_due should be False
+        site.planned_report_date = today + datetime.timedelta(days=1)
+        site.save()
+        self.assertFalse(site.is_report_due)
+
+        # 3. Planned report date today -> is_report_due should be True
+        site.planned_report_date = today
+        site.save()
+        self.assertTrue(site.is_report_due)
+
+        # 4. Planned report date in the past -> is_report_due should be True
+        site.planned_report_date = today - datetime.timedelta(days=2)
+        site.save()
+        self.assertTrue(site.is_report_due)
+
+        # 5. Report already realized -> is_report_due should be False
+        site.actual_report_date = today
+        site.save()
+        self.assertFalse(site.is_report_due)
+
     def test_reschedule_increments_counter(self):
         """Test that modifying planned dates increments the reschedule_count."""
         self.client.login(username='engineer_workflow', password='password123')
@@ -411,6 +445,44 @@ class SiteRolloutWorkflowTests(TestCase):
         self.assertEqual(history.new_planned_survey_date, today + datetime.timedelta(days=2))
         self.assertEqual(history.reason, 'Chuva forte')
         self.assertEqual(history.created_by.username, 'engineer_workflow')
+
+    def test_report_reschedule_flow(self):
+        """Test that rescheduling the report (Stage 4) creates history, increments counter, and keeps survey date."""
+        self.client.login(username='engineer_workflow', password='password123')
+        from django.utils import timezone
+        import datetime
+        from .models import SiteRescheduleHistory
+        
+        today = timezone.localdate()
+        site = Site.objects.create(
+            site_id='SITE_REP_RESCH',
+            name='Site Report Reschedule',
+            planned_survey_date=today - datetime.timedelta(days=5),
+            planned_report_date=today
+        )
+        self.assertEqual(site.reschedule_histories.count(), 0)
+
+        # Post update with new report date, same survey date, and reason
+        url = reverse('site_detail', kwargs={'pk': site.pk})
+        response = self.client.post(url, {
+            'action': 'update_workflow',
+            'scope_type': 'LAUDOS',
+            'planned_survey_date': (today - datetime.timedelta(days=5)).strftime('%Y-%m-%d'),
+            'planned_report_date': (today + datetime.timedelta(days=3)).strftime('%Y-%m-%d'),
+            'reschedule_reason': 'Atraso na vistoria tecnica'
+        })
+        self.assertEqual(response.status_code, 302)
+        site.refresh_from_db()
+        self.assertEqual(site.reschedule_count, 1)
+        self.assertEqual(site.reschedule_histories.count(), 1)
+        
+        history = site.reschedule_histories.first()
+        self.assertEqual(history.previous_planned_report_date, today)
+        self.assertEqual(history.new_planned_report_date, today + datetime.timedelta(days=3))
+        # Survey date should remain unchanged in history
+        self.assertEqual(history.previous_planned_survey_date, today - datetime.timedelta(days=5))
+        self.assertEqual(history.new_planned_survey_date, today - datetime.timedelta(days=5))
+        self.assertEqual(history.reason, 'Atraso na vistoria tecnica')
 
     def test_delete_site_permitted(self):
         """Test that Admin or Engineer can delete a site."""

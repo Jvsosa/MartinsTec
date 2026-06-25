@@ -960,28 +960,31 @@
                                 <div id="reschedule-form-container" style="display: none; background: #fffbeb; border: 1px solid #fde68a; border-radius: 8px; padding: 1rem; margin-top: 1rem;">
                                     <h6 style="margin: 0 0 0.75rem 0; font-size: 0.8rem; font-weight: 700; color: #b45309; display: flex; align-items: center; gap: 0.35rem;">
                                         <i data-lucide="alert-circle" style="width: 16px; height: 16px;"></i>
-                                        Registrar Replanejamento
+                                        Registrar Replanejamento da Vistoria
                                     </h6>
                                     <form method="POST" action="{% url 'site_detail' pk=site.pk %}">
                                         {% csrf_token %}
                                         <input type="hidden" name="action" value="update_workflow">
                                         <input type="hidden" name="scope_type" value="{{ site.scope_type }}">
-                                        <input type="hidden" name="partner_company" value="{{ site.partner_company }}">
+                                        <input type="hidden" name="partner_company" value="{{ site.partner_company|default:'' }}">
                                         <input type="hidden" name="actual_survey_date" value="{{ site.actual_survey_date|date:'Y-m-d' }}">
                                         <input type="hidden" name="actual_report_date" value="{{ site.actual_report_date|date:'Y-m-d' }}">
+                                        <input type="hidden" name="planned_report_date" value="{{ site.planned_report_date|date:'Y-m-d' }}">
                                         
-                                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 0.75rem; align-items: end;">
-                                            <div class="field-group">
-                                                <label for="planned_survey_resched" style="font-size: 0.65rem; color: #b45309;">Nova Vistoria Planejada</label>
-                                                <input type="date" name="planned_survey_date" id="planned_survey_resched" class="field-control" value="{{ site.planned_survey_date|date:'Y-m-d' }}" style="padding: 0.4rem; font-size: 0.8rem; border-radius: 6px; border: 1px solid #fde68a; background: white;" required>
+                                        <div style="display: flex; flex-direction: column; gap: 0.75rem;">
+                                            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 0.75rem; align-items: end;">
+                                                <div class="field-group">
+                                                    <label for="planned_survey_resched" style="font-size: 0.65rem; color: #b45309;">Nova Vistoria Planejada</label>
+                                                    <input type="date" name="planned_survey_date" id="planned_survey_resched" class="field-control" value="{{ site.planned_survey_date|date:'Y-m-d' }}" style="padding: 0.4rem; font-size: 0.8rem; border-radius: 6px; border: 1px solid #fde68a; background: white;" required>
+                                                </div>
+                                                <button type="submit" class="btn-submit" style="padding: 0.5rem 1rem; font-size: 0.8rem; border-radius: 6px; width: 100%; border: none; cursor: pointer; font-weight: 700; height: 34px; background: #d97706; color: white;">
+                                                    Gravar Replanejamento
+                                                </button>
                                             </div>
                                             <div class="field-group">
-                                                <label for="planned_report_resched" style="font-size: 0.65rem; color: #b45309;">Novo Laudo Planejado</label>
-                                                <input type="date" name="planned_report_date" id="planned_report_resched" class="field-control" value="{{ site.planned_report_date|date:'Y-m-d' }}" style="padding: 0.4rem; font-size: 0.8rem; border-radius: 6px; border: 1px solid #fde68a; background: white;" required>
+                                                <label for="survey_reschedule_reason" style="font-size: 0.65rem; color: #b45309;">Motivo do Replanejamento</label>
+                                                <input type="text" name="reschedule_reason" id="survey_reschedule_reason" class="field-control" placeholder="Ex: Chuva forte na região, atraso na liberação do acesso..." style="padding: 0.4rem; font-size: 0.8rem; border-radius: 6px; border: 1px solid #fde68a; background: white;" required>
                                             </div>
-                                            <button type="submit" class="btn-submit" style="padding: 0.5rem 1rem; font-size: 0.8rem; border-radius: 6px; width: 100%; border: none; cursor: pointer; font-weight: 700; height: 34px; background: #d97706; color: white;">
-                                                Gravar Replanejamento
-                                            </button>
                                         </div>
                                         {% if site.is_survey_due %}
                                         <div style="margin-top: 0.75rem; border-top: 1px dashed #fde68a; padding-top: 0.5rem; display: flex; justify-content: flex-end;">
@@ -1004,37 +1007,72 @@
                                 </p>
 
                                 {% if user.role == 'ADMIN' or user.role == 'ENGINEER' %}
-                                <div style="background: #ffffff; border: 1px solid var(--border-color); border-radius: 8px; padding: 1rem; margin-bottom: 1rem;">
-                                    <h6 style="margin: 0 0 0.75rem 0; font-size: 0.8rem; font-weight: 700; color: #15803d; display: flex; align-items: center; gap: 0.35rem;">
-                                        <i data-lucide="check-circle" style="width: 16px; height: 16px;"></i>
-                                        Registrar Entrega
-                                    </h6>
-                                    <form method="POST" action="{% url 'site_detail' pk=site.pk %}">
-                                        {% csrf_token %}
-                                        <input type="hidden" name="action" value="update_workflow">
-                                        <input type="hidden" name="scope_type" value="{{ site.scope_type }}">
-                                        <input type="hidden" name="partner_company" value="{{ site.partner_company }}">
-                                        <input type="hidden" name="planned_survey_date" value="{{ site.planned_survey_date|date:'Y-m-d' }}">
-                                        <input type="hidden" name="planned_report_date" value="{{ site.planned_report_date|date:'Y-m-d' }}">
-                                        <input type="hidden" name="actual_survey_date" value="{{ site.actual_survey_date|date:'Y-m-d' }}">
-                                        
-                                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 0.75rem; align-items: end;">
-                                            <div class="field-group">
-                                                <label for="actual_report_stepper" style="font-size: 0.65rem; color: #15803d;">Data de Entrega Realizada</label>
-                                                <div style="display: flex; gap: 0.4rem; align-items: center; width: 100%;">
-                                                    <input type="date" name="actual_report_date" id="actual_report_stepper" value="{{ site.actual_report_date|date:'Y-m-d' }}" class="field-control" style="padding: 0.4rem; font-size: 0.8rem; border-radius: 6px; border: 1px solid var(--border-color); background: white;">
-                                                    <button type="button" onclick="document.getElementById('actual_report_stepper').value='{% now 'Y-m-d' %}'" class="btn-submit" style="padding: 0.4rem 0.6rem; font-size: 0.8rem; background: #10b981; border: none; border-radius: 6px; color: white; cursor: pointer; height: 34px; flex-shrink: 0;" title="Definir como hoje">Hoje</button>
-                                                    <button type="button" onclick="document.getElementById('actual_report_stepper').value=''" class="btn-submit" style="padding: 0.4rem 0.6rem; font-size: 0.8rem; background: #ef4444; border: none; border-radius: 6px; color: white; cursor: pointer; height: 34px; flex-shrink: 0;" title="Limpar data">Limpar</button>
-                                                </div>
-                                            </div>
-                                            <button type="submit" class="btn-submit" style="padding: 0.5rem 1rem; font-size: 0.8rem; border-radius: 6px; width: 100%; border: none; cursor: pointer; font-weight: 700; height: 34px; background: #10b981; color: white;">
-                                                Confirmar Entrega
+                                    {% if site.is_report_due %}
+                                    <!-- Caixa de Pergunta sobre Entrega de Laudo -->
+                                    <div id="report-question-box" style="background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 12px; padding: 1.25rem; margin-bottom: 1.25rem; box-shadow: var(--shadow-sm);">
+                                        <h6 style="margin: 0 0 0.75rem 0; font-size: 0.85rem; font-weight: 700; color: #1e40af; display: flex; align-items: center; gap: 0.4rem;">
+                                            <i data-lucide="help-circle" style="width: 18px; height: 18px; color: #3b82f6;"></i>
+                                            Confirmação de Entrega do Laudo/Projeto
+                                        </h6>
+                                        <p style="margin: 0 0 1.25rem 0; font-size: 0.82rem; color: #1e3a8a; line-height: 1.45;">
+                                            A data planejada para a entrega do Laudo/Projeto (<strong>{{ site.planned_report_date|date:"d/m/Y" }}</strong>) chegou. A entrega foi realizada com sucesso?
+                                        </p>
+                                        <div style="display: flex; gap: 0.75rem; flex-wrap: wrap;">
+                                            <button type="button" onclick="handleReportDecision('yes')" class="btn-submit" style="background: #10b981; color: white; display: inline-flex; align-items: center; gap: 0.4rem; padding: 0.5rem 1rem; border-radius: 8px; border: none; font-size: 0.82rem; font-weight: 700; cursor: pointer; box-shadow: 0 4px 12px rgba(16, 185, 129, 0.15);">
+                                                <i data-lucide="check-circle" style="width: 16px; height: 16px;"></i>
+                                                Sim, foi realizada
+                                            </button>
+                                            <button type="button" onclick="handleReportDecision('no')" class="btn-submit" style="background: #fff; color: #d97706; display: inline-flex; align-items: center; gap: 0.4rem; padding: 0.5rem 1rem; border-radius: 8px; border: 1px solid #f59e0b; font-size: 0.82rem; font-weight: 700; cursor: pointer;">
+                                                <i data-lucide="calendar-x" style="width: 16px; height: 16px;"></i>
+                                                Não, preciso replanejar
                                             </button>
                                         </div>
-                                    </form>
-                                </div>
+                                    </div>
+                                    {% endif %}
+
+                                    <!-- Formulário de Registrar Realização / Entrega (Laudo) -->
+                                    <div id="report-realization-container" style="{% if site.is_report_due %}display: none;{% endif %} background: #ffffff; border: 1px solid var(--border-color); border-radius: 8px; padding: 1rem; margin-bottom: 1rem;">
+                                        <h6 style="margin: 0 0 0.75rem 0; font-size: 0.8rem; font-weight: 700; color: #15803d; display: flex; align-items: center; gap: 0.35rem;">
+                                            <i data-lucide="check-circle" style="width: 16px; height: 16px;"></i>
+                                            Registrar Entrega do Laudo/Projeto
+                                        </h6>
+                                        <form method="POST" action="{% url 'site_detail' pk=site.pk %}">
+                                            {% csrf_token %}
+                                            <input type="hidden" name="action" value="update_workflow">
+                                            <input type="hidden" name="scope_type" value="{{ site.scope_type }}">
+                                            <input type="hidden" name="partner_company" value="{{ site.partner_company|default:'' }}">
+                                            <input type="hidden" name="planned_survey_date" value="{{ site.planned_survey_date|date:'Y-m-d' }}">
+                                            <input type="hidden" name="planned_report_date" value="{{ site.planned_report_date|date:'Y-m-d' }}">
+                                            <input type="hidden" name="actual_survey_date" value="{{ site.actual_survey_date|date:'Y-m-d' }}">
+                                            
+                                            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 0.75rem; align-items: end;">
+                                                <div class="field-group">
+                                                    <label for="actual_report_stepper" style="font-size: 0.65rem; color: #15803d;">Data de Entrega Realizada</label>
+                                                    <div style="display: flex; gap: 0.4rem; align-items: center; width: 100%;">
+                                                        <input type="date" name="actual_report_date" id="actual_report_stepper" value="{{ site.actual_report_date|date:'Y-m-d' }}" class="field-control" style="padding: 0.4rem; font-size: 0.8rem; border-radius: 6px; border: 1px solid var(--border-color); background: white;">
+                                                        <button type="button" onclick="document.getElementById('actual_report_stepper').value='{% now 'Y-m-d' %}'" class="btn-submit" style="padding: 0.4rem 0.6rem; font-size: 0.8rem; background: #10b981; border: none; border-radius: 6px; color: white; cursor: pointer; height: 34px; flex-shrink: 0;" title="Definir como hoje">Hoje</button>
+                                                        <button type="button" onclick="document.getElementById('actual_report_stepper').value=''" class="btn-submit" style="padding: 0.4rem 0.6rem; font-size: 0.8rem; background: #ef4444; border: none; border-radius: 6px; color: white; cursor: pointer; height: 34px; flex-shrink: 0;" title="Limpar data">Limpar</button>
+                                                    </div>
+                                                </div>
+                                                <button type="submit" class="btn-submit" style="padding: 0.5rem 1rem; font-size: 0.8rem; border-radius: 6px; width: 100%; border: none; cursor: pointer; font-weight: 700; height: 34px; background: #10b981; color: white;">
+                                                    Confirmar Entrega
+                                                </button>
+                                            </div>
+                                            {% if site.is_report_due %}
+                                            <div style="margin-top: 0.75rem; border-top: 1px dashed #cbd5e1; padding-top: 0.5rem; display: flex; justify-content: flex-end;">
+                                                <button type="button" onclick="cancelReportDecision()" class="btn-submit" style="background: transparent; color: #64748b; font-size: 0.75rem; border: none; font-weight: 600; cursor: pointer;">Voltar para Opções</button>
+                                            </div>
+                                            {% endif %}
+                                        </form>
+                                    </div>
+                                {% endif %}
                                 
                                 <div style="display: flex; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 1rem;">
+                                    {% if user.role == 'ADMIN' or user.role == 'ENGINEER' %}
+                                    <button type="button" onclick="toggleRescheduleReportForm()" class="btn-ent btn-ent-outline">
+                                        <i data-lucide="calendar-range" style="width: 14px; height: 14px;"></i>
+                                        Replanejar Laudo (Contratos)
+                                    </button>
                                     <form method="POST" action="{% url 'site_detail' pk=site.pk %}" style="display:inline;">
                                         {% csrf_token %}
                                         <input type="hidden" name="action" value="update_stage">
@@ -1044,6 +1082,45 @@
                                             <i data-lucide="skip-forward" style="width: 14px; height: 14px;"></i>
                                             Pular {{ stage.name }}
                                         </button>
+                                    </form>
+                                    {% endif %}
+                                </div>
+
+                                {% if user.role == 'ADMIN' or user.role == 'ENGINEER' %}
+                                <div id="reschedule-report-form-container" style="display: none; background: #fffbeb; border: 1px solid #fde68a; border-radius: 8px; padding: 1rem; margin-top: 1rem;">
+                                    <h6 style="margin: 0 0 0.75rem 0; font-size: 0.8rem; font-weight: 700; color: #b45309; display: flex; align-items: center; gap: 0.35rem;">
+                                        <i data-lucide="alert-circle" style="width: 16px; height: 16px;"></i>
+                                        Registrar Replanejamento do Laudo/Projeto
+                                    </h6>
+                                    <form method="POST" action="{% url 'site_detail' pk=site.pk %}">
+                                        {% csrf_token %}
+                                        <input type="hidden" name="action" value="update_workflow">
+                                        <input type="hidden" name="scope_type" value="{{ site.scope_type }}">
+                                        <input type="hidden" name="partner_company" value="{{ site.partner_company|default:'' }}">
+                                        <input type="hidden" name="planned_survey_date" value="{{ site.planned_survey_date|date:'Y-m-d' }}">
+                                        <input type="hidden" name="actual_survey_date" value="{{ site.actual_survey_date|date:'Y-m-d' }}">
+                                        <input type="hidden" name="actual_report_date" value="{{ site.actual_report_date|date:'Y-m-d' }}">
+                                        
+                                        <div style="display: flex; flex-direction: column; gap: 0.75rem;">
+                                            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 0.75rem; align-items: end;">
+                                                <div class="field-group">
+                                                    <label for="planned_report_resched" style="font-size: 0.65rem; color: #b45309;">Novo Laudo Planejado</label>
+                                                    <input type="date" name="planned_report_date" id="planned_report_resched" class="field-control" value="{{ site.planned_report_date|date:'Y-m-d' }}" style="padding: 0.4rem; font-size: 0.8rem; border-radius: 6px; border: 1px solid #fde68a; background: white;" required>
+                                                </div>
+                                                <button type="submit" class="btn-submit" style="padding: 0.5rem 1rem; font-size: 0.8rem; border-radius: 6px; width: 100%; border: none; cursor: pointer; font-weight: 700; height: 34px; background: #d97706; color: white;">
+                                                    Gravar Replanejamento
+                                                </button>
+                                            </div>
+                                            <div class="field-group">
+                                                <label for="report_reschedule_reason" style="font-size: 0.65rem; color: #b45309;">Motivo do Replanejamento</label>
+                                                <input type="text" name="reschedule_reason" id="report_reschedule_reason" class="field-control" placeholder="Ex: Atraso no envio do relatório de campo, revisão técnica..." style="padding: 0.4rem; font-size: 0.8rem; border-radius: 6px; border: 1px solid #fde68a; background: white;" required>
+                                            </div>
+                                        </div>
+                                        {% if site.is_report_due %}
+                                        <div style="margin-top: 0.75rem; border-top: 1px dashed #fde68a; padding-top: 0.5rem; display: flex; justify-content: flex-end;">
+                                            <button type="button" onclick="cancelReportDecision()" class="btn-submit" style="background: transparent; color: #b45309; font-size: 0.75rem; border: none; font-weight: 600; cursor: pointer;">Voltar para Opções</button>
+                                        </div>
+                                        {% endif %}
                                     </form>
                                 </div>
                                 {% endif %}
@@ -1236,6 +1313,49 @@
                     const questionBox = document.getElementById('survey-question-box');
                     const realizationContainer = document.getElementById('survey-realization-container');
                     const rescheduleContainer = document.getElementById('reschedule-form-container');
+                    
+                    if (questionBox) questionBox.style.display = 'block';
+                    if (realizationContainer) realizationContainer.style.display = 'none';
+                    if (rescheduleContainer) rescheduleContainer.style.display = 'none';
+                }
+
+                function toggleRescheduleReportForm() {
+                    const el = document.getElementById('reschedule-report-form-container');
+                    if (el) {
+                        el.style.display = el.style.display === 'none' ? 'block' : 'none';
+                        // Se abrir o formulário, oculta o questionário
+                        if (el.style.display === 'block') {
+                            const questionBox = document.getElementById('report-question-box');
+                            const realizationContainer = document.getElementById('report-realization-container');
+                            if (questionBox) questionBox.style.display = 'none';
+                            if (realizationContainer) realizationContainer.style.display = 'none';
+                        }
+                    }
+                }
+
+                function handleReportDecision(decision) {
+                    const questionBox = document.getElementById('report-question-box');
+                    const realizationContainer = document.getElementById('report-realization-container');
+                    const rescheduleContainer = document.getElementById('reschedule-report-form-container');
+                    
+                    if (decision === 'yes') {
+                        if (questionBox) questionBox.style.display = 'none';
+                        if (realizationContainer) realizationContainer.style.display = 'block';
+                        if (rescheduleContainer) rescheduleContainer.style.display = 'none';
+                    } else if (decision === 'no') {
+                        if (questionBox) questionBox.style.display = 'none';
+                        if (realizationContainer) realizationContainer.style.display = 'none';
+                        if (rescheduleContainer) {
+                            rescheduleContainer.style.display = 'block';
+                            rescheduleContainer.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                        }
+                    }
+                }
+
+                function cancelReportDecision() {
+                    const questionBox = document.getElementById('report-question-box');
+                    const realizationContainer = document.getElementById('report-realization-container');
+                    const rescheduleContainer = document.getElementById('reschedule-report-form-container');
                     
                     if (questionBox) questionBox.style.display = 'block';
                     if (realizationContainer) realizationContainer.style.display = 'none';
