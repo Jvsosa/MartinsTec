@@ -1007,6 +1007,34 @@
                                 </p>
 
                                 {% if user.role == 'ADMIN' or user.role == 'ENGINEER' %}
+                                    {% if not site.planned_report_date %}
+                                    <!-- Card: Agendar data planejada do Laudo (quando ainda não definida) -->
+                                    <div style="background: #ffffff; border: 1px solid var(--border-color); border-radius: 8px; padding: 1rem; margin-bottom: 1rem;">
+                                        <h6 style="margin: 0 0 0.75rem 0; font-size: 0.8rem; font-weight: 700; color: var(--brand-primary); display: flex; align-items: center; gap: 0.35rem;">
+                                            <i data-lucide="calendar" style="width: 16px; height: 16px;"></i>
+                                            Agendar/Planejar Entrega do Laudo
+                                        </h6>
+                                        <form method="POST" action="{% url 'site_detail' pk=site.pk %}">
+                                            {% csrf_token %}
+                                            <input type="hidden" name="action" value="update_workflow">
+                                            <input type="hidden" name="scope_type" value="{{ site.scope_type }}">
+                                            <input type="hidden" name="partner_company" value="{{ site.partner_company|default:'' }}">
+                                            <input type="hidden" name="planned_survey_date" value="{{ site.planned_survey_date|date:'Y-m-d' }}">
+                                            <input type="hidden" name="actual_survey_date" value="{{ site.actual_survey_date|date:'Y-m-d' }}">
+                                            <input type="hidden" name="actual_report_date" value="{{ site.actual_report_date|date:'Y-m-d' }}">
+                                            
+                                            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 0.75rem; align-items: end;">
+                                                <div class="field-group">
+                                                    <label for="planned_report_stepper_new" style="font-size: 0.65rem; color: var(--brand-primary);">Data Planejada do Laudo/Projeto</label>
+                                                    <input type="date" name="planned_report_date" id="planned_report_stepper_new" class="field-control" required style="padding: 0.4rem; font-size: 0.8rem; border-radius: 6px; border: 1px solid var(--border-color); background: white; height: 34px; box-sizing: border-box;">
+                                                </div>
+                                                <button type="submit" class="btn-submit" style="padding: 0.5rem 1rem; font-size: 0.8rem; border-radius: 6px; width: 100%; border: none; cursor: pointer; font-weight: 700; height: 34px; background: var(--brand-primary); color: white;">
+                                                    Salvar Agendamento
+                                                </button>
+                                            </div>
+                                        </form>
+                                    </div>
+                                    {% else %}
                                     {% if site.is_report_due %}
                                     <!-- Caixa de Pergunta sobre Entrega de Laudo -->
                                     <div id="report-question-box" style="background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 12px; padding: 1.25rem; margin-bottom: 1.25rem; box-shadow: var(--shadow-sm);">
@@ -1123,7 +1151,8 @@
                                         {% endif %}
                                     </form>
                                 </div>
-                                {% endif %}
+                                {% endif %}{# end reschedule-report-form-container #}
+                                {% endif %}{# end not site.planned_report_date #}
 
                             {% elif stage.name == 'Acionamento Parceiro' %}
                                 <p style="margin: 0 0 1rem 0; font-size: 0.82rem; color: var(--text-muted); line-height: 1.4;">
