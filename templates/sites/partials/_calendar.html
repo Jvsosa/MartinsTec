@@ -489,9 +489,6 @@
             <input type="hidden" id="note-id" name="id">
             <input type="hidden" id="note-date" name="date">
             
-            <!-- Div para listar outros eventos do dia -->
-            <div id="modal-day-events" style="display: none; margin-bottom: 1.25rem;"></div>
-            
             <div class="form-group" style="margin-bottom: 1.25rem;">
                 <label for="note-title" style="display: block; font-size: 0.85rem; font-weight: 600; color: var(--ent-primary); margin-bottom: 0.5rem;">Título da Anotação</label>
                 <input type="text" id="note-title" name="title" class="form-control" placeholder="Ex: Reunião com fornecedor ou vistoria extra" required style="width: 100%; padding: 0.65rem; border: 1px solid var(--ent-border); border-radius: 8px; font-family: var(--font-sans); outline: none;">
@@ -763,73 +760,6 @@
         loadCalendar();
     }
 
-    // Listar outros eventos do dia no topo do modal para dar visibilidade e link
-    function populateModalEvents(dateStr) {
-        const modalEventsDiv = document.getElementById('modal-day-events');
-        if (!modalEventsDiv) return;
-        
-        modalEventsDiv.innerHTML = "";
-        const dayEvents = eventsData.filter(ev => ev.date === dateStr && ev.type !== 'note');
-        
-        if (dayEvents.length === 0) {
-            modalEventsDiv.style.display = 'none';
-            return;
-        }
-        
-        modalEventsDiv.style.display = 'block';
-        const header = document.createElement('h4');
-        header.style = "font-size: 0.85rem; font-weight: 700; color: var(--ent-primary); margin-bottom: 0.5rem;";
-        header.innerText = "Eventos / Prazos do Dia:";
-        modalEventsDiv.appendChild(header);
-        
-        const list = document.createElement('div');
-        list.style = "display: flex; flex-direction: column; gap: 0.5rem; margin-bottom: 1.25rem; padding: 0.75rem; background: #f8fafc; border: 1px solid var(--ent-border); border-radius: 8px;";
-        
-        dayEvents.forEach(ev => {
-            const item = document.createElement('div');
-            item.style = "display: flex; align-items: center; justify-content: space-between; font-size: 0.8rem; font-weight: 550;";
-            
-            let icon = "info";
-            let color = "var(--ent-text-muted)";
-            let statusText = "";
-            let linkHtml = "";
-            
-            if (ev.type === 'holiday') {
-                icon = "flag";
-                color = "#db2777";
-                statusText = "Feriado";
-            } else if (ev.type === 'planned_survey') {
-                icon = "eye";
-                color = "#2563eb";
-                statusText = ev.status === 'DONE' ? "Vistoria Concluída" : "Vistoria Pendente";
-                linkHtml = `<a href="${ev.url}" style="color: var(--ent-accent); text-decoration: none; font-weight: 600; display: inline-flex; align-items: center; gap: 0.2rem;">Ir para o Site <i data-lucide="external-link" style="width: 12px; height: 12px;"></i></a>`;
-            } else if (ev.type === 'planned_report') {
-                icon = "file-text";
-                color = "#d97706";
-                statusText = ev.status === 'DONE' ? "Laudo Concluído" : "Laudo Pendente";
-                linkHtml = `<a href="${ev.url}" style="color: var(--ent-accent); text-decoration: none; font-weight: 600; display: inline-flex; align-items: center; gap: 0.2rem;">Ir para o Site <i data-lucide="external-link" style="width: 12px; height: 12px;"></i></a>`;
-            } else if (ev.type === 'planned_stage') {
-                icon = "activity";
-                color = "#64748b";
-                statusText = ev.status === 'DONE' ? "Concluída" : "Pendente";
-                linkHtml = `<a href="${ev.url}" style="color: var(--ent-accent); text-decoration: none; font-weight: 600; display: inline-flex; align-items: center; gap: 0.2rem;">Ir para o Site <i data-lucide="external-link" style="width: 12px; height: 12px;"></i></a>`;
-            }
-            
-            item.innerHTML = `
-                <span style="display: flex; align-items: center; gap: 0.4rem; color: ${color};">
-                    <i data-lucide="${icon}" style="width: 14px; height: 14px;"></i>
-                    <span style="color: var(--ent-text-main); font-weight: 600;">${ev.title}</span>
-                    <span style="font-size: 0.72rem; color: var(--ent-text-muted);">(${statusText})</span>
-                </span>
-                ${linkHtml}
-            `;
-            list.appendChild(item);
-        });
-        
-        modalEventsDiv.appendChild(list);
-        lucide.createIcons();
-    }
-
     // MODAL DE ANOTAÇÕES
     function openAddNoteModal(dateStr) {
         document.getElementById('note-modal-title').innerText = `Nova Anotação (${formatDateStringBr(dateStr)})`;
@@ -838,8 +768,6 @@
         document.getElementById('note-title').value = "";
         document.getElementById('note-description').value = "";
         document.getElementById('btn-delete-note').style.display = 'none';
-        
-        populateModalEvents(dateStr);
         
         document.getElementById('note-modal').style.display = 'flex';
         lucide.createIcons();
@@ -852,8 +780,6 @@
         document.getElementById('note-title').value = ev.title;
         document.getElementById('note-description').value = ev.description;
         document.getElementById('btn-delete-note').style.display = 'inline-block';
-        
-        populateModalEvents(ev.date);
         
         document.getElementById('note-modal').style.display = 'flex';
         lucide.createIcons();
