@@ -431,29 +431,32 @@
 
     .modern-site-card {
         background: white;
-        border-radius: var(--ent-radius);
+        border-radius: 16px;
         border: 1px solid var(--ent-border);
-        padding: 1.1rem;
+        padding: 1.15rem;
         display: flex;
         flex-direction: column;
-        gap: 0.65rem;
-        transition: all 0.25s;
+        gap: 0.75rem;
+        transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
         position: relative;
         overflow: hidden;
-    }
-
-    .modern-site-card::before {
-        content: '';
-        position: absolute;
-        top: 0; left: 0; right: 0;
-        height: 4px;
-        background: var(--ent-border);
-        transition: background 0.3s;
+        box-shadow: var(--ent-shadow-sm);
     }
 
     .modern-site-card:hover {
-        transform: translateY(-4px);
-        box-shadow: var(--ent-shadow-lg);
+        transform: translateY(-3px);
+        box-shadow: var(--ent-shadow-md);
+        border-color: #cbd5e1;
+    }
+
+    /* Borda lateral esquerda indicando o status operacional */
+    .modern-site-card::before {
+        content: '';
+        position: absolute;
+        top: 0; left: 0; bottom: 0;
+        width: 5px;
+        background: var(--ent-border);
+        transition: background 0.3s;
     }
 
     .modern-site-card[data-status="ACTIVE"]::before { background: var(--ent-success); }
@@ -461,10 +464,53 @@
     .modern-site-card[data-status="MAINTENANCE"]::before { background: var(--ent-warning); }
     .modern-site-card[data-status="INACTIVE"]::before { background: var(--ent-danger); }
 
-    .site-card-header {
+    /* Barra de badges do topo */
+    .site-card-top {
         display: flex;
+        align-items: center;
         justify-content: space-between;
-        align-items: flex-start;
+        gap: 0.5rem;
+    }
+
+    .site-badges-group {
+        display: flex;
+        gap: 0.35rem;
+        align-items: center;
+        flex-wrap: wrap;
+    }
+
+    /* Badges de Operadoras */
+    .operator-badge {
+        font-size: 0.68rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        padding: 0.15rem 0.45rem;
+        border-radius: 6px;
+        border: 1px solid transparent;
+        letter-spacing: 0.02em;
+    }
+    
+    .operator-badge.op-vivo { background: #eff6ff; color: #2563eb; border-color: #bfdbfe; }
+    .operator-badge.op-tim { background: #fdf2f8; color: #db2777; border-color: #fbcfe8; }
+    .operator-badge.op-claro { background: #fef2f2; color: #dc2626; border-color: #fecaca; }
+    .operator-badge.op-oi { background: #fffbeb; color: #d97706; border-color: #fde68a; }
+    .operator-badge.op-outro { background: #f1f5f9; color: #475569; border-color: #e2e8f0; }
+
+    /* Badges de Escopo */
+    .scope-badge {
+        font-size: 0.68rem;
+        font-weight: 600;
+        padding: 0.15rem 0.45rem;
+        border-radius: 6px;
+        background: #f8fafc;
+        color: #475569;
+        border: 1px solid #e2e8f0;
+    }
+
+    .site-card-title-area {
+        display: flex;
+        flex-direction: column;
+        gap: 0.15rem;
     }
 
     .site-card-name {
@@ -472,32 +518,162 @@
         font-size: 1.05rem;
         font-weight: 700;
         color: var(--ent-primary);
+        line-height: 1.3;
+        margin: 0;
+    }
+
+    .site-card-id-pill {
+        display: inline-flex;
+        align-items: center;
+        font-family: monospace;
+        font-size: 0.72rem;
+        font-weight: 600;
+        color: #64748b;
+        background: #f1f5f9;
+        padding: 0.1rem 0.35rem;
+        border-radius: 4px;
+        width: fit-content;
+    }
+
+    /* Alertas Compactos */
+    .compact-alert {
+        display: flex;
+        align-items: center;
+        gap: 0.35rem;
+        padding: 0.35rem 0.55rem;
+        border-radius: 8px;
+        font-size: 0.72rem;
+        line-height: 1.3;
+        font-weight: 500;
+    }
+    .compact-alert.alert-danger {
+        background: #fef2f2;
+        border: 1px solid #fee2e2;
+        color: #991b1b;
+    }
+    .compact-alert.alert-danger i { color: #dc2626; }
+    
+    .compact-alert.alert-warning {
+        background: #fffbeb;
+        border: 1px solid #fde68a;
+        color: #b45309;
+    }
+    .compact-alert.alert-warning i { color: #d97706; }
+
+    /* Grid do Cronograma de Prazos */
+    .site-milestones {
+        display: flex;
+        flex-direction: column;
+        gap: 0.35rem;
+        background: #f8fafc;
+        border: 1px solid #f1f5f9;
+        border-radius: 10px;
+        padding: 0.55rem;
+    }
+
+    .milestone-row {
+        display: grid;
+        grid-template-columns: 1.1fr 1fr 1fr;
+        align-items: center;
+        gap: 0.4rem;
+        font-size: 0.72rem;
+    }
+
+    .milestone-header {
+        font-size: 0.65rem;
+        font-weight: 700;
+        color: #94a3b8;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        padding-bottom: 0.2rem;
+        border-bottom: 1px solid #e2e8f0;
         margin-bottom: 0.1rem;
     }
 
-    .site-card-id {
-        font-size: 0.8rem;
-        color: var(--ent-text-muted);
+    .milestone-label {
+        font-weight: 600;
+        color: #475569;
+        display: flex;
+        align-items: center;
+        gap: 0.25rem;
+    }
+
+    .milestone-date-val {
+        font-family: monospace;
+        font-size: 0.72rem;
         font-weight: 600;
     }
 
-    .site-meta-list {
+    .milestone-date-val.planned {
+        color: #475569;
+    }
+
+    .milestone-date-val.realized {
+        color: #0f172a;
+    }
+
+    .milestone-date-val.empty {
+        color: #94a3b8;
+        font-style: italic;
+    }
+
+    .milestone-date-val.overdue {
+        color: #dc2626;
+        font-weight: 700;
+    }
+
+    .milestone-date-val.alert {
+        color: #d97706;
+        font-weight: 700;
+    }
+
+    .milestone-date-val.completed {
+        color: #166534;
+        font-weight: 700;
+    }
+
+    /* Rodapé do Card */
+    .site-card-footer {
         display: flex;
-        flex-direction: column;
-        gap: 0.4rem;
-        margin-top: 0.3rem;
-        padding-top: 0.75rem;
+        align-items: center;
+        justify-content: space-between;
+        margin-top: auto;
+        padding-top: 0.45rem;
         border-top: 1px dashed var(--ent-border);
     }
 
-    .site-meta-item {
-        display: flex;
-        justify-content: space-between;
-        font-size: 0.8rem;
+    .partner-info {
+        font-size: 0.72rem;
+        color: var(--ent-text-muted);
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        max-width: 140px;
+        font-weight: 500;
     }
 
-    .site-meta-label { color: var(--ent-text-muted); font-weight: 500; }
-    .site-meta-val { color: var(--ent-text-main); font-weight: 600; }
+    .partner-info strong {
+        color: var(--ent-text-main);
+    }
+
+    .btn-card-action {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.25rem;
+        padding: 0.35rem 0.65rem;
+        border-radius: 6px;
+        font-size: 0.72rem;
+        font-weight: 600;
+        color: white;
+        background-color: var(--ent-accent);
+        transition: all 0.2s ease;
+        text-decoration: none;
+    }
+
+    .btn-card-action:hover {
+        background-color: var(--ent-accent-hover);
+        transform: translateX(2px);
+    }
 
     /* Metricas de progresso personalizadas */
     .progress-item {
@@ -794,94 +970,121 @@
                 <div class="site-card-grid" id="sites-grid-container">
                     {% for site in sites %}
                     <div class="modern-site-card" data-status="{{ site.status }}" data-name="{{ site.name|lower }}" data-code="{{ site.site_id|lower }}" data-operator="{{ site.operator|default:""|lower }}">
-                        <div class="site-card-header">
-                            <div>
-                                <h3 class="site-card-name">{{ site.name }}</h3>
-                                <div class="site-card-id">{{ site.site_id|default:"" }}</div>
+                        
+                        <!-- Topo: Badges de Identificação (Operadora + Escopo) e Status Operacional -->
+                        <div class="site-card-top">
+                            <div class="site-badges-group">
+                                {% if site.operator %}
+                                    <span class="operator-badge op-{{ site.operator|lower }}">
+                                        {{ site.get_operator_display }}
+                                    </span>
+                                {% endif %}
+                                <span class="scope-badge">
+                                    {{ site.get_scope_type_display }}
+                                </span>
                             </div>
+                            
                             <span class="status-badge badge-{{ site.status|lower }}">
                                 <span class="status-dot"></span>
                                 {{ site.get_status_display }}
                             </span>
                         </div>
-                        
+
+                        <!-- Título do Site e ID -->
+                        <div class="site-card-title-area">
+                            <h3 class="site-card-name">{{ site.name }}</h3>
+                            <div class="site-card-id-pill">{{ site.site_id|default:"" }}</div>
+                        </div>
+
+                        <!-- Descrição Curta (se houver) -->
                         {% if site.description %}
-                        <p style="font-size: 0.75rem; color: var(--ent-text-muted); line-height: 1.4; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; text-overflow: ellipsis; margin: 0.1rem 0;">
+                        <p style="font-size: 0.72rem; color: var(--ent-text-muted); line-height: 1.4; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; text-overflow: ellipsis; margin: 0;">
                             {{ site.description }}
                         </p>
                         {% endif %}
 
-                         <!-- Alerta visual de datas vencidas / em alerta / faltando planejamento -->
-                         {% if site.status == 'INACTIVE' %}
-                        <div style="background: #fef2f2; border: 1px solid #fee2e2; border-radius: 6px; padding: 0.4rem 0.6rem; font-size: 0.72rem; color: #991b1b; display: flex; align-items: center; gap: 0.35rem;">
-                            <i data-lucide="alert-triangle" style="width: 12px; height: 12px; flex-shrink: 0; color: #dc2626;"></i>
-                            <span><strong>Atraso no(a) {{ site.overdue_stage }}:</strong> Vencido há {{ site.days_overdue }} dias!</span>
+                        <!-- Alerta Visual Compacto -->
+                        {% if site.status == 'INACTIVE' %}
+                        <div class="compact-alert alert-danger">
+                            <i data-lucide="alert-triangle" style="width: 12px; height: 12px; flex-shrink: 0;"></i>
+                            <span>Atraso no(a) {{ site.overdue_stage }}: Vencido há {{ site.days_overdue }} dias!</span>
                         </div>
                         {% elif not site.actual_survey_date and not site.planned_survey_date or not site.actual_report_date and not site.planned_report_date %}
-                        <div style="background: #fffbeb; border: 1px solid #fde68a; border-radius: 6px; padding: 0.4rem 0.6rem; font-size: 0.72rem; color: #b45309; display: flex; align-items: center; gap: 0.35rem;">
-                            <i data-lucide="help-circle" style="width: 12px; height: 12px; flex-shrink: 0; color: #d97706;"></i>
-                            <span><strong>Falta Planejamento:</strong> Defina uma data de vistoria/laudo!</span>
+                        <div class="compact-alert alert-warning">
+                            <i data-lucide="help-circle" style="width: 12px; height: 12px; flex-shrink: 0;"></i>
+                            <span>Falta planejamento! Defina datas de vistoria/laudo.</span>
                         </div>
                         {% elif site.status == 'MAINTENANCE' %}
-                        <div style="background: #fffbeb; border: 1px solid #fde68a; border-radius: 6px; padding: 0.4rem 0.6rem; font-size: 0.72rem; color: #b45309; display: flex; align-items: center; gap: 0.35rem;">
-                            <i data-lucide="clock" style="width: 12px; height: 12px; flex-shrink: 0; color: #d97706;"></i>
-                            <span><strong>Atenção no(a) {{ site.alert_stage }}:</strong> Vence em breve!</span>
+                        <div class="compact-alert alert-warning">
+                            <i data-lucide="clock" style="width: 12px; height: 12px; flex-shrink: 0;"></i>
+                            <span>Atenção no(a) {{ site.alert_stage }}: Vence em breve!</span>
                         </div>
                         {% endif %}
 
-                        <div class="site-meta-list">
-                            {% if site.operator %}
-                            <div class="site-meta-item">
-                                <span class="site-meta-label">Operadora</span>
-                                <span class="site-meta-val" style="font-weight: 600;">{{ site.get_operator_display }}</span>
+                        <!-- Cronograma Comparativo (Milestones) -->
+                        <div class="site-milestones">
+                            <div class="milestone-row milestone-header">
+                                <span>Etapa</span>
+                                <span>Planejado</span>
+                                <span>Realizado</span>
                             </div>
-                            {% endif %}
-                            <div class="site-meta-item">
-                                <span class="site-meta-label">Escopo / Fornecedor</span>
-                                <span class="site-meta-val" style="text-align: right; max-width: 170px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" title="{{ site.get_scope_type_display }}{% if site.partner_company %} / {{ site.partner_company }}{% endif %}">
-                                    {{ site.get_scope_type_display }}{% if site.partner_company %} / {{ site.partner_company }}{% endif %}
+                            
+                            <!-- Vistoria -->
+                            <div class="milestone-row">
+                                <span class="milestone-label">
+                                    <i data-lucide="eye" style="width: 11px; height: 11px; color: #64748b;"></i> Vistoria
+                                </span>
+                                <span class="milestone-date-val planned">
+                                    {% if site.planned_survey_date %}
+                                        {{ site.planned_survey_date|date:"d/m/y" }}
+                                    {% else %}
+                                        <span class="empty">--</span>
+                                    {% endif %}
+                                </span>
+                                <span class="milestone-date-val realized {% if site.actual_survey_date %}completed{% elif site.is_survey_overdue %}overdue{% elif site.is_survey_alert %}alert{% else %}empty{% endif %}">
+                                    {% if site.actual_survey_date %}
+                                        {{ site.actual_survey_date|date:"d/m/y" }}
+                                    {% else %}
+                                        Pendente
+                                    {% endif %}
                                 </span>
                             </div>
-                            <div class="site-meta-item">
-                                <span class="site-meta-label">Documentos</span>
-                                <span class="site-meta-val">{{ site.files.count }} arquivos</span>
+
+                            <!-- Laudo -->
+                            <div class="milestone-row">
+                                <span class="milestone-label">
+                                    <i data-lucide="file-text" style="width: 11px; height: 11px; color: #64748b;"></i> Laudo
+                                </span>
+                                <span class="milestone-date-val planned">
+                                    {% if site.planned_report_date %}
+                                        {{ site.planned_report_date|date:"d/m/y" }}
+                                    {% else %}
+                                        <span class="empty">--</span>
+                                    {% endif %}
+                                </span>
+                                <span class="milestone-date-val realized {% if site.actual_report_date %}completed{% elif site.is_report_overdue %}overdue{% elif site.is_report_alert %}alert{% else %}empty{% endif %}">
+                                    {% if site.actual_report_date %}
+                                        {{ site.actual_report_date|date:"d/m/y" }}
+                                    {% else %}
+                                        Pendente
+                                    {% endif %}
+                                </span>
                             </div>
                         </div>
 
-                        <!-- Bloco separado para o Cronograma não ficar espremido -->
-                        <div style="border-top: 1px dashed var(--ent-border); padding-top: 0.5rem; margin-top: 0.25rem;">
-                            <div style="font-size: 0.72rem; color: var(--ent-text-muted); font-weight: 600; margin-bottom: 0.25rem; text-transform: uppercase; letter-spacing: 0.05em;">Cronograma de Prazos</div>
-                            <div style="display: flex; gap: 0.5rem; font-size: 0.72rem; justify-content: space-between; background: #f8fafc; padding: 0.4rem 0.6rem; border-radius: 6px; border: 1px solid #f1f5f9;">
-                                <div style="display: flex; align-items: center; gap: 0.2rem;">
-                                    <span style="color: var(--ent-text-muted);">Vistoria:</span>
-                                    <span style="font-weight: 600; {% if site.actual_survey_date %}color: #166534;{% elif site.is_survey_overdue %}color: #dc2626;{% elif site.is_survey_alert %}color: #d97706;{% else %}color: var(--ent-text-main);{% endif %}">
-                                        {% if site.actual_survey_date %}
-                                            ✅ {{ site.actual_survey_date|date:"d/m/y" }}
-                                        {% elif site.planned_survey_date %}
-                                            📅 {{ site.planned_survey_date|date:"d/m/y" }}
-                                        {% else %}
-                                            --
-                                        {% endif %}
-                                    </span>
-                                </div>
-                                <div style="display: flex; align-items: center; gap: 0.2rem;">
-                                    <span style="color: var(--ent-text-muted);">Laudo:</span>
-                                    <span style="font-weight: 600; {% if site.actual_report_date %}color: #166534;{% elif site.is_report_overdue %}color: #dc2626;{% elif site.is_report_alert %}color: #d97706;{% else %}color: var(--ent-text-main);{% endif %}">
-                                        {% if site.actual_report_date %}
-                                            ✅ {{ site.actual_report_date|date:"d/m/y" }}
-                                        {% elif site.planned_report_date %}
-                                            📅 {{ site.planned_report_date|date:"d/m/y" }}
-                                        {% else %}
-                                            --
-                                        {% endif %}
-                                    </span>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div style="margin-top: 0.25rem;">
-                            <a href="{% url 'site_detail' pk=site.pk %}" class="btn-ent btn-ent-primary" style="width: 100%; padding: 0.45rem 1rem; font-size: 0.8rem;">
-                                Acessar Data Room
+                        <!-- Rodapé: Fornecedor & Link para Data Room -->
+                        <div class="site-card-footer">
+                            <span class="partner-info" title="{{ site.partner_company|default:"Sem Fornecedor" }}">
+                                {% if site.partner_company %}
+                                    Forn: <strong>{{ site.partner_company }}</strong>
+                                {% else %}
+                                    Sem Fornecedor
+                                {% endif %}
+                            </span>
+                            
+                            <a href="{% url 'site_detail' pk=site.pk %}" class="btn-card-action">
+                                <span>Acessar</span>
+                                <i data-lucide="chevron-right" style="width: 12px; height: 12px;"></i>
                             </a>
                         </div>
                     </div>
