@@ -960,31 +960,28 @@
                         
                         <!-- Topo: Badges de Identificação (Operadora + Escopo) e Status Operacional -->
                         <div class="site-card-top">
-                            <div class="site-badges-group">
-                                {% if site.operator %}
-                                    <span class="operator-badge op-{{ site.operator|lower }}">
-                                        {{ site.get_operator_display }}
+                            <div style="display: flex; flex-direction: column; gap: 0.3rem;">
+                                <!-- Linha 1: Operadora + Escopo + Custódia -->
+                                <div class="site-badges-group">
+                                    {% if site.operator %}
+                                        <span class="operator-badge op-{{ site.operator|lower }}">
+                                            {{ site.get_operator_display }}
+                                        </span>
+                                    {% endif %}
+                                    <span class="scope-badge">
+                                        {{ site.get_scope_type_display }}
                                     </span>
-                                {% endif %}
-                                <span class="scope-badge">
-                                    {{ site.get_scope_type_display }}
-                                </span>
-                                {% if site.scope_type == 'INSTALACAO' and site.status != 'ACTIVE' and site.status != 'PLANNED' %}
-                                    {% with sector=site.current_responsible_sector %}
-                                        {% if sector and sector != 'Finalizado' %}
-                                            <span class="operator-badge {% if sector == 'Rollout' %}op-tim{% else %}op-vivo{% endif %}" style="font-size: 0.65rem; padding: 0.15rem 0.45rem;">
-                                                Custódia: {{ sector }}
-                                            </span>
-                                        {% endif %}
-                                    {% endwith %}
-                                {% endif %}
-                            </div>
-                            
-                            <div style="display: flex; flex-direction: column; align-items: flex-end; gap: 0.2rem;">
-                                <span class="status-badge badge-{{ site.status|lower }}">
-                                    <span class="status-dot"></span>
-                                    {{ site.get_status_display }}
-                                </span>
+                                    {% if site.scope_type == 'INSTALACAO' and site.status != 'ACTIVE' and site.status != 'PLANNED' %}
+                                        {% with sector=site.current_responsible_sector %}
+                                            {% if sector and sector != 'Finalizado' %}
+                                                <span class="operator-badge {% if sector == 'Rollout' %}op-tim{% else %}op-vivo{% endif %}" style="font-size: 0.65rem; padding: 0.15rem 0.45rem;">
+                                                    Custódia: {{ sector }}
+                                                </span>
+                                            {% endif %}
+                                        {% endwith %}
+                                    {% endif %}
+                                </div>
+                                <!-- Linha 2: Etapa Atual -->
                                 <span style="
                                     display: inline-flex;
                                     align-items: center;
@@ -994,6 +991,7 @@
                                     letter-spacing: 0.01em;
                                     padding: 0.2rem 0.55rem;
                                     border-radius: 20px;
+                                    width: fit-content;
                                     {% if site.status == 'INACTIVE' %}
                                         background: #fee2e2;
                                         color: #b91c1c;
@@ -1012,6 +1010,12 @@
                                     {{ site.current_stage_name }}
                                 </span>
                             </div>
+
+                            <!-- Status badge — lado direito -->
+                            <span class="status-badge badge-{{ site.status|lower }}">
+                                <span class="status-dot"></span>
+                                {{ site.get_status_display }}
+                            </span>
                         </div>
 
                         <!-- Título do Site e ID -->
