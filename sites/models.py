@@ -253,7 +253,7 @@ class Site(models.Model):
         if not self.stages_status:
             return "Engenharia"
         ppi_status = self.stages_status.get('PPI', {}).get('status', 'PENDING')
-        exec_status = self.stages_status.get('Execução', {}).get('status', 'PENDING')
+        exec_status = self.stages_status.get('Execução Rollout', {}).get('status', 'PENDING')
         arq_status = self.stages_status.get('ARQ', {}).get('status', 'PENDING')
         if ppi_status != 'DONE':
             return "Engenharia"
@@ -266,7 +266,7 @@ class Site(models.Model):
 
     SCOPE_STAGES = {
         'LAUDOS': ['Acionamento Parceiro', 'Acesso', 'Vistoria', 'Laudo'],
-        'INSTALACAO': ['Acesso', 'Vistoria', 'QRF', 'WarRoom', 'PPI', 'Execução', 'ARQ'],
+        'INSTALACAO': ['Acesso', 'Vistoria', 'QRF', 'WarRoom', 'PPI', 'Execução Rollout', 'ARQ'],
         'INFRA': ['Acesso', 'Vistoria', 'Projeto', 'Execução', 'RFI'],
         'FABRICA': ['Acesso', 'Vistoria', 'Projeto']
     }
@@ -279,7 +279,11 @@ class Site(models.Model):
         stages = self.get_stages_config()
         if not self.stages_status:
             self.stages_status = {}
-            
+        
+        # Migração defensiva de "Execução" para "Execução Rollout"
+        if self.scope_type == 'INSTALACAO' and 'Execução' in self.stages_status and 'Execução Rollout' not in self.stages_status:
+            self.stages_status['Execução Rollout'] = self.stages_status['Execução']
+
         new_status = {}
         for s in stages:
             if s in self.stages_status:

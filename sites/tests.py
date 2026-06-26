@@ -589,7 +589,7 @@ class SiteRolloutWorkflowTests(TestCase):
         self.assertIsNotNone(site2)
         self.assertIsNone(site2.site_id)
     def test_installation_custody_and_stage_6_execucao(self):
-        """Test the dynamic custody calculation and Stage 6 (Execução) behavior for installation scope."""
+        """Test the dynamic custody calculation and Stage 6 (Execução Rollout) behavior for installation scope."""
         self.client.login(username='engineer_workflow', password='password123')
         
         # Create a site with INSTALACAO scope
@@ -605,26 +605,26 @@ class SiteRolloutWorkflowTests(TestCase):
         self.assertEqual(site.current_responsible_sector, 'Engenharia')
         
         # Simulate completing PPI (Stage 5)
-        # Stage list is: ['Acesso', 'Vistoria', 'QRF', 'WarRoom', 'PPI', 'Execução', 'ARQ']
+        # Stage list is: ['Acesso', 'Vistoria', 'QRF', 'WarRoom', 'PPI', 'Execução Rollout', 'ARQ']
         site.stages_status['PPI'] = {'status': 'DONE', 'date': '2026-06-26'}
         site.save()
         
         # Sector should now be Rollout
         self.assertEqual(site.current_responsible_sector, 'Rollout')
         
-        # Post request to complete "Execução" (Stage 6) using the detail view endpoint
+        # Post request to complete "Execução Rollout" (Stage 6) using the detail view endpoint
         url = reverse('site_detail', kwargs={'pk': site.pk})
         response = self.client.post(url, {
             'action': 'update_stage',
-            'stage_name': 'Execução',
+            'stage_name': 'Execução Rollout',
             'stage_status': 'DONE',
             'stage_date': '2026-06-26'
         })
         self.assertEqual(response.status_code, 302)
         site.refresh_from_db()
         
-        self.assertEqual(site.stages_status['Execução']['status'], 'DONE')
-        self.assertEqual(site.stages_status['Execução']['date'], '2026-06-26')
+        self.assertEqual(site.stages_status['Execução Rollout']['status'], 'DONE')
+        self.assertEqual(site.stages_status['Execução Rollout']['date'], '2026-06-26')
         
         # After Execução is complete, sector should return to Engenharia (since ARQ is pending)
         self.assertEqual(site.current_responsible_sector, 'Engenharia')

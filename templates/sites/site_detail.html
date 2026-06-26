@@ -1298,8 +1298,8 @@
                                 </div>
                                 {% endif %}
 
-                            {% elif stage.name == 'Execução' and site.scope_type == 'INSTALACAO' %}
-                                <!-- Custom Flow for Stage 6 (Execução) under INSTALACAO scope -->
+                            {% elif stage.name == 'Execução Rollout' and site.scope_type == 'INSTALACAO' %}
+                                <!-- Custom Flow for Stage 6 (Execução Rollout) under INSTALACAO scope -->
                                 <div style="margin-bottom: 1rem;">
                                     {% if stage.status == 'DONE' %}
                                         <div style="background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 8px; padding: 0.75rem 1rem; display: flex; align-items: center; gap: 0.5rem; color: #166534; font-size: 0.8rem;">
@@ -1314,7 +1314,7 @@
                                     {% else %}
                                         <div style="background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 8px; padding: 0.75rem 1rem; display: flex; align-items: center; gap: 0.5rem; color: #1e40af; font-size: 0.8rem;">
                                             <i data-lucide="cog" style="width: 16px; height: 16px; color: #3b82f6; flex-shrink: 0;"></i>
-                                            <span>⚙️ Em campo com o Rollout (Aguardando retorno do site para a Engenharia)</span>
+                                            <span>Em campo com o Rollout (Aguardando retorno do site para a Engenharia)</span>
                                         </div>
                                     {% endif %}
                                 </div>
@@ -1329,7 +1329,7 @@
                                             <form method="POST" action="{% url 'site_detail' pk=site.pk %}">
                                                 {% csrf_token %}
                                                 <input type="hidden" name="action" value="update_stage">
-                                                <input type="hidden" name="stage_name" value="Execução">
+                                                <input type="hidden" name="stage_name" value="Execução Rollout">
                                                 <input type="hidden" name="stage_status" value="DONE">
                                                 
                                                 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 0.75rem; align-items: end;">
@@ -1348,7 +1348,7 @@
                                             <form method="POST" action="{% url 'site_detail' pk=site.pk %}" style="display:inline;">
                                                 {% csrf_token %}
                                                 <input type="hidden" name="action" value="update_stage">
-                                                <input type="hidden" name="stage_name" value="Execução">
+                                                <input type="hidden" name="stage_name" value="Execução Rollout">
                                                 <input type="hidden" name="stage_status" value="SKIPPED">
                                                 <button type="submit" class="btn-ent btn-ent-outline">
                                                     <i data-lucide="skip-forward" style="width: 14px; height: 14px;"></i>
@@ -1361,7 +1361,7 @@
                                             <form method="POST" action="{% url 'site_detail' pk=site.pk %}">
                                                 {% csrf_token %}
                                                 <input type="hidden" name="action" value="update_stage">
-                                                <input type="hidden" name="stage_name" value="Execução">
+                                                <input type="hidden" name="stage_name" value="Execução Rollout">
                                                 <input type="hidden" name="stage_status" value="PENDING">
                                                 <button type="submit" class="btn-ent btn-ent-danger-outline">
                                                     <i data-lucide="rotate-ccw" style="width: 14px; height: 14px;"></i>
