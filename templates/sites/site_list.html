@@ -1005,12 +1005,12 @@
                             <i data-lucide="alert-triangle" style="width: 12px; height: 12px; flex-shrink: 0;"></i>
                             <span>Atraso no(a) {{ site.overdue_stage }}: Vencido há {{ site.days_overdue }} dias!</span>
                         </div>
-                        {% elif not site.actual_survey_date and not site.planned_survey_date or not site.actual_report_date and not site.planned_report_date %}
+                        {% elif site.is_planning_missing %}
                         <div class="compact-alert alert-warning">
                             <i data-lucide="help-circle" style="width: 12px; height: 12px; flex-shrink: 0;"></i>
-                            <span>Falta planejamento! Defina datas de vistoria/laudo.</span>
+                            <span>Falta planejamento! Defina as datas das etapas.</span>
                         </div>
-                        {% elif site.status == 'MAINTENANCE' %}
+                        {% elif site.status == 'MAINTENANCE' and site.alert_stage %}
                         <div class="compact-alert alert-warning">
                             <i data-lucide="clock" style="width: 12px; height: 12px; flex-shrink: 0;"></i>
                             <span>Atenção no(a) {{ site.alert_stage }}: Vence em breve!</span>
@@ -1025,47 +1025,31 @@
                                 <span>Realizado</span>
                             </div>
                             
-                            <!-- Vistoria -->
+                            {% for milestone in site.get_card_milestones %}
                             <div class="milestone-row">
                                 <span class="milestone-label">
-                                    <i data-lucide="eye" style="width: 11px; height: 11px; color: #64748b;"></i> Vistoria
+                                    <i data-lucide="{{ milestone.icon }}" style="width: 11px; height: 11px; color: #64748b;"></i> {{ milestone.name }}
                                 </span>
                                 <span class="milestone-date-val planned">
-                                    {% if site.planned_survey_date %}
-                                        {{ site.planned_survey_date|date:"d/m/y" }}
+                                    {% if milestone.planned_date %}
+                                        {{ milestone.planned_date|date:"d/m/y" }}
                                     {% else %}
                                         <span class="empty">--</span>
                                     {% endif %}
                                 </span>
-                                <span class="milestone-date-val realized {% if site.actual_survey_date %}completed{% elif site.is_survey_overdue %}overdue{% elif site.is_survey_alert %}alert{% else %}empty{% endif %}">
-                                    {% if site.actual_survey_date %}
-                                        {{ site.actual_survey_date|date:"d/m/y" }}
+                                <span class="milestone-date-val realized {% if milestone.is_completed %}completed{% elif milestone.is_overdue %}overdue{% elif milestone.is_alert %}alert{% else %}empty{% endif %}">
+                                    {% if milestone.actual_date %}
+                                        {{ milestone.actual_date|date:"d/m/y" }}
+                                    {% elif milestone.status == 'SKIPPED' %}
+                                        Ignorado
+                                    {% elif milestone.is_completed %}
+                                        Concluído
                                     {% else %}
                                         Pendente
                                     {% endif %}
                                 </span>
                             </div>
-
-                            <!-- Laudo -->
-                            <div class="milestone-row">
-                                <span class="milestone-label">
-                                    <i data-lucide="file-text" style="width: 11px; height: 11px; color: #64748b;"></i> Laudo
-                                </span>
-                                <span class="milestone-date-val planned">
-                                    {% if site.planned_report_date %}
-                                        {{ site.planned_report_date|date:"d/m/y" }}
-                                    {% else %}
-                                        <span class="empty">--</span>
-                                    {% endif %}
-                                </span>
-                                <span class="milestone-date-val realized {% if site.actual_report_date %}completed{% elif site.is_report_overdue %}overdue{% elif site.is_report_alert %}alert{% else %}empty{% endif %}">
-                                    {% if site.actual_report_date %}
-                                        {{ site.actual_report_date|date:"d/m/y" }}
-                                    {% else %}
-                                        Pendente
-                                    {% endif %}
-                                </span>
-                            </div>
+                            {% endfor %}
                         </div>
 
                         <!-- Rodapé: Fornecedor & Link para Data Room -->
@@ -1226,8 +1210,11 @@
                             <td><span style="font-size: 0.78rem; font-weight: 600; padding: 0.25rem 0.5rem; background: #f1f5f9; border-radius: 6px; color: #475569;">{{ site.get_scope_type_display }}</span></td>
                             <td style="color: var(--ent-danger); font-weight: 600;">{{ site.overdue_stage }}</td>
                             <td style="font-size: 0.85rem; color: var(--ent-text-muted);">
-                                Vist: {{ site.planned_survey_date|date:"d/m/Y"|default:"--" }}<br>
-                                Laudo: {{ site.planned_report_date|date:"d/m/Y"|default:"--" }}
+                                {% for milestone in site.get_card_milestones %}
+                                    {% if milestone.is_overdue %}
+                                        {{ milestone.name }}: {{ milestone.planned_date|date:"d/m/Y" }}<br>
+                                    {% endif %}
+                                {% endfor %}
                             </td>
                             <td style="font-weight: 700; color: var(--ent-danger);">
                                 <i data-lucide="alert-circle" style="width: 14px; height: 14px; display: inline-block; vertical-align: middle; margin-right: 0.15rem;"></i>
@@ -1285,15 +1272,22 @@
                             <td>{{ site.name }}</td>
                             <td style="font-weight: 600;">{{ site.partner_company|default:"Sem Parceiro" }}</td>
                             <td><span style="font-size: 0.78rem; font-weight: 600; padding: 0.25rem 0.5rem; background: #f1f5f9; border-radius: 6px; color: #475569;">{{ site.get_scope_type_display }}</span></td>
-                            <td style="color: #d97706; font-weight: 600;">{{ site.alert_stage }}</td>
-                            <td style="font-size: 0.85rem; font-weight: 600; color: var(--ent-primary);">
-                                {% if "Vistoria" in site.alert_stage %}
-                                    Vistoria: {{ site.planned_survey_date|date:"d/m/Y" }}
-                                {% elif "Laudo" in site.alert_stage %}
-                                    Laudo: {{ site.planned_report_date|date:"d/m/Y" }}
+                            <td style="color: #d97706; font-weight: 600;">
+                                {% if site.alert_stage %}
+                                    {{ site.alert_stage }}
                                 {% else %}
-                                    Vist: {{ site.planned_survey_date|date:"d/m/Y"|default:"--" }} <br>
-                                    Laudo: {{ site.planned_report_date|date:"d/m/Y"|default:"--" }}
+                                    Planejamento Pendente
+                                {% endif %}
+                            </td>
+                            <td style="font-size: 0.85rem; font-weight: 600; color: var(--ent-primary);">
+                                {% if site.alert_stage %}
+                                    {% for milestone in site.get_card_milestones %}
+                                        {% if milestone.is_alert %}
+                                            {{ milestone.name }}: {{ milestone.planned_date|date:"d/m/Y" }}<br>
+                                        {% endif %}
+                                    {% endfor %}
+                                {% else %}
+                                    Definir prazos
                                 {% endif %}
                             </td>
                             <td><span class="status-badge badge-maintenance" style="font-size: 0.65rem;"><span class="status-dot"></span> Em Atenção</span></td>

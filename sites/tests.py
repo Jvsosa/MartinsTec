@@ -850,6 +850,106 @@ class CalendarTests(TestCase):
         self.assertFalse(CalendarNote.objects.filter(id=note.id).exists())
 
 
+class SiteCardMilestonesTests(TestCase):
+    def setUp(self):
+        from django.contrib.auth import get_user_model
+        self.user = get_user_model().objects.create_user(
+            username='eng_milestones',
+            password='password123',
+            email='eng@example.com',
+            role='ENGINEER'
+        )
+
+    def test_get_card_milestones_instalacao(self):
+        """Test card milestones and overdue checks for INSTALACAO scope."""
+        from django.utils import timezone
+        import datetime
+        today = timezone.localdate()
+
+        # Create site with INSTALACAO scope
+        site = Site.objects.create(
+            site_id='SITE_INST_1',
+            name='Site Instalacao Test',
+            scope_type='INSTALACAO',
+            planned_survey_date=today - datetime.timedelta(days=2),
+            actual_survey_date=None
+        )
+        
+        # Define some milestones in stages_status
+        site.stages_status = {
+            'QRF': {'status': 'PENDING', 'planned_date': (today + datetime.timedelta(days=2)).isoformat()},
+            'WarRoom': {'status': 'DONE', 'date': today.isoformat(), 'planned_date': today.isoformat()},
+            'PPI': {'status': 'PENDING', 'planned_date': None},
+            'ARQ': {'status': 'PENDING', 'planned_date': (today - datetime.timedelta(days=1)).isoformat()}
+        }
+        site.save()
+
+        milestones = site.get_card_milestones()
+        names = [m['name'] for m in milestones]
+        # Should only contain: Vistoria, QRF, WarRoom, PPI, ARQ
+        self.assertEqual(names, ['Vistoria', 'QRF', 'WarRoom', 'PPI', 'ARQ'])
+
+        # Check details for each
+        # Vistoria: planned 2 days ago, not actual -> overdue
+        vistoria = next(m for m in milestones if m['name'] == 'Vistoria')
+        self.assertTrue(vistoria['is_overdue'])
+        self.assertFalse(vistoria['is_completed'])
+        self.assertFalse(vistoria['is_alert'])
+
+        # QRF: planned in 2 days -> alert (within 3 days)
+        qrf = next(m for m in milestones if m['name'] == 'QRF')
+        self.assertFalse(qrf['is_overdue'])
+        self.assertFalse(qrf['is_completed'])
+        self.assertTrue(qrf['is_alert'])
+
+        # WarRoom: completed -> not overdue, not alert, is_completed
+        warroom = next(m for m in milestones if m['name'] == 'WarRoom')
+        self.assertFalse(warroom['is_overdue'])
+        self.assertTrue(warroom['is_completed'])
+        self.assertFalse(warroom['is_alert'])
+
+        # PPI: pending without planned date -> missing planning
+        ppi = next(m for m in milestones if m['name'] == 'PPI')
+        self.assertFalse(ppi['is_overdue'])
+        self.assertFalse(ppi['is_completed'])
+        self.assertFalse(ppi['is_alert'])
+        self.assertTrue(site.is_planning_missing)
+
+        # ARQ: planned 1 day ago, not completed -> overdue
+        arq = next(m for m in milestones if m['name'] == 'ARQ')
+        self.assertTrue(arq['is_overdue'])
+
+        # Check properties
+        self.assertEqual(site.days_overdue, 2)  # max of (today - vistoria.planned_date) = 2, arq = 1
+        self.assertEqual(site.overdue_stage, "Vistoria e ARQ")
+        self.assertEqual(site.alert_stage, "QRF")
+
+    def test_get_card_milestones_laudos(self):
+        """Test card milestones and status checks for LAUDOS scope."""
+        from django.utils import timezone
+        import datetime
+        today = timezone.localdate()
+
+        # Create site with LAUDOS scope
+        site = Site.objects.create(
+            site_id='SITE_LAUD_1',
+            name='Site Laudos Test',
+            scope_type='LAUDOS',
+            planned_survey_date=today + datetime.timedelta(days=1),
+            planned_report_date=today + datetime.timedelta(days=5)
+        )
+        
+        milestones = site.get_card_milestones()
+        names = [m['name'] for m in milestones]
+        # Should only contain: Vistoria, Laudo
+        self.assertEqual(names, ['Vistoria', 'Laudo'])
+
+        self.assertFalse(site.is_planning_missing)
+        self.assertEqual(site.status, Site.SiteStatus.MAINTENANCE)  # because planned_survey_date is in 1 day (alert)
+        self.assertEqual(site.alert_stage, "Vistoria")
+
+
+
 
 
 

@@ -169,38 +169,119 @@ class Site(models.Model):
         from django.utils import timezone
         today = timezone.localdate()
         max_delay = 0
-        if self.planned_survey_date and not self.actual_survey_date and self.planned_survey_date < today:
-            delay = (today - self.planned_survey_date).days
-            if delay > max_delay:
-                max_delay = delay
-        if self.planned_report_date and not self.actual_report_date and self.planned_report_date < today:
-            delay = (today - self.planned_report_date).days
-            if delay > max_delay:
-                max_delay = delay
+        for milestone in self.get_card_milestones():
+            if milestone['is_overdue'] and milestone['planned_date']:
+                delay = (today - milestone['planned_date']).days
+                if delay > max_delay:
+                    max_delay = delay
         return max_delay
 
     @property
     def overdue_stage(self):
-        from django.utils import timezone
-        today = timezone.localdate()
-        stages = []
-        if self.planned_survey_date and not self.actual_survey_date and self.planned_survey_date < today:
-            stages.append("Vistoria")
-        if self.planned_report_date and not self.actual_report_date and self.planned_report_date < today:
-            stages.append("Laudo")
+        stages = [m['name'] for m in self.get_card_milestones() if m['is_overdue']]
         return " e ".join(stages)
 
     @property
     def alert_stage(self):
-        from django.utils import timezone
-        today = timezone.localdate()
-        three_days = today + timezone.timedelta(days=3)
-        stages = []
-        if self.planned_survey_date and not self.actual_survey_date and today <= self.planned_survey_date <= three_days:
-            stages.append("Vistoria")
-        if self.planned_report_date and not self.actual_report_date and today <= self.planned_report_date <= three_days:
-            stages.append("Laudo")
+        stages = [m['name'] for m in self.get_card_milestones() if m['is_alert']]
         return " e ".join(stages)
+
+    @property
+    def is_planning_missing(self):
+        return any(not m['is_completed'] and not m['planned_date'] for m in self.get_card_milestones())
+
+    def get_card_milestones(self):
+        from django.utils import timezone
+        from django.utils.dateparse import parse_date
+        import datetime
+
+        today = timezone.localdate()
+        three_days_limit = today + datetime.timedelta(days=3)
+
+        # Define milestones to display on the card based on scope
+        if self.scope_type == 'INSTALACAO':
+            stages = ['Vistoria', 'QRF', 'WarRoom', 'PPI', 'ARQ']
+        elif self.scope_type == 'LAUDOS':
+            stages = ['Vistoria', 'Laudo']
+        elif self.scope_type == 'INFRA':
+            stages = ['Vistoria', 'Projeto', 'Execução', 'RFI']
+        elif self.scope_type == 'FABRICA':
+            stages = ['Vistoria', 'Projeto']
+        else:
+            stages = self.get_stages_config()
+
+        # Map icons for UI
+        icon_map = {
+            'Vistoria': 'eye',
+            'Laudo': 'file-text',
+            'Projeto': 'file-text',
+            'QRF': 'clipboard-list',
+            'WarRoom': 'users',
+            'PPI': 'check-square',
+            'Execução': 'play',
+            'Execução Rollout': 'play',
+            'RFI': 'help-circle',
+            'ARQ': 'archive',
+            'Acionamento Parceiro': 'user-plus',
+            'Acesso': 'key',
+        }
+
+        def to_date(val):
+            if not val:
+                return None
+            if isinstance(val, datetime.date):
+                return val
+            if isinstance(val, str):
+                return parse_date(val)
+            return None
+
+        milestones = []
+        for name in stages:
+            stage_info = self.stages_status.get(name, {}) if self.stages_status else {}
+            status = stage_info.get('status', 'PENDING')
+
+            # Map actual date
+            actual_date = None
+            if name == 'Vistoria':
+                actual_date = self.actual_survey_date
+            elif name in ['Laudo', 'Projeto']:
+                actual_date = self.actual_report_date
+            else:
+                actual_date = to_date(stage_info.get('date'))
+
+            # Map planned date
+            planned_date = None
+            if name == 'Vistoria':
+                planned_date = self.planned_survey_date
+            elif name in ['Laudo', 'Projeto']:
+                planned_date = self.planned_report_date
+            else:
+                planned_date = to_date(stage_info.get('planned_date'))
+
+            # Boolean statuses based on dates
+            is_completed = (status in ['DONE', 'SKIPPED']) or (actual_date is not None)
+            is_overdue = False
+            is_alert = False
+
+            if not is_completed and planned_date:
+                if planned_date < today:
+                    is_overdue = True
+                elif today <= planned_date <= three_days_limit:
+                    is_alert = True
+
+            milestones.append({
+                'name': name,
+                'icon': icon_map.get(name, 'check'),
+                'planned_date': planned_date,
+                'actual_date': actual_date,
+                'status': status,
+                'is_completed': is_completed,
+                'is_overdue': is_overdue,
+                'is_alert': is_alert,
+            })
+
+        return milestones
+
 
     @property
     def is_survey_overdue(self):
@@ -412,20 +493,20 @@ class Site(models.Model):
         stages = self.get_stages_config()
         if stages:
             final_stage = stages[-1]
-            final_status = self.stages_status.get(final_stage, {}).get('status', 'PENDING')
+            final_status = self.stages_status.get(final_stage, {}).get('status', 'PENDING') if self.stages_status else 'PENDING'
             if final_status in ['DONE', 'SKIPPED']:
                 return self.SiteStatus.ACTIVE
         
-        if (self.planned_survey_date and self.planned_survey_date < today and not self.actual_survey_date) or \
-           (self.planned_report_date and self.planned_report_date < today and not self.actual_report_date):
+        milestones = self.get_card_milestones()
+        
+        # 1. INACTIVE: Any milestone has a planned date in the past and is not completed
+        if any(m['is_overdue'] for m in milestones):
             return self.SiteStatus.INACTIVE
             
-        if (not self.actual_survey_date and not self.planned_survey_date) or \
-           (not self.actual_report_date and not self.planned_report_date):
-            return self.SiteStatus.MAINTENANCE
-            
-        if (self.planned_survey_date and today <= self.planned_survey_date <= today + timezone.timedelta(days=3) and not self.actual_survey_date) or \
-           (self.planned_report_date and today <= self.planned_report_date <= today + timezone.timedelta(days=3) and not self.actual_report_date):
+        # 2. MAINTENANCE:
+        # - Any milestone is not completed and has no planned date (lacks planning)
+        # - OR Any milestone is not completed and has a planned date within 3 days (alert)
+        if any((not m['is_completed'] and not m['planned_date']) or m['is_alert'] for m in milestones):
             return self.SiteStatus.MAINTENANCE
             
         return self.SiteStatus.PLANNED
