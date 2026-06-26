@@ -1459,6 +1459,45 @@
 
 
     <!-- ==========================================
+         POPUP MODAL: ANOTAÇÃO DO CALENDÁRIO
+         ========================================== -->
+    <div class="calendar-modal" id="note-modal">
+        <div class="modal-content-card">
+            <div class="modal-header">
+                <h3 class="modal-title" id="note-modal-title">Adicionar Anotação</h3>
+                <button class="btn-close-modal" onclick="closeNoteModal()" title="Fechar">
+                    <i data-lucide="x" style="width: 20px; height: 20px;"></i>
+                </button>
+            </div>
+            <form id="note-form" onsubmit="saveNote(event)">
+                <input type="hidden" id="note-id" name="id">
+                <input type="hidden" id="note-date" name="date">
+                
+                <div class="form-group" style="margin-bottom: 1.25rem;">
+                    <label for="note-title" style="display: block; font-size: 0.85rem; font-weight: 600; color: var(--ent-primary); margin-bottom: 0.5rem;">Título da Anotação</label>
+                    <input type="text" id="note-title" name="title" class="form-control" placeholder="Ex: Reunião com fornecedor ou vistoria extra" required style="width: 100%; padding: 0.65rem; border: 1px solid var(--ent-border); border-radius: 8px; font-family: var(--font-sans); outline: none;">
+                </div>
+
+                <div class="form-group" style="margin-bottom: 1.5rem;">
+                    <label for="note-description" style="display: block; font-size: 0.85rem; font-weight: 600; color: var(--ent-primary); margin-bottom: 0.5rem;">Descrição / Detalhes</label>
+                    <textarea id="note-description" name="description" class="form-control" rows="4" placeholder="Detalhes da anotação..." style="width: 100%; padding: 0.65rem; border: 1px solid var(--ent-border); border-radius: 8px; font-family: var(--font-sans); resize: vertical; outline: none;"></textarea>
+                </div>
+
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <button type="button" id="btn-delete-note" class="btn-ent btn-ent-outline" style="color: var(--ent-danger); border-color: var(--ent-danger); display: none;" onclick="deleteNote()">
+                        <i data-lucide="trash-2" style="width: 16px; height: 16px; display: inline-block; vertical-align: middle;"></i> Excluir
+                    </button>
+                    <div style="display: flex; gap: 0.75rem; margin-left: auto;">
+                        <button type="button" class="btn-ent btn-ent-outline" onclick="closeNoteModal()">Cancelar</button>
+                        <button type="submit" class="btn-ent btn-ent-primary">Salvar</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+
+    <!-- ==========================================
          VIEW 6: BLOCO DE NOTAS DO ENGENHEIRO
          ========================================== -->
     <div id="anotacoes-view" class="view-container">
