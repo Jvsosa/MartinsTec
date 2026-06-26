@@ -969,6 +969,15 @@
                                 <span class="scope-badge">
                                     {{ site.get_scope_type_display }}
                                 </span>
+                                {% if site.scope_type == 'INSTALACAO' and site.status != 'ACTIVE' and site.status != 'PLANNED' %}
+                                    {% with sector=site.current_responsible_sector %}
+                                        {% if sector and sector != 'Finalizado' %}
+                                            <span class="operator-badge {% if sector == 'Rollout' %}op-tim{% else %}op-vivo{% endif %}" style="font-size: 0.65rem; padding: 0.15rem 0.45rem;">
+                                                Custódia: {{ sector }}
+                                            </span>
+                                        {% endif %}
+                                    {% endwith %}
+                                {% endif %}
                             </div>
                             
                             <span class="status-badge badge-{{ site.status|lower }}">

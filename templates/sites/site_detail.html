@@ -583,6 +583,20 @@
                     </div>
                 </div>
 
+                {% if site.scope_type == 'INSTALACAO' %}
+                <div class="info-item">
+                    <span class="info-label">Custódia Atual</span>
+                    <div>
+                        {% with sector=site.current_responsible_sector %}
+                        <span class="status-badge {% if sector == 'Rollout' %}badge-maintenance{% elif sector == 'Engenharia' %}badge-planned{% else %}badge-active{% endif %}" style="font-size: 0.72rem;">
+                            <span class="status-dot"></span>
+                            {{ sector }}
+                        </span>
+                        {% endwith %}
+                    </div>
+                </div>
+                {% endif %}
+
                 {% if site.address %}
                 <div class="info-item">
                     <span class="info-label">Endereço</span>
@@ -1282,6 +1296,80 @@
                                     </form>
                                     {% endif %}
                                 </div>
+                                {% endif %}
+
+                            {% elif stage.name == 'Execução' and site.scope_type == 'INSTALACAO' %}
+                                <!-- Custom Flow for Stage 6 (Execução) under INSTALACAO scope -->
+                                <div style="margin-bottom: 1rem;">
+                                    {% if stage.status == 'DONE' %}
+                                        <div style="background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 8px; padding: 0.75rem 1rem; display: flex; align-items: center; gap: 0.5rem; color: #166534; font-size: 0.8rem;">
+                                            <i data-lucide="check-circle" style="width: 16px; height: 16px; color: #22c55e; flex-shrink: 0;"></i>
+                                            <span>Rollout finalizado. Retornou para a Engenharia em <strong>{{ stage.date|date:"d/m/Y"|default:stage.date }}</strong>.</span>
+                                        </div>
+                                    {% elif stage.status == 'SKIPPED' %}
+                                        <div style="background: #f1f5f9; border: 1px solid #e2e8f0; border-radius: 8px; padding: 0.75rem 1rem; display: flex; align-items: center; gap: 0.5rem; color: #475569; font-size: 0.8rem;">
+                                            <i data-lucide="skip-forward" style="width: 16px; height: 16px; color: #64748b; flex-shrink: 0;"></i>
+                                            <span>Esta etapa foi desconsiderada/pulada.</span>
+                                        </div>
+                                    {% else %}
+                                        <div style="background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 8px; padding: 0.75rem 1rem; display: flex; align-items: center; gap: 0.5rem; color: #1e40af; font-size: 0.8rem;">
+                                            <i data-lucide="cog" style="width: 16px; height: 16px; color: #3b82f6; flex-shrink: 0;"></i>
+                                            <span>⚙️ Em campo com o Rollout (Aguardando retorno do site para a Engenharia)</span>
+                                        </div>
+                                    {% endif %}
+                                </div>
+
+                                {% if user.role == 'ADMIN' or user.role == 'ENGINEER' %}
+                                    {% if stage.status == 'PENDING' %}
+                                        <div style="background: #ffffff; border: 1px solid var(--border-color); border-radius: 8px; padding: 1rem; margin-bottom: 1rem;">
+                                            <h6 style="margin: 0 0 0.75rem 0; font-size: 0.8rem; font-weight: 700; color: var(--brand-primary); display: flex; align-items: center; gap: 0.35rem;">
+                                                <i data-lucide="arrow-left-right" style="width: 16px; height: 16px;"></i>
+                                                Registrar Retorno do Site para a Engenharia
+                                            </h6>
+                                            <form method="POST" action="{% url 'site_detail' pk=site.pk %}">
+                                                {% csrf_token %}
+                                                <input type="hidden" name="action" value="update_stage">
+                                                <input type="hidden" name="stage_name" value="Execução">
+                                                <input type="hidden" name="stage_status" value="DONE">
+                                                
+                                                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 0.75rem; align-items: end;">
+                                                    <div class="field-group">
+                                                        <label style="font-size: 0.65rem; color: var(--brand-primary);">Data de Retorno à Engenharia</label>
+                                                        <input type="date" name="stage_date" value="{% now 'Y-m-d' %}" class="field-control" required style="padding: 0.4rem; font-size: 0.8rem; border-radius: 6px; border: 1px solid var(--border-color); background: white; height: 34px; box-sizing: border-box;">
+                                                    </div>
+                                                    <button type="submit" class="btn-submit" style="padding: 0.5rem 1rem; font-size: 0.8rem; border-radius: 6px; width: 100%; border: none; cursor: pointer; font-weight: 700; height: 34px; background: var(--brand-primary); color: white;">
+                                                        Confirmar Retorno do Site
+                                                    </button>
+                                                </div>
+                                            </form>
+                                        </div>
+
+                                        <div style="display: flex; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 1rem;">
+                                            <form method="POST" action="{% url 'site_detail' pk=site.pk %}" style="display:inline;">
+                                                {% csrf_token %}
+                                                <input type="hidden" name="action" value="update_stage">
+                                                <input type="hidden" name="stage_name" value="Execução">
+                                                <input type="hidden" name="stage_status" value="SKIPPED">
+                                                <button type="submit" class="btn-ent btn-ent-outline">
+                                                    <i data-lucide="skip-forward" style="width: 14px; height: 14px;"></i>
+                                                    Pular Execução
+                                                </button>
+                                            </form>
+                                        </div>
+                                    {% else %}
+                                        <div style="display: flex; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 1rem;">
+                                            <form method="POST" action="{% url 'site_detail' pk=site.pk %}">
+                                                {% csrf_token %}
+                                                <input type="hidden" name="action" value="update_stage">
+                                                <input type="hidden" name="stage_name" value="Execução">
+                                                <input type="hidden" name="stage_status" value="PENDING">
+                                                <button type="submit" class="btn-ent btn-ent-danger-outline">
+                                                    <i data-lucide="rotate-ccw" style="width: 14px; height: 14px;"></i>
+                                                    Reiniciar Etapa (Devolver ao Rollout)
+                                                </button>
+                                            </form>
+                                        </div>
+                                    {% endif %}
                                 {% endif %}
 
                             {% else %}

@@ -246,6 +246,24 @@ class Site(models.Model):
             return (self.access_released_date - self.access_requested_date).days
         return None
 
+    @property
+    def current_responsible_sector(self):
+        if self.scope_type != 'INSTALACAO':
+            return None
+        if not self.stages_status:
+            return "Engenharia"
+        ppi_status = self.stages_status.get('PPI', {}).get('status', 'PENDING')
+        exec_status = self.stages_status.get('Execução', {}).get('status', 'PENDING')
+        arq_status = self.stages_status.get('ARQ', {}).get('status', 'PENDING')
+        if ppi_status != 'DONE':
+            return "Engenharia"
+        elif exec_status != 'DONE':
+            return "Rollout"
+        elif arq_status != 'DONE':
+            return "Engenharia"
+        else:
+            return "Finalizado"
+
     SCOPE_STAGES = {
         'LAUDOS': ['Acionamento Parceiro', 'Acesso', 'Vistoria', 'Laudo'],
         'INSTALACAO': ['Acesso', 'Vistoria', 'QRF', 'WarRoom', 'PPI', 'Execução', 'ARQ'],

@@ -588,6 +588,53 @@ class SiteRolloutWorkflowTests(TestCase):
         site2 = Site.objects.filter(name='RJPLB Site Two').first()
         self.assertIsNotNone(site2)
         self.assertIsNone(site2.site_id)
+    def test_installation_custody_and_stage_6_execucao(self):
+        """Test the dynamic custody calculation and Stage 6 (Execução) behavior for installation scope."""
+        self.client.login(username='engineer_workflow', password='password123')
+        
+        # Create a site with INSTALACAO scope
+        site = Site.objects.create(
+            site_id='SITE_INST_CUSTODY',
+            name='Site Instalação Custódia',
+            scope_type='INSTALACAO'
+        )
+        
+        # Initially, with no stages completed, sector should be Engenharia
+        site.sync_stages()
+        site.refresh_from_db()
+        self.assertEqual(site.current_responsible_sector, 'Engenharia')
+        
+        # Simulate completing PPI (Stage 5)
+        # Stage list is: ['Acesso', 'Vistoria', 'QRF', 'WarRoom', 'PPI', 'Execução', 'ARQ']
+        site.stages_status['PPI'] = {'status': 'DONE', 'date': '2026-06-26'}
+        site.save()
+        
+        # Sector should now be Rollout
+        self.assertEqual(site.current_responsible_sector, 'Rollout')
+        
+        # Post request to complete "Execução" (Stage 6) using the detail view endpoint
+        url = reverse('site_detail', kwargs={'pk': site.pk})
+        response = self.client.post(url, {
+            'action': 'update_stage',
+            'stage_name': 'Execução',
+            'stage_status': 'DONE',
+            'stage_date': '2026-06-26'
+        })
+        self.assertEqual(response.status_code, 302)
+        site.refresh_from_db()
+        
+        self.assertEqual(site.stages_status['Execução']['status'], 'DONE')
+        self.assertEqual(site.stages_status['Execução']['date'], '2026-06-26')
+        
+        # After Execução is complete, sector should return to Engenharia (since ARQ is pending)
+        self.assertEqual(site.current_responsible_sector, 'Engenharia')
+        
+        # Complete ARQ (Stage 7)
+        site.stages_status['ARQ'] = {'status': 'DONE', 'date': '2026-06-26'}
+        site.save()
+        
+        # Sector should be Finalizado
+        self.assertEqual(site.current_responsible_sector, 'Finalizado')
 
 
 class SiteOperatorTests(TestCase):
