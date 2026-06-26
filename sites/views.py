@@ -755,3 +755,197 @@ def delete_site(request, pk):
     messages.success(request, f"Site {site_id or site.name} removido com sucesso!")
     return redirect('site_list')
 
+
+# --- APIS DO CALENDÁRIO ---
+
+@login_required
+def calendar_events_api(request):
+    import datetime
+    from django.http import JsonResponse
+    from django.utils.dateparse import parse_date
+    from .holidays import get_br_rj_holidays
+    from .models import CalendarNote, Site
+    from django.urls import reverse
+
+    start_str = request.GET.get('start')
+    end_str = request.GET.get('end')
+    
+    start_date = parse_date(start_str) if start_str else None
+    end_date = parse_date(end_str) if end_str else None
+    
+    # Se nenhum intervalo for especificado, assume o ano atual
+    if not start_date or not end_date:
+        today = datetime.date.today()
+        start_date = datetime.date(today.year, 1, 1)
+        end_date = datetime.date(today.year, 12, 31)
+        
+    events = []
+    
+    # 1. Coleta Feriados
+    years = range(start_date.year, end_date.year + 1)
+    for year in years:
+        year_holidays = get_br_rj_holidays(year)
+        for h_date, h_name in year_holidays.items():
+            if start_date <= h_date <= end_date:
+                events.append({
+                    'id': f"holiday_{h_date.isoformat()}_{h_name}",
+                    'type': 'holiday',
+                    'date': h_date.isoformat(),
+                    'title': h_name,
+                    'description': 'Feriado Nacional ou RJ'
+                })
+                
+    # 2. Coleta Anotações/Notas do Usuário
+    notes = CalendarNote.objects.filter(date__range=(start_date, end_date))
+    for note in notes:
+        events.append({
+            'id': f"note_{note.id}",
+            'type': 'note',
+            'date': note.date.isoformat(),
+            'title': note.title,
+            'description': note.description or '',
+            'note_id': note.id
+        })
+        
+    # 3. Coleta Datas Planejadas de Sites no Data Room
+    sites = Site.objects.all()
+    for s in sites:
+        # Vistoria Planejada
+        if s.planned_survey_date and start_date <= s.planned_survey_date <= end_date:
+            status = 'DONE' if s.actual_survey_date else 'PENDING'
+            events.append({
+                'id': f"site_survey_{s.id}",
+                'type': 'planned_survey',
+                'date': s.planned_survey_date.isoformat(),
+                'title': f"Vistoria: {s.site_id or s.name}",
+                'description': f"Vistoria planejada para o site {s.name}.",
+                'site_id': s.id,
+                'site_code': s.site_id or s.name,
+                'status': status,
+                'url': reverse('site_detail', kwargs={'pk': s.pk})
+            })
+            
+        # Laudo/Projeto Planejado
+        if s.planned_report_date and start_date <= s.planned_report_date <= end_date:
+            status = 'DONE' if s.actual_report_date else 'PENDING'
+            label = "Laudo" if s.scope_type == Site.ScopeType.LAUDOS else "Projeto"
+            events.append({
+                'id': f"site_report_{s.id}",
+                'type': 'planned_report',
+                'date': s.planned_report_date.isoformat(),
+                'title': f"{label}: {s.site_id or s.name}",
+                'description': f"{label} planejado para o site {s.name}.",
+                'site_id': s.id,
+                'site_code': s.site_id or s.name,
+                'status': status,
+                'url': reverse('site_detail', kwargs={'pk': s.pk})
+            })
+            
+        # Outras etapas no JSON stages_status
+        if s.stages_status:
+            for stage_name, status_info in s.stages_status.items():
+                if stage_name in ['Vistoria', 'Laudo', 'Projeto']:
+                    continue
+                planned_date_str = status_info.get('planned_date')
+                if planned_date_str:
+                    planned_date = parse_date(planned_date_str)
+                    if planned_date and start_date <= planned_date <= end_date:
+                        status = status_info.get('status', 'PENDING')
+                        events.append({
+                            'id': f"site_stage_{s.id}_{stage_name}",
+                            'type': 'planned_stage',
+                            'stage_name': stage_name,
+                            'date': planned_date.isoformat(),
+                            'title': f"{stage_name}: {s.site_id or s.name}",
+                            'description': f"Etapa '{stage_name}' planejada para o site {s.name}.",
+                            'site_id': s.id,
+                            'site_code': s.site_id or s.name,
+                            'status': status,
+                            'url': reverse('site_detail', kwargs={'pk': s.pk})
+                        })
+                        
+    return JsonResponse(events, safe=False)
+
+
+from django.views.decorators.http import require_POST
+
+@login_required
+@require_POST
+def add_calendar_note(request):
+    from django.http import JsonResponse
+    from django.utils.dateparse import parse_date
+    from .models import CalendarNote
+    
+    date_str = request.POST.get('date')
+    title = request.POST.get('title', '').strip()
+    description = request.POST.get('description', '').strip()
+    
+    date = parse_date(date_str) if date_str else None
+    if not date or not title:
+        return JsonResponse({'status': 'error', 'message': 'Data e Título são obrigatórios.'}, status=400)
+        
+    note = CalendarNote.objects.create(
+        date=date,
+        title=title,
+        description=description
+    )
+    return JsonResponse({
+        'status': 'success',
+        'note': {
+            'id': note.id,
+            'date': note.date.isoformat(),
+            'title': note.title,
+            'description': note.description
+        }
+    })
+
+
+@login_required
+@require_POST
+def edit_calendar_note(request):
+    from django.http import JsonResponse
+    from .models import CalendarNote
+    
+    note_id = request.POST.get('id')
+    title = request.POST.get('title', '').strip()
+    description = request.POST.get('description', '').strip()
+    
+    if not note_id or not title:
+        return JsonResponse({'status': 'error', 'message': 'ID e Título são obrigatórios.'}, status=400)
+        
+    try:
+        note = CalendarNote.objects.get(id=note_id)
+        note.title = title
+        note.description = description
+        note.save()
+        return JsonResponse({
+            'status': 'success',
+            'note': {
+                'id': note.id,
+                'date': note.date.isoformat(),
+                'title': note.title,
+                'description': note.description
+            }
+        })
+    except CalendarNote.DoesNotExist:
+        return JsonResponse({'status': 'error', 'message': 'Nota não encontrada.'}, status=404)
+
+
+@login_required
+@require_POST
+def delete_calendar_note(request):
+    from django.http import JsonResponse
+    from .models import CalendarNote
+    
+    note_id = request.POST.get('id')
+    if not note_id:
+        return JsonResponse({'status': 'error', 'message': 'ID é obrigatório.'}, status=400)
+        
+    try:
+        note = CalendarNote.objects.get(id=note_id)
+        note.delete()
+        return JsonResponse({'status': 'success'})
+    except CalendarNote.DoesNotExist:
+        return JsonResponse({'status': 'error', 'message': 'Nota não encontrada.'}, status=404)
+
+

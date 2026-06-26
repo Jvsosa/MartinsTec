@@ -2,6 +2,7 @@ Escopos E Etapas
 
 
 Laudos > Acionamento Parceiro > Acesso > Vistoria > Laudo
+Projeto > 
 Instalação - Acesso > Vistoria > QRF > WarRoom > PPI > Execução > ARQ
 Infra > Acesso > Vistoria > Projeto > Execução > RFI (Pode Conter Relatorio)
 Fabrica > Acesso > Vistoria > Projeto (Pode Conter Relatorio)

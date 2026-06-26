@@ -9,4 +9,8 @@ urlpatterns = [
     path('site/delete/<int:pk>/', views.delete_site, name='delete_site'),
     path('file/download/<int:file_id>/', views.download_file, name='download_file'),
     path('file/delete/<int:file_id>/', views.delete_file, name='delete_file'),
+    path('calendar/events/', views.calendar_events_api, name='calendar_events_api'),
+    path('calendar/note/add/', views.add_calendar_note, name='add_calendar_note'),
+    path('calendar/note/edit/', views.edit_calendar_note, name='edit_calendar_note'),
+    path('calendar/note/delete/', views.delete_calendar_note, name='delete_calendar_note'),
 ]

@@ -687,5 +687,122 @@ class SiteOperatorTests(TestCase):
         self.assertEqual(site.access_lead_time, 5)
 
 
+class CalendarTests(TestCase):
+    def setUp(self):
+        self.user = User.objects.create_user(
+            username='calendar_user',
+            password='password123',
+            email='calendar@example.com',
+            role=User.Role.ENGINEER
+        )
+        self.client.login(username='calendar_user', password='password123')
+
+    def test_holiday_calculation(self):
+        """Test that get_br_rj_holidays returns correct holidays for year 2026."""
+        from .holidays import get_br_rj_holidays
+        import datetime
+        
+        holidays = get_br_rj_holidays(2026)
+        
+        # Fixed national
+        self.assertIn(datetime.date(2026, 1, 1), holidays)
+        self.assertEqual(holidays[datetime.date(2026, 1, 1)], "Confraternização Universal")
+        
+        # Fixed local
+        self.assertIn(datetime.date(2026, 4, 23), holidays)
+        self.assertEqual(holidays[datetime.date(2026, 4, 23)], "Dia de São Jorge")
+        
+        # Easter 2026 is April 5. Sexta-feira santa is April 3.
+        self.assertIn(datetime.date(2026, 4, 3), holidays)
+        self.assertEqual(holidays[datetime.date(2026, 4, 3)], "Sexta-feira Santa")
+
+    def test_calendar_events_api(self):
+        """Test calendar_events_api returns correct JSON response with notes, holidays and planned dates."""
+        import datetime
+        from .models import CalendarNote, Site
+        
+        # Create a Note
+        note = CalendarNote.objects.create(
+            date=datetime.date(2026, 6, 15),
+            title="Note Test",
+            description="Testing note"
+        )
+        
+        # Create a Site with planned dates
+        site = Site.objects.create(
+            site_id="SITE_CAL_1",
+            name="Calendar Site",
+            planned_survey_date=datetime.date(2026, 6, 20),
+            planned_report_date=datetime.date(2026, 6, 25),
+            scope_type=Site.ScopeType.LAUDOS
+        )
+        
+        url = reverse('calendar_events_api')
+        response = self.client.get(url, {'start': '2026-06-01', 'end': '2026-06-30'})
+        self.assertEqual(response.status_code, 200)
+        
+        data = response.json()
+        
+        # Verify note is present
+        note_event = next((item for item in data if item['id'] == f"note_{note.id}"), None)
+        self.assertIsNotNone(note_event)
+        self.assertEqual(note_event['title'], "Note Test")
+        self.assertEqual(note_event['date'], "2026-06-15")
+        
+        # Verify site planned survey is present
+        survey_event = next((item for item in data if item['id'] == f"site_survey_{site.id}"), None)
+        self.assertIsNotNone(survey_event)
+        self.assertEqual(survey_event['title'], "Vistoria: SITE_CAL_1")
+        self.assertEqual(survey_event['date'], "2026-06-20")
+        
+        # Verify site planned report is present
+        report_event = next((item for item in data if item['id'] == f"site_report_{site.id}"), None)
+        self.assertIsNotNone(report_event)
+        self.assertEqual(report_event['title'], "Laudo: SITE_CAL_1")
+        self.assertEqual(report_event['date'], "2026-06-25")
+
+    def test_calendar_note_crud_actions(self):
+        """Test adding, editing, and deleting a CalendarNote via AJAX views."""
+        from .models import CalendarNote
+        
+        # 1. Add Note
+        url_add = reverse('add_calendar_note')
+        response = self.client.post(url_add, {
+            'date': '2026-06-10',
+            'title': 'New Note',
+            'description': 'Description content'
+        })
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json()['status'], 'success')
+        
+        note = CalendarNote.objects.get(title='New Note')
+        self.assertEqual(note.description, 'Description content')
+        self.assertEqual(note.date.isoformat(), '2026-06-10')
+        
+        # 2. Edit Note
+        url_edit = reverse('edit_calendar_note')
+        response = self.client.post(url_edit, {
+            'id': note.id,
+            'title': 'New Note Edited',
+            'description': 'Description content edited'
+        })
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json()['status'], 'success')
+        
+        note.refresh_from_db()
+        self.assertEqual(note.title, 'New Note Edited')
+        self.assertEqual(note.description, 'Description content edited')
+        
+        # 3. Delete Note
+        url_delete = reverse('delete_calendar_note')
+        response = self.client.post(url_delete, {
+            'id': note.id
+        })
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json()['status'], 'success')
+        self.assertFalse(CalendarNote.objects.filter(id=note.id).exists())
+
+
+
 
 

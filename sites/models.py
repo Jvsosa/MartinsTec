@@ -506,3 +506,19 @@ class SiteRescheduleHistory(models.Model):
     def __str__(self):
         return f"{self.site.name} - {self.created_at.strftime('%d/%m/%Y %H:%M')}"
 
+
+class CalendarNote(models.Model):
+    date = models.DateField(verbose_name="Data")
+    title = models.CharField(max_length=200, verbose_name="Título")
+    description = models.TextField(blank=True, null=True, verbose_name="Anotação")
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name="Criado em")
+
+    class Meta:
+        verbose_name = "Nota do Calendário"
+        verbose_name_plural = "Notas do Calendário"
+        ordering = ['date', 'created_at']
+
+    def __str__(self):
+        return f"{self.date} - {self.title}"
+
+
