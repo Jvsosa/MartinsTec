@@ -166,87 +166,31 @@
         color: white;
     }
 
-    /* EVENTOS/BADGES INTERNOS */
-    .calendar-day-events {
+    /* BOLINHAS/DOTS DE ALERTAS */
+    .calendar-day-dots {
         display: flex;
-        flex-direction: column;
-        gap: 0.25rem;
-        overflow-y: auto;
-        flex-grow: 1;
-        max-height: 90px;
+        justify-content: flex-start;
+        flex-wrap: wrap;
+        gap: 4px;
+        margin-top: auto;
+        padding-top: 0.25rem;
     }
 
-    .calendar-event {
-        font-size: 0.7rem;
-        font-weight: 600;
-        padding: 0.25rem 0.5rem;
-        border-radius: 6px;
-        white-space: nowrap;
-        text-overflow: ellipsis;
-        overflow: hidden;
-        cursor: pointer;
-        display: flex;
-        align-items: center;
-        gap: 0.25rem;
-        transition: all 0.15s;
+    .calendar-dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        display: inline-block;
     }
 
-    .calendar-event:hover {
-        filter: brightness(0.93);
-        transform: translateY(-1px);
-    }
-
-    /* Tipos de Eventos */
-    .event-holiday {
-        background: #fdf2f8;
-        color: #db2777;
-        border: 1px solid #fbcfe8;
-    }
-
-    .event-note {
-        background: #e0e7ff;
-        color: #4f46e5;
-        border: 1px solid #c7d2fe;
-    }
-
-    .event-survey-pending {
-        background: #eff6ff;
-        color: #2563eb;
-        border: 1px solid #bfdbfe;
-    }
-
-    .event-survey-done {
-        background: #ecfdf5;
-        color: #10b981;
-        border: 1px solid #a7f3d0;
-        text-decoration: line-through;
-    }
-
-    .event-report-pending {
-        background: #fffbeb;
-        color: #d97706;
-        border: 1px solid #fde68a;
-    }
-
-    .event-report-done {
-        background: #ecfdf5;
-        color: #10b981;
-        border: 1px solid #a7f3d0;
-        text-decoration: line-through;
-    }
-
-    .event-stage-pending {
-        background: #f8fafc;
-        color: #64748b;
-        border: 1px solid #e2e8f0;
-    }
-
-    .event-stage-done {
-        background: #ecfdf5;
-        color: #10b981;
-        border: 1px solid #a7f3d0;
-        text-decoration: line-through;
-    }
+    .dot-holiday { background-color: #db2777; }
+    .dot-note { background-color: #4f46e5; }
+    .dot-survey-pending { background-color: #2563eb; }
+    .dot-survey-done { background-color: #10b981; }
+    .dot-report-pending { background-color: #d97706; }
+    .dot-report-done { background-color: #10b981; }
+    .dot-stage-pending { background-color: #64748b; }
+    .dot-stage-done { background-color: #10b981; }
 
     /* SIDEBAR DE INFORMAÇÕES ADICIONAIS */
     .calendar-sidebar {
@@ -478,6 +422,9 @@
             <input type="hidden" id="note-id" name="id">
             <input type="hidden" id="note-date" name="date">
             
+            <!-- Div para listar outros eventos do dia -->
+            <div id="modal-day-events" style="display: none; margin-bottom: 1.25rem;"></div>
+            
             <div class="form-group" style="margin-bottom: 1.25rem;">
                 <label for="note-title" style="display: block; font-size: 0.85rem; font-weight: 600; color: var(--ent-primary); margin-bottom: 0.5rem;">Título da Anotação</label>
                 <input type="text" id="note-title" name="title" class="form-control" placeholder="Ex: Reunião com fornecedor ou vistoria extra" required style="width: 100%; padding: 0.65rem; border: 1px solid var(--ent-border); border-radius: 8px; font-family: var(--font-sans); outline: none;">
@@ -624,59 +571,45 @@
         dayNumberEl.innerText = date.getDate();
         cell.appendChild(dayNumberEl);
         
-        const eventsContainer = document.createElement('div');
-        eventsContainer.className = 'calendar-day-events';
-        
         // Filtrar e adicionar eventos desse dia
         const dayEvents = eventsData.filter(ev => ev.date === dateStr);
-        dayEvents.forEach(ev => {
-            const evEl = document.createElement('div');
-            evEl.className = `calendar-event`;
+        if (dayEvents.length > 0) {
+            const dotsContainer = document.createElement('div');
+            dotsContainer.className = 'calendar-day-dots';
             
-            let iconMarkup = "";
-            if (ev.type === 'holiday') {
-                evEl.classList.add('event-holiday');
-                iconMarkup = `<i data-lucide="flag" style="width:10px;height:10px;"></i>`;
-                evEl.title = `${ev.title} (Feriado)`;
-            } else if (ev.type === 'note') {
-                evEl.classList.add('event-note');
-                iconMarkup = `<i data-lucide="pencil" style="width:10px;height:10px;"></i>`;
-                evEl.title = `${ev.title}: ${ev.description}`;
-                evEl.addEventListener('click', (e) => {
-                    e.stopPropagation();
-                    openEditNoteModal(ev);
-                });
-            } else if (ev.type === 'planned_survey') {
-                const isDone = ev.status === 'DONE';
-                evEl.classList.add(isDone ? 'event-survey-done' : 'event-survey-pending');
-                iconMarkup = `<i data-lucide="${isDone ? 'check' : 'eye'}" style="width:10px;height:10px;"></i>`;
-                evEl.title = `Vistoria: ${ev.site_code} (${isDone ? 'Concluída' : 'Pendente'})`;
-                evEl.addEventListener('click', () => {
-                    window.location.href = ev.url;
-                });
-            } else if (ev.type === 'planned_report') {
-                const isDone = ev.status === 'DONE';
-                evEl.classList.add(isDone ? 'event-report-done' : 'event-report-pending');
-                iconMarkup = `<i data-lucide="${isDone ? 'check' : 'file-text'}" style="width:10px;height:10px;"></i>`;
-                evEl.title = `Laudo/Projeto: ${ev.site_code} (${isDone ? 'Concluído' : 'Pendente'})`;
-                evEl.addEventListener('click', () => {
-                    window.location.href = ev.url;
-                });
-            } else if (ev.type === 'planned_stage') {
-                const isDone = ev.status === 'DONE';
-                evEl.classList.add(isDone ? 'event-stage-done' : 'event-stage-pending');
-                iconMarkup = `<i data-lucide="${isDone ? 'check' : 'activity'}" style="width:10px;height:10px;"></i>`;
-                evEl.title = `${ev.stage_name}: ${ev.site_code} (${isDone ? 'Concluída' : 'Pendente'})`;
-                evEl.addEventListener('click', () => {
-                    window.location.href = ev.url;
-                });
-            }
+            const tooltipLines = [];
             
-            evEl.innerHTML = `${iconMarkup}<span>${ev.title}</span>`;
-            eventsContainer.appendChild(evEl);
-        });
+            dayEvents.forEach(ev => {
+                const dot = document.createElement('span');
+                dot.className = 'calendar-dot';
+                
+                if (ev.type === 'holiday') {
+                    dot.classList.add('dot-holiday');
+                    tooltipLines.push(`Feriado: ${ev.title}`);
+                } else if (ev.type === 'note') {
+                    dot.classList.add('dot-note');
+                    tooltipLines.push(`Anotação: ${ev.title}`);
+                } else if (ev.type === 'planned_survey') {
+                    const isDone = ev.status === 'DONE';
+                    dot.classList.add(isDone ? 'dot-survey-done' : 'dot-survey-pending');
+                    tooltipLines.push(`Vistoria: ${ev.site_code} (${isDone ? 'Concluída' : 'Pendente'})`);
+                } else if (ev.type === 'planned_report') {
+                    const isDone = ev.status === 'DONE';
+                    dot.classList.add(isDone ? 'dot-report-done' : 'dot-report-pending');
+                    tooltipLines.push(`Laudo/Projeto: ${ev.site_code} (${isDone ? 'Concluído' : 'Pendente'})`);
+                } else if (ev.type === 'planned_stage') {
+                    const isDone = ev.status === 'DONE';
+                    dot.classList.add(isDone ? 'dot-stage-done' : 'dot-stage-pending');
+                    tooltipLines.push(`${ev.stage_name}: ${ev.site_code} (${isDone ? 'Concluída' : 'Pendente'})`);
+                }
+                
+                dotsContainer.appendChild(dot);
+            });
+            
+            cell.appendChild(dotsContainer);
+            cell.title = tooltipLines.join('\n');
+        }
         
-        cell.appendChild(eventsContainer);
         return cell;
     }
 
@@ -749,6 +682,73 @@
         loadCalendar();
     }
 
+    // Listar outros eventos do dia no topo do modal para dar visibilidade e link
+    function populateModalEvents(dateStr) {
+        const modalEventsDiv = document.getElementById('modal-day-events');
+        if (!modalEventsDiv) return;
+        
+        modalEventsDiv.innerHTML = "";
+        const dayEvents = eventsData.filter(ev => ev.date === dateStr && ev.type !== 'note');
+        
+        if (dayEvents.length === 0) {
+            modalEventsDiv.style.display = 'none';
+            return;
+        }
+        
+        modalEventsDiv.style.display = 'block';
+        const header = document.createElement('h4');
+        header.style = "font-size: 0.85rem; font-weight: 700; color: var(--ent-primary); margin-bottom: 0.5rem;";
+        header.innerText = "Eventos / Prazos do Dia:";
+        modalEventsDiv.appendChild(header);
+        
+        const list = document.createElement('div');
+        list.style = "display: flex; flex-direction: column; gap: 0.5rem; margin-bottom: 1.25rem; padding: 0.75rem; background: #f8fafc; border: 1px solid var(--ent-border); border-radius: 8px;";
+        
+        dayEvents.forEach(ev => {
+            const item = document.createElement('div');
+            item.style = "display: flex; align-items: center; justify-content: space-between; font-size: 0.8rem; font-weight: 550;";
+            
+            let icon = "info";
+            let color = "var(--ent-text-muted)";
+            let statusText = "";
+            let linkHtml = "";
+            
+            if (ev.type === 'holiday') {
+                icon = "flag";
+                color = "#db2777";
+                statusText = "Feriado";
+            } else if (ev.type === 'planned_survey') {
+                icon = "eye";
+                color = "#2563eb";
+                statusText = ev.status === 'DONE' ? "Vistoria Concluída" : "Vistoria Pendente";
+                linkHtml = `<a href="${ev.url}" style="color: var(--ent-accent); text-decoration: none; font-weight: 600; display: inline-flex; align-items: center; gap: 0.2rem;">Ir para o Site <i data-lucide="external-link" style="width: 12px; height: 12px;"></i></a>`;
+            } else if (ev.type === 'planned_report') {
+                icon = "file-text";
+                color = "#d97706";
+                statusText = ev.status === 'DONE' ? "Laudo Concluído" : "Laudo Pendente";
+                linkHtml = `<a href="${ev.url}" style="color: var(--ent-accent); text-decoration: none; font-weight: 600; display: inline-flex; align-items: center; gap: 0.2rem;">Ir para o Site <i data-lucide="external-link" style="width: 12px; height: 12px;"></i></a>`;
+            } else if (ev.type === 'planned_stage') {
+                icon = "activity";
+                color = "#64748b";
+                statusText = ev.status === 'DONE' ? "Concluída" : "Pendente";
+                linkHtml = `<a href="${ev.url}" style="color: var(--ent-accent); text-decoration: none; font-weight: 600; display: inline-flex; align-items: center; gap: 0.2rem;">Ir para o Site <i data-lucide="external-link" style="width: 12px; height: 12px;"></i></a>`;
+            }
+            
+            item.innerHTML = `
+                <span style="display: flex; align-items: center; gap: 0.4rem; color: ${color};">
+                    <i data-lucide="${icon}" style="width: 14px; height: 14px;"></i>
+                    <span style="color: var(--ent-text-main); font-weight: 600;">${ev.title}</span>
+                    <span style="font-size: 0.72rem; color: var(--ent-text-muted);">(${statusText})</span>
+                </span>
+                ${linkHtml}
+            `;
+            list.appendChild(item);
+        });
+        
+        modalEventsDiv.appendChild(list);
+        lucide.createIcons();
+    }
+
     // MODAL DE ANOTAÇÕES
     function openAddNoteModal(dateStr) {
         document.getElementById('note-modal-title').innerText = `Nova Anotação (${formatDateStringBr(dateStr)})`;
@@ -757,6 +757,8 @@
         document.getElementById('note-title').value = "";
         document.getElementById('note-description').value = "";
         document.getElementById('btn-delete-note').style.display = 'none';
+        
+        populateModalEvents(dateStr);
         
         document.getElementById('note-modal').style.display = 'flex';
         lucide.createIcons();
@@ -769,6 +771,8 @@
         document.getElementById('note-title').value = ev.title;
         document.getElementById('note-description').value = ev.description;
         document.getElementById('btn-delete-note').style.display = 'inline-block';
+        
+        populateModalEvents(ev.date);
         
         document.getElementById('note-modal').style.display = 'flex';
         lucide.createIcons();
