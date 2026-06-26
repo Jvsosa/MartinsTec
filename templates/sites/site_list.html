@@ -980,10 +980,15 @@
                                 {% endif %}
                             </div>
                             
-                            <span class="status-badge badge-{{ site.status|lower }}">
-                                <span class="status-dot"></span>
-                                {{ site.get_status_display }}
-                            </span>
+                            <div style="display: flex; flex-direction: column; align-items: flex-end; gap: 0.2rem;">
+                                <span class="status-badge badge-{{ site.status|lower }}">
+                                    <span class="status-dot"></span>
+                                    {{ site.get_status_display }}
+                                </span>
+                                <span style="font-size: 0.68rem; font-weight: 600; color: var(--ent-text-muted);">
+                                    {{ site.current_stage_name }}
+                                </span>
+                            </div>
                         </div>
 
                         <!-- Título do Site e ID -->

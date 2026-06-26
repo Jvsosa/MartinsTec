@@ -190,6 +190,20 @@ class Site(models.Model):
     def is_planning_missing(self):
         return any(not m['is_completed'] and not m['planned_date'] for m in self.get_card_milestones())
 
+    @property
+    def current_stage_name(self):
+        stages = self.get_stages_config()
+        if not stages:
+            return "Finalizado"
+            
+        for name in stages:
+            status_info = self.stages_status.get(name, {}) if self.stages_status else {}
+            status = status_info.get('status', 'PENDING')
+            if status == 'PENDING':
+                return name
+                
+        return "Finalizado"
+
     def get_card_milestones(self):
         from django.utils import timezone
         from django.utils.dateparse import parse_date

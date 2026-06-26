@@ -923,6 +923,12 @@ class SiteCardMilestonesTests(TestCase):
         self.assertEqual(site.days_overdue, 2)  # max of (today - vistoria.planned_date) = 2, arq = 1
         self.assertEqual(site.overdue_stage, "Vistoria e ARQ")
         self.assertEqual(site.alert_stage, "QRF")
+        self.assertEqual(site.current_stage_name, "Acesso")
+
+        # If Acesso is DONE, next should be Vistoria
+        site.access_status = Site.AccessStatus.RELEASED
+        site.save()
+        self.assertEqual(site.current_stage_name, "Vistoria")
 
     def test_get_card_milestones_laudos(self):
         """Test card milestones and status checks for LAUDOS scope."""
@@ -947,6 +953,15 @@ class SiteCardMilestonesTests(TestCase):
         self.assertFalse(site.is_planning_missing)
         self.assertEqual(site.status, Site.SiteStatus.MAINTENANCE)  # because planned_survey_date is in 1 day (alert)
         self.assertEqual(site.alert_stage, "Vistoria")
+        self.assertEqual(site.current_stage_name, "Acionamento Parceiro")
+
+        # Mark all stages of LAUDOS as DONE
+        site.stages_status['Acionamento Parceiro'] = {'status': 'DONE'}
+        site.access_status = Site.AccessStatus.RELEASED
+        site.actual_survey_date = today
+        site.actual_report_date = today
+        site.save()
+        self.assertEqual(site.current_stage_name, "Finalizado")
 
 
 
