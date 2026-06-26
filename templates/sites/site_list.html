@@ -985,7 +985,30 @@
                                     <span class="status-dot"></span>
                                     {{ site.get_status_display }}
                                 </span>
-                                <span style="font-size: 0.68rem; font-weight: 600; color: var(--ent-text-muted);">
+                                <span style="
+                                    display: inline-flex;
+                                    align-items: center;
+                                    gap: 0.25rem;
+                                    font-size: 0.67rem;
+                                    font-weight: 700;
+                                    letter-spacing: 0.01em;
+                                    padding: 0.2rem 0.55rem;
+                                    border-radius: 20px;
+                                    {% if site.status == 'INACTIVE' %}
+                                        background: #fee2e2;
+                                        color: #b91c1c;
+                                    {% elif site.status == 'MAINTENANCE' %}
+                                        background: #fef3c7;
+                                        color: #92400e;
+                                    {% elif site.status == 'ACTIVE' %}
+                                        background: #d1fae5;
+                                        color: #065f46;
+                                    {% else %}
+                                        background: #ede9fe;
+                                        color: #5b21b6;
+                                    {% endif %}
+                                ">
+                                    <i data-lucide="git-branch" style="width: 10px; height: 10px; flex-shrink: 0;"></i>
                                     {{ site.current_stage_name }}
                                 </span>
                             </div>
