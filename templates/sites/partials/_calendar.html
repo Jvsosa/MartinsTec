@@ -112,7 +112,7 @@
     .calendar-grid-days {
         display: grid;
         grid-template-columns: repeat(7, 1fr);
-        grid-auto-rows: minmax(110px, auto);
+        grid-auto-rows: 110px;
         gap: 0.5rem;
     }
 
@@ -124,10 +124,11 @@
         display: flex;
         flex-direction: column;
         gap: 0.35rem;
-        min-height: 110px;
+        height: 110px;
         position: relative;
         transition: all 0.2s;
         cursor: pointer;
+        overflow: hidden;
     }
 
     .calendar-day-cell:hover {
