@@ -449,20 +449,7 @@
         border-color: #cbd5e1;
     }
 
-    /* Borda lateral esquerda indicando o status operacional */
-    .modern-site-card::before {
-        content: '';
-        position: absolute;
-        top: 0; left: 0; bottom: 0;
-        width: 5px;
-        background: var(--ent-border);
-        transition: background 0.3s;
-    }
 
-    .modern-site-card[data-status="ACTIVE"]::before { background: var(--ent-success); }
-    .modern-site-card[data-status="PLANNED"]::before { background: var(--ent-accent); }
-    .modern-site-card[data-status="MAINTENANCE"]::before { background: var(--ent-warning); }
-    .modern-site-card[data-status="INACTIVE"]::before { background: var(--ent-danger); }
 
     /* Barra de badges do topo */
     .site-card-top {
