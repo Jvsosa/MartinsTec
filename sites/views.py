@@ -98,12 +98,35 @@ def site_list(request):
 
         return redirect('site_list')
 
-    # Filtragem de busca simples
-    query = request.GET.get('q')
+    # Filtragem de busca simples e status
+    from django.db.models import Q
+    from django.core.paginator import Paginator
+
+    query = request.GET.get('q', '').strip()
+    status_filter = request.GET.get('status', 'ALL').strip()
+
+    sites_qs = Site.objects.all()
+
+    if status_filter and status_filter != 'ALL':
+        sites_qs = sites_qs.filter(status=status_filter)
+
     if query:
-        sites = Site.objects.filter(site_id__icontains=query) | Site.objects.filter(name__icontains=query)
-    else:
-        sites = Site.objects.all()
+        sites_qs = sites_qs.filter(
+            Q(site_id__icontains=query) |
+            Q(name__icontains=query) |
+            Q(operator__icontains=query)
+        )
+
+    # Paginação (24 sites por página)
+    paginator = Paginator(sites_qs, 24)
+    page_number = request.GET.get('page', 1)
+    page_obj = paginator.get_page(page_number)
+
+    # Se for requisição AJAX para scroll infinito, retorna apenas o bloco de cards
+    if request.GET.get('ajax') == '1':
+        return render(request, 'sites/partials/_site_cards.html', {'sites': page_obj})
+
+    sites = page_obj
 
     # Cálculo dos contadores (KPIs) para o topo do painel
     total_sites = Site.objects.count()
@@ -230,6 +253,7 @@ def site_list(request):
 
     context = {
         'sites': sites,
+        'sites_map': Site.objects.all(),
         'query': query,
         'total_sites': total_sites,
         'active_sites': active_sites,
