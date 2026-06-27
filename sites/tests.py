@@ -963,6 +963,66 @@ class SiteCardMilestonesTests(TestCase):
         site.save()
         self.assertEqual(site.current_stage_name, "Finalizado")
 
+    def test_get_merged_reschedule_history(self):
+        """Test merging legacy SiteRescheduleHistory records and dynamic JSON reschedules."""
+        from django.utils import timezone
+        import datetime
+        from .models import SiteRescheduleHistory
+        
+        today = timezone.localdate()
+        site = Site.objects.create(
+            site_id='SITE_MERGED_RESCHED',
+            name='Site Merged Reschedule Test',
+            scope_type='INSTALACAO',
+            planned_survey_date=today,
+            planned_report_date=None
+        )
+        
+        # 1. Create a legacy database reschedule record
+        legacy_hist = SiteRescheduleHistory.objects.create(
+            site=site,
+            previous_planned_survey_date=today - datetime.timedelta(days=1),
+            new_planned_survey_date=today,
+            reason='Motivo legado',
+            created_by=self.user
+        )
+        
+        # 2. Add a dynamic reschedule to stages_status JSON
+        site.stages_status = {
+            'QRF': {
+                'status': 'PENDING',
+                'planned_date': (today + datetime.timedelta(days=2)).isoformat(),
+                'reschedule_history': [{
+                    'previous_date': (today + datetime.timedelta(days=1)).isoformat(),
+                    'new_date': (today + datetime.timedelta(days=2)).isoformat(),
+                    'reason': 'Motivo dinamico',
+                    'by': 'eng_milestones',
+                    'created_at': timezone.now().isoformat()
+                }]
+            }
+        }
+        site.save()
+        
+        merged = site.get_merged_reschedule_history()
+        
+        self.assertEqual(len(merged), 2)
+        
+        # Checking that the legacy reschedule exists in merged history
+        legacy_entry = next(item for item in merged if item.get('reason') == 'Motivo legado')
+        self.assertEqual(legacy_entry['created_by_name'], self.user.get_full_name() or self.user.username)
+        self.assertEqual(len(legacy_entry['changes']), 1)
+        self.assertEqual(legacy_entry['changes'][0]['stage_name'], 'Vistoria')
+        self.assertEqual(legacy_entry['changes'][0]['previous_date'], today - datetime.timedelta(days=1))
+        self.assertEqual(legacy_entry['changes'][0]['new_date'], today)
+        
+        # Checking that the dynamic stage reschedule exists in merged history
+        dynamic_entry = next(item for item in merged if item.get('reason') == 'Motivo dinamico')
+        self.assertEqual(dynamic_entry['created_by_name'], 'eng_milestones')
+        self.assertEqual(len(dynamic_entry['changes']), 1)
+        self.assertEqual(dynamic_entry['changes'][0]['stage_name'], 'QRF')
+        self.assertEqual(dynamic_entry['changes'][0]['previous_date'], today + datetime.timedelta(days=1))
+        self.assertEqual(dynamic_entry['changes'][0]['new_date'], today + datetime.timedelta(days=2))
+
 
 
 

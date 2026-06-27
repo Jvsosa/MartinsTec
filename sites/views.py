@@ -459,12 +459,14 @@ def site_detail(request, pk):
             old_planned = existing.get('planned_date')
 
             # Registra no histórico interno do JSON
+            from django.utils import timezone
             history = existing.get('reschedule_history', [])
             history.append({
                 'previous_date': old_planned,
                 'new_date': new_planned_date_str,
                 'reason': reason,
                 'by': request.user.get_full_name() or request.user.username,
+                'created_at': timezone.now().isoformat(),
             })
             existing['planned_date'] = new_planned_date_str
             existing['reschedule_history'] = history

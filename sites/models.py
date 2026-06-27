@@ -204,6 +204,81 @@ class Site(models.Model):
                 
         return "Finalizado"
 
+    def get_merged_reschedule_history(self):
+        from django.utils import timezone
+        from django.utils.dateparse import parse_datetime, parse_date
+        import datetime
+
+        history_list = []
+
+        # 1. Obter do banco de dados (SiteRescheduleHistory)
+        for bh in self.reschedule_histories.all().select_related('created_by'):
+            changes = []
+            if bh.previous_planned_survey_date != bh.new_planned_survey_date:
+                changes.append({
+                    'stage_name': 'Vistoria',
+                    'previous_date': bh.previous_planned_survey_date,
+                    'new_date': bh.new_planned_survey_date,
+                })
+            if bh.previous_planned_report_date != bh.new_planned_report_date:
+                label = "Laudo" if self.scope_type == 'LAUDOS' else "Projeto"
+                changes.append({
+                    'stage_name': label,
+                    'previous_date': bh.previous_planned_report_date,
+                    'new_date': bh.new_planned_report_date,
+                })
+
+            history_list.append({
+                'created_at': bh.created_at,
+                'created_by_name': (bh.created_by.get_full_name() or bh.created_by.username) if bh.created_by else "Sistema",
+                'reason': bh.reason,
+                'changes': changes,
+            })
+
+        # 2. Obter do campo JSON stages_status para as demais etapas
+        if self.stages_status:
+            for name, info in self.stages_status.items():
+                if name in ['Vistoria', 'Laudo', 'Projeto']:
+                    # Vistoria/Laudo/Projeto são gerenciados via legacy fields/db model
+                    continue
+
+                r_history = info.get('reschedule_history', [])
+                for entry in r_history:
+                    prev_dt_str = entry.get('previous_date')
+                    new_dt_str = entry.get('new_date')
+                    prev_dt = parse_date(prev_dt_str) if prev_dt_str else None
+                    new_dt = parse_date(new_dt_str) if new_dt_str else None
+
+                    created_at_str = entry.get('created_at')
+                    if created_at_str:
+                        created_at = parse_datetime(created_at_str)
+                    else:
+                        created_at = self.updated_at or timezone.now()
+
+                    history_list.append({
+                        'created_at': created_at,
+                        'created_by_name': entry.get('by', 'Sistema'),
+                        'reason': entry.get('reason'),
+                        'changes': [{
+                            'stage_name': name,
+                            'previous_date': prev_dt,
+                            'new_date': new_dt,
+                        }]
+                    })
+
+        # Ordenar decrescentemente pela data de criação
+        now = timezone.now()
+        def get_sort_key(item):
+            dt = item['created_at']
+            if dt is None:
+                return now
+            if timezone.is_naive(dt):
+                return timezone.make_aware(dt)
+            return dt
+
+        history_list.sort(key=get_sort_key, reverse=True)
+        return history_list
+
     def get_card_milestones(self):
         from django.utils import timezone
         from django.utils.dateparse import parse_date

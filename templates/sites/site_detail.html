@@ -641,9 +641,10 @@
                 Histórico de Replanejamentos
             </h4>
             
-            {% if site.reschedule_histories.exists %}
+            {% with merged_history=site.get_merged_reschedule_history %}
+            {% if merged_history %}
                 <div style="display: flex; flex-direction: column; gap: 1rem; max-height: 400px; overflow-y: auto; padding-right: 0.25rem;">
-                    {% for history in site.reschedule_histories.all %}
+                    {% for history in merged_history %}
                         <div style="border-left: 3px solid #d97706; padding-left: 0.75rem; margin-left: 0.25rem; font-size: 0.8rem; position: relative; padding-bottom: 0.25rem;">
                             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.25rem;">
                                 <span style="font-weight: 700; color: #b45309;">Replanejamento #{{ forloop.revcounter }}</span>
@@ -651,22 +652,14 @@
                             </div>
                             
                             <div style="color: var(--text-main); margin-bottom: 0.35rem; line-height: 1.4;">
-                                {% if history.previous_planned_survey_date != history.new_planned_survey_date %}
+                                {% for change in history.changes %}
                                     <div style="display: flex; align-items: center; gap: 0.35rem; margin-bottom: 0.15rem;">
-                                        <span style="font-weight: 600; color: var(--text-secondary); width: 60px; font-size: 0.75rem;">Vistoria:</span>
-                                        <span style="text-decoration: line-through; color: #ef4444; background: #fef2f2; padding: 0.05rem 0.35rem; border-radius: 4px;">{{ history.previous_planned_survey_date|date:"d/m/Y"|default:"-" }}</span>
+                                        <span style="font-weight: 600; color: var(--text-secondary); width: 80px; font-size: 0.75rem;">{{ change.stage_name }}:</span>
+                                        <span style="text-decoration: line-through; color: #ef4444; background: #fef2f2; padding: 0.05rem 0.35rem; border-radius: 4px;">{{ change.previous_date|date:"d/m/Y"|default:"-" }}</span>
                                         <i data-lucide="chevrons-right" style="width: 14px; height: 14px; color: var(--text-muted);"></i>
-                                        <span style="color: #10b981; background: #ecfdf5; padding: 0.05rem 0.35rem; border-radius: 4px; font-weight: 600;">{{ history.new_planned_survey_date|date:"d/m/Y"|default:"-" }}</span>
+                                        <span style="color: #10b981; background: #ecfdf5; padding: 0.05rem 0.35rem; border-radius: 4px; font-weight: 600;">{{ change.new_date|date:"d/m/Y"|default:"-" }}</span>
                                     </div>
-                                {% endif %}
-                                {% if history.previous_planned_report_date != history.new_planned_report_date %}
-                                    <div style="display: flex; align-items: center; gap: 0.35rem;">
-                                        <span style="font-weight: 600; color: var(--text-secondary); width: 60px; font-size: 0.75rem;">Laudo:</span>
-                                        <span style="text-decoration: line-through; color: #ef4444; background: #fef2f2; padding: 0.05rem 0.35rem; border-radius: 4px;">{{ history.previous_planned_report_date|date:"d/m/Y"|default:"-" }}</span>
-                                        <i data-lucide="chevrons-right" style="width: 14px; height: 14px; color: var(--text-muted);"></i>
-                                        <span style="color: #10b981; background: #ecfdf5; padding: 0.05rem 0.35rem; border-radius: 4px; font-weight: 600;">{{ history.new_planned_report_date|date:"d/m/Y"|default:"-" }}</span>
-                                    </div>
-                                {% endif %}
+                                {% endfor %}
                             </div>
                             
                             {% if history.reason %}
@@ -675,9 +668,9 @@
                                 </div>
                             {% endif %}
                             
-                            {% if history.created_by %}
+                            {% if history.created_by_name %}
                                 <div style="font-size: 0.7rem; color: var(--text-muted); text-align: right; margin-top: 0.25rem;">
-                                    Por: <strong>{{ history.created_by.get_full_name|default:history.created_by.username }}</strong>
+                                    Por: <strong>{{ history.created_by_name }}</strong>
                                 </div>
                             {% endif %}
                         </div>
@@ -691,6 +684,7 @@
                     </p>
                 </div>
             {% endif %}
+            {% endwith %}
         </div>
     </div>
 
@@ -989,8 +983,8 @@
 
                                 <div style="display: flex; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 1rem;">
                                     <button type="button" onclick="toggleRescheduleForm()" class="btn-ent btn-ent-outline">
-                                        <i data-lucide="calendar-range" style="width: 14px; height: 14px;"></i>
-                                        Replanejar Datas (Contratos)
+                                        <i data-lucide="calendar-days" style="width: 14px; height: 14px;"></i>
+                                        Replanejar Vistoria
                                     </button>
                                     <form method="POST" action="{% url 'site_detail' pk=site.pk %}" style="display:inline;">
                                         {% csrf_token %}
@@ -1177,8 +1171,8 @@
                                 <div style="display: flex; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 1rem;">
                                     {% if user.role == 'ADMIN' or user.role == 'ENGINEER' %}
                                     <button type="button" onclick="toggleRescheduleReportForm()" class="btn-ent btn-ent-outline">
-                                        <i data-lucide="calendar-range" style="width: 14px; height: 14px;"></i>
-                                        Replanejar Laudo (Contratos)
+                                        <i data-lucide="calendar-days" style="width: 14px; height: 14px;"></i>
+                                        Replanejar {{ stage.name }}
                                     </button>
                                     <form method="POST" action="{% url 'site_detail' pk=site.pk %}" style="display:inline;">
                                         {% csrf_token %}
