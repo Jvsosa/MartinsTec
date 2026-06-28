@@ -341,7 +341,7 @@
             box-shadow: 6px 0 30px rgba(15, 23, 42, 0.03);
             display: flex;
             flex-direction: column;
-            padding: 2.2rem 1.5rem;
+            padding: 0;
             z-index: 1000;
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
@@ -349,8 +349,8 @@
         /* Sidebar colapsada via JS */
         .side-navbar.collapsed {
             width: var(--sidebar-collapsed);
-            padding: 2.2rem 0.75rem;
-            align-items: center;
+            padding: 0;
+            align-items: stretch;
         }
         .side-navbar.collapsed .brand-text-container,
         .side-navbar.collapsed .profile-info,
@@ -362,7 +362,6 @@
         .side-navbar.collapsed .nav-brand {
             justify-content: center;
             padding: 0;
-            margin-bottom: 2.5rem;
         }
         .side-navbar.collapsed .nav-links {
             align-items: center;
@@ -400,14 +399,44 @@
             width: calc(100% - var(--sidebar-collapsed));
         }
 
+        /* Sidebar Header and Body wrappers to align with topbar line */
+        .sidebar-header {
+            height: var(--topbar-height);
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            padding: 0 1.5rem;
+            width: 100%;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .side-navbar.collapsed .sidebar-header {
+            padding: 0;
+            justify-content: center;
+        }
+
+        .sidebar-body {
+            display: flex;
+            flex-direction: column;
+            flex-grow: 1;
+            padding: 1.5rem;
+            gap: 1.5rem;
+            overflow-y: auto;
+            width: 100%;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .side-navbar.collapsed .sidebar-body {
+            padding: 1.5rem 0.5rem;
+            align-items: center;
+        }
+
         /* Logo no topo da Sidebar */
         .nav-brand {
             display: flex;
             align-items: center;
             gap: 0.85rem;
             text-decoration: none;
-            margin-bottom: 2.5rem;
-            padding: 0 0.5rem;
         }
 
         .brand-icon {
@@ -636,8 +665,8 @@
         @media (max-width: 992px) {
             .side-navbar {
                 width: var(--sidebar-collapsed);
-                padding: 2.2rem 0.75rem;
-                align-items: center;
+                padding: 0;
+                align-items: stretch;
             }
             .brand-text-container, .profile-info, .nav-link-text, .nav-section-title, .status-indicator {
                 display: none;
@@ -645,7 +674,6 @@
             .nav-brand {
                 justify-content: center;
                 padding: 0;
-                margin-bottom: 2.5rem;
             }
             .nav-links {
                 align-items: center;
@@ -683,13 +711,21 @@
             .topbar-user-info {
                 display: none;
             }
+            .side-navbar .sidebar-header {
+                padding: 0;
+                justify-content: center;
+            }
+            .side-navbar .sidebar-body {
+                padding: 1.5rem 0.5rem;
+                align-items: center;
+            }
         }
 
         /* Mobile total */
         @media (max-width: 576px) {
             .side-navbar {
                 width: 70px;
-                padding: 1.5rem 0.5rem;
+                padding: 0;
             }
             .nav-link {
                 width: 42px;
@@ -888,52 +924,56 @@
     <!-- NAVEGAÇÃO LATERAL (SIDEBAR PREMIUM) -->
     <aside class="side-navbar">
         <!-- Topo: Logo MartinsTec -->
-        <a href="{% url 'site_list' %}" class="nav-brand">
-            <div class="brand-icon">
-                <i data-lucide="radio-tower" style="width: 22px; height: 22px;"></i>
+        <div class="sidebar-header">
+            <a href="{% url 'site_list' %}" class="nav-brand">
+                <div class="brand-icon">
+                    <i data-lucide="radio-tower" style="width: 22px; height: 22px;"></i>
+                </div>
+                <div class="brand-text-container">
+                    <span class="brand-text">MartinsTec</span>
+                    <span class="brand-subtext">Engenharia Telecom</span>
+                </div>
+            </a>
+        </div>
+
+        <div class="sidebar-body">
+            <!-- Categoria do Menu -->
+            <div class="nav-section-title">Menu Principal</div>
+
+            <!-- Centro: Links de Navegação -->
+            <nav class="nav-links">
+                <a href="{% url 'site_list' %}#dashboard" class="nav-link active" data-target="dashboard">
+                    <i data-lucide="layout-dashboard" style="width: 18px; height: 18px;"></i>
+                    <span class="nav-link-text">Dashboard</span>
+                </a>
+                <a href="{% url 'site_list' %}#analytics" class="nav-link" data-target="analytics">
+                    <i data-lucide="trending-up" style="width: 18px; height: 18px;"></i>
+                    <span class="nav-link-text">Desempenho</span>
+                </a>
+                <a href="{% url 'site_list' %}#sites" class="nav-link" data-target="sites">
+                    <i data-lucide="map-pin" style="width: 18px; height: 18px;"></i>
+                    <span class="nav-link-text">Sites</span>
+                </a>
+                <a href="{% url 'site_list' %}#planilha" class="nav-link" data-target="planilha">
+                    <i data-lucide="folder" style="width: 18px; height: 18px;"></i>
+                    <span class="nav-link-text">Arquivos</span>
+                </a>
+                <a href="{% url 'site_list' %}#prazos" class="nav-link" data-target="prazos">
+                    <i data-lucide="clock" style="width: 18px; height: 18px;"></i>
+                    <span class="nav-link-text">Relatórios</span>
+                </a>
+                <a href="{% url 'site_list' %}#calendario" class="nav-link" data-target="calendario">
+                    <i data-lucide="calendar" style="width: 18px; height: 18px;"></i>
+                    <span class="nav-link-text">Calendário</span>
+                </a>
+            </nav>
+
+            <!-- Base: Log-out -->
+            <div class="sidebar-footer" style="justify-content: center;">
+                <a href="{% url 'logout' %}" class="logout-btn" title="Sair">
+                    <i data-lucide="log-out" style="width: 18px; height: 18px;"></i>
+                </a>
             </div>
-            <div class="brand-text-container">
-                <span class="brand-text">MartinsTec</span>
-                <span class="brand-subtext">Engenharia Telecom</span>
-            </div>
-        </a>
-
-        <!-- Categoria do Menu -->
-        <div class="nav-section-title">Menu Principal</div>
-
-        <!-- Centro: Links de Navegação -->
-        <nav class="nav-links">
-            <a href="{% url 'site_list' %}#dashboard" class="nav-link active" data-target="dashboard">
-                <i data-lucide="layout-dashboard" style="width: 18px; height: 18px;"></i>
-                <span class="nav-link-text">Dashboard</span>
-            </a>
-            <a href="{% url 'site_list' %}#analytics" class="nav-link" data-target="analytics">
-                <i data-lucide="trending-up" style="width: 18px; height: 18px;"></i>
-                <span class="nav-link-text">Desempenho</span>
-            </a>
-            <a href="{% url 'site_list' %}#sites" class="nav-link" data-target="sites">
-                <i data-lucide="map-pin" style="width: 18px; height: 18px;"></i>
-                <span class="nav-link-text">Sites</span>
-            </a>
-            <a href="{% url 'site_list' %}#planilha" class="nav-link" data-target="planilha">
-                <i data-lucide="folder" style="width: 18px; height: 18px;"></i>
-                <span class="nav-link-text">Arquivos</span>
-            </a>
-            <a href="{% url 'site_list' %}#prazos" class="nav-link" data-target="prazos">
-                <i data-lucide="clock" style="width: 18px; height: 18px;"></i>
-                <span class="nav-link-text">Relatórios</span>
-            </a>
-            <a href="{% url 'site_list' %}#calendario" class="nav-link" data-target="calendario">
-                <i data-lucide="calendar" style="width: 18px; height: 18px;"></i>
-                <span class="nav-link-text">Calendário</span>
-            </a>
-        </nav>
-
-        <!-- Base: Log-out -->
-        <div class="sidebar-footer" style="justify-content: center;">
-            <a href="{% url 'logout' %}" class="logout-btn" title="Sair">
-                <i data-lucide="log-out" style="width: 18px; height: 18px;"></i>
-            </a>
         </div>
     </aside>
 
