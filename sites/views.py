@@ -230,7 +230,8 @@ def site_list(request):
                         partner_data[partner] = {
                             'total_sites': 0, 'finished_sites': 0,
                             'total_times': [], 'scopes': {},
-                            'survey_times': [], 'report_times': []
+                            'survey_times': [], 'report_times': [],
+                            'partner_times': []
                         }
                     if scope not in partner_data[partner]['scopes']:
                         partner_data[partner]['scopes'][scope] = {}
@@ -266,13 +267,24 @@ def site_list(request):
                 partner_data[partner] = {
                     'total_sites': 0, 'finished_sites': 0,
                     'total_times': [], 'scopes': {},
-                    'survey_times': [], 'report_times': []
+                    'survey_times': [], 'report_times': [],
+                    'partner_times': []
                 }
             partner_data[partner]['total_sites'] += 1
             if is_finished:
                 partner_data[partner]['finished_sites'] += 1
             if total_days is not None:
                 partner_data[partner]['total_times'].append(total_days)
+
+            # Calcula ciclo ativo do parceiro: Vistoria -> Conclusão (última etapa)
+            if last_actual:
+                survey_stage_obj = stage_objs.get('Vistoria')
+                survey_actual = survey_stage_obj.actual_date if survey_stage_obj else None
+                # Fallback para criação se não houver data de vistoria
+                start_date = survey_actual if survey_actual else creation_date
+                partner_cycle_days = max(0, (last_actual - start_date).days)
+                partner_data[partner]['partner_times'].append(partner_cycle_days)
+
             # Para compatibilidade com testes legados
             if s.actual_survey_date:
                 sd = (s.actual_survey_date - creation_date).days
@@ -341,11 +353,12 @@ def site_list(request):
         avg_total = round(sum(data['total_times']) / len(data['total_times']), 1) if data['total_times'] else None
         avg_survey = round(sum(data['survey_times']) / len(data['survey_times']), 1) if data['survey_times'] else None
         avg_report = round(sum(data['report_times']) / len(data['report_times']), 1) if data['report_times'] else None
-        # Performance badge
-        if avg_total is not None:
-            if avg_total <= 8:
+        avg_partner_time = round(sum(data['partner_times']) / len(data['partner_times']), 1) if data['partner_times'] else None
+        # Performance badge baseado no tempo ativo do parceiro
+        if avg_partner_time is not None:
+            if avg_partner_time <= 8:
                 perf_badge = 'fast'
-            elif avg_total <= 15:
+            elif avg_partner_time <= 15:
                 perf_badge = 'normal'
             else:
                 perf_badge = 'slow'
@@ -359,12 +372,13 @@ def site_list(request):
             'avg_total_days': avg_total,
             'avg_survey_days': avg_survey,
             'avg_report_days': avg_report,
+            'avg_partner_time': avg_partner_time,
             'perf_badge': perf_badge,
             'scopes': data['scopes'],
         })
 
-    # Ordena parceiros: mais rápido primeiro (sem dados por último)
-    partner_stats.sort(key=lambda x: (x['avg_total_days'] is None, x['avg_total_days'] or 999))
+    # Ordena parceiros: mais rápido no ciclo de entrega real primeiro
+    partner_stats.sort(key=lambda x: (x['avg_partner_time'] is None, x['avg_partner_time'] or 999))
 
     # KPIs globais
     all_total_times = []
@@ -379,7 +393,7 @@ def site_list(request):
         all_total_times.extend(scope_totals.get(scope, []))
 
     overall_avg_total = round(sum(all_total_times) / len(all_total_times), 1) if all_total_times else None
-    fastest_partner = partner_stats[0]['partner'] if partner_stats and partner_stats[0]['avg_total_days'] is not None else None
+    fastest_partner = partner_stats[0]['partner'] if partner_stats and partner_stats[0]['avg_partner_time'] is not None else None
     total_finished = sum(sc.get('finished', 0) for sc in scope_counts.values())
 
     # Serializa dados para gráficos JS
@@ -392,7 +406,7 @@ def site_list(request):
 
     partner_chart_data = {
         'labels': [p['partner'] for p in partner_stats],
-        'avg_total': [p['avg_total_days'] or 0 for p in partner_stats],
+        'avg_total': [p['avg_partner_time'] or 0 for p in partner_stats],
     }
 
 

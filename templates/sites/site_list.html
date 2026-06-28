@@ -1408,7 +1408,7 @@
                 <!-- Gráfico de Comparação de Parceiros -->
                 <div class="ent-card" style="padding: 1.5rem; border: none; box-shadow: var(--ent-shadow-sm); background: white;">
                     <h3 style="font-family: var(--font-heading); font-size: 1.1rem; font-weight: 700; color: var(--ent-primary); margin-bottom: 1.5rem;">
-                        Ciclo Total Médio de Rollout (Dias)
+                        Tempo Médio de Atendimento (Dias)
                     </h3>
                     <div style="height: 300px; position: relative;">
                         <canvas id="partnerComparisonChart"></canvas>
@@ -1428,7 +1428,7 @@
                                     <th>Posição</th>
                                     <th>Empresa Parceira</th>
                                     <th style="text-align: center;">Sites Finalizados</th>
-                                    <th style="text-align: right;">Ciclo Médio</th>
+                                    <th style="text-align: right;">Tempo de Atendimento</th>
                                     <th style="text-align: center;">Desempenho</th>
                                 </tr>
                             </thead>
@@ -1441,7 +1441,7 @@
                                     <td style="font-weight: 700; color: var(--ent-primary);">{{ stat.partner }}</td>
                                     <td style="text-align: center; font-weight: 600;">{{ stat.finished_sites }} / {{ stat.total_sites }}</td>
                                     <td style="text-align: right; font-weight: 700; color: var(--ent-accent);">
-                                        {% if stat.avg_total_days %}{{ stat.avg_total_days }} dias{% else %}--{% endif %}
+                                        {% if stat.avg_partner_time %}{{ stat.avg_partner_time }} dias{% else %}--{% endif %}
                                     </td>
                                     <td style="text-align: center;">
                                         {% if stat.perf_badge == 'fast' %}
