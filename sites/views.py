@@ -158,15 +158,13 @@ def site_list(request):
     scope_configs = Site.SCOPE_STAGES  # {'LAUDOS': [...], 'INSTALACAO': [...], ...}
 
     # Estruturas de dados para coleta
-    # scope_stage_times[scope][transition_label] = [dias, dias, ...]
     scope_stage_times = {}
-    # partner_data[partner] = {scope: {transition: [dias], ...}, total_sites, finished_sites, total_times}
     partner_data = {}
     detailed_lead_times = []
-    # scope_totals[scope] = [total_days, ...]  (ciclo completo)
     scope_totals = {}
-    # Contadores por escopo
     scope_counts = {}
+    all_m_days = []  # MartinsTec Acesso/Trâmites
+    all_p_days = []  # Parceiro Execução/Trabalho
 
     for s in all_sites:
         scope = s.scope_type
@@ -306,6 +304,38 @@ def site_list(request):
                 rd = (s.actual_report_date - s.actual_survey_date).days
                 partner_data[partner]['report_times'].append(max(0, rd))
 
+        # Calcula divisão de responsabilidades
+        # MartinsTec: da criação até liberação do Acesso (ou Vistoria para outros escopos)
+        survey_stage_obj = stage_objs.get('Vistoria')
+        survey_actual = survey_stage_obj.actual_date if survey_stage_obj else None
+        
+        if scope == 'LAUDOS':
+            acesso_stage_obj = stage_objs.get('Acesso')
+            acesso_actual = acesso_stage_obj.actual_date if acesso_stage_obj else None
+            if acesso_actual:
+                m_days = max(0, (acesso_actual - creation_date).days)
+            else:
+                m_days = max(0, (today - creation_date).days)
+        else:
+            if survey_actual:
+                m_days = max(0, (survey_actual - creation_date).days)
+            else:
+                m_days = max(0, (today - creation_date).days)
+        
+        all_m_days.append(m_days)
+
+        # Parceiro: do Acesso/Vistoria até a Conclusão (se finalizado)
+        p_days = None
+        if is_finished and last_actual:
+            if scope == 'LAUDOS':
+                acesso_stage_obj = stage_objs.get('Acesso')
+                acesso_actual = acesso_stage_obj.actual_date if acesso_stage_obj else None
+                start_p = acesso_actual if acesso_actual else (survey_actual if survey_actual else creation_date)
+            else:
+                start_p = survey_actual if survey_actual else creation_date
+            p_days = max(0, (last_actual - start_p).days)
+            all_p_days.append(p_days)
+
         # Registro detalhado para tabela site-a-site
         current_stage = 'Finalizado'
         if not is_finished:
@@ -330,6 +360,9 @@ def site_list(request):
             'is_finished': is_finished,
             'status': s.status,
             'get_status_display': s.get_status_display(),
+            'martinstec_days': m_days,
+            'partner_days': p_days,
+            'partner_display': f"{p_days} dias" if p_days is not None else ("Em andamento" if not is_finished else "--"),
         })
 
     # --- Agregar métricas por escopo ---
@@ -406,6 +439,8 @@ def site_list(request):
         all_total_times.extend(scope_totals.get(scope, []))
 
     overall_avg_total = round(sum(all_total_times) / len(all_total_times), 1) if all_total_times else None
+    overall_avg_martinstec = round(sum(all_m_days) / len(all_m_days), 1) if all_m_days else None
+    overall_avg_partner = round(sum(all_p_days) / len(all_p_days), 1) if all_p_days else None
     fastest_partner = partner_stats[0]['partner'] if partner_stats and partner_stats[0]['avg_partner_time'] is not None else None
     total_finished = sum(sc.get('finished', 0) for sc in scope_counts.values())
 
@@ -446,6 +481,8 @@ def site_list(request):
         'partner_stats': partner_stats,
         'detailed_lead_times': detailed_lead_times,
         'overall_avg_total': overall_avg_total,
+        'overall_avg_martinstec': overall_avg_martinstec,
+        'overall_avg_partner': overall_avg_partner,
         'slowest_stage_name': slowest_stage_name,
         'slowest_stage_avg': round(slowest_stage_avg, 1) if slowest_stage_avg else None,
         'fastest_partner': fastest_partner,
