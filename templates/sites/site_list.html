@@ -1313,72 +1313,97 @@
             {% for scope_key, scope_info in scope_analytics.items %}
             <div class="scope-analytics-section" id="scope-sec-{{ scope_key }}" style="display: {% if forloop.first %}block{% else %}none{% endif %};">
                 
-                <!-- Diagrama de Fluxo Visual de Leadtime -->
+                <!-- Diagrama de Fluxo Visual de Leadtime Redesenhado -->
                 <div class="ent-card" style="padding: 2rem; margin-bottom: 2rem; border: none; box-shadow: var(--ent-shadow-sm); background: white;">
                     <h3 style="font-family: var(--font-heading); font-size: 1.15rem; font-weight: 700; color: var(--ent-primary); margin-bottom: 1.5rem; display: flex; align-items: center; gap: 0.5rem;">
-                        <i data-lucide="git-commit" style="color: var(--ent-accent);"></i> Linha do Tempo e Distribuição de Responsabilidade (Dias Médios)
+                        <i data-lucide="split" style="color: var(--ent-accent);"></i> Divisão de Responsabilidade e Tempos Médios
                     </h3>
-                    
-                    <div style="display: flex; align-items: center; gap: 1rem; overflow-x: auto; padding: 1rem 0; width: 100%;">
-                        <!-- Início do Processo -->
-                        <div style="display: flex; flex-direction: column; align-items: center; min-width: 120px; text-align: center;">
-                            <div style="width: 48px; height: 48px; border-radius: 50%; background: #f1f5f9; display: flex; align-items: center; justify-content: center; font-weight: 700; color: #64748b; font-size: 0.8rem; border: 2px solid #cbd5e1;">
-                                Início
-                            </div>
-                            <span style="font-size: 0.75rem; font-weight: 600; margin-top: 0.5rem; color: var(--ent-text-muted);">Acionamento</span>
+
+                    <!-- Barra de Proporção Visual -->
+                    <div style="margin-bottom: 2rem; background: #f8fafc; padding: 1.25rem; border-radius: 12px; border: 1px solid var(--ent-border);">
+                        <div style="display: flex; justify-content: space-between; font-size: 0.85rem; font-weight: 700; color: var(--ent-primary); margin-bottom: 0.75rem;">
+                            <span>Proporção do Ciclo de Atendimento</span>
+                            <span style="color: var(--ent-accent);">Prazo Médio Geral: {{ scope_info.avg_total|default:"--" }} dias</span>
+                        </div>
+                        
+                        <div style="display: flex; height: 16px; border-radius: 8px; overflow: hidden; background: #e2e8f0; margin-bottom: 0.5rem;">
+                            <div style="width: {{ scope_info.pct_martinstec }}%; background: #2563eb; transition: width 0.5s;" title="MartinsTec: {{ scope_info.avg_martinstec }}d"></div>
+                            <div style="width: {{ scope_info.pct_partner }}%; background: #059669; transition: width 0.5s;" title="Fornecedor: {{ scope_info.avg_partner }}d"></div>
                         </div>
 
-                        {% for stage in scope_info.stages %}
-                        <!-- Seta indicando transição com Leadtime -->
-                        <div style="display: flex; flex-direction: column; align-items: center; min-width: 140px; justify-content: center; position: relative;">
-                            <span style="font-family: var(--font-heading); font-size: 0.95rem; font-weight: 800; padding: 0.2rem 0.6rem; border-radius: 20px; background: {% if stage.avg_days > 15 %}#fef2f2; color: var(--ent-danger); border: 1px solid #fee2e2;{% elif stage.avg_days > 8 %}#fffbeb; color: #d97706; border: 1px solid #fef3c7;{% else %}#f0fdf4; color: var(--ent-success); border: 1px solid #dcfce7;{% endif %}">
-                                +{{ stage.avg_days }}d
+                        <div style="display: flex; justify-content: space-between; font-size: 0.75rem; font-weight: 600;">
+                            <span style="display: flex; align-items: center; gap: 0.35rem; color: #2563eb;">
+                                <span style="width: 8px; height: 8px; background: #2563eb; border-radius: 50%; display: inline-block;"></span>
+                                🏢 MartinsTec (Acesso): {{ scope_info.avg_martinstec }} dias ({{ scope_info.pct_martinstec }}%)
                             </span>
-                            <!-- Seta horizontal visual -->
-                            <div style="width: 100%; height: 2px; background: #cbd5e1; margin-top: 0.5rem; position: relative;">
-                                <div style="position: absolute; right: 0; top: -4px; width: 0; height: 0; border-top: 5px solid transparent; border-bottom: 5px solid transparent; border-left: 7px solid #cbd5e1;"></div>
+                            <span style="display: flex; align-items: center; gap: 0.35rem; color: #059669;">
+                                <span style="width: 8px; height: 8px; background: #059669; border-radius: 50%; display: inline-block;"></span>
+                                🤝 Fornecedor (Execução): {{ scope_info.avg_partner }} dias ({{ scope_info.pct_partner }}%)
+                            </span>
+                        </div>
+                    </div>
+
+                    <!-- Duas Colunas Verticais Claras -->
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
+                        
+                        <!-- Coluna MartinsTec -->
+                        <div style="background: #f8fafc; border-radius: 12px; padding: 1.25rem; border: 1px solid var(--ent-border); border-top: 4px solid #2563eb;">
+                            <h4 style="font-family: var(--font-heading); font-size: 0.95rem; font-weight: 700; color: #1e3a8a; margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem;">
+                                🏢 Etapas sob Gestão MartinsTec
+                            </h4>
+                            <div style="display: flex; flex-direction: column; gap: 0.75rem;">
+                                {% for stage in scope_info.stages %}
+                                    {% if scope_key == 'LAUDOS' and stage.stage_name == 'Acionamento Parceiro' or stage.stage_name == 'Acesso' or not scope_key == 'LAUDOS' and stage.stage_name == 'Acesso' %}
+                                    <div style="background: white; border: 1px solid var(--ent-border); border-radius: 8px; padding: 0.85rem; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 1px 3px rgba(0,0,0,0.02);">
+                                        <div>
+                                            <div style="font-weight: 700; color: var(--ent-primary); font-size: 0.82rem;">{{ stage.label }}</div>
+                                            <span style="font-size: 0.7rem; color: var(--ent-text-muted);">
+                                                {% if stage.stage_name == 'Acesso' %}
+                                                    Liberação de chaves e autorizações físicas
+                                                {% else %}
+                                                    Trâmites internos de abertura de ordem
+                                                {% endif %}
+                                            </span>
+                                        </div>
+                                        <span style="font-family: var(--font-heading); font-size: 1.05rem; font-weight: 800; color: #2563eb; background: #eff6ff; padding: 0.25rem 0.5rem; border-radius: 6px; white-space: nowrap;">
+                                            +{{ stage.avg_days }} dias
+                                        </span>
+                                    </div>
+                                    {% endif %}
+                                {% endfor %}
                             </div>
-                            <span style="font-size: 0.65rem; color: var(--ent-text-muted); margin-top: 0.25rem;">{{ stage.prev_name }}</span>
                         </div>
 
-                        <!-- Card da Etapa -->
-                        <div style="display: flex; flex-direction: column; align-items: center; min-width: 160px; text-align: center; background: #f8fafc; border: 1px solid var(--ent-border); border-radius: 12px; padding: 0.75rem; box-shadow: 0 1px 3px rgba(0,0,0,0.05); position: relative;">
-                            <!-- Tag de Dono da Etapa -->
-                            <span style="font-size: 0.6rem; font-weight: 700; text-transform: uppercase; padding: 0.15rem 0.4rem; border-radius: 4px; margin-bottom: 0.5rem;
-                                  {% if scope_key == 'LAUDOS' and stage.stage_name == 'Acesso' or not scope_key == 'LAUDOS' and forloop.first %}
-                                  background: #eff6ff; color: #1e40af; border: 1px solid #dbeafe;
-                                  {% else %}
-                                  background: #ecfdf5; color: #047857; border: 1px solid #a7f3d0;
-                                  {% endif %}">
-                                  {% if scope_key == 'LAUDOS' and stage.stage_name == 'Acesso' or not scope_key == 'LAUDOS' and forloop.first %}
-                                  🏢 MartinsTec
-                                  {% else %}
-                                  🤝 Fornecedor
-                                  {% endif %}
-                            </span>
-                            
-                            <div style="width: 28px; height: 28px; border-radius: 50%; background: var(--ent-accent); color: white; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.8rem; margin-bottom: 0.35rem;">
-                                {{ forloop.counter }}
+                        <!-- Coluna Fornecedor -->
+                        <div style="background: #f8fafc; border-radius: 12px; padding: 1.25rem; border: 1px solid var(--ent-border); border-top: 4px solid #059669;">
+                            <h4 style="font-family: var(--font-heading); font-size: 0.95rem; font-weight: 700; color: #065f46; margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem;">
+                                🤝 Etapas sob Execução do Fornecedor
+                            </h4>
+                            <div style="display: flex; flex-direction: column; gap: 0.75rem;">
+                                {% for stage in scope_info.stages %}
+                                    {% if scope_key == 'LAUDOS' and stage.stage_name == 'Vistoria' or stage.stage_name == 'Laudo' or not scope_key == 'LAUDOS' and stage.stage_name != 'Acesso' %}
+                                    <div style="background: white; border: 1px solid var(--ent-border); border-radius: 8px; padding: 0.85rem; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 1px 3px rgba(0,0,0,0.02);">
+                                        <div>
+                                            <div style="font-weight: 700; color: var(--ent-primary); font-size: 0.82rem;">{{ stage.label }}</div>
+                                            <span style="font-size: 0.7rem; color: var(--ent-text-muted);">
+                                                {% if stage.stage_name == 'Vistoria' %}
+                                                    Deslocamento e vistoria em campo
+                                                {% elif stage.stage_name == 'Laudo' or stage.stage_name == 'Projeto' %}
+                                                    Elaboração e entrega técnica final
+                                                {% else %}
+                                                    Trabalho e execução em andamento
+                                                {% endif %}
+                                            </span>
+                                        </div>
+                                        <span style="font-family: var(--font-heading); font-size: 1.05rem; font-weight: 800; color: #059669; background: #ecfdf5; padding: 0.25rem 0.5rem; border-radius: 6px; white-space: nowrap;">
+                                            +{{ stage.avg_days }} dias
+                                        </span>
+                                    </div>
+                                    {% endif %}
+                                {% endfor %}
                             </div>
-                            <span style="font-size: 0.8rem; font-weight: 700; color: var(--ent-primary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 140px;">
-                                {{ stage.stage_name }}
-                            </span>
-                            <span style="font-size: 0.65rem; color: var(--ent-text-muted);">{{ stage.count }} sites</span>
                         </div>
-                        {% endfor %}
 
-                        <!-- Fim do Processo -->
-                        <div style="display: flex; flex-direction: column; align-items: center; min-width: 120px; justify-content: center; position: relative;">
-                            <div style="width: 100%; height: 2px; background: #cbd5e1; position: relative; margin-bottom: 1.5rem;">
-                                <div style="position: absolute; right: 0; top: -4px; width: 0; height: 0; border-top: 5px solid transparent; border-bottom: 5px solid transparent; border-left: 7px solid #cbd5e1;"></div>
-                            </div>
-                        </div>
-                        <div style="display: flex; flex-direction: column; align-items: center; min-width: 120px; text-align: center;">
-                            <div style="width: 48px; height: 48px; border-radius: 50%; background: #ecfdf5; display: flex; align-items: center; justify-content: center; font-weight: 700; color: var(--ent-success); font-size: 0.8rem; border: 2px solid #a7f3d0;">
-                                <i data-lucide="check" style="width: 20px; height: 20px;"></i>
-                            </div>
-                            <span style="font-size: 0.75rem; font-weight: 600; margin-top: 0.5rem; color: var(--ent-text-muted);">Conclusão</span>
-                        </div>
                     </div>
                 </div>
 

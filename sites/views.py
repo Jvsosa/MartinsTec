@@ -370,6 +370,8 @@ def site_list(request):
     for scope, transitions in scope_stage_times.items():
         scope_display = dict(Site.ScopeType.choices).get(scope, scope)
         stages_list = []
+        avg_martinstec = 0
+        avg_partner = 0
         for label, times in transitions.items():
             avg = round(sum(times) / len(times), 1) if times else 0
             parts = label.split(" → ")
@@ -384,11 +386,38 @@ def site_list(request):
                 'max_days': max(times) if times else 0,
                 'count': len(times),
             })
+            
+            # Divide a média da transição entre MartinsTec e Parceiro
+            if scope == 'LAUDOS':
+                if stage_name in ['Acionamento Parceiro', 'Acesso']:
+                    avg_martinstec += avg
+                else:
+                    avg_partner += avg
+            else:
+                if stage_name == 'Acesso':
+                    avg_martinstec += avg
+                else:
+                    avg_partner += avg
+
         avg_total = round(sum(scope_totals[scope]) / len(scope_totals[scope]), 1) if scope_totals[scope] else None
+        
+        # Calcula porcentagens para barra visual
+        total_sum = avg_martinstec + avg_partner
+        if total_sum > 0:
+            pct_martinstec = int(round((avg_martinstec / total_sum) * 100))
+            pct_partner = 100 - pct_martinstec
+        else:
+            pct_martinstec = 50
+            pct_partner = 50
+
         scope_analytics[scope] = {
             'display': scope_display,
             'stages': stages_list,
             'avg_total': avg_total,
+            'avg_martinstec': round(avg_martinstec, 1),
+            'avg_partner': round(avg_partner, 1),
+            'pct_martinstec': pct_martinstec,
+            'pct_partner': pct_partner,
             'total_sites': scope_counts.get(scope, {}).get('total', 0),
             'finished_sites': scope_counts.get(scope, {}).get('finished', 0),
         }
