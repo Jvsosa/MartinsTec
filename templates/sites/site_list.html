@@ -1333,12 +1333,12 @@
 
                         <div style="display: flex; justify-content: space-between; font-size: 0.75rem; font-weight: 600;">
                             <span style="display: flex; align-items: center; gap: 0.35rem; color: #2563eb;">
-                                <span style="width: 8px; height: 8px; background: #2563eb; border-radius: 50%; display: inline-block;"></span>
-                                🏢 MartinsTec (Acesso): {{ scope_info.avg_martinstec }} dias ({{ scope_info.pct_martinstec }}%)
+                                <i data-lucide="building-2" style="width: 14px; height: 14px; color: #2563eb;"></i>
+                                MartinsTec (Acesso): {{ scope_info.avg_martinstec }} dias ({{ scope_info.pct_martinstec }}%)
                             </span>
                             <span style="display: flex; align-items: center; gap: 0.35rem; color: #059669;">
-                                <span style="width: 8px; height: 8px; background: #059669; border-radius: 50%; display: inline-block;"></span>
-                                🤝 Fornecedor (Execução): {{ scope_info.avg_partner }} dias ({{ scope_info.pct_partner }}%)
+                                <i data-lucide="users" style="width: 14px; height: 14px; color: #059669;"></i>
+                                Fornecedor (Execução): {{ scope_info.avg_partner }} dias ({{ scope_info.pct_partner }}%)
                             </span>
                         </div>
                     </div>
@@ -1349,7 +1349,7 @@
                         <!-- Coluna MartinsTec -->
                         <div style="background: #f8fafc; border-radius: 12px; padding: 1.25rem; border: 1px solid var(--ent-border); border-top: 4px solid #2563eb;">
                             <h4 style="font-family: var(--font-heading); font-size: 0.95rem; font-weight: 700; color: #1e3a8a; margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem;">
-                                🏢 Etapas sob Gestão MartinsTec
+                                <i data-lucide="building-2" style="width: 16px; height: 16px; color: #2563eb;"></i> Etapas sob Gestão MartinsTec
                             </h4>
                             <div style="display: flex; flex-direction: column; gap: 0.75rem;">
                                 {% for stage in scope_info.stages %}
@@ -1377,7 +1377,7 @@
                         <!-- Coluna Fornecedor -->
                         <div style="background: #f8fafc; border-radius: 12px; padding: 1.25rem; border: 1px solid var(--ent-border); border-top: 4px solid #059669;">
                             <h4 style="font-family: var(--font-heading); font-size: 0.95rem; font-weight: 700; color: #065f46; margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem;">
-                                🤝 Etapas sob Execução do Fornecedor
+                                <i data-lucide="users" style="width: 16px; height: 16px; color: #059669;"></i> Etapas sob Execução do Fornecedor
                             </h4>
                             <div style="display: flex; flex-direction: column; gap: 0.75rem;">
                                 {% for stage in scope_info.stages %}
@@ -1490,7 +1490,15 @@
                                 {% for stat in partner_stats %}
                                 <tr>
                                     <td style="font-weight: 800; color: var(--ent-text-muted); font-size: 1.05rem;">
-                                        {% if forloop.counter == 1 %}🥇{% elif forloop.counter == 2 %}🥈{% elif forloop.counter == 3 %}🥉{% else %}{{ forloop.counter }}{% endif %}
+                                        {% if forloop.counter == 1 %}
+                                        <span style="display: inline-flex; align-items: center; justify-content: center; width: 22px; height: 22px; border-radius: 50%; background: #fef08a; color: #854d0e; font-size: 0.72rem; font-weight: 800; border: 1px solid #fde047;" title="1º Lugar"><i data-lucide="trophy" style="width: 12px; height: 12px;"></i></span>
+                                        {% elif forloop.counter == 2 %}
+                                        <span style="display: inline-flex; align-items: center; justify-content: center; width: 22px; height: 22px; border-radius: 50%; background: #e2e8f0; color: #475569; font-size: 0.72rem; font-weight: 800; border: 1px solid #cbd5e1;" title="2º Lugar">2</span>
+                                        {% elif forloop.counter == 3 %}
+                                        <span style="display: inline-flex; align-items: center; justify-content: center; width: 22px; height: 22px; border-radius: 50%; background: #ffedd5; color: #9a3412; font-size: 0.72rem; font-weight: 800; border: 1px solid #fed7aa;" title="3º Lugar">3</span>
+                                        {% else %}
+                                        <span style="display: inline-flex; align-items: center; justify-content: center; width: 22px; height: 22px; border-radius: 50%; background: #f1f5f9; color: #64748b; font-size: 0.72rem; font-weight: 700;">{{ forloop.counter }}</span>
+                                        {% endif %}
                                     </td>
                                     <td style="font-weight: 700; color: var(--ent-primary);">{{ stat.partner }}</td>
                                     <td style="text-align: center; font-weight: 600;">{{ stat.finished_sites }} / {{ stat.total_sites }}</td>
@@ -1550,8 +1558,16 @@
                                 <th>Nome do Site</th>
                                 <th>Escopo</th>
                                 <th>Empresa Parceira</th>
-                                <th style="text-align: right;">🏢 MartinsTec (Acesso)</th>
-                                <th style="text-align: right;">🤝 Parceiro (Trabalho)</th>
+                                <th style="text-align: right;">
+                                    <span style="display: inline-flex; align-items: center; gap: 0.35rem; justify-content: flex-end; width: 100%;">
+                                        <i data-lucide="building-2" style="width: 14px; height: 14px; color: #2563eb;"></i> MartinsTec (Acesso)
+                                    </span>
+                                </th>
+                                <th style="text-align: right;">
+                                    <span style="display: inline-flex; align-items: center; gap: 0.35rem; justify-content: flex-end; width: 100%;">
+                                        <i data-lucide="users" style="width: 14px; height: 14px; color: #059669;"></i> Parceiro (Trabalho)
+                                    </span>
+                                </th>
                                 <th style="text-align: right;">Ciclo Total</th>
                                 <th style="text-align: center;">Status</th>
                                 <th style="text-align: center;">Transições</th>
