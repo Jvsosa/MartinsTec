@@ -232,10 +232,13 @@ def site_list(request):
                             'partner_times': []
                         }
                     if scope not in partner_data[partner]['scopes']:
-                        partner_data[partner]['scopes'][scope] = {}
-                    if transition_label not in partner_data[partner]['scopes'][scope]:
-                        partner_data[partner]['scopes'][scope][transition_label] = []
-                    partner_data[partner]['scopes'][scope][transition_label].append(days)
+                        partner_data[partner]['scopes'][scope] = {
+                            'total_sites': 0, 'finished_sites': 0,
+                            'partner_times': [], 'transitions': {}
+                        }
+                    if transition_label not in partner_data[partner]['scopes'][scope]['transitions']:
+                        partner_data[partner]['scopes'][scope]['transitions'][transition_label] = []
+                    partner_data[partner]['scopes'][scope]['transitions'][transition_label].append(days)
 
             site_transitions.append({
                 'from': prev_name,
@@ -268,9 +271,17 @@ def site_list(request):
                     'survey_times': [], 'report_times': [],
                     'partner_times': []
                 }
+            if scope not in partner_data[partner]['scopes']:
+                partner_data[partner]['scopes'][scope] = {
+                    'total_sites': 0, 'finished_sites': 0,
+                    'partner_times': [], 'transitions': {}
+                }
+            
             partner_data[partner]['total_sites'] += 1
+            partner_data[partner]['scopes'][scope]['total_sites'] += 1
             if is_finished:
                 partner_data[partner]['finished_sites'] += 1
+                partner_data[partner]['scopes'][scope]['finished_sites'] += 1
             if total_days is not None:
                 partner_data[partner]['total_times'].append(total_days)
 
@@ -295,6 +306,7 @@ def site_list(request):
                 
                 partner_cycle_days = max(0, (last_actual - start_date).days)
                 partner_data[partner]['partner_times'].append(partner_cycle_days)
+                partner_data[partner]['scopes'][scope]['partner_times'].append(partner_cycle_days)
 
             # Para compatibilidade com testes legados
             if s.actual_survey_date:
@@ -452,8 +464,48 @@ def site_list(request):
             'scopes': data['scopes'],
         })
 
-    # Ordena parceiros: mais rápido no ciclo de entrega real primeiro
+    # Ordena parceiros globalmente
     partner_stats.sort(key=lambda x: (x['avg_partner_time'] is None, x['avg_partner_time'] or 999))
+
+    # --- Agregar rankings de parceiros por escopo ---
+    scope_partner_rankings = {}
+    for scope_key in scope_configs.keys():
+        scope_partner_rankings[scope_key] = []
+
+    for partner, data in partner_data.items():
+        for scope_key, scope_info in data['scopes'].items():
+            p_times = scope_info['partner_times']
+            avg_partner_time = round(sum(p_times) / len(p_times), 1) if p_times else None
+            
+            # Definir a velocidade do parceiro dependendo do escopo
+            perf_badge = 'normal'
+            if avg_partner_time is not None:
+                if scope_key == 'LAUDOS':
+                    if avg_partner_time <= 8: perf_badge = 'fast'
+                    elif avg_partner_time > 15: perf_badge = 'slow'
+                elif scope_key == 'INSTALACAO':
+                    if avg_partner_time <= 30: perf_badge = 'fast'
+                    elif avg_partner_time > 60: perf_badge = 'slow'
+                elif scope_key == 'INFRA':
+                    if avg_partner_time <= 25: perf_badge = 'fast'
+                    elif avg_partner_time > 50: perf_badge = 'slow'
+                else: # FABRICA
+                    if avg_partner_time <= 15: perf_badge = 'fast'
+                    elif avg_partner_time > 30: perf_badge = 'slow'
+            else:
+                perf_badge = 'none'
+
+            scope_partner_rankings[scope_key].append({
+                'partner': partner,
+                'total_sites': scope_info['total_sites'],
+                'finished_sites': scope_info['finished_sites'],
+                'avg_partner_time': avg_partner_time,
+                'perf_badge': perf_badge,
+            })
+
+    # Ordenar cada ranking por escopo
+    for scope_key in scope_partner_rankings.keys():
+        scope_partner_rankings[scope_key].sort(key=lambda x: (x['avg_partner_time'] is None, x['avg_partner_time'] or 999999))
 
     # KPIs globais
     all_total_times = []
@@ -481,12 +533,14 @@ def site_list(request):
             'avg_days': [s['avg_days'] for s in info['stages']],
         }
 
-    partner_chart_data = {
-        'labels': [p['partner'] for p in partner_stats],
-        'avg_total': [p['avg_partner_time'] or 0 for p in partner_stats],
-    }
-
-
+    # Gráfico de comparação de parceiros agrupado por escopo
+    scope_partner_chart_data = {}
+    for scope_key in scope_configs.keys():
+        rankings = scope_partner_rankings.get(scope_key, [])
+        scope_partner_chart_data[scope_key] = {
+            'labels': [p['partner'] for p in rankings],
+            'avg_total': [p['avg_partner_time'] or 0 for p in rankings],
+        }
 
     context = {
         'sites': sites,
@@ -508,6 +562,7 @@ def site_list(request):
         # Analytics / Leadtime
         'scope_analytics': scope_analytics,
         'partner_stats': partner_stats,
+        'scope_partner_rankings': scope_partner_rankings,
         'detailed_lead_times': detailed_lead_times,
         'overall_avg_total': overall_avg_total,
         'overall_avg_martinstec': overall_avg_martinstec,
@@ -517,7 +572,7 @@ def site_list(request):
         'fastest_partner': fastest_partner,
         'total_finished': total_finished,
         'scope_chart_data_json': _json.dumps(scope_chart_data),
-        'partner_chart_data_json': _json.dumps(partner_chart_data),
+        'scope_partner_chart_data_json': _json.dumps(scope_partner_chart_data),
     }
 
     return render(request, 'sites/site_list.html', context)

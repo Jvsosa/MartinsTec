@@ -1442,6 +1442,15 @@
 
         <!-- ==================== ABA 2: RANKING DE PARCEIROS ==================== -->
         <div id="analytics-tab-partner" style="display: none;">
+            <!-- Seletor de Sub-Abas de Escopo para o Ranking -->
+            <div style="display: flex; gap: 0.5rem; margin-bottom: 1.5rem; background: #f1f5f9; padding: 0.35rem; border-radius: 10px; width: fit-content;">
+                {% for scope_key, scope_info in scope_analytics.items %}
+                <button class="filter-pill {% if forloop.first %}active{% endif %}" id="btn-partner-scope-pill-{{ scope_key }}" onclick="switchPartnerScope('{{ scope_key }}')" style="border-radius: 7px; border: none; box-shadow: none; font-size: 0.85rem; padding: 0.45rem 1rem;">
+                    {{ scope_info.display }}
+                </button>
+                {% endfor %}
+            </div>
+
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-bottom: 2rem;">
                 
                 <!-- Gráfico de Comparação de Parceiros -->
@@ -1454,59 +1463,70 @@
                     </div>
                 </div>
 
-                <!-- Tabela de Rankings -->
-                <div class="ent-card" style="padding: 0; border: none; box-shadow: var(--ent-shadow-sm); background: white;">
+                <!-- Tabelas de Rankings Separadas por Escopo -->
+                <div class="ent-card" style="padding: 0; border: none; box-shadow: var(--ent-shadow-sm); background: white; display: flex; flex-direction: column;">
                     <div style="padding: 1.5rem 1.5rem 1rem 1.5rem; border-bottom: 1px solid var(--ent-border);">
                         <h3 style="font-family: var(--font-heading); font-size: 1.1rem; font-weight: 700; color: var(--ent-primary);">Ranking de Velocidade</h3>
                         <p style="font-size: 0.75rem; color: var(--ent-text-muted);">Classificação de parceiros pelo tempo de atendimento em projetos concluídos.</p>
                     </div>
-                    <div class="ent-table-wrapper">
-                        <table class="ent-table">
-                            <thead>
-                                <tr>
-                                    <th>Posição</th>
-                                    <th>Empresa Parceira</th>
-                                    <th style="text-align: center;">Sites Finalizados</th>
-                                    <th style="text-align: right;">Tempo de Atendimento</th>
-                                    <th style="text-align: center;">Desempenho</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {% for stat in partner_stats %}
-                                <tr>
-                                    <td style="font-weight: 800; color: var(--ent-text-muted); font-size: 1.05rem;">
-                                        {% if forloop.counter == 1 %}
-                                        <span style="display: inline-flex; align-items: center; justify-content: center; width: 22px; height: 22px; border-radius: 50%; background: #fef08a; color: #854d0e; font-size: 0.72rem; font-weight: 800; border: 1px solid #fde047;" title="1º Lugar"><i data-lucide="trophy" style="width: 12px; height: 12px;"></i></span>
-                                        {% elif forloop.counter == 2 %}
-                                        <span style="display: inline-flex; align-items: center; justify-content: center; width: 22px; height: 22px; border-radius: 50%; background: #e2e8f0; color: #475569; font-size: 0.72rem; font-weight: 800; border: 1px solid #cbd5e1;" title="2º Lugar">2</span>
-                                        {% elif forloop.counter == 3 %}
-                                        <span style="display: inline-flex; align-items: center; justify-content: center; width: 22px; height: 22px; border-radius: 50%; background: #ffedd5; color: #9a3412; font-size: 0.72rem; font-weight: 800; border: 1px solid #fed7aa;" title="3º Lugar">3</span>
-                                        {% else %}
-                                        <span style="display: inline-flex; align-items: center; justify-content: center; width: 22px; height: 22px; border-radius: 50%; background: #f1f5f9; color: #64748b; font-size: 0.72rem; font-weight: 700;">{{ forloop.counter }}</span>
-                                        {% endif %}
-                                    </td>
-                                    <td style="font-weight: 700; color: var(--ent-primary);">{{ stat.partner }}</td>
-                                    <td style="text-align: center; font-weight: 600;">{{ stat.finished_sites }} / {{ stat.total_sites }}</td>
-                                    <td style="text-align: right; font-weight: 700; color: var(--ent-accent);">
-                                        {% if stat.avg_partner_time %}{{ stat.avg_partner_time }} dias{% else %}--{% endif %}
-                                    </td>
-                                    <td style="text-align: center;">
-                                        {% if stat.perf_badge == 'fast' %}
-                                        <span style="font-size: 0.65rem; font-weight: 700; padding: 0.25rem 0.6rem; background: #ecfdf5; color: var(--ent-success); border-radius: 30px; border: 1px solid #d1fae5;">Rápido</span>
-                                        {% elif stat.perf_badge == 'normal' %}
-                                        <span style="font-size: 0.65rem; font-weight: 700; padding: 0.25rem 0.6rem; background: #fffbeb; color: #d97706; border-radius: 30px; border: 1px solid #fef3c7;">Normal</span>
-                                        {% elif stat.perf_badge == 'slow' %}
-                                        <span style="font-size: 0.65rem; font-weight: 700; padding: 0.25rem 0.6rem; background: #fef2f2; color: var(--ent-danger); border-radius: 30px; border: 1px solid #fee2e2;">Lento</span>
-                                        {% else %}
-                                        <span style="font-size: 0.65rem; font-weight: 700; padding: 0.25rem 0.6rem; background: #f1f5f9; color: #64748b; border-radius: 30px;">Sem dados</span>
-                                        {% endif %}
-                                    </td>
-                                </tr>
-                                {% endfor %}
-                            </tbody>
-                        </table>
+                    
+                    {% for scope_key, ranking_list in scope_partner_rankings.items %}
+                    <div class="partner-rank-section" id="partner-rank-sec-{{ scope_key }}" style="display: {% if forloop.first %}block{% else %}none{% endif %}; flex: 1;">
+                        <div class="ent-table-wrapper">
+                            <table class="ent-table">
+                                <thead>
+                                    <tr>
+                                        <th>Posição</th>
+                                        <th>Empresa Parceira</th>
+                                        <th style="text-align: center;">Sites Finalizados</th>
+                                        <th style="text-align: right;">Tempo de Atendimento</th>
+                                        <th style="text-align: center;">Desempenho</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for stat in ranking_list %}
+                                    <tr>
+                                        <td style="font-weight: 800; color: var(--ent-text-muted); font-size: 1.05rem;">
+                                            {% if forloop.counter == 1 %}
+                                            <span style="display: inline-flex; align-items: center; justify-content: center; width: 22px; height: 22px; border-radius: 50%; background: #fef08a; color: #854d0e; font-size: 0.72rem; font-weight: 800; border: 1px solid #fde047;" title="1º Lugar"><i data-lucide="trophy" style="width: 12px; height: 12px;"></i></span>
+                                            {% elif forloop.counter == 2 %}
+                                            <span style="display: inline-flex; align-items: center; justify-content: center; width: 22px; height: 22px; border-radius: 50%; background: #e2e8f0; color: #475569; font-size: 0.72rem; font-weight: 800; border: 1px solid #cbd5e1;" title="2º Lugar">2</span>
+                                            {% elif forloop.counter == 3 %}
+                                            <span style="display: inline-flex; align-items: center; justify-content: center; width: 22px; height: 22px; border-radius: 50%; background: #ffedd5; color: #9a3412; font-size: 0.72rem; font-weight: 800; border: 1px solid #fed7aa;" title="3º Lugar">3</span>
+                                            {% else %}
+                                            <span style="display: inline-flex; align-items: center; justify-content: center; width: 22px; height: 22px; border-radius: 50%; background: #f1f5f9; color: #64748b; font-size: 0.72rem; font-weight: 700;">{{ forloop.counter }}</span>
+                                            {% endif %}
+                                        </td>
+                                        <td style="font-weight: 700; color: var(--ent-primary);">{{ stat.partner }}</td>
+                                        <td style="text-align: center; font-weight: 600;">{{ stat.finished_sites }} / {{ stat.total_sites }}</td>
+                                        <td style="text-align: right; font-weight: 700; color: var(--ent-accent);">
+                                            {% if stat.avg_partner_time %}{{ stat.avg_partner_time }} dias{% else %}--{% endif %}
+                                        </td>
+                                        <td style="text-align: center;">
+                                            {% if stat.perf_badge == 'fast' %}
+                                            <span style="font-size: 0.65rem; font-weight: 700; padding: 0.25rem 0.6rem; background: #ecfdf5; color: var(--ent-success); border-radius: 30px; border: 1px solid #d1fae5;">Rápido</span>
+                                            {% elif stat.perf_badge == 'normal' %}
+                                            <span style="font-size: 0.65rem; font-weight: 700; padding: 0.25rem 0.6rem; background: #fffbeb; color: #d97706; border-radius: 30px; border: 1px solid #fef3c7;">Normal</span>
+                                            {% elif stat.perf_badge == 'slow' %}
+                                            <span style="font-size: 0.65rem; font-weight: 700; padding: 0.25rem 0.6rem; background: #fef2f2; color: var(--ent-danger); border-radius: 30px; border: 1px solid #fee2e2;">Lento</span>
+                                            {% else %}
+                                            <span style="font-size: 0.65rem; font-weight: 700; padding: 0.25rem 0.6rem; background: #f1f5f9; color: #64748b; border-radius: 30px;">Sem dados</span>
+                                            {% endif %}
+                                        </td>
+                                    </tr>
+                                    {% empty %}
+                                    <tr>
+                                        <td colspan="5" style="text-align: center; padding: 3rem 2rem; color: var(--ent-text-muted);">Sem parceiros registrados para este escopo.</td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
+                    {% endfor %}
                 </div>
+
+            </div>
 
             </div>
         </div>
@@ -1545,12 +1565,12 @@
                                 <th>Empresa Parceira</th>
                                 <th style="text-align: right;">
                                     <span style="display: inline-flex; align-items: center; gap: 0.35rem; justify-content: flex-end; width: 100%;">
-                                        <i data-lucide="building-2" style="width: 14px; height: 14px; color: #2563eb;"></i> MartinsTec (Acesso)
+                                        <i data-lucide="building-2" style="width: 14px; height: 14px; color: #2563eb;"></i> Gestão MartinsTec
                                     </span>
                                 </th>
                                 <th style="text-align: right;">
                                     <span style="display: inline-flex; align-items: center; gap: 0.35rem; justify-content: flex-end; width: 100%;">
-                                        <i data-lucide="users" style="width: 14px; height: 14px; color: #059669;"></i> Parceiro (Trabalho)
+                                        <i data-lucide="settings" style="width: 14px; height: 14px; color: #059669;"></i> Fase de Execução
                                     </span>
                                 </th>
                                 <th style="text-align: right;">Ciclo Total</th>
@@ -2281,7 +2301,7 @@
         const scopeCharts = {};
 
         const scopeChartData = JSON.parse('{{ scope_chart_data_json|safe }}');
-        const partnerChartData = JSON.parse('{{ partner_chart_data_json|safe }}');
+        const scopePartnerChartData = JSON.parse('{{ scope_partner_chart_data_json|safe }}');
 
         window.switchAnalyticsTab = function(tabName) {
             const tabs = ['scope', 'partner', 'site'];
@@ -2303,7 +2323,39 @@
                     setTimeout(() => initScopeChart(scopeKey), 50);
                 }
             } else if (tabName === 'partner') {
-                setTimeout(initPartnerComparisonChart, 50);
+                // Inicializa o gráfico do escopo de parceiro que estiver ativo
+                const activePill = document.querySelector('[id^="btn-partner-scope-pill-"].active');
+                if (activePill) {
+                    const scopeKey = activePill.id.replace('btn-partner-scope-pill-', '');
+                    setTimeout(() => {
+                        initPartnerComparisonChart(scopeKey);
+                    }, 50);
+                }
+            }
+        };
+
+        window.switchPartnerScope = function(scopeKey) {
+            // Esconde todas as tabelas de ranking de parceiros
+            const sections = document.querySelectorAll('.partner-rank-section');
+            sections.forEach(s => s.style.display = 'none');
+
+            // Mostra a tabela alvo
+            const targetSec = document.getElementById(`partner-rank-sec-${scopeKey}`);
+            if (targetSec) targetSec.style.display = 'block';
+
+            // Atualiza botões do seletor
+            const pills = document.querySelectorAll('[id^="btn-partner-scope-pill-"]');
+            pills.forEach(p => {
+                if (p.id === `btn-partner-scope-pill-${scopeKey}`) p.classList.add('active');
+                else p.classList.remove('active');
+            });
+
+            // Atualiza dados do gráfico de comparação de parceiros
+            const chartData = scopePartnerChartData[scopeKey];
+            if (partnerCompChart && chartData) {
+                partnerCompChart.data.labels = chartData.labels;
+                partnerCompChart.data.datasets[0].data = chartData.avg_total;
+                partnerCompChart.update();
             }
         };
 
@@ -2409,8 +2461,13 @@
             });
         }
 
-        function initPartnerComparisonChart() {
+        function initPartnerComparisonChart(scopeKey) {
+            const chartData = scopePartnerChartData[scopeKey] || { labels: [], avg_total: [] };
+
             if (partnerCompChart) {
+                partnerCompChart.data.labels = chartData.labels;
+                partnerCompChart.data.datasets[0].data = chartData.avg_total;
+                partnerCompChart.update();
                 partnerCompChart.resize();
                 return;
             }
@@ -2422,10 +2479,10 @@
             partnerCompChart = new Chart(ctx, {
                 type: 'bar',
                 data: {
-                    labels: partnerChartData.labels,
+                    labels: chartData.labels,
                     datasets: [{
                         label: 'Ciclo Médio Total (Dias)',
-                        data: partnerChartData.avg_total,
+                        data: chartData.avg_total,
                         backgroundColor: '#01b574',
                         borderRadius: 6,
                         barPercentage: 0.6,
