@@ -1023,8 +1023,49 @@ class SiteCardMilestonesTests(TestCase):
         self.assertEqual(dynamic_entry['changes'][0]['previous_date'], today + datetime.timedelta(days=1))
         self.assertEqual(dynamic_entry['changes'][0]['new_date'], today + datetime.timedelta(days=2))
 
+class SiteUFTests(TestCase):
+    def setUp(self):
+        self.user = User.objects.create_user(
+            username='uf_engineer',
+            password='password123',
+            email='uf_eng@example.com',
+            role=User.Role.ENGINEER
+        )
 
+    def test_create_site_with_uf(self):
+        """Test creating a site with a UF field."""
+        self.client.login(username='uf_engineer', password='password123')
+        url = reverse('site_list')
+        response = self.client.post(url, {
+            'site_id': 'SITE_UF_001',
+            'name': 'Site com UF',
+            'scope_type': 'LAUDOS',
+            'uf': 'RJ'
+        })
+        self.assertEqual(response.status_code, 302)
+        site = Site.objects.get(site_id='SITE_UF_001')
+        self.assertEqual(site.uf, 'RJ')
+        self.assertEqual(site.get_uf_display(), 'Rio de Janeiro')
 
-
+    def test_update_site_uf(self):
+        """Test updating a site's UF via the detail view."""
+        site = Site.objects.create(
+            site_id='SITE_UF_002',
+            name='Site Original UF',
+            scope_type=Site.ScopeType.LAUDOS,
+            uf='SP'
+        )
+        self.client.login(username='uf_engineer', password='password123')
+        url = reverse('site_detail', kwargs={'pk': site.pk})
+        response = self.client.post(url, {
+            'action': 'update_location',
+            'site_id': 'SITE_UF_002',
+            'name': 'Site Original UF Edit',
+            'uf': 'MG'
+        })
+        self.assertEqual(response.status_code, 302)
+        site.refresh_from_db()
+        self.assertEqual(site.uf, 'MG')
+        self.assertEqual(site.get_uf_display(), 'Minas Gerais')
 
 

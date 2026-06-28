@@ -58,6 +58,35 @@ class Site(models.Model):
         OI = 'OI', 'Oi'
         OUTRO = 'OUTRO', 'Outro'
 
+    class UF(models.TextChoices):
+        AC = 'AC', 'Acre'
+        AL = 'AL', 'Alagoas'
+        AP = 'AP', 'Amapá'
+        AM = 'AM', 'Amazonas'
+        BA = 'BA', 'Bahia'
+        CE = 'CE', 'Ceará'
+        DF = 'DF', 'Distrito Federal'
+        ES = 'ES', 'Espírito Santo'
+        GO = 'GO', 'Goiás'
+        MA = 'MA', 'Maranhão'
+        MT = 'MT', 'Mato Grosso'
+        MS = 'MS', 'Mato Grosso do Sul'
+        MG = 'MG', 'Minas Gerais'
+        PA = 'PA', 'Pará'
+        PB = 'PB', 'Paraíba'
+        PR = 'PR', 'Paraná'
+        PE = 'PE', 'Pernambuco'
+        PI = 'PI', 'Piauí'
+        RJ = 'RJ', 'Rio de Janeiro'
+        RN = 'RN', 'Rio Grande do Norte'
+        RS = 'RS', 'Rio Grande do Sul'
+        RO = 'RO', 'Rondônia'
+        RR = 'RR', 'Roraima'
+        SC = 'SC', 'Santa Catarina'
+        SP = 'SP', 'São Paulo'
+        SE = 'SE', 'Sergipe'
+        TO = 'TO', 'Tocantins'
+
     site_id = models.CharField(
         max_length=50, 
         unique=True, 
@@ -74,6 +103,13 @@ class Site(models.Model):
         verbose_name="Operadora"
     )
     address = models.CharField(max_length=255, blank=True, null=True, verbose_name="Endereço")
+    uf = models.CharField(
+        max_length=2,
+        choices=UF.choices,
+        blank=True,
+        null=True,
+        verbose_name="UF / Estado"
+    )
     latitude = models.DecimalField(max_digits=9, decimal_places=6, blank=True, null=True, verbose_name="Latitude")
     longitude = models.DecimalField(max_digits=9, decimal_places=6, blank=True, null=True, verbose_name="Longitude")
     

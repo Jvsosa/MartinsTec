@@ -60,6 +60,7 @@ def site_list(request):
         site_id = site_id_raw if site_id_raw else None
         name = request.POST.get('name').strip()
         address = request.POST.get('address', '').strip() or None
+        uf = request.POST.get('uf', '').strip() or None
         latitude_str = request.POST.get('latitude', '').strip() or None
         longitude_str = request.POST.get('longitude', '').strip() or None
         scope_type = request.POST.get('scope_type')
@@ -80,6 +81,7 @@ def site_list(request):
                 site_id=site_id,
                 name=name,
                 address=address,
+                uf=uf,
                 latitude=latitude_str,
                 longitude=longitude_str,
                 scope_type=scope_type,
@@ -553,6 +555,9 @@ def site_detail(request, pk):
             # Editar Tipo de estrutura e outros campos de geolocalização
             site.site_type = request.POST.get('site_type', site.site_type)
             site.address = request.POST.get('address', '').strip() or None
+            
+            if 'uf' in request.POST:
+                site.uf = request.POST.get('uf', '').strip() or None
             
             lat_str = request.POST.get('latitude', '').strip()
             site.latitude = lat_str if lat_str else None

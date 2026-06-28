@@ -1472,13 +1472,48 @@
                         </div>
                     </div>
 
-                    <div class="form-group">
-                        <label for="modal_address">Endereço (Opcional)</label>
-                        <div style="display: flex; gap: 0.5rem; width: 100%;">
-                            <input type="text" name="address" id="modal_address" class="form-control" placeholder="Rua, Número, Cidade, Estado..." style="flex: 1;">
-                            <button type="button" id="btn-geocode" class="btn-ent btn-ent-outline" onclick="geocodeAddress()" style="flex-shrink: 0; padding: 0.75rem 1.25rem;" title="Buscar coordenadas pelo endereço">
-                                <i data-lucide="search" style="width: 16px; height: 16px;"></i> Buscar
-                            </button>
+                    <div class="ent-form-grid">
+                        <div class="form-group">
+                            <label for="modal_address">Endereço (Opcional)</label>
+                            <div style="display: flex; gap: 0.5rem; width: 100%;">
+                                <input type="text" name="address" id="modal_address" class="form-control" placeholder="Rua, Número, Cidade, Estado..." style="flex: 1;">
+                                <button type="button" id="btn-geocode" class="btn-ent btn-ent-outline" onclick="geocodeAddress()" style="flex-shrink: 0; padding: 0.75rem 1.25rem;" title="Buscar coordenadas pelo endereço">
+                                    <i data-lucide="search" style="width: 16px; height: 16px;"></i> Buscar
+                                </button>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="modal_uf">UF / Estado</label>
+                            <select name="uf" id="modal_uf" class="form-control" style="cursor: pointer;">
+                                <option value="" selected>Não Especificada</option>
+                                <option value="AC">Acre</option>
+                                <option value="AL">Alagoas</option>
+                                <option value="AP">Amapá</option>
+                                <option value="AM">Amazonas</option>
+                                <option value="BA">Bahia</option>
+                                <option value="CE">Ceará</option>
+                                <option value="DF">Distrito Federal</option>
+                                <option value="ES">Espírito Santo</option>
+                                <option value="GO">Goiás</option>
+                                <option value="MA">Maranhão</option>
+                                <option value="MT">Mato Grosso</option>
+                                <option value="MS">Mato Grosso do Sul</option>
+                                <option value="MG">Minas Gerais</option>
+                                <option value="PA">Pará</option>
+                                <option value="PB">Paraíba</option>
+                                <option value="PR">Paraná</option>
+                                <option value="PE">Pernambuco</option>
+                                <option value="PI">Piauí</option>
+                                <option value="RJ">Rio de Janeiro</option>
+                                <option value="RN">Rio Grande do Norte</option>
+                                <option value="RS">Rio Grande do Sul</option>
+                                <option value="RO">Rondônia</option>
+                                <option value="RR">Roraima</option>
+                                <option value="SC">Santa Catarina</option>
+                                <option value="SP">São Paulo</option>
+                                <option value="SE">Sergipe</option>
+                                <option value="TO">Tocantins</option>
+                            </select>
                         </div>
                     </div>
 

@@ -606,6 +606,15 @@
                 </div>
                 {% endif %}
 
+                {% if site.uf %}
+                <div class="info-item">
+                    <span class="info-label">UF / Estado</span>
+                    <span class="info-value" style="font-size: 0.9rem; color: var(--text-secondary);">
+                        {{ site.get_uf_display }}
+                    </span>
+                </div>
+                {% endif %}
+
                 <div class="info-item">
                     <span class="info-label">Coordenadas Geográficas</span>
                     <span class="info-value" style="font-size: 0.9rem; color: var(--text-secondary);">
@@ -2191,13 +2200,48 @@
                     </div>
                 </div>
 
-                <div class="field-group">
-                    <label for="address_edit" class="info-label">Endereço</label>
-                    <div style="display: flex; gap: 0.4rem; width: 100%;">
-                        <input type="text" name="address" id="address_edit" class="field-control" value="{{ site.address|default:'' }}" placeholder="Rua, Cidade, etc." style="flex: 1; padding: 0.5rem; font-size: 0.85rem; border: 1px solid var(--border-color); border-radius: 8px; background: white;">
-                        <button type="button" id="btn-geocode-edit" class="btn-submit" onclick="geocodeAddressEdit()" style="flex-shrink: 0; padding: 0.5rem; background: var(--brand-primary); border-radius: 8px; width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; cursor: pointer; border: none;" title="Buscar coordenadas pelo endereço">
-                            <i data-lucide="search" style="width: 15px; height: 15px; color: white;"></i>
-                        </button>
+                <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 1rem;">
+                    <div class="field-group">
+                        <label for="address_edit" class="info-label">Endereço</label>
+                        <div style="display: flex; gap: 0.4rem; width: 100%;">
+                            <input type="text" name="address" id="address_edit" class="field-control" value="{{ site.address|default:'' }}" placeholder="Rua, Cidade, etc." style="flex: 1; padding: 0.5rem; font-size: 0.85rem; border: 1px solid var(--border-color); border-radius: 8px; background: white;">
+                            <button type="button" id="btn-geocode-edit" class="btn-submit" onclick="geocodeAddressEdit()" style="flex-shrink: 0; padding: 0.5rem; background: var(--brand-primary); border-radius: 8px; width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; cursor: pointer; border: none;" title="Buscar coordenadas pelo endereço">
+                                <i data-lucide="search" style="width: 15px; height: 15px; color: white;"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="field-group">
+                        <label for="uf_edit" class="info-label">UF / Estado</label>
+                        <select name="uf" id="uf_edit" class="field-control" style="padding: 0.5rem; font-size: 0.85rem; border: 1px solid var(--border-color); border-radius: 8px; background: white; cursor: pointer; height: 36px; box-sizing: border-box;">
+                            <option value="">Não Especificada</option>
+                            <option value="AC" {% if site.uf == 'AC' %}selected{% endif %}>Acre</option>
+                            <option value="AL" {% if site.uf == 'AL' %}selected{% endif %}>Alagoas</option>
+                            <option value="AP" {% if site.uf == 'AP' %}selected{% endif %}>Amapá</option>
+                            <option value="AM" {% if site.uf == 'AM' %}selected{% endif %}>Amazonas</option>
+                            <option value="BA" {% if site.uf == 'BA' %}selected{% endif %}>Bahia</option>
+                            <option value="CE" {% if site.uf == 'CE' %}selected{% endif %}>Ceará</option>
+                            <option value="DF" {% if site.uf == 'DF' %}selected{% endif %}>Distrito Federal</option>
+                            <option value="ES" {% if site.uf == 'ES' %}selected{% endif %}>Espírito Santo</option>
+                            <option value="GO" {% if site.uf == 'GO' %}selected{% endif %}>Goiás</option>
+                            <option value="MA" {% if site.uf == 'MA' %}selected{% endif %}>Maranhão</option>
+                            <option value="MT" {% if site.uf == 'MT' %}selected{% endif %}>Mato Grosso</option>
+                            <option value="MS" {% if site.uf == 'MS' %}selected{% endif %}>Mato Grosso do Sul</option>
+                            <option value="MG" {% if site.uf == 'MG' %}selected{% endif %}>Minas Gerais</option>
+                            <option value="PA" {% if site.uf == 'PA' %}selected{% endif %}>Pará</option>
+                            <option value="PB" {% if site.uf == 'PB' %}selected{% endif %}>Paraíba</option>
+                            <option value="PR" {% if site.uf == 'PR' %}selected{% endif %}>Paraná</option>
+                            <option value="PE" {% if site.uf == 'PE' %}selected{% endif %}>Pernambuco</option>
+                            <option value="PI" {% if site.uf == 'PI' %}selected{% endif %}>Piauí</option>
+                            <option value="RJ" {% if site.uf == 'RJ' %}selected{% endif %}>Rio de Janeiro</option>
+                            <option value="RN" {% if site.uf == 'RN' %}selected{% endif %}>Rio Grande do Norte</option>
+                            <option value="RS" {% if site.uf == 'RS' %}selected{% endif %}>Rio Grande do Sul</option>
+                            <option value="RO" {% if site.uf == 'RO' %}selected{% endif %}>Rondônia</option>
+                            <option value="RR" {% if site.uf == 'RR' %}selected{% endif %}>Roraima</option>
+                            <option value="SC" {% if site.uf == 'SC' %}selected{% endif %}>Santa Catarina</option>
+                            <option value="SP" {% if site.uf == 'SP' %}selected{% endif %}>São Paulo</option>
+                            <option value="SE" {% if site.uf == 'SE' %}selected{% endif %}>Sergipe</option>
+                            <option value="TO" {% if site.uf == 'TO' %}selected{% endif %}>Tocantins</option>
+                        </select>
                     </div>
                 </div>
                 
