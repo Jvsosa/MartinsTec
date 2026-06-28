@@ -929,18 +929,8 @@
             </a>
         </nav>
 
-        <!-- Base: Perfil e Log-out -->
-        <div class="sidebar-footer">
-            <div class="profile-card">
-                <div class="profile-avatar-container">
-                    <div class="profile-avatar">{{ user.username|slice:":1"|upper|default:"A" }}</div>
-                    <div class="status-indicator"></div>
-                </div>
-                <div class="profile-info">
-                    <span class="profile-name">{{ user.first_name|default:user.username|default:"Admin" }}</span>
-                    <span class="profile-role">{{ user.get_role_display|default:"NOC Ativo" }}</span>
-                </div>
-            </div>
+        <!-- Base: Log-out -->
+        <div class="sidebar-footer" style="justify-content: center;">
             <a href="{% url 'logout' %}" class="logout-btn" title="Sair">
                 <i data-lucide="log-out" style="width: 18px; height: 18px;"></i>
             </a>
@@ -949,11 +939,8 @@
 
     <!-- TOP NAVBAR (DashStack Style) -->
     <header class="top-navbar" id="top-navbar">
-        <!-- Esquerda: Logo + Hamburger -->
+        <!-- Esquerda: Hamburger -->
         <div class="topbar-left">
-            <a href="{% url 'site_list' %}" class="topbar-brand">
-                <span class="topbar-brand-text"><span>Martins</span>Tec</span>
-            </a>
             <button class="hamburger-btn" id="sidebar-toggle" title="Alternar menu lateral">
                 <i data-lucide="menu" style="width: 20px; height: 20px;"></i>
             </button>
