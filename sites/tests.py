@@ -396,9 +396,13 @@ class SiteRolloutWorkflowTests(TestCase):
             planned_survey_date=today,
             planned_report_date=today + datetime.timedelta(days=5)
         )
+        # Set planned_date on Vistoria SiteStage to trigger reschedule detection
+        from sites.models import SiteStage
+        vistoria = SiteStage.objects.get(site=site, stage_name='Vistoria')
+        vistoria.planned_date = today
+        vistoria.save()
         self.assertEqual(site.reschedule_count, 0)
 
-        # Post update with new dates to trigger reschedule
         url = reverse('site_detail', kwargs={'pk': site.pk})
         response = self.client.post(url, {
             'action': 'update_workflow',
@@ -411,12 +415,12 @@ class SiteRolloutWorkflowTests(TestCase):
         self.assertEqual(site.reschedule_count, 1)
 
     def test_reschedule_creates_history(self):
-        """Test that rescheduling creates a SiteRescheduleHistory log record."""
+        """Test that rescheduling creates a reschedule record in SiteStageReschedule."""
         self.client.login(username='engineer_workflow', password='password123')
         from django.utils import timezone
         import datetime
-        from .models import SiteRescheduleHistory
-        
+        from sites.models import SiteStage, SiteStageReschedule
+
         today = timezone.localdate()
         site = Site.objects.create(
             site_id='SITE_RESCHED_HIST',
@@ -424,9 +428,11 @@ class SiteRolloutWorkflowTests(TestCase):
             planned_survey_date=today,
             planned_report_date=today + datetime.timedelta(days=5)
         )
-        self.assertEqual(site.reschedule_histories.count(), 0)
+        # Set planned_date on Vistoria SiteStage to enable reschedule detection
+        vistoria = SiteStage.objects.get(site=site, stage_name='Vistoria')
+        vistoria.planned_date = today
+        vistoria.save()
 
-        # Post update with new dates and reason to trigger reschedule
         url = reverse('site_detail', kwargs={'pk': site.pk})
         response = self.client.post(url, {
             'action': 'update_workflow',
@@ -438,21 +444,24 @@ class SiteRolloutWorkflowTests(TestCase):
         self.assertEqual(response.status_code, 302)
         site.refresh_from_db()
         self.assertEqual(site.reschedule_count, 1)
-        self.assertEqual(site.reschedule_histories.count(), 1)
-        
-        history = site.reschedule_histories.first()
-        self.assertEqual(history.previous_planned_survey_date, today)
-        self.assertEqual(history.new_planned_survey_date, today + datetime.timedelta(days=2))
-        self.assertEqual(history.reason, 'Chuva forte')
-        self.assertEqual(history.created_by.username, 'engineer_workflow')
+
+        # Verify SiteStageReschedule was created for Vistoria
+        reschedule = SiteStageReschedule.objects.filter(
+            stage__site=site, stage__stage_name='Vistoria'
+        ).first()
+        self.assertIsNotNone(reschedule)
+        self.assertEqual(reschedule.previous_date, today)
+        self.assertEqual(reschedule.new_date, today + datetime.timedelta(days=2))
+        self.assertEqual(reschedule.reason, 'Chuva forte')
+        self.assertEqual(reschedule.created_by.username, 'engineer_workflow')
 
     def test_report_reschedule_flow(self):
-        """Test that rescheduling the report (Stage 4) creates history, increments counter, and keeps survey date."""
+        """Test that rescheduling the report (Stage 4) creates SiteStageReschedule, increments counter, and keeps survey date."""
         self.client.login(username='engineer_workflow', password='password123')
         from django.utils import timezone
         import datetime
-        from .models import SiteRescheduleHistory
-        
+        from sites.models import SiteStage, SiteStageReschedule
+
         today = timezone.localdate()
         site = Site.objects.create(
             site_id='SITE_REP_RESCH',
@@ -460,9 +469,11 @@ class SiteRolloutWorkflowTests(TestCase):
             planned_survey_date=today - datetime.timedelta(days=5),
             planned_report_date=today
         )
-        self.assertEqual(site.reschedule_histories.count(), 0)
+        # Set planned dates on SiteStage rows for reschedule detection
+        laudo = SiteStage.objects.get(site=site, stage_name='Laudo')
+        laudo.planned_date = today
+        laudo.save()
 
-        # Post update with new report date, same survey date, and reason
         url = reverse('site_detail', kwargs={'pk': site.pk})
         response = self.client.post(url, {
             'action': 'update_workflow',
@@ -474,15 +485,14 @@ class SiteRolloutWorkflowTests(TestCase):
         self.assertEqual(response.status_code, 302)
         site.refresh_from_db()
         self.assertEqual(site.reschedule_count, 1)
-        self.assertEqual(site.reschedule_histories.count(), 1)
-        
-        history = site.reschedule_histories.first()
-        self.assertEqual(history.previous_planned_report_date, today)
-        self.assertEqual(history.new_planned_report_date, today + datetime.timedelta(days=3))
-        # Survey date should remain unchanged in history
-        self.assertEqual(history.previous_planned_survey_date, today - datetime.timedelta(days=5))
-        self.assertEqual(history.new_planned_survey_date, today - datetime.timedelta(days=5))
-        self.assertEqual(history.reason, 'Atraso na vistoria tecnica')
+
+        reschedule = SiteStageReschedule.objects.filter(
+            stage__site=site, stage__stage_name='Laudo'
+        ).first()
+        self.assertIsNotNone(reschedule)
+        self.assertEqual(reschedule.previous_date, today)
+        self.assertEqual(reschedule.new_date, today + datetime.timedelta(days=3))
+        self.assertEqual(reschedule.reason, 'Atraso na vistoria tecnica')
 
     def test_delete_site_permitted(self):
         """Test that Admin or Engineer can delete a site."""
@@ -517,16 +527,17 @@ class SiteRolloutWorkflowTests(TestCase):
         self.assertTrue(Site.objects.filter(SITE_DELETE_FAIL=site.site_id).exists() if hasattr(self, 'dummy') else Site.objects.filter(site_id='SITE_DELETE_FAIL').exists())
 
     def test_dynamic_update_stage_actions(self):
-        """Test that generic stages can be updated, skipped, and reset, and their statuses are saved in JSON."""
+        """Test that generic stages can be updated, skipped, and reset via SiteStage."""
         self.client.login(username='engineer_workflow', password='password123')
+        from sites.models import SiteStage
         site = Site.objects.create(
             site_id='SITE_DYN_STAGES',
             name='Site Estágios Dinâmicos',
             scope_type=Site.ScopeType.LAUDOS
         )
-        
+
         url = reverse('site_detail', kwargs={'pk': site.pk})
-        
+
         # 1. Complete a generic stage e.g. "Acionamento Parceiro"
         response = self.client.post(url, {
             'action': 'update_stage',
@@ -536,31 +547,33 @@ class SiteRolloutWorkflowTests(TestCase):
             'partner_company': 'Parceiro BTL'
         })
         self.assertEqual(response.status_code, 302)
+        stage = SiteStage.objects.get(site=site, stage_name='Acionamento Parceiro')
+        self.assertEqual(stage.status, 'DONE')
+        import datetime
+        self.assertEqual(stage.actual_date, datetime.date(2026, 6, 23))
         site.refresh_from_db()
-        self.assertEqual(site.stages_status['Acionamento Parceiro']['status'], 'DONE')
-        self.assertEqual(site.stages_status['Acionamento Parceiro']['date'], '2026-06-23')
         self.assertEqual(site.partner_company, 'Parceiro BTL')
 
-        # 2. Skip a generic stage e.g. "Acionamento Parceiro"
+        # 2. Skip the stage
         response = self.client.post(url, {
             'action': 'update_stage',
             'stage_name': 'Acionamento Parceiro',
             'stage_status': 'SKIPPED'
         })
         self.assertEqual(response.status_code, 302)
-        site.refresh_from_db()
-        self.assertEqual(site.stages_status['Acionamento Parceiro']['status'], 'SKIPPED')
+        stage.refresh_from_db()
+        self.assertEqual(stage.status, 'SKIPPED')
 
-        # 3. Reset a generic stage back to PENDING
+        # 3. Reset to PENDING
         response = self.client.post(url, {
             'action': 'update_stage',
             'stage_name': 'Acionamento Parceiro',
             'stage_status': 'PENDING'
         })
         self.assertEqual(response.status_code, 302)
-        site.refresh_from_db()
-        self.assertEqual(site.stages_status['Acionamento Parceiro']['status'], 'PENDING')
-        self.assertIsNone(site.stages_status['Acionamento Parceiro']['date'])
+        stage.refresh_from_db()
+        self.assertEqual(stage.status, 'PENDING')
+        self.assertIsNone(stage.actual_date)
 
     def test_optional_site_id(self):
         """Test that leaving site_id blank allows registering the site with null ID, and multiple blank IDs are allowed."""
@@ -589,30 +602,30 @@ class SiteRolloutWorkflowTests(TestCase):
         self.assertIsNotNone(site2)
         self.assertIsNone(site2.site_id)
     def test_installation_custody_and_stage_6_execucao(self):
-        """Test the dynamic custody calculation and Stage 6 (Execução Rollout) behavior for installation scope."""
+        """Test the dynamic custody calculation and Stage 6 (Execução Rollout) behavior."""
         self.client.login(username='engineer_workflow', password='password123')
-        
-        # Create a site with INSTALACAO scope
+        from sites.models import SiteStage
+
         site = Site.objects.create(
             site_id='SITE_INST_CUSTODY',
             name='Site Instalação Custódia',
             scope_type='INSTALACAO'
         )
-        
-        # Initially, with no stages completed, sector should be Engenharia
-        site.sync_stages()
-        site.refresh_from_db()
+
+        # Initially, PPI not done -> sector = Engenharia
         self.assertEqual(site.current_responsible_sector, 'Engenharia')
-        
-        # Simulate completing PPI (Stage 5)
-        # Stage list is: ['Acesso', 'Vistoria', 'QRF', 'WarRoom', 'PPI', 'Execução Rollout', 'ARQ']
-        site.stages_status['PPI'] = {'status': 'DONE', 'date': '2026-06-26'}
-        site.save()
-        
+
+        # Complete PPI via SiteStage
+        ppi = SiteStage.objects.get(site=site, stage_name='PPI')
+        ppi.status = 'DONE'
+        import datetime
+        ppi.actual_date = datetime.date(2026, 6, 26)
+        ppi.save()
+
         # Sector should now be Rollout
         self.assertEqual(site.current_responsible_sector, 'Rollout')
-        
-        # Post request to complete "Execução Rollout" (Stage 6) using the detail view endpoint
+
+        # Complete Execução Rollout via view
         url = reverse('site_detail', kwargs={'pk': site.pk})
         response = self.client.post(url, {
             'action': 'update_stage',
@@ -621,19 +634,20 @@ class SiteRolloutWorkflowTests(TestCase):
             'stage_date': '2026-06-26'
         })
         self.assertEqual(response.status_code, 302)
-        site.refresh_from_db()
-        
-        self.assertEqual(site.stages_status['Execução Rollout']['status'], 'DONE')
-        self.assertEqual(site.stages_status['Execução Rollout']['date'], '2026-06-26')
-        
-        # After Execução is complete, sector should return to Engenharia (since ARQ is pending)
+
+        exec_stage = SiteStage.objects.get(site=site, stage_name='Execução Rollout')
+        self.assertEqual(exec_stage.status, 'DONE')
+        self.assertEqual(exec_stage.actual_date, datetime.date(2026, 6, 26))
+
+        # After Execução Rollout DONE, sector = Engenharia (ARQ pending)
         self.assertEqual(site.current_responsible_sector, 'Engenharia')
-        
-        # Complete ARQ (Stage 7)
-        site.stages_status['ARQ'] = {'status': 'DONE', 'date': '2026-06-26'}
-        site.save()
-        
-        # Sector should be Finalizado
+
+        # Complete ARQ
+        arq = SiteStage.objects.get(site=site, stage_name='ARQ')
+        arq.status = 'DONE'
+        arq.actual_date = datetime.date(2026, 6, 26)
+        arq.save()
+
         self.assertEqual(site.current_responsible_sector, 'Finalizado')
 
 
@@ -865,67 +879,68 @@ class SiteCardMilestonesTests(TestCase):
         from django.utils import timezone
         import datetime
         today = timezone.localdate()
+        from sites.models import SiteStage
 
-        # Create site with INSTALACAO scope
         site = Site.objects.create(
             site_id='SITE_INST_1',
             name='Site Instalacao Test',
             scope_type='INSTALACAO',
-            planned_survey_date=today - datetime.timedelta(days=2),
-            actual_survey_date=None
         )
-        
-        # Define some milestones in stages_status
-        site.stages_status = {
-            'QRF': {'status': 'PENDING', 'planned_date': (today + datetime.timedelta(days=2)).isoformat()},
-            'WarRoom': {'status': 'DONE', 'date': today.isoformat(), 'planned_date': today.isoformat()},
-            'PPI': {'status': 'PENDING', 'planned_date': None},
-            'ARQ': {'status': 'PENDING', 'planned_date': (today - datetime.timedelta(days=1)).isoformat()}
-        }
-        site.save()
+
+        # Populate SiteStage rows with planned/actual dates
+        vistoria = SiteStage.objects.get(site=site, stage_name='Vistoria')
+        vistoria.planned_date = today - datetime.timedelta(days=2)
+        vistoria.save()
+
+        qrf = SiteStage.objects.get(site=site, stage_name='QRF')
+        qrf.planned_date = today + datetime.timedelta(days=2)
+        qrf.save()
+
+        warroom = SiteStage.objects.get(site=site, stage_name='WarRoom')
+        warroom.planned_date = today
+        warroom.actual_date  = today
+        warroom.status = 'DONE'
+        warroom.save()
+
+        # PPI: no planned date
+
+        arq = SiteStage.objects.get(site=site, stage_name='ARQ')
+        arq.planned_date = today - datetime.timedelta(days=1)
+        arq.save()
 
         milestones = site.get_card_milestones()
         names = [m['name'] for m in milestones]
-        # Should only contain: Vistoria, QRF, WarRoom, PPI, ARQ
         self.assertEqual(names, ['Vistoria', 'QRF', 'WarRoom', 'PPI', 'ARQ'])
 
-        # Check details for each
-        # Vistoria: planned 2 days ago, not actual -> overdue
-        vistoria = next(m for m in milestones if m['name'] == 'Vistoria')
-        self.assertTrue(vistoria['is_overdue'])
-        self.assertFalse(vistoria['is_completed'])
-        self.assertFalse(vistoria['is_alert'])
+        vistoria_m = next(m for m in milestones if m['name'] == 'Vistoria')
+        self.assertTrue(vistoria_m['is_overdue'])
+        self.assertFalse(vistoria_m['is_completed'])
+        self.assertFalse(vistoria_m['is_alert'])
 
-        # QRF: planned in 2 days -> alert (within 3 days)
-        qrf = next(m for m in milestones if m['name'] == 'QRF')
-        self.assertFalse(qrf['is_overdue'])
-        self.assertFalse(qrf['is_completed'])
-        self.assertTrue(qrf['is_alert'])
+        qrf_m = next(m for m in milestones if m['name'] == 'QRF')
+        self.assertFalse(qrf_m['is_overdue'])
+        self.assertFalse(qrf_m['is_completed'])
+        self.assertTrue(qrf_m['is_alert'])
 
-        # WarRoom: completed -> not overdue, not alert, is_completed
-        warroom = next(m for m in milestones if m['name'] == 'WarRoom')
-        self.assertFalse(warroom['is_overdue'])
-        self.assertTrue(warroom['is_completed'])
-        self.assertFalse(warroom['is_alert'])
+        warroom_m = next(m for m in milestones if m['name'] == 'WarRoom')
+        self.assertFalse(warroom_m['is_overdue'])
+        self.assertTrue(warroom_m['is_completed'])
+        self.assertFalse(warroom_m['is_alert'])
 
-        # PPI: pending without planned date -> missing planning
-        ppi = next(m for m in milestones if m['name'] == 'PPI')
-        self.assertFalse(ppi['is_overdue'])
-        self.assertFalse(ppi['is_completed'])
-        self.assertFalse(ppi['is_alert'])
+        ppi_m = next(m for m in milestones if m['name'] == 'PPI')
+        self.assertFalse(ppi_m['is_overdue'])
+        self.assertFalse(ppi_m['is_completed'])
+        self.assertFalse(ppi_m['is_alert'])
         self.assertTrue(site.is_planning_missing)
 
-        # ARQ: planned 1 day ago, not completed -> overdue
-        arq = next(m for m in milestones if m['name'] == 'ARQ')
-        self.assertTrue(arq['is_overdue'])
+        arq_m = next(m for m in milestones if m['name'] == 'ARQ')
+        self.assertTrue(arq_m['is_overdue'])
 
-        # Check properties
-        self.assertEqual(site.days_overdue, 2)  # max of (today - vistoria.planned_date) = 2, arq = 1
+        self.assertEqual(site.days_overdue, 2)
         self.assertEqual(site.overdue_stage, "Vistoria e ARQ")
         self.assertEqual(site.alert_stage, "QRF")
         self.assertEqual(site.current_stage_name, "Acesso")
 
-        # If Acesso is DONE, next should be Vistoria
         site.access_status = Site.AccessStatus.RELEASED
         site.save()
         self.assertEqual(site.current_stage_name, "Vistoria")
@@ -935,89 +950,92 @@ class SiteCardMilestonesTests(TestCase):
         from django.utils import timezone
         import datetime
         today = timezone.localdate()
+        from sites.models import SiteStage
 
-        # Create site with LAUDOS scope
         site = Site.objects.create(
             site_id='SITE_LAUD_1',
             name='Site Laudos Test',
             scope_type='LAUDOS',
-            planned_survey_date=today + datetime.timedelta(days=1),
-            planned_report_date=today + datetime.timedelta(days=5)
         )
-        
+
+        # Set planned dates on SiteStage rows
+        vistoria = SiteStage.objects.get(site=site, stage_name='Vistoria')
+        vistoria.planned_date = today + datetime.timedelta(days=1)
+        vistoria.save()
+
+        laudo = SiteStage.objects.get(site=site, stage_name='Laudo')
+        laudo.planned_date = today + datetime.timedelta(days=5)
+        laudo.save()
+
         milestones = site.get_card_milestones()
         names = [m['name'] for m in milestones]
-        # Should only contain: Vistoria, Laudo
         self.assertEqual(names, ['Vistoria', 'Laudo'])
 
         self.assertFalse(site.is_planning_missing)
-        self.assertEqual(site.status, Site.SiteStatus.MAINTENANCE)  # because planned_survey_date is in 1 day (alert)
+        self.assertEqual(site.status, Site.SiteStatus.MAINTENANCE)  # alert: vistoria in 1 day
         self.assertEqual(site.alert_stage, "Vistoria")
         self.assertEqual(site.current_stage_name, "Acionamento Parceiro")
 
-        # Mark all stages of LAUDOS as DONE
-        site.stages_status['Acionamento Parceiro'] = {'status': 'DONE'}
-        site.access_status = Site.AccessStatus.RELEASED
-        site.actual_survey_date = today
-        site.actual_report_date = today
-        site.save()
+        # Mark all stages as DONE via SiteStage
+        acesso = SiteStage.objects.get(site=site, stage_name='Acesso')
+        acesso.status = 'SKIPPED'
+        acesso.save()
+        acionamento = SiteStage.objects.get(site=site, stage_name='Acionamento Parceiro')
+        acionamento.status = 'DONE'
+        acionamento.save()
+        vistoria.actual_date = today
+        vistoria.status = 'DONE'
+        vistoria.save()
+        laudo.actual_date = today
+        laudo.status = 'DONE'
+        laudo.save()
         self.assertEqual(site.current_stage_name, "Finalizado")
 
     def test_get_merged_reschedule_history(self):
-        """Test merging legacy SiteRescheduleHistory records and dynamic JSON reschedules."""
+        """Test merging SiteStageReschedule records and legacy SiteRescheduleHistory."""
         from django.utils import timezone
         import datetime
+        from sites.models import SiteStage, SiteStageReschedule
         from .models import SiteRescheduleHistory
-        
+
         today = timezone.localdate()
         site = Site.objects.create(
             site_id='SITE_MERGED_RESCHED',
             name='Site Merged Reschedule Test',
             scope_type='INSTALACAO',
-            planned_survey_date=today,
-            planned_report_date=None
         )
-        
-        # 1. Create a legacy database reschedule record
-        legacy_hist = SiteRescheduleHistory.objects.create(
+
+        # 1. Create a legacy SiteRescheduleHistory (Laudos legacy)
+        SiteRescheduleHistory.objects.create(
             site=site,
             previous_planned_survey_date=today - datetime.timedelta(days=1),
             new_planned_survey_date=today,
             reason='Motivo legado',
             created_by=self.user
         )
-        
-        # 2. Add a dynamic reschedule to stages_status JSON
-        site.stages_status = {
-            'QRF': {
-                'status': 'PENDING',
-                'planned_date': (today + datetime.timedelta(days=2)).isoformat(),
-                'reschedule_history': [{
-                    'previous_date': (today + datetime.timedelta(days=1)).isoformat(),
-                    'new_date': (today + datetime.timedelta(days=2)).isoformat(),
-                    'reason': 'Motivo dinamico',
-                    'by': 'eng_milestones',
-                    'created_at': timezone.now().isoformat()
-                }]
-            }
-        }
-        site.save()
-        
+
+        # 2. Create a SiteStageReschedule for QRF
+        qrf = SiteStage.objects.get(site=site, stage_name='QRF')
+        SiteStageReschedule.objects.create(
+            stage=qrf,
+            previous_date=today + datetime.timedelta(days=1),
+            new_date=today + datetime.timedelta(days=2),
+            reason='Motivo dinamico',
+            created_by=self.user,
+        )
+
         merged = site.get_merged_reschedule_history()
-        
         self.assertEqual(len(merged), 2)
-        
-        # Checking that the legacy reschedule exists in merged history
+
         legacy_entry = next(item for item in merged if item.get('reason') == 'Motivo legado')
         self.assertEqual(legacy_entry['created_by_name'], self.user.get_full_name() or self.user.username)
         self.assertEqual(len(legacy_entry['changes']), 1)
         self.assertEqual(legacy_entry['changes'][0]['stage_name'], 'Vistoria')
         self.assertEqual(legacy_entry['changes'][0]['previous_date'], today - datetime.timedelta(days=1))
         self.assertEqual(legacy_entry['changes'][0]['new_date'], today)
-        
-        # Checking that the dynamic stage reschedule exists in merged history
+
         dynamic_entry = next(item for item in merged if item.get('reason') == 'Motivo dinamico')
-        self.assertEqual(dynamic_entry['created_by_name'], 'eng_milestones')
+        self.assertEqual(dynamic_entry['created_by_name'], self.user.get_full_name() or self.user.username)
         self.assertEqual(len(dynamic_entry['changes']), 1)
         self.assertEqual(dynamic_entry['changes'][0]['stage_name'], 'QRF')
         self.assertEqual(dynamic_entry['changes'][0]['previous_date'], today + datetime.timedelta(days=1))
@@ -1069,3 +1087,159 @@ class SiteUFTests(TestCase):
         self.assertEqual(site.get_uf_display(), 'Minas Gerais')
 
 
+# ─────────────────────────────────────────────────────────────────────────────
+# Testes da Opção C: SiteStage e SiteStageReschedule
+# ─────────────────────────────────────────────────────────────────────────────
+from sites.models import SiteStage, SiteStageReschedule
+
+class SiteStageCreationTests(TestCase):
+    """Verifica que SiteStage é criado automaticamente ao criar um Site."""
+
+    def setUp(self):
+        self.user = User.objects.create_user(
+            username='stage_eng', password='password123', role=User.Role.ENGINEER
+        )
+
+    def _create_site(self, scope):
+        return Site.objects.create(
+            site_id=f'STAGE_{scope}',
+            name=f'Site {scope}',
+            scope_type=scope,
+        )
+
+    def test_laudos_stages_created(self):
+        site = self._create_site('LAUDOS')
+        stage_names = list(site.stages.values_list('stage_name', flat=True))
+        for expected in ['Acionamento Parceiro', 'Acesso', 'Vistoria', 'Laudo']:
+            self.assertIn(expected, stage_names)
+
+    def test_instalacao_stages_created(self):
+        site = self._create_site('INSTALACAO')
+        stage_names = list(site.stages.values_list('stage_name', flat=True))
+        for expected in ['Acesso', 'Vistoria', 'QRF', 'WarRoom', 'PPI', 'Execução Rollout', 'ARQ']:
+            self.assertIn(expected, stage_names)
+
+    def test_infra_stages_created(self):
+        site = self._create_site('INFRA')
+        stage_names = list(site.stages.values_list('stage_name', flat=True))
+        for expected in ['Acesso', 'Vistoria', 'Projeto', 'Execução', 'RFI']:
+            self.assertIn(expected, stage_names)
+
+    def test_fabrica_stages_created(self):
+        site = self._create_site('FABRICA')
+        stage_names = list(site.stages.values_list('stage_name', flat=True))
+        for expected in ['Acesso', 'Vistoria', 'Projeto']:
+            self.assertIn(expected, stage_names)
+
+    def test_stages_start_as_pending(self):
+        site = self._create_site('LAUDOS')
+        for stage in site.stages.all():
+            self.assertEqual(stage.status, 'PENDING')
+            self.assertIsNone(stage.planned_date)
+            self.assertIsNone(stage.actual_date)
+
+
+class SiteStageUpdateTests(TestCase):
+    """Verifica atualização de status e data via action plan_stage e update_stage."""
+
+    def setUp(self):
+        self.user = User.objects.create_user(
+            username='stage_upd', password='password123', role=User.Role.ENGINEER
+        )
+        self.site = Site.objects.create(
+            site_id='STG_UPD_001', name='Site Stage Update', scope_type='LAUDOS'
+        )
+        self.client.login(username='stage_upd', password='password123')
+
+    def test_plan_stage_sets_planned_date(self):
+        url = reverse('site_detail', kwargs={'pk': self.site.pk})
+        self.client.post(url, {
+            'action': 'plan_stage',
+            'stage_name': 'Vistoria',
+            'stage_planned_date': '2025-06-01',
+        })
+        stage = SiteStage.objects.get(site=self.site, stage_name='Vistoria')
+        from datetime import date
+        self.assertEqual(stage.planned_date, date(2025, 6, 1))
+
+    def test_update_stage_done(self):
+        url = reverse('site_detail', kwargs={'pk': self.site.pk})
+        self.client.post(url, {
+            'action': 'update_stage',
+            'stage_name': 'Vistoria',
+            'stage_status': 'DONE',
+            'stage_date': '2025-06-10',
+        })
+        stage = SiteStage.objects.get(site=self.site, stage_name='Vistoria')
+        self.assertEqual(stage.status, 'DONE')
+        from datetime import date
+        self.assertEqual(stage.actual_date, date(2025, 6, 10))
+
+    def test_update_stage_skipped(self):
+        url = reverse('site_detail', kwargs={'pk': self.site.pk})
+        self.client.post(url, {
+            'action': 'update_stage',
+            'stage_name': 'Acesso',
+            'stage_status': 'SKIPPED',
+        })
+        stage = SiteStage.objects.get(site=self.site, stage_name='Acesso')
+        self.assertEqual(stage.status, 'SKIPPED')
+
+
+class SiteStageRescheduleTests(TestCase):
+    """Verifica que o replanejamento cria SiteStageReschedule e incrementa contador."""
+
+    def setUp(self):
+        self.user = User.objects.create_user(
+            username='stage_resc', password='password123', role=User.Role.ENGINEER
+        )
+        self.site = Site.objects.create(
+            site_id='STG_RSC_001', name='Site Reschedule', scope_type='LAUDOS'
+        )
+        # Define data planejada inicial
+        vistoria = SiteStage.objects.get(site=self.site, stage_name='Vistoria')
+        from datetime import date
+        vistoria.planned_date = date(2025, 5, 1)
+        vistoria.save()
+
+        self.client.login(username='stage_resc', password='password123')
+
+    def test_reschedule_stage_creates_reschedule_record(self):
+        url = reverse('site_detail', kwargs={'pk': self.site.pk})
+        self.client.post(url, {
+            'action': 'reschedule_stage',
+            'stage_name': 'Vistoria',
+            'stage_planned_date': '2025-06-15',
+            'reschedule_reason': 'Chuvas na região',
+        })
+        reschedules = SiteStageReschedule.objects.filter(stage__site=self.site, stage__stage_name='Vistoria')
+        self.assertEqual(reschedules.count(), 1)
+        r = reschedules.first()
+        from datetime import date
+        self.assertEqual(r.previous_date, date(2025, 5, 1))
+        self.assertEqual(r.new_date, date(2025, 6, 15))
+        self.assertEqual(r.reason, 'Chuvas na região')
+
+    def test_reschedule_increments_counter(self):
+        old_count = self.site.reschedule_count
+        url = reverse('site_detail', kwargs={'pk': self.site.pk})
+        self.client.post(url, {
+            'action': 'reschedule_stage',
+            'stage_name': 'Vistoria',
+            'stage_planned_date': '2025-07-01',
+            'reschedule_reason': 'Adiado pelo cliente',
+        })
+        self.site.refresh_from_db()
+        self.assertEqual(self.site.reschedule_count, old_count + 1)
+
+    def test_reschedule_updates_stage_planned_date(self):
+        url = reverse('site_detail', kwargs={'pk': self.site.pk})
+        self.client.post(url, {
+            'action': 'reschedule_stage',
+            'stage_name': 'Vistoria',
+            'stage_planned_date': '2025-08-20',
+            'reschedule_reason': 'Novo motivo',
+        })
+        stage = SiteStage.objects.get(site=self.site, stage_name='Vistoria')
+        from datetime import date
+        self.assertEqual(stage.planned_date, date(2025, 8, 20))

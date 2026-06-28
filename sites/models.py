@@ -200,6 +200,17 @@ class Site(models.Model):
     def __str__(self):
         return f"{self.site_id} - {self.name}"
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self._initial_legacy_values = {
+            'access_status': self.access_status,
+            'access_released_date': self.access_released_date,
+            'planned_survey_date': self.planned_survey_date,
+            'actual_survey_date': self.actual_survey_date,
+            'planned_report_date': self.planned_report_date,
+            'actual_report_date': self.actual_report_date,
+        }
+
     @property
     def days_overdue(self):
         from django.utils import timezone
@@ -228,26 +239,36 @@ class Site(models.Model):
 
     @property
     def current_stage_name(self):
-        stages = self.get_stages_config()
-        if not stages:
-            return "Finalizado"
-            
-        for name in stages:
-            status_info = self.stages_status.get(name, {}) if self.stages_status else {}
-            status = status_info.get('status', 'PENDING')
-            if status == 'PENDING':
-                return name
-                
+        first_pending = self.stages.filter(status='PENDING').order_by('order').first()
+        if first_pending:
+            return first_pending.stage_name
         return "Finalizado"
 
     def get_merged_reschedule_history(self):
+        """Retorna o histórico unificado de replanejamentos de todas as etapas."""
         from django.utils import timezone
-        from django.utils.dateparse import parse_datetime, parse_date
-        import datetime
 
         history_list = []
+        now = timezone.now()
 
-        # 1. Obter do banco de dados (SiteRescheduleHistory)
+        # Lê de SiteStageReschedule (nova fonte de verdade)
+        for reschedule in SiteStageReschedule.objects.filter(
+            stage__site=self
+        ).select_related('stage', 'created_by').order_by('-created_at'):
+            history_list.append({
+                'created_at': reschedule.created_at,
+                'created_by_name': (
+                    reschedule.created_by.get_full_name() or reschedule.created_by.username
+                ) if reschedule.created_by else 'Sistema',
+                'reason': reschedule.reason,
+                'changes': [{
+                    'stage_name': reschedule.stage.stage_name,
+                    'previous_date': reschedule.previous_date,
+                    'new_date': reschedule.new_date,
+                }],
+            })
+
+        # Mantém compatibilidade com SiteRescheduleHistory legado (escopo LAUDOS antigo)
         for bh in self.reschedule_histories.all().select_related('created_by'):
             changes = []
             if bh.previous_planned_survey_date != bh.new_planned_survey_date:
@@ -257,53 +278,22 @@ class Site(models.Model):
                     'new_date': bh.new_planned_survey_date,
                 })
             if bh.previous_planned_report_date != bh.new_planned_report_date:
-                label = "Laudo" if self.scope_type == 'LAUDOS' else "Projeto"
+                label = 'Laudo' if self.scope_type == 'LAUDOS' else 'Projeto'
                 changes.append({
                     'stage_name': label,
                     'previous_date': bh.previous_planned_report_date,
                     'new_date': bh.new_planned_report_date,
                 })
+            if changes:
+                history_list.append({
+                    'created_at': bh.created_at,
+                    'created_by_name': (
+                        bh.created_by.get_full_name() or bh.created_by.username
+                    ) if bh.created_by else 'Sistema',
+                    'reason': bh.reason,
+                    'changes': changes,
+                })
 
-            history_list.append({
-                'created_at': bh.created_at,
-                'created_by_name': (bh.created_by.get_full_name() or bh.created_by.username) if bh.created_by else "Sistema",
-                'reason': bh.reason,
-                'changes': changes,
-            })
-
-        # 2. Obter do campo JSON stages_status para as demais etapas
-        if self.stages_status:
-            for name, info in self.stages_status.items():
-                if name in ['Vistoria', 'Laudo', 'Projeto']:
-                    # Vistoria/Laudo/Projeto são gerenciados via legacy fields/db model
-                    continue
-
-                r_history = info.get('reschedule_history', [])
-                for entry in r_history:
-                    prev_dt_str = entry.get('previous_date')
-                    new_dt_str = entry.get('new_date')
-                    prev_dt = parse_date(prev_dt_str) if prev_dt_str else None
-                    new_dt = parse_date(new_dt_str) if new_dt_str else None
-
-                    created_at_str = entry.get('created_at')
-                    if created_at_str:
-                        created_at = parse_datetime(created_at_str)
-                    else:
-                        created_at = self.updated_at or timezone.now()
-
-                    history_list.append({
-                        'created_at': created_at,
-                        'created_by_name': entry.get('by', 'Sistema'),
-                        'reason': entry.get('reason'),
-                        'changes': [{
-                            'stage_name': name,
-                            'previous_date': prev_dt,
-                            'new_date': new_dt,
-                        }]
-                    })
-
-        # Ordenar decrescentemente pela data de criação
-        now = timezone.now()
         def get_sort_key(item):
             dt = item['created_at']
             if dt is None:
@@ -316,75 +306,45 @@ class Site(models.Model):
         return history_list
 
     def get_card_milestones(self):
-        from django.utils import timezone
-        from django.utils.dateparse import parse_date
+        """Retorna as etapas do site para exibição nos cards, lendo de SiteStage."""
         import datetime
+        from django.utils import timezone
 
         today = timezone.localdate()
         three_days_limit = today + datetime.timedelta(days=3)
 
-        # Define milestones to display on the card based on scope
-        if self.scope_type == 'INSTALACAO':
-            stages = ['Vistoria', 'QRF', 'WarRoom', 'PPI', 'ARQ']
-        elif self.scope_type == 'LAUDOS':
-            stages = ['Vistoria', 'Laudo']
-        elif self.scope_type == 'INFRA':
-            stages = ['Vistoria', 'Projeto', 'Execução', 'RFI']
-        elif self.scope_type == 'FABRICA':
-            stages = ['Vistoria', 'Projeto']
-        else:
-            stages = self.get_stages_config()
+        # Subconjunto de etapas visíveis no card (resumo)
+        card_stages_map = {
+            'INSTALACAO': ['Vistoria', 'QRF', 'WarRoom', 'PPI', 'ARQ'],
+            'LAUDOS':     ['Vistoria', 'Laudo'],
+            'INFRA':      ['Vistoria', 'Projeto', 'Execução', 'RFI'],
+            'FABRICA':    ['Vistoria', 'Projeto'],
+        }
+        card_stage_names = card_stages_map.get(self.scope_type, self.get_stages_config())
 
-        # Map icons for UI
         icon_map = {
-            'Vistoria': 'eye',
-            'Laudo': 'file-text',
-            'Projeto': 'file-text',
-            'QRF': 'clipboard-list',
-            'WarRoom': 'users',
-            'PPI': 'check-square',
-            'Execução': 'play',
-            'Execução Rollout': 'play',
-            'RFI': 'help-circle',
-            'ARQ': 'archive',
-            'Acionamento Parceiro': 'user-plus',
-            'Acesso': 'key',
+            'Vistoria': 'eye', 'Laudo': 'file-text', 'Projeto': 'file-text',
+            'QRF': 'clipboard-list', 'WarRoom': 'users', 'PPI': 'check-square',
+            'Execução': 'play', 'Execução Rollout': 'play', 'RFI': 'help-circle',
+            'ARQ': 'archive', 'Acionamento Parceiro': 'user-plus', 'Acesso': 'key',
         }
 
-        def to_date(val):
-            if not val:
-                return None
-            if isinstance(val, datetime.date):
-                return val
-            if isinstance(val, str):
-                return parse_date(val)
-            return None
+        # Busca todas as SiteStage deste site em uma só query
+        stage_objs = {s.stage_name: s for s in self.stages.all()}
 
         milestones = []
-        for name in stages:
-            stage_info = self.stages_status.get(name, {}) if self.stages_status else {}
-            status = stage_info.get('status', 'PENDING')
-
-            # Map actual date
-            actual_date = None
-            if name == 'Vistoria':
-                actual_date = self.actual_survey_date
-            elif name in ['Laudo', 'Projeto']:
-                actual_date = self.actual_report_date
+        for name in card_stage_names:
+            stage = stage_objs.get(name)
+            if stage:
+                status = stage.status
+                planned_date = stage.planned_date
+                actual_date = stage.actual_date
             else:
-                actual_date = to_date(stage_info.get('date'))
+                status = 'PENDING'
+                planned_date = None
+                actual_date = None
 
-            # Map planned date
-            planned_date = None
-            if name == 'Vistoria':
-                planned_date = self.planned_survey_date
-            elif name in ['Laudo', 'Projeto']:
-                planned_date = self.planned_report_date
-            else:
-                planned_date = to_date(stage_info.get('planned_date'))
-
-            # Boolean statuses based on dates
-            is_completed = (status in ['DONE', 'SKIPPED']) or (actual_date is not None)
+            is_completed = status in ('DONE', 'SKIPPED') or actual_date is not None
             is_overdue = False
             is_alert = False
 
@@ -456,11 +416,12 @@ class Site(models.Model):
     def current_responsible_sector(self):
         if self.scope_type != 'INSTALACAO':
             return None
-        if not self.stages_status:
-            return "Engenharia"
-        ppi_status = self.stages_status.get('PPI', {}).get('status', 'PENDING')
-        exec_status = self.stages_status.get('Execução Rollout', {}).get('status', 'PENDING')
-        arq_status = self.stages_status.get('ARQ', {}).get('status', 'PENDING')
+        # Get statuses from SiteStage
+        stages = {s.stage_name: s.status for s in self.stages.all()}
+        ppi_status = stages.get('PPI', 'PENDING')
+        exec_status = stages.get('Execução Rollout', 'PENDING')
+        arq_status = stages.get('ARQ', 'PENDING')
+        
         if ppi_status != 'DONE':
             return "Engenharia"
         elif exec_status != 'DONE':
@@ -614,45 +575,171 @@ class Site(models.Model):
     def recalculate_status(self):
         from django.utils import timezone
         today = timezone.localdate()
-        
+
+        # Site ainda não tem PK: sem etapas no banco, retorna PLANNED
+        if not self.pk:
+            return self.SiteStatus.PLANNED
+
+        # Verifica se a etapa final do escopo foi concluída
         stages = self.get_stages_config()
         if stages:
-            final_stage = stages[-1]
-            final_status = self.stages_status.get(final_stage, {}).get('status', 'PENDING') if self.stages_status else 'PENDING'
-            if final_status in ['DONE', 'SKIPPED']:
+            final_name = stages[-1]
+            final_stage = self.stages.filter(stage_name=final_name).first()
+            if final_stage and final_stage.status in ('DONE', 'SKIPPED'):
                 return self.SiteStatus.ACTIVE
-        
+
         milestones = self.get_card_milestones()
-        
-        # 1. INACTIVE: Any milestone has a planned date in the past and is not completed
+
+        # INACTIVE: qualquer marco vencido e não concluído
         if any(m['is_overdue'] for m in milestones):
             return self.SiteStatus.INACTIVE
-            
-        # 2. MAINTENANCE:
-        # - Any milestone is not completed and has no planned date (lacks planning)
-        # - OR Any milestone is not completed and has a planned date within 3 days (alert)
+
+        # MAINTENANCE: sem data planejada ou dentro do alerta de 3 dias
         if any((not m['is_completed'] and not m['planned_date']) or m['is_alert'] for m in milestones):
             return self.SiteStatus.MAINTENANCE
-            
+
         return self.SiteStatus.PLANNED
 
+    def ensure_stages_exist(self):
+        """Garante que todas as SiteStage do escopo atual existam no banco."""
+        existing = set(self.stages.values_list('stage_name', flat=True))
+        for order, name in enumerate(self.get_stages_config(), 1):
+            if name not in existing:
+                SiteStage.objects.create(
+                    site=self,
+                    scope_type=self.scope_type,
+                    stage_name=name,
+                    order=order,
+                )
+
+    def sync_legacy_fields_to_stages(self, only_fields=None):
+        """Sincroniza os campos legados do Site para as instâncias de SiteStage correspondentes."""
+        if not self.pk:
+            return
+
+        if getattr(self, '_syncing_stages', False):
+            return
+
+        self._syncing_stages = True
+        try:
+            self.ensure_stages_exist()
+
+            # 1. Acesso
+            if only_fields is None or 'access_status' in only_fields or 'access_released_date' in only_fields:
+                acesso = self.stages.filter(stage_name='Acesso').first()
+                if acesso:
+                    new_status = 'PENDING'
+                    new_actual_date = None
+                    if self.access_status == self.AccessStatus.RELEASED:
+                        new_status = 'DONE'
+                        new_actual_date = self.access_released_date
+                    elif self.access_status == self.AccessStatus.NOT_REQUIRED:
+                        new_status = 'SKIPPED'
+
+                    if acesso.status != new_status or acesso.actual_date != new_actual_date:
+                        acesso.status = new_status
+                        acesso.actual_date = new_actual_date
+                        acesso.save()
+
+            # 2. Vistoria
+            if only_fields is None or 'planned_survey_date' in only_fields or 'actual_survey_date' in only_fields:
+                vistoria = self.stages.filter(stage_name='Vistoria').first()
+                if vistoria:
+                    new_status = vistoria.status
+                    new_actual_date = vistoria.actual_date
+                    if self.actual_survey_date:
+                        new_status = 'DONE'
+                        new_actual_date = self.actual_survey_date
+                    else:
+                        if vistoria.status == 'DONE':
+                            new_status = 'PENDING'
+                        new_actual_date = None
+
+                    if (vistoria.planned_date != self.planned_survey_date or 
+                        vistoria.status != new_status or 
+                        vistoria.actual_date != new_actual_date):
+                        vistoria.planned_date = self.planned_survey_date
+                        vistoria.status = new_status
+                        vistoria.actual_date = new_actual_date
+                        vistoria.save()
+
+            # 3. Laudo ou Projeto
+            if only_fields is None or 'planned_report_date' in only_fields or 'actual_report_date' in only_fields:
+                report_name = 'Laudo' if self.scope_type == 'LAUDOS' else 'Projeto'
+                report_stage = self.stages.filter(stage_name=report_name).first()
+                if report_stage:
+                    new_status = report_stage.status
+                    new_actual_date = report_stage.actual_date
+                    if self.actual_report_date:
+                        new_status = 'DONE'
+                        new_actual_date = self.actual_report_date
+                    else:
+                        if report_stage.status == 'DONE':
+                            new_status = 'PENDING'
+                        new_actual_date = None
+
+                    if (report_stage.planned_date != self.planned_report_date or 
+                        report_stage.status != new_status or 
+                        report_stage.actual_date != new_actual_date):
+                        report_stage.planned_date = self.planned_report_date
+                        report_stage.status = new_status
+                        report_stage.actual_date = new_actual_date
+                        report_stage.save()
+        finally:
+            self._syncing_stages = False
+
     def save(self, *args, **kwargs):
-        from django.utils.dateparse import parse_date
-        
-        # Garante que as datas sejam objetos datetime.date se forem strings
-        for field in ['planned_survey_date', 'actual_survey_date', 'planned_report_date', 'actual_report_date', 'access_requested_date', 'access_released_date']:
-            val = getattr(self, field)
-            if isinstance(val, str):
-                setattr(self, field, parse_date(val) if val else None)
-        
+        if getattr(self, '_syncing_stages', False):
+            super().save(*args, **kwargs)
+            return
 
+        self._saving_site = True
+        try:
+            from django.utils.dateparse import parse_date
 
-        # Sincroniza stages_status com os campos legados se for uma alteração nos campos legados
-        self.sync_stages()
+            # Garante que as datas legadas sejam objetos datetime.date se chegarem como strings
+            for field in ['planned_survey_date', 'actual_survey_date', 'planned_report_date',
+                          'actual_report_date', 'access_requested_date', 'access_released_date']:
+                val = getattr(self, field)
+                if isinstance(val, str):
+                    setattr(self, field, parse_date(val) if val else None)
 
-        self.status = self.recalculate_status()
-        super().save(*args, **kwargs)
+            is_new = self.pk is None
+            self.status = self.recalculate_status()  # PLANNED para site novo (sem PK ainda)
+            super().save(*args, **kwargs)
 
+            if is_new:
+                # Cria as SiteStage e recalcula o status com as etapas já no banco
+                self.ensure_stages_exist()
+                self.sync_legacy_fields_to_stages()
+                new_status = self.recalculate_status()
+                if new_status != self.status:
+                    self.status = new_status
+                    type(self).objects.filter(pk=self.pk).update(status=new_status)
+                # Inicializa os valores legados iniciais no novo objeto
+                self._initial_legacy_values = {
+                    'access_status': self.access_status,
+                    'access_released_date': self.access_released_date,
+                    'planned_survey_date': self.planned_survey_date,
+                    'actual_survey_date': self.actual_survey_date,
+                    'planned_report_date': self.planned_report_date,
+                    'actual_report_date': self.actual_report_date,
+                }
+            else:
+                # Se não for novo, sincroniza apenas os campos legados alterados em memória
+                changed_fields = {}
+                initial_vals = getattr(self, '_initial_legacy_values', {})
+                for field in ['access_status', 'access_released_date', 'planned_survey_date',
+                              'actual_survey_date', 'planned_report_date', 'actual_report_date']:
+                    val = initial_vals.get(field)
+                    if getattr(self, field) != val:
+                        changed_fields[field] = getattr(self, field)
+                
+                if changed_fields:
+                    self.sync_legacy_fields_to_stages(only_fields=changed_fields.keys())
+                    initial_vals.update(changed_fields)
+        finally:
+            self._saving_site = False
 
 
 # --- 3. REPOSITÓRIO DE ARQUIVOS POR SITE ---
@@ -706,6 +793,7 @@ class SiteFile(models.Model):
 
 
 class SiteRescheduleHistory(models.Model):
+    """Legado: usado para Laudos antes da migração para SiteStageReschedule."""
     site = models.ForeignKey(
         Site,
         on_delete=models.CASCADE,
@@ -727,12 +815,140 @@ class SiteRescheduleHistory(models.Model):
     )
 
     class Meta:
-        verbose_name = "Histórico de Replanejamento"
-        verbose_name_plural = "Históricos de Replanejamento"
+        verbose_name = "Histórico de Replanejamento (Legado)"
+        verbose_name_plural = "Históricos de Replanejamento (Legado)"
         ordering = ['-created_at']
 
     def __str__(self):
         return f"{self.site.name} - {self.created_at.strftime('%d/%m/%Y %H:%M')}"
+
+
+# --- 5. ETAPAS POR SITE (Opção C — fonte de verdade relacional) ---
+class SiteStage(models.Model):
+    """Uma linha por etapa por site. Substitui o campo JSON stages_status."""
+
+    class Status(models.TextChoices):
+        PENDING = 'PENDING', 'Pendente'
+        DONE    = 'DONE',    'Concluído'
+        SKIPPED = 'SKIPPED', 'Ignorado'
+
+    site = models.ForeignKey(
+        Site,
+        on_delete=models.CASCADE,
+        related_name='stages',
+        verbose_name="Site"
+    )
+    scope_type = models.CharField(
+        max_length=20,
+        choices=Site.ScopeType.choices,
+        verbose_name="Escopo"
+    )
+    stage_name = models.CharField(max_length=100, verbose_name="Nome da Etapa")
+    order = models.PositiveIntegerField(default=0, verbose_name="Ordem")
+    planned_date = models.DateField(blank=True, null=True, verbose_name="Data Planejada")
+    actual_date  = models.DateField(blank=True, null=True, verbose_name="Data Realizada")
+    status = models.CharField(
+        max_length=20,
+        choices=Status.choices,
+        default=Status.PENDING,
+        verbose_name="Status"
+    )
+    notes = models.TextField(blank=True, null=True, verbose_name="Observações")
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        unique_together = [('site', 'stage_name')]
+        ordering = ['site', 'order']
+        verbose_name = "Etapa do Site"
+        verbose_name_plural = "Etapas dos Sites"
+
+    def __str__(self):
+        return f"{self.site.site_id} | {self.stage_name} ({self.status})"
+
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
+        # Sincroniza de volta com os campos legados do site correspondente
+        site = self.site
+        if getattr(site, '_syncing_stages', False) or getattr(site, '_saving_site', False):
+            return
+
+        updated_fields = set()
+        if self.stage_name == 'Acesso':
+            if self.status == self.Status.DONE:
+                if site.access_status != site.AccessStatus.RELEASED or site.access_released_date != self.actual_date:
+                    site.access_status = site.AccessStatus.RELEASED
+                    site.access_released_date = self.actual_date
+                    updated_fields.update(['access_status', 'access_released_date'])
+            elif self.status == self.Status.SKIPPED:
+                if site.access_status != site.AccessStatus.NOT_REQUIRED:
+                    site.access_status = site.AccessStatus.NOT_REQUIRED
+                    site.access_released_date = None
+                    updated_fields.update(['access_status', 'access_released_date'])
+            else:
+                if site.access_status not in [site.AccessStatus.NOT_STARTED, site.AccessStatus.REQUESTED]:
+                    site.access_status = site.AccessStatus.NOT_STARTED
+                    site.access_released_date = None
+                    updated_fields.update(['access_status', 'access_released_date'])
+        elif self.stage_name == 'Vistoria':
+            if site.planned_survey_date != self.planned_date:
+                site.planned_survey_date = self.planned_date
+                updated_fields.add('planned_survey_date')
+            if self.status == self.Status.DONE:
+                if site.actual_survey_date != self.actual_date:
+                    site.actual_survey_date = self.actual_date
+                    updated_fields.add('actual_survey_date')
+            else:
+                if site.actual_survey_date is not None:
+                    site.actual_survey_date = None
+                    updated_fields.add('actual_survey_date')
+        elif self.stage_name in ('Laudo', 'Projeto'):
+            if site.planned_report_date != self.planned_date:
+                site.planned_report_date = self.planned_date
+                updated_fields.add('planned_report_date')
+            if self.status == self.Status.DONE:
+                if site.actual_report_date != self.actual_date:
+                    site.actual_report_date = self.actual_date
+                    updated_fields.add('actual_report_date')
+            else:
+                if site.actual_report_date is not None:
+                    site.actual_report_date = None
+                    updated_fields.add('actual_report_date')
+
+        if updated_fields:
+            site._syncing_stages = True
+            try:
+                site.save(update_fields=list(updated_fields))
+            finally:
+                site._syncing_stages = False
+
+
+class SiteStageReschedule(models.Model):
+    """Histórico de replanejamento por etapa (SiteStage). Substitui reschedule_history do JSON."""
+
+    stage = models.ForeignKey(
+        SiteStage,
+        on_delete=models.CASCADE,
+        related_name='reschedules',
+        verbose_name="Etapa"
+    )
+    previous_date = models.DateField(blank=True, null=True, verbose_name="Data Anterior")
+    new_date      = models.DateField(blank=True, null=True, verbose_name="Nova Data")
+    reason        = models.TextField(blank=True, null=True, verbose_name="Motivo")
+    created_at    = models.DateTimeField(auto_now_add=True, verbose_name="Registrado em")
+    created_by    = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True, blank=True,
+        verbose_name="Registrado por"
+    )
+
+    class Meta:
+        ordering = ['-created_at']
+        verbose_name = "Replanejamento de Etapa"
+        verbose_name_plural = "Replanejamentos de Etapas"
+
+    def __str__(self):
+        return f"{self.stage} — {self.previous_date} → {self.new_date}"
 
 
 class CalendarNote(models.Model):

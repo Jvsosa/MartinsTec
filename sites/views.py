@@ -5,7 +5,7 @@ from django.contrib.auth import login, logout, authenticate
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.http import FileResponse, Http404, HttpResponseForbidden
-from .models import Site, SiteFile, User, SiteRescheduleHistory
+from .models import Site, SiteFile, User, SiteRescheduleHistory, SiteStage, SiteStageReschedule
 from django.db import IntegrityError
 from django.utils.dateparse import parse_date
 
@@ -303,48 +303,77 @@ def site_detail(request, pk):
 
             p_survey_str = request.POST.get('planned_survey_date')
             p_survey = parse_date(p_survey_str) if p_survey_str else None
-            
+
             p_report_str = request.POST.get('planned_report_date')
             p_report = parse_date(p_report_str) if p_report_str else None
 
-            # Detectar replanejamento (mudança em datas planejadas que já existiam)
-            is_reschedule = False
-            if site.planned_survey_date and p_survey and site.planned_survey_date != p_survey:
-                is_reschedule = True
-            if site.planned_report_date and p_report and site.planned_report_date != p_report:
-                is_reschedule = True
-                
-            if is_reschedule:
-                reason = request.POST.get('reschedule_reason', '').strip() or None
-                SiteRescheduleHistory.objects.create(
-                    site=site,
-                    previous_planned_survey_date=site.planned_survey_date,
-                    new_planned_survey_date=p_survey,
-                    previous_planned_report_date=site.planned_report_date,
-                    new_planned_report_date=p_report,
-                    reason=reason,
-                    created_by=request.user
-                )
-                site.reschedule_count += 1
-                messages.warning(request, f"Replanejamento registrado! Total de replanejamentos deste site: {site.reschedule_count}")
+            a_survey_str = request.POST.get('actual_survey_date')
+            a_survey = parse_date(a_survey_str) if a_survey_str else None
 
-            site.scope_type = request.POST.get('scope_type')
-            site.partner_company = request.POST.get('partner_company', '').strip() or None
+            a_report_str = request.POST.get('actual_report_date')
+            a_report = parse_date(a_report_str) if a_report_str else None
+
+            rescheduled_vistoria = False
+            # Atualiza SiteStage de Vistoria
+            vistoria_stage, _ = SiteStage.objects.get_or_create(
+                site=site, stage_name='Vistoria',
+                defaults={'scope_type': site.scope_type, 'order': 3}
+            )
+            # Detecta replanejamento de Vistoria
+            if vistoria_stage.planned_date and p_survey and vistoria_stage.planned_date != p_survey:
+                SiteStageReschedule.objects.create(
+                    stage=vistoria_stage,
+                    previous_date=vistoria_stage.planned_date,
+                    new_date=p_survey,
+                    reason=request.POST.get('reschedule_reason', '').strip() or None,
+                    created_by=request.user,
+                )
+                rescheduled_vistoria = True
+                site.reschedule_count = (site.reschedule_count or 0) + 1
+                messages.warning(request, f"Replanejamento registrado! Total: {site.reschedule_count}")
+            vistoria_stage.planned_date = p_survey
+            vistoria_stage.actual_date  = a_survey
+            vistoria_stage.status = 'DONE' if a_survey else 'PENDING'
+            vistoria_stage.site = site
+            vistoria_stage.save()
+
+            # Atualiza SiteStage de Laudo ou Projeto
+            report_name = 'Laudo' if site.scope_type == 'LAUDOS' else 'Projeto'
+            laudo_stage, _ = SiteStage.objects.get_or_create(
+                site=site, stage_name=report_name,
+                defaults={'scope_type': site.scope_type, 'order': 4}
+            )
+            if laudo_stage.planned_date and p_report and laudo_stage.planned_date != p_report:
+                SiteStageReschedule.objects.create(
+                    stage=laudo_stage,
+                    previous_date=laudo_stage.planned_date,
+                    new_date=p_report,
+                    reason=request.POST.get('reschedule_reason', '').strip() or None,
+                    created_by=request.user,
+                )
+                if not rescheduled_vistoria:
+                    site.reschedule_count = (site.reschedule_count or 0) + 1
+                    messages.warning(request, f"Replanejamento registrado! Total: {site.reschedule_count}")
+            laudo_stage.planned_date = p_report
+            laudo_stage.actual_date  = a_report
+            laudo_stage.status = 'DONE' if a_report else 'PENDING'
+            laudo_stage.site = site
+            laudo_stage.save()
+
+            # Mantém campos legados sincronizados (compatibilidade com métricas de lead time)
+            site.scope_type       = request.POST.get('scope_type') or site.scope_type
+            site.partner_company  = request.POST.get('partner_company', '').strip() or None
             site.planned_survey_date = p_survey
+            site.actual_survey_date  = a_survey
             site.planned_report_date = p_report
-            
-            a_survey = request.POST.get('actual_survey_date')
-            site.actual_survey_date = parse_date(a_survey) if a_survey else None
-            
-            a_report = request.POST.get('actual_report_date')
-            site.actual_report_date = parse_date(a_report) if a_report else None
+            site.actual_report_date  = a_report
 
             try:
-                site.save()  # Auto-calcula o status
+                site.save()
                 messages.success(request, "Fluxo de trabalho e prazos atualizados com sucesso!")
             except Exception as e:
                 messages.error(request, f"Erro ao atualizar prazos: {str(e)}")
-                
+
             return redirect('site_detail', pk=pk)
 
         # Ação Nova: Atualização do fluxo de acesso (apenas ADMIN ou ENGINEER)
@@ -391,48 +420,34 @@ def site_detail(request, pk):
                 messages.error(request, "Seu cargo não possui permissão para atualizar etapas.")
                 return redirect('site_detail', pk=pk)
 
-            stage_name = request.POST.get('stage_name')
+            stage_name   = request.POST.get('stage_name')
             stage_status = request.POST.get('stage_status')  # 'PENDING', 'DONE', 'SKIPPED'
-            stage_date = request.POST.get('stage_date')
-
-            if not site.stages_status:
-                site.stages_status = {}
+            stage_date   = request.POST.get('stage_date')
 
             from django.utils import timezone
             today = timezone.localdate()
 
-            # Preserve planned_date and reschedule_history when updating status
-            existing = site.stages_status.get(stage_name, {})
-            planned_date_existing = existing.get('planned_date')
-            history_existing = existing.get('reschedule_history', [])
+            stage_obj, _ = SiteStage.objects.get_or_create(
+                site=site,
+                stage_name=stage_name,
+                defaults={'scope_type': site.scope_type, 'order': 99}
+            )
 
             if stage_status == 'DONE':
-                site.stages_status[stage_name] = {
-                    'status': 'DONE',
-                    'date': stage_date if stage_date else today.isoformat(),
-                    'planned_date': planned_date_existing,
-                    'reschedule_history': history_existing,
-                }
+                stage_obj.actual_date = parse_date(stage_date) if stage_date else today
+                stage_obj.status = 'DONE'
             elif stage_status == 'SKIPPED':
-                site.stages_status[stage_name] = {
-                    'status': 'SKIPPED',
-                    'date': today.isoformat(),
-                    'planned_date': planned_date_existing,
-                    'reschedule_history': history_existing,
-                }
+                stage_obj.actual_date = None
+                stage_obj.status = 'SKIPPED'
             else:
-                site.stages_status[stage_name] = {
-                    'status': 'PENDING',
-                    'date': None,
-                    'planned_date': planned_date_existing,
-                    'reschedule_history': history_existing,
-                }
+                stage_obj.actual_date = None
+                stage_obj.status = 'PENDING'
+
+            stage_obj.site = site
+            stage_obj.save()
 
             if 'partner_company' in request.POST:
                 site.partner_company = request.POST.get('partner_company', '').strip() or None
-
-            # Sincroniza o JSON de volta para os campos legados de banco
-            site.sync_to_legacy_fields()
 
             try:
                 site.save()
@@ -451,21 +466,17 @@ def site_detail(request, pk):
             stage_name = request.POST.get('stage_name')
             planned_date_str = request.POST.get('stage_planned_date')
 
-            if not site.stages_status:
-                site.stages_status = {}
+            stage_obj, _ = SiteStage.objects.get_or_create(
+                site=site,
+                stage_name=stage_name,
+                defaults={'scope_type': site.scope_type, 'order': 99}
+            )
+            stage_obj.planned_date = parse_date(planned_date_str) if planned_date_str else None
+            stage_obj.site = site
+            stage_obj.save(update_fields=['planned_date', 'updated_at'])
 
-            existing = site.stages_status.get(stage_name, {'status': 'PENDING', 'date': None, 'reschedule_history': []})
-            existing['planned_date'] = planned_date_str if planned_date_str else None
-            if 'reschedule_history' not in existing:
-                existing['reschedule_history'] = []
-            site.stages_status[stage_name] = existing
-
-            try:
-                site.save(update_fields=['stages_status'])
-                messages.success(request, f"Data planejada para '{stage_name}' definida com sucesso!")
-            except Exception as e:
-                messages.error(request, f"Erro ao salvar data planejada: {str(e)}")
-
+            site.save()  # recalcula status
+            messages.success(request, f"Data planejada para '{stage_name}' definida com sucesso!")
             return redirect('site_detail', pk=pk)
 
         # Ação Nova: Replanejar etapa genérica (nova data + motivo + histórico)
@@ -478,35 +489,28 @@ def site_detail(request, pk):
             new_planned_date_str = request.POST.get('stage_planned_date')
             reason = request.POST.get('reschedule_reason', '').strip() or None
 
-            if not site.stages_status:
-                site.stages_status = {}
+            stage_obj, _ = SiteStage.objects.get_or_create(
+                site=site,
+                stage_name=stage_name,
+                defaults={'scope_type': site.scope_type, 'order': 99}
+            )
 
-            existing = site.stages_status.get(stage_name, {'status': 'PENDING', 'date': None})
-            old_planned = existing.get('planned_date')
+            SiteStageReschedule.objects.create(
+                stage=stage_obj,
+                previous_date=stage_obj.planned_date,
+                new_date=parse_date(new_planned_date_str) if new_planned_date_str else None,
+                reason=reason,
+                created_by=request.user,
+            )
 
-            # Registra no histórico interno do JSON
-            from django.utils import timezone
-            history = existing.get('reschedule_history', [])
-            history.append({
-                'previous_date': old_planned,
-                'new_date': new_planned_date_str,
-                'reason': reason,
-                'by': request.user.get_full_name() or request.user.username,
-                'created_at': timezone.now().isoformat(),
-            })
-            existing['planned_date'] = new_planned_date_str
-            existing['reschedule_history'] = history
-            site.stages_status[stage_name] = existing
+            stage_obj.planned_date = parse_date(new_planned_date_str) if new_planned_date_str else None
+            stage_obj.site = site
+            stage_obj.save(update_fields=['planned_date', 'updated_at'])
 
-            # Incrementa contador geral de replanejamentos do site
             site.reschedule_count = (site.reschedule_count or 0) + 1
+            site.save()
 
-            try:
-                site.save(update_fields=['stages_status', 'reschedule_count'])
-                messages.warning(request, f"Replanejamento da etapa '{stage_name}' registrado! Total: {site.reschedule_count}")
-            except Exception as e:
-                messages.error(request, f"Erro ao replanejar etapa: {str(e)}")
-
+            messages.warning(request, f"Replanejamento da etapa '{stage_name}' registrado! Total: {site.reschedule_count}")
             return redirect('site_detail', pk=pk)
 
         # Ação 3: Atualização de localização e ficha técnica (apenas ADMIN ou ENGINEER)
@@ -620,40 +624,45 @@ def site_detail(request, pk):
         'OTHER': site.files.filter(category='OTHER'),
     }
 
-    # Gera a lista de etapas para o template de forma estruturada
-    stages_config = site.get_stages_config()
+    # Gera a lista de etapas para o template a partir de SiteStage
     stages_list = []
     recommended_step = 1
     found_pending = False
-    
+
     from django.utils import timezone as tz
-    from django.utils.dateparse import parse_date as _parse_date
     today = tz.localdate()
 
-    for idx, name in enumerate(stages_config, 1):
-        status_info = site.stages_status.get(name, {'status': 'PENDING', 'date': None})
-        status = status_info.get('status', 'PENDING')
-        date = status_info.get('date')
-        if name == 'Vistoria':
-            planned_date_obj = site.planned_survey_date
-        elif name in ['Laudo', 'Projeto']:
-            planned_date_obj = site.planned_report_date
-        else:
-            planned_date_str = status_info.get('planned_date')
-            planned_date_obj = _parse_date(planned_date_str) if planned_date_str else None
-        history = status_info.get('reschedule_history', [])
-        reschedule_count = len(history)
+    stage_qs = site.stages.all().order_by('order')
+    # Garante que os stages existam (para sites criados antes da migração)
+    if not stage_qs.exists():
+        site.ensure_stages_exist()
+        stage_qs = site.stages.all().order_by('order')
 
-        # is_due: planned date has arrived and stage not yet done/skipped
+    for idx, stage_obj in enumerate(stage_qs, 1):
+        planned_date_obj = stage_obj.planned_date
+        status = stage_obj.status
+        date = stage_obj.actual_date
+        reschedule_qs = stage_obj.reschedules.all()
+        reschedule_count = reschedule_qs.count()
+        history = [
+            {
+                'previous_date': r.previous_date,
+                'new_date': r.new_date,
+                'reason': r.reason,
+                'by': (r.created_by.get_full_name() or r.created_by.username) if r.created_by else 'Sistema',
+                'created_at': r.created_at.isoformat() if r.created_at else None,
+            }
+            for r in reschedule_qs
+        ]
+
         is_due = bool(planned_date_obj and status == 'PENDING' and planned_date_obj <= today)
-        # is_overdue: planned date has already passed (strictly before today)
         is_overdue = bool(planned_date_obj and status == 'PENDING' and planned_date_obj < today)
         days_overdue = (today - planned_date_obj).days if is_overdue else 0
 
         stages_list.append({
-            'name': name,
+            'name': stage_obj.stage_name,
             'status': status,
-            'date': date,
+            'date': date.isoformat() if date else None,
             'index': idx,
             'planned_date': planned_date_obj,
             'is_due': is_due,
@@ -667,7 +676,6 @@ def site_detail(request, pk):
             recommended_step = idx
             found_pending = True
 
-    # Se todas as etapas foram concluídas ou puladas, foca na última
     if not found_pending and stages_list:
         recommended_step = len(stages_list)
 
