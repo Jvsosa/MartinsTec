@@ -276,12 +276,25 @@ def site_list(request):
             if total_days is not None:
                 partner_data[partner]['total_times'].append(total_days)
 
-            # Calcula ciclo ativo do parceiro: Vistoria -> Conclusão (última etapa)
+            # Calcula ciclo ativo do parceiro
             if last_actual:
-                survey_stage_obj = stage_objs.get('Vistoria')
-                survey_actual = survey_stage_obj.actual_date if survey_stage_obj else None
-                # Fallback para criação se não houver data de vistoria
-                start_date = survey_actual if survey_actual else creation_date
+                if scope == 'LAUDOS':
+                    # Para Laudos, começa após a liberação do Acesso (obtido pela nossa empresa)
+                    acesso_stage_obj = stage_objs.get('Acesso')
+                    acesso_actual = acesso_stage_obj.actual_date if acesso_stage_obj else None
+                    if acesso_actual:
+                        start_date = acesso_actual
+                    else:
+                        # Fallback se não houver data de acesso
+                        survey_stage_obj = stage_objs.get('Vistoria')
+                        survey_actual = survey_stage_obj.actual_date if survey_stage_obj else None
+                        start_date = survey_actual if survey_actual else creation_date
+                else:
+                    # Para outros escopos, começa na vistoria
+                    survey_stage_obj = stage_objs.get('Vistoria')
+                    survey_actual = survey_stage_obj.actual_date if survey_stage_obj else None
+                    start_date = survey_actual if survey_actual else creation_date
+                
                 partner_cycle_days = max(0, (last_actual - start_date).days)
                 partner_data[partner]['partner_times'].append(partner_cycle_days)
 
