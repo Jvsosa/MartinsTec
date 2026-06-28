@@ -151,107 +151,251 @@ def site_list(request):
     # Atividades recentes (Uploads)
     recent_activities = SiteFile.objects.select_related('site', 'uploaded_by').order_by('-uploaded_at')[:5]
 
-    # --- CÁLCULO DE MÉTRICAS E GARGALOS (LEAD TIMES E PERFORMANCE) ---
+    # --- CÁLCULO DE LEADTIME POR ESCOPO, ETAPA E PARCEIRO ---
+    import json as _json
+
+    all_sites = list(Site.objects.prefetch_related('stages').all())
+    scope_configs = Site.SCOPE_STAGES  # {'LAUDOS': [...], 'INSTALACAO': [...], ...}
+
+    # Estruturas de dados para coleta
+    # scope_stage_times[scope][transition_label] = [dias, dias, ...]
+    scope_stage_times = {}
+    # partner_data[partner] = {scope: {transition: [dias], ...}, total_sites, finished_sites, total_times}
     partner_data = {}
     detailed_lead_times = []
-    
-    for s in Site.objects.all():
-        partner = s.partner_company
-        if not partner:
+    # scope_totals[scope] = [total_days, ...]  (ciclo completo)
+    scope_totals = {}
+    # Contadores por escopo
+    scope_counts = {}
+
+    for s in all_sites:
+        scope = s.scope_type
+        stages_config = scope_configs.get(scope, [])
+        if not stages_config:
             continue
-        partner = partner.strip()
-        if partner not in partner_data:
-            partner_data[partner] = {
-                'total_sites': 0,
-                'survey_times': [],
-                'report_times': [],
-                'total_times': [],
-                'pending_surveys': 0,
-                'pending_reports': 0,
-            }
-            
-        p_data = partner_data[partner]
-        p_data['total_sites'] += 1
-        
-        # 1. Acionamento -> Vistoria (Lead Time)
+
         creation_date = timezone.localdate(s.created_at)
-        if s.actual_survey_date:
-            survey_days = (s.actual_survey_date - creation_date).days
-            p_data['survey_times'].append(max(0, survey_days))
-            survey_display = f"{survey_days} dias"
-        else:
-            p_data['pending_surveys'] += 1
-            elapsed_survey = (today - creation_date).days
-            survey_display = f"Pendente ({elapsed_survey}d)"
-            
-        # 2. Vistoria -> Laudo (Lead Time)
-        if s.actual_survey_date and s.actual_report_date:
-            report_days = (s.actual_report_date - s.actual_survey_date).days
-            p_data['report_times'].append(max(0, report_days))
-            report_display = f"{report_days} dias"
-        elif s.actual_survey_date and not s.actual_report_date:
-            p_data['pending_reports'] += 1
-            elapsed_report = (today - s.actual_survey_date).days
-            report_display = f"Pendente ({elapsed_report}d)"
-        else:
-            report_display = "--"
-            
-        # 3. Ciclo Total (Acionamento -> Laudo)
-        if s.actual_report_date:
-            total_days = (s.actual_report_date - creation_date).days
-            p_data['total_times'].append(max(0, total_days))
-            total_display = f"{total_days} dias"
-        else:
-            elapsed_total = (today - creation_date).days
-            total_display = f"Em andamento ({elapsed_total}d)"
-            
+
+        # Monta mapa de etapas do site: {stage_name: SiteStage}
+        stage_objs = {st.stage_name: st for st in s.stages.all()}
+
+        # Inicializa escopo se necessário
+        if scope not in scope_stage_times:
+            scope_stage_times[scope] = {}
+            scope_totals[scope] = []
+            scope_counts[scope] = {'total': 0, 'finished': 0}
+
+        scope_counts[scope]['total'] += 1
+
+        # Calcula leadtime entre etapas consecutivas
+        site_transitions = []
+        first_actual = None
+        last_actual = None
+
+        for i, stage_name in enumerate(stages_config):
+            stage_obj = stage_objs.get(stage_name)
+            actual = stage_obj.actual_date if stage_obj else None
+
+            if i == 0 and actual and first_actual is None:
+                first_actual = actual
+            if actual:
+                last_actual = actual
+
+            # Calcula transição: etapa anterior → etapa atual
+            if i == 0:
+                # Primeira etapa: Acionamento (created_at) → Etapa
+                prev_date = creation_date
+                prev_name = 'Acionamento'
+            else:
+                prev_stage_name = stages_config[i - 1]
+                prev_obj = stage_objs.get(prev_stage_name)
+                prev_date = prev_obj.actual_date if prev_obj else None
+                prev_name = prev_stage_name
+
+            transition_label = f"{prev_name} → {stage_name}"
+            days = None
+
+            if prev_date and actual:
+                days = max(0, (actual - prev_date).days)
+
+                # Registra no escopo
+                if transition_label not in scope_stage_times[scope]:
+                    scope_stage_times[scope][transition_label] = []
+                scope_stage_times[scope][transition_label].append(days)
+
+                # Registra no parceiro
+                partner = (s.partner_company or '').strip()
+                if partner:
+                    if partner not in partner_data:
+                        partner_data[partner] = {
+                            'total_sites': 0, 'finished_sites': 0,
+                            'total_times': [], 'scopes': {},
+                            'survey_times': [], 'report_times': []
+                        }
+                    if scope not in partner_data[partner]['scopes']:
+                        partner_data[partner]['scopes'][scope] = {}
+                    if transition_label not in partner_data[partner]['scopes'][scope]:
+                        partner_data[partner]['scopes'][scope][transition_label] = []
+                    partner_data[partner]['scopes'][scope][transition_label].append(days)
+
+            site_transitions.append({
+                'from': prev_name,
+                'to': stage_name,
+                'days': days,
+                'display': f"{days} dias" if days is not None else ("Pendente" if not actual else "--"),
+            })
+
+        # Verifica se site é finalizado (última etapa concluída)
+        last_stage_name = stages_config[-1]
+        last_stage_obj = stage_objs.get(last_stage_name)
+        is_finished = last_stage_obj and last_stage_obj.status in ('DONE', 'SKIPPED')
+
+        if is_finished:
+            scope_counts[scope]['finished'] += 1
+
+        # Ciclo total
+        total_days = None
+        if last_actual:
+            total_days = max(0, (last_actual - creation_date).days)
+            scope_totals[scope].append(total_days)
+
+        # Contabiliza parceiro
+        partner = (s.partner_company or '').strip()
+        if partner:
+            if partner not in partner_data:
+                partner_data[partner] = {
+                    'total_sites': 0, 'finished_sites': 0,
+                    'total_times': [], 'scopes': {},
+                    'survey_times': [], 'report_times': []
+                }
+            partner_data[partner]['total_sites'] += 1
+            if is_finished:
+                partner_data[partner]['finished_sites'] += 1
+            if total_days is not None:
+                partner_data[partner]['total_times'].append(total_days)
+            # Para compatibilidade com testes legados
+            if s.actual_survey_date:
+                sd = (s.actual_survey_date - creation_date).days
+                partner_data[partner]['survey_times'].append(max(0, sd))
+            if s.actual_survey_date and s.actual_report_date:
+                rd = (s.actual_report_date - s.actual_survey_date).days
+                partner_data[partner]['report_times'].append(max(0, rd))
+
+        # Registro detalhado para tabela site-a-site
+        current_stage = 'Finalizado'
+        if not is_finished:
+            for sn in stages_config:
+                so = stage_objs.get(sn)
+                if not so or so.status == 'PENDING':
+                    current_stage = sn
+                    break
+
         detailed_lead_times.append({
             'id': s.id,
-            'site_id': s.site_id,
+            'site_id': s.site_id or '--',
             'name': s.name,
-            'partner_company': s.partner_company,
+            'partner_company': partner or '--',
             'scope_type': s.get_scope_type_display(),
+            'scope_key': scope,
             'created_at': creation_date,
-            'actual_survey_date': s.actual_survey_date,
-            'actual_report_date': s.actual_report_date,
-            'survey_display': survey_display,
-            'report_display': report_display,
-            'total_display': total_display,
+            'transitions': site_transitions,
+            'total_days': total_days,
+            'total_display': f"{total_days} dias" if total_days is not None else f"Em andamento ({(today - creation_date).days}d)",
+            'current_stage': current_stage,
+            'is_finished': is_finished,
             'status': s.status,
             'get_status_display': s.get_status_display(),
         })
 
-    # Agregar médias por parceiro e totais gerais
+    # --- Agregar métricas por escopo ---
+    scope_analytics = {}
+    for scope, transitions in scope_stage_times.items():
+        scope_display = dict(Site.ScopeType.choices).get(scope, scope)
+        stages_list = []
+        for label, times in transitions.items():
+            avg = round(sum(times) / len(times), 1) if times else 0
+            parts = label.split(" → ")
+            prev_name = parts[0] if len(parts) > 0 else ""
+            stage_name = parts[1] if len(parts) > 1 else ""
+            stages_list.append({
+                'label': label,
+                'prev_name': prev_name,
+                'stage_name': stage_name,
+                'avg_days': avg,
+                'min_days': min(times) if times else 0,
+                'max_days': max(times) if times else 0,
+                'count': len(times),
+            })
+        avg_total = round(sum(scope_totals[scope]) / len(scope_totals[scope]), 1) if scope_totals[scope] else None
+        scope_analytics[scope] = {
+            'display': scope_display,
+            'stages': stages_list,
+            'avg_total': avg_total,
+            'total_sites': scope_counts.get(scope, {}).get('total', 0),
+            'finished_sites': scope_counts.get(scope, {}).get('finished', 0),
+        }
+
+    # --- Agregar métricas por parceiro ---
     partner_stats = []
-    all_survey_days = []
-    all_report_days = []
-    all_total_days = []
-    
     for partner, data in partner_data.items():
+        avg_total = round(sum(data['total_times']) / len(data['total_times']), 1) if data['total_times'] else None
         avg_survey = round(sum(data['survey_times']) / len(data['survey_times']), 1) if data['survey_times'] else None
         avg_report = round(sum(data['report_times']) / len(data['report_times']), 1) if data['report_times'] else None
-        avg_total = round(sum(data['total_times']) / len(data['total_times']), 1) if data['total_times'] else None
-        
-        if avg_survey is not None:
-            all_survey_days.append(avg_survey)
-        if avg_report is not None:
-            all_report_days.append(avg_report)
+        # Performance badge
         if avg_total is not None:
-            all_total_days.append(avg_total)
-            
+            if avg_total <= 8:
+                perf_badge = 'fast'
+            elif avg_total <= 15:
+                perf_badge = 'normal'
+            else:
+                perf_badge = 'slow'
+        else:
+            perf_badge = 'none'
+
         partner_stats.append({
             'partner': partner,
             'total_sites': data['total_sites'],
+            'finished_sites': data['finished_sites'],
+            'avg_total_days': avg_total,
             'avg_survey_days': avg_survey,
             'avg_report_days': avg_report,
-            'avg_total_days': avg_total,
-            'pending_surveys': data['pending_surveys'],
-            'pending_reports': data['pending_reports'],
+            'perf_badge': perf_badge,
+            'scopes': data['scopes'],
         })
-        
-    overall_avg_survey = round(sum(all_survey_days) / len(all_survey_days), 1) if all_survey_days else None
-    overall_avg_report = round(sum(all_report_days) / len(all_report_days), 1) if all_report_days else None
-    overall_avg_total = round(sum(all_total_days) / len(all_total_days), 1) if all_total_days else None
+
+    # Ordena parceiros: mais rápido primeiro (sem dados por último)
+    partner_stats.sort(key=lambda x: (x['avg_total_days'] is None, x['avg_total_days'] or 999))
+
+    # KPIs globais
+    all_total_times = []
+    slowest_stage_name = None
+    slowest_stage_avg = 0
+    for scope, transitions in scope_stage_times.items():
+        for label, times in transitions.items():
+            avg = sum(times) / len(times) if times else 0
+            if avg > slowest_stage_avg:
+                slowest_stage_avg = avg
+                slowest_stage_name = label
+        all_total_times.extend(scope_totals.get(scope, []))
+
+    overall_avg_total = round(sum(all_total_times) / len(all_total_times), 1) if all_total_times else None
+    fastest_partner = partner_stats[0]['partner'] if partner_stats and partner_stats[0]['avg_total_days'] is not None else None
+    total_finished = sum(sc.get('finished', 0) for sc in scope_counts.values())
+
+    # Serializa dados para gráficos JS
+    scope_chart_data = {}
+    for scope, info in scope_analytics.items():
+        scope_chart_data[scope] = {
+            'labels': [s['label'] for s in info['stages']],
+            'avg_days': [s['avg_days'] for s in info['stages']],
+        }
+
+    partner_chart_data = {
+        'labels': [p['partner'] for p in partner_stats],
+        'avg_total': [p['avg_total_days'] or 0 for p in partner_stats],
+    }
+
+
 
     context = {
         'sites': sites,
@@ -270,11 +414,17 @@ def site_list(request):
         'dwg_files': dwg_files,
         'other_files': other_files,
         'recent_activities': recent_activities,
+        # Analytics / Leadtime
+        'scope_analytics': scope_analytics,
         'partner_stats': partner_stats,
         'detailed_lead_times': detailed_lead_times,
-        'overall_avg_survey': overall_avg_survey,
-        'overall_avg_report': overall_avg_report,
         'overall_avg_total': overall_avg_total,
+        'slowest_stage_name': slowest_stage_name,
+        'slowest_stage_avg': round(slowest_stage_avg, 1) if slowest_stage_avg else None,
+        'fastest_partner': fastest_partner,
+        'total_finished': total_finished,
+        'scope_chart_data_json': _json.dumps(scope_chart_data),
+        'partner_chart_data_json': _json.dumps(partner_chart_data),
     }
 
     return render(request, 'sites/site_list.html', context)
