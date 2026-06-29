@@ -877,28 +877,48 @@
             </div>
         </div>
 
-        <!-- Seção Secundária: Progresso por Escopo (Full-width) -->
-        <div class="ent-card" style="padding: 2rem; border: none; background: white; border-radius: 12px; box-shadow: var(--ent-shadow-sm); margin-bottom: 2rem;">
-            <h3 style="font-family: var(--font-heading); font-size: 1.25rem; font-weight: 800; color: var(--ent-primary); margin-bottom: 0.25rem;">Progresso por Escopo</h3>
-            <p style="font-size: 0.8rem; color: var(--ent-text-muted); font-weight: 500; margin-bottom: 2rem;">Percentual concluído por tipo de rollout.</p>
+        <!-- Seção Secundária: Progresso por Escopo e Operadoras (2 colunas) -->
+        <div style="display: grid; grid-template-columns: 1.2fr 1.8fr; gap: 1.5rem; margin-bottom: 2rem;">
             
-            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 2rem;">
-                {% for scope_key, scope_info in scope_analytics.items %}
-                <div class="progress-item">
-                    <div class="progress-item-header" style="display: flex; justify-content: space-between; font-size: 0.85rem; font-weight: 700; color: var(--ent-primary);">
-                        <span style="display: flex; align-items: center; gap: 0.5rem;">
-                            <span style="width: 8px; height: 8px; border-radius: 50%; background-color: {% if scope_key == 'LAUDOS' %}#2563eb{% elif scope_key == 'INSTALACAO' %}#059669{% elif scope_key == 'INFRA' %}#d97706{% else %}#7c3aed{% endif %}; display: inline-block;"></span>
-                            {{ scope_info.display }}
-                        </span>
-                        <span>{{ scope_info.finished_sites }} / {{ scope_info.total_sites }}</span>
+            <!-- Progresso do Rollout (Esquerda, vertical) -->
+            <div class="ent-card" style="padding: 2rem; border: none; display: flex; flex-direction: column; background: white; border-radius: 12px; box-shadow: var(--ent-shadow-sm);">
+                <h3 style="font-family: var(--font-heading); font-size: 1.25rem; font-weight: 800; color: var(--ent-primary); margin-bottom: 0.25rem;">Progresso por Escopo</h3>
+                <p style="font-size: 0.8rem; color: var(--ent-text-muted); font-weight: 500; margin-bottom: 2rem;">Percentual concluído por tipo de rollout.</p>
+                
+                <div style="display: flex; flex-direction: column; gap: 1.5rem; flex: 1; justify-content: center;">
+                    {% for scope_key, scope_info in scope_analytics.items %}
+                    <div class="progress-item">
+                        <div class="progress-item-header" style="display: flex; justify-content: space-between; font-size: 0.85rem; font-weight: 700; color: var(--ent-primary);">
+                            <span style="display: flex; align-items: center; gap: 0.5rem;">
+                                <span style="width: 8px; height: 8px; border-radius: 50%; background-color: {% if scope_key == 'LAUDOS' %}#2563eb{% elif scope_key == 'INSTALACAO' %}#059669{% elif scope_key == 'INFRA' %}#d97706{% else %}#7c3aed{% endif %}; display: inline-block;"></span>
+                                {{ scope_info.display }}
+                            </span>
+                            <span>{{ scope_info.finished_sites }} / {{ scope_info.total_sites }}</span>
+                        </div>
+                        <div class="progress-bar-bg" style="width: 100%; height: 8px; background-color: #f1f5f9; border-radius: 4px; overflow: hidden; margin-top: 0.35rem;">
+                            <!-- Progresso do Escopo -->
+                            <div class="progress-bar-fill" style="height: 100%; border-radius: 4px; width: 0%; background-color: {% if scope_key == 'LAUDOS' %}#2563eb{% elif scope_key == 'INSTALACAO' %}#059669{% elif scope_key == 'INFRA' %}#d97706{% else %}#7c3aed{% endif %}; transition: width 0.8s ease;" data-pct="{% if scope_info.total_sites > 0 %}{% widthratio scope_info.finished_sites scope_info.total_sites 100 %}{% else %}0{% endif %}"></div>
+                        </div>
                     </div>
-                    <div class="progress-bar-bg" style="width: 100%; height: 8px; background-color: #f1f5f9; border-radius: 4px; overflow: hidden; margin-top: 0.35rem;">
-                        <!-- Progresso do Escopo -->
-                        <div class="progress-bar-fill" style="height: 100%; border-radius: 4px; width: 0%; background-color: {% if scope_key == 'LAUDOS' %}#2563eb{% elif scope_key == 'INSTALACAO' %}#059669{% elif scope_key == 'INFRA' %}#d97706{% else %}#7c3aed{% endif %}; transition: width 0.8s ease;" data-pct="{% if scope_info.total_sites > 0 %}{% widthratio scope_info.finished_sites scope_info.total_sites 100 %}{% else %}0{% endif %}"></div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- Gráfico de Operadoras (Direita, redondo/pie) -->
+            <div class="ent-card" style="padding: 2rem; border: none; display: flex; flex-direction: column; background: white; border-radius: 12px; box-shadow: var(--ent-shadow-sm);">
+                <h3 style="font-family: var(--font-heading); font-size: 1.25rem; font-weight: 800; color: var(--ent-primary); margin-bottom: 0.25rem;">Distribuição por Operadora</h3>
+                <p style="font-size: 0.8rem; color: var(--ent-text-muted); font-weight: 500; margin-bottom: 1.5rem;">Divisão de ativos de telecom por operadora cadastrada.</p>
+                
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2.5rem; align-items: center; flex: 1;">
+                    <div style="position: relative; height: 200px; width: 100%;">
+                        <canvas id="operatorDoughnutChart"></canvas>
+                    </div>
+                    <div id="operator-chart-legend" style="display: flex; flex-direction: column; gap: 0.8rem; justify-content: center; font-size: 0.85rem; font-weight: 600; color: var(--ent-primary);">
+                        <!-- Será populada dinamicamente via JS -->
                     </div>
                 </div>
-                {% endfor %}
             </div>
+
         </div>
     </div>
 </div>
@@ -2095,6 +2115,64 @@
                 bar.style.width = pct + '%';
             });
         }, 150);
+
+        // Gráfico de Rosca de Operadoras
+        const operatorData = JSON.parse('{{ operator_chart_data_json|safe }}');
+        const operatorColors = ['#2563EB', '#059669', '#D97706', '#7C3AED', '#EC4899', '#64748B'];
+        
+        if (operatorData && operatorData.labels && operatorData.labels.length > 0) {
+            const operatorCtx = document.getElementById('operatorDoughnutChart').getContext('2d');
+            new Chart(operatorCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: operatorData.labels,
+                    datasets: [{
+                        data: operatorData.values,
+                        backgroundColor: operatorColors.slice(0, operatorData.labels.length),
+                        borderWidth: 2,
+                        borderColor: '#ffffff',
+                        hoverOffset: 4
+                    }]
+                },
+                options: {
+                    cutout: '70%',
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            backgroundColor: '#0f172a',
+                            titleFont: { family: "'Outfit', sans-serif", size: 12 },
+                            bodyFont: { family: "'Inter', sans-serif", size: 12 }
+                        }
+                    }
+                }
+            });
+
+            // Gerar legenda customizada do gráfico de operadoras
+            const legendContainer = document.getElementById('operator-chart-legend');
+            if (legendContainer) {
+                legendContainer.innerHTML = '';
+                operatorData.labels.forEach((label, idx) => {
+                    const val = operatorData.values[idx];
+                    const color = operatorColors[idx % operatorColors.length];
+                    
+                    const legendItem = document.createElement('div');
+                    legendItem.style.display = 'flex';
+                    legendItem.style.alignItems = 'center';
+                    legendItem.style.justifyContent = 'space-between';
+                    legendItem.style.width = '100%';
+                    legendItem.innerHTML = `
+                        <span style="display: flex; align-items: center; gap: 0.5rem;">
+                            <span style="width: 8px; height: 8px; border-radius: 50%; background-color: ${color}; display: inline-block;"></span>
+                            ${label}
+                        </span>
+                        <span style="color: var(--ent-text-muted); font-weight: 700;">${val}</span>
+                    `;
+                    legendContainer.appendChild(legendItem);
+                });
+            }
+        }
 
         // --- 6. GESTÃO DE ABAS DE DESEMPENHO E GRÁFICOS DE LEAD TIME ---
         let partnerCompChart = null;

@@ -533,6 +533,35 @@ def site_list(request):
     fastest_partner = partner_stats[0]['partner'] if partner_stats and partner_stats[0]['avg_partner_time'] is not None else None
     total_finished = sum(sc.get('finished', 0) for sc in scope_counts.values())
 
+    # --- Agregar métricas por operadora ---
+    operator_counts = {}
+    for choice in Site.Operator.choices:
+        operator_counts[choice[0]] = 0
+    operator_counts['NENHUMA'] = 0
+
+    for site in Site.objects.all():
+        op = site.operator
+        if op in operator_counts:
+            operator_counts[op] += 1
+        else:
+            operator_counts['NENHUMA'] += 1
+
+    operator_chart_labels = []
+    operator_chart_values = []
+    for code, display in Site.Operator.choices:
+        val = operator_counts.get(code, 0)
+        if val > 0:
+            operator_chart_labels.append(display)
+            operator_chart_values.append(val)
+    if operator_counts['NENHUMA'] > 0:
+        operator_chart_labels.append('Sem Operadora')
+        operator_chart_values.append(operator_counts['NENHUMA'])
+
+    operator_chart_data = {
+        'labels': operator_chart_labels,
+        'values': operator_chart_values,
+    }
+
     # Serializa dados para gráficos JS
     scope_chart_data = {}
     for scope, info in scope_analytics.items():
@@ -580,6 +609,7 @@ def site_list(request):
         'total_finished': total_finished,
         'scope_chart_data_json': _json.dumps(scope_chart_data),
         'scope_partner_chart_data_json': _json.dumps(scope_partner_chart_data),
+        'operator_chart_data_json': _json.dumps(operator_chart_data),
     }
 
     return render(request, 'sites/site_list.html', context)
