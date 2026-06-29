@@ -1229,60 +1229,7 @@
             </button>
         </div>
 
-        <!-- Painel de KPIs Rápidos Globais -->
-        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1.5rem; margin-bottom: 1.5rem;">
-            <div class="ent-card" style="background: white; border: none; box-shadow: var(--ent-shadow-sm); padding: 1.5rem; display: flex; align-items: center; justify-content: space-between; border-left: 5px solid var(--ent-accent);">
-                <div>
-                    <div style="font-size: 0.75rem; font-weight: 700; color: var(--ent-text-muted); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.5rem;">Tempo MartinsTec (Acesso)</div>
-                    <div style="font-family: var(--font-heading); font-size: 1.8rem; font-weight: 700; color: var(--ent-primary); line-height: 1.2;">
-                        {{ overall_avg_martinstec|default:"--" }}{% if overall_avg_martinstec %} dias{% endif %}
-                    </div>
-                    <p style="font-size: 0.72rem; color: var(--ent-text-muted); margin-top: 0.35rem;">Média interna para liberar Acesso.</p>
-                </div>
-                <div style="width: 44px; height: 44px; border-radius: 10px; background: #eff6ff; color: var(--ent-accent); display: flex; align-items: center; justify-content: center;">
-                    <i data-lucide="building-2" style="width: 20px; height: 20px;"></i>
-                </div>
-            </div>
 
-            <div class="ent-card" style="background: white; border: none; box-shadow: var(--ent-shadow-sm); padding: 1.5rem; display: flex; align-items: center; justify-content: space-between; border-left: 5px solid var(--ent-success);">
-                <div>
-                    <div style="font-size: 0.75rem; font-weight: 700; color: var(--ent-text-muted); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.5rem;">Tempo Fornecedor (Execução)</div>
-                    <div style="font-family: var(--font-heading); font-size: 1.8rem; font-weight: 700; color: var(--ent-primary); line-height: 1.2;">
-                        {{ overall_avg_partner|default:"--" }}{% if overall_avg_partner %} dias{% endif %}
-                    </div>
-                    <p style="font-size: 0.72rem; color: var(--ent-text-muted); margin-top: 0.35rem;">Média de campo e escrita técnica.</p>
-                </div>
-                <div style="width: 44px; height: 44px; border-radius: 10px; background: #ecfdf5; color: var(--ent-success); display: flex; align-items: center; justify-content: center;">
-                    <i data-lucide="zap" style="width: 20px; height: 20px;"></i>
-                </div>
-            </div>
-
-            <div class="ent-card" style="background: white; border: none; box-shadow: var(--ent-shadow-sm); padding: 1.5rem; display: flex; align-items: center; justify-content: space-between; border-left: 5px solid var(--ent-info);">
-                <div>
-                    <div style="font-size: 0.75rem; font-weight: 700; color: var(--ent-text-muted); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.5rem;">Parceiro Mais Veloz</div>
-                    <div style="font-family: var(--font-heading); font-size: 1.3rem; font-weight: 700; color: var(--ent-primary); line-height: 1.2; white-space: nowrap; text-overflow: ellipsis; overflow: hidden; max-width: 170px;" title="{{ fastest_partner|default:"--" }}">
-                        {{ fastest_partner|default:"--" }}
-                    </div>
-                    <p style="font-size: 0.72rem; color: var(--ent-text-muted); margin-top: 0.35rem;">Menor tempo de atendimento ativo.</p>
-                </div>
-                <div style="width: 44px; height: 44px; border-radius: 10px; background: #f0f9ff; color: var(--ent-info); display: flex; align-items: center; justify-content: center;">
-                    <i data-lucide="users" style="width: 20px; height: 20px;"></i>
-                </div>
-            </div>
-
-            <div class="ent-card" style="background: white; border: none; box-shadow: var(--ent-shadow-sm); padding: 1.5rem; display: flex; align-items: center; justify-content: space-between; border-left: 5px solid var(--ent-warning);">
-                <div>
-                    <div style="font-size: 0.75rem; font-weight: 700; color: var(--ent-text-muted); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.5rem;">Prazo Médio Total</div>
-                    <div style="font-family: var(--font-heading); font-size: 1.8rem; font-weight: 700; color: var(--ent-primary); line-height: 1.2;">
-                        {{ overall_avg_total|default:"--" }}{% if overall_avg_total %} dias{% endif %}
-                    </div>
-                    <p style="font-size: 0.72rem; color: var(--ent-text-muted); margin-top: 0.35rem;">Média total do ciclo de ponta a ponta.</p>
-                </div>
-                <div style="width: 44px; height: 44px; border-radius: 10px; background: #fffbeb; color: var(--ent-warning); display: flex; align-items: center; justify-content: center;">
-                    <i data-lucide="gauge" style="width: 20px; height: 20px;"></i>
-                </div>
-            </div>
-        </div>
 
         <!-- ==================== ABA 1: METRICAS POR ESCOPO ==================== -->
         <div id="analytics-tab-scope" style="display: block;">
@@ -1298,6 +1245,65 @@
             {% for scope_key, scope_info in scope_analytics.items %}
             <div class="scope-analytics-section" id="scope-sec-{{ scope_key }}" style="display: {% if forloop.first %}block{% else %}none{% endif %};">
                 
+                <!-- Painel de KPIs Rápidos do Escopo -->
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1.5rem; margin-bottom: 1.5rem;">
+                    <!-- Card 1: MartinsTec -->
+                    <div class="ent-card" style="background: white; border: none; box-shadow: var(--ent-shadow-sm); padding: 1.5rem; display: flex; align-items: center; justify-content: space-between; border-left: 5px solid var(--ent-accent);">
+                        <div>
+                            <div style="font-size: 0.75rem; font-weight: 700; color: var(--ent-text-muted); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.5rem;">Gestão MartinsTec</div>
+                            <div style="font-family: var(--font-heading); font-size: 1.8rem; font-weight: 700; color: var(--ent-primary); line-height: 1.2;">
+                                {{ scope_info.avg_martinstec|default:"--" }}{% if scope_info.avg_martinstec %} dias{% endif %}
+                            </div>
+                            <p style="font-size: 0.72rem; color: var(--ent-text-muted); margin-top: 0.35rem;">Média interna para liberar etapa.</p>
+                        </div>
+                        <div style="width: 44px; height: 44px; border-radius: 10px; background: #eff6ff; color: var(--ent-accent); display: flex; align-items: center; justify-content: center;">
+                            <i data-lucide="building-2" style="width: 20px; height: 20px;"></i>
+                        </div>
+                    </div>
+
+                    <!-- Card 2: Execução -->
+                    <div class="ent-card" style="background: white; border: none; box-shadow: var(--ent-shadow-sm); padding: 1.5rem; display: flex; align-items: center; justify-content: space-between; border-left: 5px solid var(--ent-success);">
+                        <div>
+                            <div style="font-size: 0.75rem; font-weight: 700; color: var(--ent-text-muted); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.5rem;">Fase de Execução</div>
+                            <div style="font-family: var(--font-heading); font-size: 1.8rem; font-weight: 700; color: var(--ent-primary); line-height: 1.2;">
+                                {{ scope_info.avg_partner|default:"--" }}{% if scope_info.avg_partner %} dias{% endif %}
+                            </div>
+                            <p style="font-size: 0.72rem; color: var(--ent-text-muted); margin-top: 0.35rem;">Média de campo e etapas técnicas.</p>
+                        </div>
+                        <div style="width: 44px; height: 44px; border-radius: 10px; background: #ecfdf5; color: var(--ent-success); display: flex; align-items: center; justify-content: center;">
+                            <i data-lucide="zap" style="width: 20px; height: 20px;"></i>
+                        </div>
+                    </div>
+
+                    <!-- Card 3: Parceiro Mais Rápido -->
+                    <div class="ent-card" style="background: white; border: none; box-shadow: var(--ent-shadow-sm); padding: 1.5rem; display: flex; align-items: center; justify-content: space-between; border-left: 5px solid var(--ent-info);">
+                        <div>
+                            <div style="font-size: 0.75rem; font-weight: 700; color: var(--ent-text-muted); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.5rem;">Parceiro Mais Rápido</div>
+                            <div style="font-family: var(--font-heading); font-size: 1.3rem; font-weight: 700; color: var(--ent-primary); line-height: 1.2; white-space: nowrap; text-overflow: ellipsis; overflow: hidden; max-width: 170px;" title="{{ scope_info.fastest_partner|default:'Interno' }}">
+                                {{ scope_info.fastest_partner|default:"Interno" }}
+                            </div>
+                            <p style="font-size: 0.72rem; color: var(--ent-text-muted); margin-top: 0.35rem;">Menor tempo ativo no escopo.</p>
+                        </div>
+                        <div style="width: 44px; height: 44px; border-radius: 10px; background: #f0f9ff; color: var(--ent-info); display: flex; align-items: center; justify-content: center;">
+                            <i data-lucide="users" style="width: 20px; height: 20px;"></i>
+                        </div>
+                    </div>
+
+                    <!-- Card 4: Ciclo Total -->
+                    <div class="ent-card" style="background: white; border: none; box-shadow: var(--ent-shadow-sm); padding: 1.5rem; display: flex; align-items: center; justify-content: space-between; border-left: 5px solid var(--ent-warning);">
+                        <div>
+                            <div style="font-size: 0.75rem; font-weight: 700; color: var(--ent-text-muted); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.5rem;">Prazo Médio Total</div>
+                            <div style="font-family: var(--font-heading); font-size: 1.8rem; font-weight: 700; color: var(--ent-primary); line-height: 1.2;">
+                                {{ scope_info.avg_total|default:"--" }}{% if scope_info.avg_total %} dias{% endif %}
+                            </div>
+                            <p style="font-size: 0.72rem; color: var(--ent-text-muted); margin-top: 0.35rem;">Média total do ciclo de ponta a ponta.</p>
+                        </div>
+                        <div style="width: 44px; height: 44px; border-radius: 10px; background: #fffbeb; color: var(--ent-warning); display: flex; align-items: center; justify-content: center;">
+                            <i data-lucide="gauge" style="width: 20px; height: 20px;"></i>
+                        </div>
+                    </div>
+                </div>
+
                 <!-- Diagrama de Fluxo Visual de Leadtime Redesenhado -->
                 <div class="ent-card" style="padding: 2rem; margin-bottom: 2rem; border: none; box-shadow: var(--ent-shadow-sm); background: white;">
                     <h3 style="font-family: var(--font-heading); font-size: 1.15rem; font-weight: 700; color: var(--ent-primary); margin-bottom: 1.5rem; display: flex; align-items: center; gap: 0.5rem;">

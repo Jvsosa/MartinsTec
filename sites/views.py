@@ -507,6 +507,11 @@ def site_list(request):
     for scope_key in scope_partner_rankings.keys():
         scope_partner_rankings[scope_key].sort(key=lambda x: (x['avg_partner_time'] is None, x['avg_partner_time'] or 999999))
 
+    # Adiciona o parceiro mais rápido de cada escopo ao scope_analytics
+    for scope_key, info in scope_analytics.items():
+        rankings = scope_partner_rankings.get(scope_key, [])
+        info['fastest_partner'] = rankings[0]['partner'] if rankings and rankings[0]['avg_partner_time'] is not None else None
+
     # KPIs globais
     all_total_times = []
     slowest_stage_name = None
