@@ -106,18 +106,41 @@ def site_list(request):
 
     query = request.GET.get('q', '').strip()
     status_filter = request.GET.get('status', 'ALL').strip()
+    partner_filter = request.GET.get('partner', '').strip()
+    scope_filter = request.GET.get('scope', '').strip()
+    operator_filter = request.GET.get('operator', '').strip()
 
     sites_qs = Site.objects.all()
 
     if status_filter and status_filter != 'ALL':
         sites_qs = sites_qs.filter(status=status_filter)
 
+    if partner_filter:
+        sites_qs = sites_qs.filter(partner_company=partner_filter)
+
+    if scope_filter:
+        sites_qs = sites_qs.filter(scope_type=scope_filter)
+
+    if operator_filter:
+        sites_qs = sites_qs.filter(operator=operator_filter)
+
     if query:
-        sites_qs = sites_qs.filter(
-            Q(site_id__icontains=query) |
-            Q(name__icontains=query) |
-            Q(operator__icontains=query)
-        )
+        if ',' in query:
+            parts = [p.strip() for p in query.split(',') if p.strip()]
+            q_filter = Q()
+            for part in parts:
+                q_filter |= (
+                    Q(site_id__icontains=part) |
+                    Q(name__icontains=part) |
+                    Q(operator__icontains=part)
+                )
+            sites_qs = sites_qs.filter(q_filter)
+        else:
+            sites_qs = sites_qs.filter(
+                Q(site_id__icontains=query) |
+                Q(name__icontains=query) |
+                Q(operator__icontains=query)
+            )
 
     # Paginação (24 sites por página)
     paginator = Paginator(sites_qs, 24)

@@ -942,11 +942,48 @@
         <div class="sites-layout-master">
             <!-- Coluna Esquerda: Filtro e Mapa -->
             <div style="display: flex; flex-direction: column; gap: 1.5rem; position: sticky; top: 2rem;">
-                <div class="ent-card" style="padding: 1.5rem;">
-                    <label style="display: block; font-size: 0.85rem; font-weight: 600; color: var(--ent-secondary); margin-bottom: 0.75rem;">Busca Localizada</label>
-                    <div style="position: relative;">
-                        <i data-lucide="search" style="position: absolute; left: 1rem; top: 50%; transform: translateY(-50%); color: #94a3b8; width: 18px; height: 18px;"></i>
-                        <input type="text" id="site-search-input" class="form-control" placeholder="ID, Nome ou Coordenada..." onkeyup="filterSites()" style="padding-left: 2.75rem;">
+                <div class="ent-card" style="padding: 1.5rem; display: flex; flex-direction: column; gap: 1rem;">
+                    <div>
+                        <label style="display: block; font-size: 0.85rem; font-weight: 700; color: var(--ent-secondary); margin-bottom: 0.5rem;">Busca de Sites (IDs separados por vírgula)</label>
+                        <div style="position: relative;">
+                            <i data-lucide="search" style="position: absolute; left: 1rem; top: 50%; transform: translateY(-50%); color: #94a3b8; width: 18px; height: 18px;"></i>
+                            <input type="text" id="site-search-input" class="form-control" placeholder="Ex: RJPVG, RJPLB..." onkeyup="filterSites()" style="padding-left: 2.75rem;">
+                        </div>
+                    </div>
+                    
+                    <!-- Linha de Filtros Adicionais -->
+                    <div style="display: grid; grid-template-columns: 1fr; gap: 0.75rem; border-top: 1px solid var(--ent-border); padding-top: 1rem;">
+                        <div>
+                            <label style="display: block; font-size: 0.75rem; font-weight: 700; color: var(--ent-text-muted); margin-bottom: 0.35rem; text-transform: uppercase;">Parceiro</label>
+                            <select id="filter-partner" class="form-control" onchange="filterSites()" style="font-size: 0.82rem; height: 36px; padding: 0.35rem 0.75rem; border-radius: 8px;">
+                                <option value="">Todos os Parceiros</option>
+                                {% for stat in partner_stats %}
+                                <option value="{{ stat.partner }}">{{ stat.partner }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        
+                        <div>
+                            <label style="display: block; font-size: 0.75rem; font-weight: 700; color: var(--ent-text-muted); margin-bottom: 0.35rem; text-transform: uppercase;">Escopo</label>
+                            <select id="filter-scope" class="form-control" onchange="filterSites()" style="font-size: 0.82rem; height: 36px; padding: 0.35rem 0.75rem; border-radius: 8px;">
+                                <option value="">Todos os Escopos</option>
+                                {% for scope_key, scope_info in scope_analytics.items %}
+                                <option value="{{ scope_key }}">{{ scope_info.display }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        
+                        <div>
+                            <label style="display: block; font-size: 0.75rem; font-weight: 700; color: var(--ent-text-muted); margin-bottom: 0.35rem; text-transform: uppercase;">Operadora</label>
+                            <select id="filter-operator" class="form-control" onchange="filterSites()" style="font-size: 0.82rem; height: 36px; padding: 0.35rem 0.75rem; border-radius: 8px;">
+                                <option value="">Todas as Operadoras</option>
+                                <option value="VIVO">Vivo</option>
+                                <option value="TIM">Tim</option>
+                                <option value="CLARO">Claro</option>
+                                <option value="OI">Oi</option>
+                                <option value="OUTRO">Outro</option>
+                            </select>
+                        </div>
                     </div>
                 </div>
 
@@ -1691,6 +1728,9 @@
             lng: {% if site.longitude %}parseFloat("{{ site.longitude }}".replace(',', '.')){% else %}NaN{% endif %},
             status: "{{ site.status|escapejs }}",
             statusDisplay: "{{ site.get_status_display|escapejs }}",
+            partner: "{{ site.partner_company|escapejs }}",
+            scope: "{{ site.scope_type|escapejs }}",
+            operator: "{{ site.operator|escapejs }}",
             url: "{% url 'site_detail' pk=site.pk %}"
         }{% if not forloop.last %},{% endif %}
         {% endfor %}
@@ -1716,6 +1756,7 @@
         }
         searchDebounceTimeout = setTimeout(() => {
             resetAndLoadSites();
+            updateMapMarkers();
         }, 400);
     }
 
@@ -1741,6 +1782,9 @@
         if (spinner) spinner.style.display = 'flex';
 
         const query = document.getElementById('site-search-input').value.trim();
+        const partner = document.getElementById('filter-partner').value;
+        const scope = document.getElementById('filter-scope').value;
+        const operator = document.getElementById('filter-operator').value;
         
         let url = `?ajax=1&page=${currentPage}`;
         if (currentFilterStatus !== 'ALL') {
@@ -1748,6 +1792,15 @@
         }
         if (query) {
             url += `&q=${encodeURIComponent(query)}`;
+        }
+        if (partner) {
+            url += `&partner=${encodeURIComponent(partner)}`;
+        }
+        if (scope) {
+            url += `&scope=${encodeURIComponent(scope)}`;
+        }
+        if (operator) {
+            url += `&operator=${encodeURIComponent(operator)}`;
         }
 
         fetch(url)
@@ -1825,6 +1878,7 @@
     // --- 4. MAPA LEAFLET CORPORATIVO ---
     let mapInitialized = false;
     let map = null;
+    let mapMarkers = [];
 
     function initMap() {
         let defaultCenter = [-14.235, -51.925];
@@ -1841,7 +1895,7 @@
             });
             if (validSites > 0) {
                 defaultCenter = [sumLat / validSites, sumLng / validSites];
-                defaultZoom = validSites === 1 ? 11 : 5;
+                defaultZoom = validSites === 1 ? 10 : 5;
             }
         }
 
@@ -1862,6 +1916,8 @@
         };
 
         const bounds = [];
+        mapMarkers = [];
+        
         sitesData.forEach(site => {
             if (!isNaN(site.lat) && !isNaN(site.lng)) {
                 const color = statusColors[site.status] || '#64748b';
@@ -1889,17 +1945,96 @@
                     </div>
                 `;
                 marker.bindPopup(popupContent);
+                
+                mapMarkers.push({
+                    site: site,
+                    marker: marker
+                });
+                
                 bounds.push([site.lat, site.lng]);
             }
         });
 
         if (bounds.length > 1) {
-            map.fitBounds(bounds, { padding: [30, 30] });
+            map.fitBounds(bounds, { padding: [30, 30], maxZoom: 10 });
         }
         mapInitialized = true;
         if (window.location.hash === '#sites') {
             setTimeout(() => { if (map) map.invalidateSize(); }, 100);
             setTimeout(() => { if (map) map.invalidateSize(); }, 300);
+        }
+    }
+
+    function updateMapMarkers() {
+        if (!map) return;
+        
+        const query = document.getElementById('site-search-input').value.toLowerCase().trim();
+        const partner = document.getElementById('filter-partner').value;
+        const scope = document.getElementById('filter-scope').value;
+        const operator = document.getElementById('filter-operator').value;
+        
+        let queryParts = [];
+        if (query) {
+            if (query.includes(',')) {
+                queryParts = query.split(',').map(p => p.trim()).filter(p => p.length > 0);
+            } else {
+                queryParts = [query];
+            }
+        }
+        
+        const visibleBounds = [];
+        
+        mapMarkers.forEach(item => {
+            const s = item.site;
+            
+            let matchesSearch = true;
+            if (queryParts.length > 0) {
+                matchesSearch = queryParts.some(part => 
+                    s.id.toLowerCase().includes(part) || 
+                    s.name.toLowerCase().includes(part)
+                );
+            }
+            
+            let matchesPartner = true;
+            if (partner) {
+                matchesPartner = s.partner === partner;
+            }
+            
+            let matchesScope = true;
+            if (scope) {
+                matchesScope = s.scope === scope;
+            }
+            
+            let matchesOperator = true;
+            if (operator) {
+                matchesOperator = s.operator === operator;
+            }
+            
+            let matchesStatus = true;
+            if (currentFilterStatus !== 'ALL') {
+                matchesStatus = s.status === currentFilterStatus;
+            }
+            
+            const isVisible = matchesSearch && matchesPartner && matchesScope && matchesOperator && matchesStatus;
+            
+            if (isVisible) {
+                if (!map.hasLayer(item.marker)) {
+                    item.marker.addTo(map);
+                }
+                visibleBounds.push([s.lat, s.lng]);
+            } else {
+                if (map.hasLayer(item.marker)) {
+                    map.removeLayer(item.marker);
+                }
+            }
+        });
+        
+        if (visibleBounds.length > 0) {
+            if (visibleBounds.length === 1) {
+                map.setView(visibleBounds[0], 10);
+            } else {
+                map.fitBounds(visibleBounds, { padding: [30, 30], maxZoom: 10 });
+            }
         }
     }
 
