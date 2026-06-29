@@ -38,9 +38,9 @@
     .photo-upload-btn {
         background-color: var(--brand-primary);
         color: #fff;
-        padding: 0.5rem 1rem;
+        padding: 0.45rem 0.85rem;
         border-radius: 8px;
-        font-size: 0.78rem;
+        font-size: 0.75rem;
         font-weight: 600;
         cursor: pointer;
         display: inline-flex;
@@ -59,9 +59,9 @@
     .photo-delete-btn {
         background-color: transparent;
         color: #ef4444;
-        padding: 0.5rem 1rem;
+        padding: 0.45rem 0.85rem;
         border-radius: 8px;
-        font-size: 0.78rem;
+        font-size: 0.75rem;
         font-weight: 600;
         cursor: pointer;
         display: inline-flex;
@@ -74,26 +74,68 @@
         background-color: rgba(239, 68, 68, 0.05);
         border-color: #ef4444;
     }
+
+    /* Estilo de Abas (Tabs) */
+    .profile-tabs {
+        display: flex;
+        gap: 0.5rem;
+        border-bottom: 1px solid var(--border-color);
+        padding-bottom: 0px;
+        margin-bottom: 1.5rem;
+    }
+    .profile-tab-btn {
+        background: none;
+        border: none;
+        padding: 0.75rem 1.25rem;
+        font-size: 0.85rem;
+        font-weight: 600;
+        color: var(--text-muted);
+        cursor: pointer;
+        border-bottom: 3px solid transparent;
+        transition: all 0.25s ease;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    .profile-tab-btn:hover {
+        color: var(--text-main);
+    }
+    .profile-tab-btn.active {
+        color: var(--brand-primary);
+        border-bottom-color: var(--brand-primary);
+    }
+    .profile-tab-content {
+        display: none;
+    }
+    .profile-tab-content.active {
+        display: block;
+        animation: fadeInTab 0.3s ease-out;
+    }
+
+    @keyframes fadeInTab {
+        from { opacity: 0; transform: translateY(4px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
 </style>
 
-<div class="dashboard-wrapper" style="padding: 2rem; max-width: 1200px; margin: 0 auto; display: flex; flex-direction: column; gap: 2rem;">
+<div class="dashboard-wrapper" style="padding: 1.5rem 2rem; max-width: 1100px; margin: 0 auto; display: flex; flex-direction: column; gap: 1.25rem; height: calc(100vh - 70px); justify-content: center; box-sizing: border-box;">
     
     <!-- Cabeçalho Principal -->
-    <div style="display: flex; flex-direction: column; gap: 0.5rem;">
-        <h1 style="font-size: 1.8rem; font-weight: 800; color: var(--text-main); margin: 0;">Meu Perfil</h1>
-        <p style="font-size: 0.9rem; color: var(--text-muted); margin: 0;">Gerencie suas informações pessoais, adicione sua foto personalizada e altere sua senha.</p>
+    <div style="display: flex; flex-direction: column; gap: 0.25rem;">
+        <h1 style="font-size: 1.6rem; font-weight: 800; color: var(--text-main); margin: 0;">Meu Perfil</h1>
+        <p style="font-size: 0.85rem; color: var(--text-muted); margin: 0;">Visualize seus dados, configure sua foto de avatar e altere sua senha de acesso.</p>
     </div>
 
-    <!-- Layout Grid de 2 Colunas -->
-    <div style="display: grid; grid-template-columns: 1fr 2fr; gap: 2rem; align-items: start;">
+    <!-- Layout Grid de 2 Colunas (Compacto para caber sem scroll) -->
+    <div style="display: grid; grid-template-columns: 320px 1fr; gap: 1.5rem; align-items: stretch;">
         
-        <!-- Coluna Esquerda: Avatar e Informações de Cargo -->
-        <div style="display: flex; flex-direction: column; gap: 1.5rem;">
+        <!-- Coluna Esquerda: Avatar Card -->
+        <div class="card" style="padding: 2rem 1.5rem; display: flex; flex-direction: column; align-items: center; justify-content: space-between; gap: 1.5rem; min-height: 380px; box-sizing: border-box;">
             
-            <!-- Card de Avatar Premium -->
-            <div class="card" style="text-align: center; padding: 2.5rem 1.5rem; display: flex; flex-direction: column; align-items: center; gap: 1.25rem;">
-                <div style="position: relative;">
-                    <div style="width: 105px; height: 105px; border-radius: 50%; background: linear-gradient(135deg, var(--brand-primary), #6366f1); display: flex; align-items: center; justify-content: center; font-size: 2.7rem; font-weight: 800; color: #ffffff; box-shadow: var(--shadow-md); overflow: hidden; border: 4px solid var(--card-bg, #ffffff);">
+            <div style="display: flex; flex-direction: column; align-items: center; gap: 1rem; width: 100%;">
+                <!-- Container da Foto de Perfil -->
+                <div style="position: relative; width: 100px; height: 100px;">
+                    <div style="width: 100px; height: 100px; border-radius: 50%; background: linear-gradient(135deg, var(--brand-primary), #6366f1); display: flex; align-items: center; justify-content: center; font-size: 2.8rem; font-weight: 800; color: #ffffff; box-shadow: var(--shadow-md); overflow: hidden; border: 4px solid var(--card-bg, #ffffff);">
                         {% if user.profile_picture %}
                             <img src="{{ user.profile_picture.url }}" alt="Avatar" style="width: 100%; height: 100%; object-fit: cover;">
                         {% else %}
@@ -101,168 +143,115 @@
                         {% endif %}
                     </div>
                 </div>
-                
-                <div style="display: flex; flex-direction: column; gap: 0.25rem;">
-                    <h3 style="font-size: 1.2rem; font-weight: 700; color: var(--text-main); margin: 0;">
-                        {{ user.first_name|default:user.username }} {{ user.last_name|default:"" }}
-                    </h3>
-                    <span style="font-size: 0.8rem; color: var(--text-muted);">@{{ user.username }}</span>
-                </div>
-                
-                <!-- Badge de Cargo -->
-                {% if user.role == 'ADMIN' %}
-                    <span class="badge" style="background-color: rgba(239, 68, 68, 0.12); color: #ef4444; font-weight: 700; padding: 0.4rem 1rem; border-radius: 99px; font-size: 0.75rem;">
-                        Administrador
-                    </span>
-                {% elif user.role == 'ENGINEER' %}
-                    <span class="badge" style="background-color: rgba(59, 130, 246, 0.12); color: #3b82f6; font-weight: 700; padding: 0.4rem 1rem; border-radius: 99px; font-size: 0.75rem;">
-                        Engenheiro de Telecom
-                    </span>
-                {% else %}
-                    <span class="badge" style="background-color: rgba(16, 185, 129, 0.12); color: #10b981; font-weight: 700; padding: 0.4rem 1rem; border-radius: 99px; font-size: 0.75rem;">
-                        Técnico de Campo
-                    </span>
-                {% endif %}
 
-                <div style="width: 100%; border-top: 1px solid var(--border-color); margin: 0.5rem 0;"></div>
-                
-                <!-- Datas de Acesso -->
-                <div style="width: 100%; display: flex; flex-direction: column; gap: 0.75rem; text-align: left; font-size: 0.78rem;">
-                    <div style="display: flex; justify-content: space-between;">
-                        <span style="color: var(--text-muted);">Cadastro em:</span>
-                        <span style="font-weight: 600; color: var(--text-main);">{{ user.date_joined|date:"d/m/Y" }}</span>
-                    </div>
-                    <div style="display: flex; justify-content: space-between;">
-                        <span style="color: var(--text-muted);">Último login:</span>
-                        <span style="font-weight: 600; color: var(--text-main);">{{ user.last_login|date:"d/m/Y H:i"|default:"Primeiro acesso" }}</span>
-                    </div>
+                <!-- Botões Rápidos de Ação sobre a Foto (Upload Instantâneo) -->
+                <div style="display: flex; align-items: center; gap: 0.5rem;">
+                    <button type="button" class="photo-upload-btn" onclick="document.getElementById('instant-profile-picture-input').click()">
+                        <i data-lucide="upload" style="width: 14px; height: 14px;"></i>
+                        Alterar Foto
+                    </button>
+                    {% if user.profile_picture %}
+                        <button type="button" class="photo-delete-btn" onclick="document.getElementById('delete-picture-form').submit()">
+                            <i data-lucide="trash-2" style="width: 14px; height: 14px;"></i>
+                            Remover
+                        </button>
+                    {% endif %}
                 </div>
             </div>
 
-            <!-- Card de Explicação de Permissões -->
-            <div class="card" style="padding: 1.5rem; display: flex; flex-direction: column; gap: 1rem;">
-                <h4 style="font-size: 0.9rem; font-weight: 700; color: var(--text-main); margin: 0; display: flex; align-items: center; gap: 0.5rem;">
-                    <i data-lucide="shield-check" style="width: 18px; height: 18px; color: var(--brand-primary);"></i>
-                    Suas Permissões de Acesso
-                </h4>
-                <div style="font-size: 0.8rem; color: var(--text-muted); line-height: 1.5; display: flex; flex-direction: column; gap: 0.75rem;">
+            <!-- Dados Nome e Cargo -->
+            <div style="text-align: center; display: flex; flex-direction: column; gap: 0.5rem; width: 100%;">
+                <div style="display: flex; flex-direction: column; gap: 0.15rem;">
+                    <h3 style="font-size: 1.15rem; font-weight: 700; color: var(--text-main); margin: 0;">
+                        {{ user.first_name|default:user.username }} {{ user.last_name|default:"" }}
+                    </h3>
+                    <span style="font-size: 0.78rem; color: var(--text-muted);">@{{ user.username }}</span>
+                </div>
+                
+                <!-- Badge de Cargo -->
+                <div style="margin-top: 0.25rem;">
                     {% if user.role == 'ADMIN' %}
-                        <div style="display: flex; gap: 0.5rem; align-items: start;">
-                            <i data-lucide="check" style="width: 14px; height: 14px; color: #10b981; margin-top: 0.15rem; flex-shrink: 0;"></i>
-                            <span>Acesso total à administração do painel de controle e configurações globais.</span>
-                        </div>
-                        <div style="display: flex; gap: 0.5rem; align-items: start;">
-                            <i data-lucide="check" style="width: 14px; height: 14px; color: #10b981; margin-top: 0.15rem; flex-shrink: 0;"></i>
-                            <span>Capacidade de cadastrar, editar e excluir sites da base de rollouts.</span>
-                        </div>
-                        <div style="display: flex; gap: 0.5rem; align-items: start;">
-                            <i data-lucide="check" style="width: 14px; height: 14px; color: #10b981; margin-top: 0.15rem; flex-shrink: 0;"></i>
-                            <span>Visualização completa do monitoramento NOC e recebimento de notificações críticas.</span>
-                        </div>
+                        <span class="badge" style="background-color: rgba(239, 68, 68, 0.1); color: #ef4444; font-weight: 700; padding: 0.35rem 0.85rem; border-radius: 99px; font-size: 0.72rem;">
+                            Administrador
+                        </span>
                     {% elif user.role == 'ENGINEER' %}
-                        <div style="display: flex; gap: 0.5rem; align-items: start;">
-                            <i data-lucide="check" style="width: 14px; height: 14px; color: #10b981; margin-top: 0.15rem; flex-shrink: 0;"></i>
-                            <span>Criação de novos sites e definição de prazos/etapas de vistoria, laudos e projetos.</span>
-                        </div>
-                        <div style="display: flex; gap: 0.5rem; align-items: start;">
-                            <i data-lucide="check" style="width: 14px; height: 14px; color: #10b981; margin-top: 0.15rem; flex-shrink: 0;"></i>
-                            <span>Controle de liberação de acesso e replanejamento com justificativas.</span>
-                        </div>
-                        <div style="display: flex; gap: 0.5rem; align-items: start;">
-                            <i data-lucide="check" style="width: 14px; height: 14px; color: #10b981; margin-top: 0.15rem; flex-shrink: 0;"></i>
-                            <span>Gerenciamento de repositórios de arquivos e visualização do painel de desempenho.</span>
-                        </div>
+                        <span class="badge" style="background-color: rgba(59, 130, 246, 0.1); color: #3b82f6; font-weight: 700; padding: 0.35rem 0.85rem; border-radius: 99px; font-size: 0.72rem;">
+                            Engenheiro de Telecom
+                        </span>
                     {% else %}
-                        <div style="display: flex; gap: 0.5rem; align-items: start;">
-                            <i data-lucide="check" style="width: 14px; height: 14px; color: #10b981; margin-top: 0.15rem; flex-shrink: 0;"></i>
-                            <span>Consulta a detalhes operacionais dos sites, endereços e coordenadas.</span>
-                        </div>
-                        <div style="display: flex; gap: 0.5rem; align-items: start;">
-                            <i data-lucide="check" style="width: 14px; height: 14px; color: #10b981; margin-top: 0.15rem; flex-shrink: 0;"></i>
-                            <span>Upload de arquivos técnicos (Laudos de Vistoria, Fotos de Instalação e Arquitetura).</span>
-                        </div>
-                        <div style="display: flex; gap: 0.5rem; align-items: start;">
-                            <i data-lucide="x" style="width: 14px; height: 14px; color: #ef4444; margin-top: 0.15rem; flex-shrink: 0;"></i>
-                            <span style="opacity: 0.7;">Restrito: Não possui permissão para editar datas de cronograma ou excluir sites/arquivos.</span>
-                        </div>
+                        <span class="badge" style="background-color: rgba(16, 185, 129, 0.1); color: #10b981; font-weight: 700; padding: 0.35rem 0.85rem; border-radius: 99px; font-size: 0.72rem;">
+                            Técnico de Campo
+                        </span>
                     {% endif %}
+                </div>
+            </div>
+
+            <div style="width: 100%; border-top: 1px solid var(--border-color); margin: 0.25rem 0;"></div>
+            
+            <!-- Metadados de Login -->
+            <div style="width: 100%; display: flex; flex-direction: column; gap: 0.5rem; text-align: left; font-size: 0.75rem;">
+                <div style="display: flex; justify-content: space-between;">
+                    <span style="color: var(--text-muted);">Cadastro:</span>
+                    <span style="font-weight: 600; color: var(--text-main);">{{ user.date_joined|date:"d/m/Y" }}</span>
+                </div>
+                <div style="display: flex; justify-content: space-between;">
+                    <span style="color: var(--text-muted);">Último login:</span>
+                    <span style="font-weight: 600; color: var(--text-main);">{{ user.last_login|date:"d/m/Y H:i"|default:"Primeiro acesso" }}</span>
                 </div>
             </div>
         </div>
         
-        <!-- Coluna Direita: Formulários de Dados e Senha -->
-        <div style="display: flex; flex-direction: column; gap: 2rem;">
+        <!-- Coluna Direita: Aba de Configurações do Perfil -->
+        <div class="card" style="padding: 1.5rem 2rem; display: flex; flex-direction: column; justify-content: flex-start; min-height: 380px; box-sizing: border-box;">
             
-            <!-- Card 1: Dados Cadastrais -->
-            <div class="card" style="padding: 2rem; display: flex; flex-direction: column; gap: 1.5rem;">
-                <div style="display: flex; align-items: center; gap: 0.5rem; border-bottom: 1px solid var(--border-color); padding-bottom: 1rem;">
-                    <i data-lucide="user-cog" style="width: 20px; height: 20px; color: var(--brand-primary);"></i>
-                    <h3 style="font-size: 1.1rem; font-weight: 700; color: var(--text-main); margin: 0;">Dados Cadastrais</h3>
-                </div>
-                
-                <form method="POST" enctype="multipart/form-data" style="display: flex; flex-direction: column; gap: 1.5rem;">
+            <!-- Seletor de Abas -->
+            <div class="profile-tabs">
+                <button class="profile-tab-btn active" onclick="switchTab('tab-dados', this)">
+                    <i data-lucide="user-cog" style="width: 16px; height: 16px;"></i>
+                    Dados Cadastrais
+                </button>
+                <button class="profile-tab-btn" onclick="switchTab('tab-senha', this)">
+                    <i data-lucide="key-round" style="width: 16px; height: 16px;"></i>
+                    Alterar Senha
+                </button>
+                <button class="profile-tab-btn" onclick="switchTab('tab-permissoes', this)">
+                    <i data-lucide="shield-check" style="width: 16px; height: 16px;"></i>
+                    Minhas Permissões
+                </button>
+            </div>
+            
+            <!-- Conteúdo da Aba 1: Dados Cadastrais -->
+            <div id="tab-dados" class="profile-tab-content active">
+                <form method="POST" style="display: flex; flex-direction: column; gap: 1rem;">
                     {% csrf_token %}
                     <input type="hidden" name="form_type" value="profile_data">
                     
-                    <!-- Foto de Perfil Upload Area -->
-                    <div style="display: flex; align-items: center; gap: 1.5rem; background-color: rgba(99, 102, 241, 0.02); padding: 1rem; border-radius: 10px; border: 1px dashed var(--border-color);">
-                        <div style="width: 60px; height: 60px; border-radius: 50%; background: linear-gradient(135deg, var(--brand-primary), #6366f1); display: flex; align-items: center; justify-content: center; font-size: 1.5rem; font-weight: 800; color: #ffffff; overflow: hidden; flex-shrink: 0; border: 2px solid #fff; box-shadow: var(--shadow-sm);">
-                            {% if user.profile_picture %}
-                                <img src="{{ user.profile_picture.url }}" alt="Preview" style="width: 100%; height: 100%; object-fit: cover;">
-                            {% else %}
-                                {{ user.username|slice:":1"|upper|default:"A" }}
-                            {% endif %}
-                        </div>
-                        <div style="display: flex; flex-direction: column; gap: 0.5rem; flex: 1;">
-                            <label style="font-size: 0.8rem; font-weight: 700; color: var(--text-main); margin: 0;">Foto de Perfil</label>
-                            <div style="display: flex; align-items: center; gap: 0.75rem; flex-wrap: wrap;">
-                                <label class="photo-upload-btn">
-                                    <i data-lucide="upload" style="width: 14px; height: 14px;"></i>
-                                    Escolher Foto
-                                    <input type="file" name="profile_picture" accept="image/*" style="display: none;" onchange="updateFileNameLabel(this)">
-                                </label>
-                                <span id="file-name-label" style="font-size: 0.72rem; color: var(--text-muted);">Nenhum arquivo selecionado</span>
-                                
-                                {% if user.profile_picture %}
-                                    <button type="button" class="photo-delete-btn" onclick="document.getElementById('delete-picture-form').submit()">
-                                        <i data-lucide="trash-2" style="width: 14px; height: 14px;"></i>
-                                        Remover Foto
-                                    </button>
-                                {% endif %}
-                            </div>
-                        </div>
-                    </div>
-                    
                     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem;">
-                        <!-- Primeiro Nome -->
-                        <div class="form-group" style="display: flex; flex-direction: column; gap: 0.4rem;">
-                            <label for="first_name" style="font-size: 0.8rem; font-weight: 700; color: var(--text-main);">Nome *</label>
+                        <div class="form-group" style="display: flex; flex-direction: column; gap: 0.35rem;">
+                            <label for="first_name" style="font-size: 0.78rem; font-weight: 700; color: var(--text-main);">Nome *</label>
                             <input type="text" id="first_name" name="first_name" value="{{ user.first_name }}" class="form-control" placeholder="Seu nome" required>
                         </div>
                         
-                        <!-- Sobrenome -->
-                        <div class="form-group" style="display: flex; flex-direction: column; gap: 0.4rem;">
-                            <label for="last_name" style="font-size: 0.8rem; font-weight: 700; color: var(--text-main);">Sobrenome</label>
+                        <div class="form-group" style="display: flex; flex-direction: column; gap: 0.35rem;">
+                            <label for="last_name" style="font-size: 0.78rem; font-weight: 700; color: var(--text-main);">Sobrenome</label>
                             <input type="text" id="last_name" name="last_name" value="{{ user.last_name }}" class="form-control" placeholder="Seu sobrenome">
                         </div>
                     </div>
 
                     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem;">
-                        <!-- E-mail -->
-                        <div class="form-group" style="display: flex; flex-direction: column; gap: 0.4rem;">
-                            <label for="email" style="font-size: 0.8rem; font-weight: 700; color: var(--text-main);">E-mail</label>
+                        <div class="form-group" style="display: flex; flex-direction: column; gap: 0.35rem;">
+                            <label for="email" style="font-size: 0.78rem; font-weight: 700; color: var(--text-main);">E-mail</label>
                             <input type="email" id="email" name="email" value="{{ user.email }}" class="form-control" placeholder="Seu endereço de e-mail">
                         </div>
                         
-                        <!-- Nome de Usuário (Bloqueado) -->
-                        <div class="form-group" style="display: flex; flex-direction: column; gap: 0.4rem;">
-                            <label style="font-size: 0.8rem; font-weight: 700; color: var(--text-main);">Usuário (Login)</label>
+                        <div class="form-group" style="display: flex; flex-direction: column; gap: 0.35rem;">
+                            <label style="font-size: 0.78rem; font-weight: 700; color: var(--text-main);">Usuário (Login)</label>
                             <input type="text" value="{{ user.username }}" class="form-control" disabled readonly>
                         </div>
                     </div>
                     
-                    <div style="display: flex; justify-content: flex-end; margin-top: 0.5rem;">
-                        <button type="submit" class="btn btn-primary" style="display: inline-flex; align-items: center; gap: 0.5rem;">
+                    <div style="display: flex; justify-content: flex-end; margin-top: 1rem;">
+                        <button type="submit" class="btn btn-primary" style="display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.65rem 1.25rem;">
                             <i data-lucide="save" style="width: 16px; height: 16px;"></i>
                             Salvar Dados
                         </button>
@@ -270,56 +259,109 @@
                 </form>
             </div>
 
-            <!-- Card 2: Alterar Senha de Acesso -->
-            <div class="card" style="padding: 2rem; display: flex; flex-direction: column; gap: 1.5rem;">
-                <div style="display: flex; align-items: center; gap: 0.5rem; border-bottom: 1px solid var(--border-color); padding-bottom: 1rem;">
-                    <i data-lucide="key-round" style="width: 20px; height: 20px; color: var(--brand-primary);"></i>
-                    <h3 style="font-size: 1.1rem; font-weight: 700; color: var(--text-main); margin: 0;">Alterar Senha de Acesso</h3>
-                </div>
-                
-                <form method="POST" style="display: flex; flex-direction: column; gap: 1.25rem;">
+            <!-- Conteúdo da Aba 2: Alterar Senha -->
+            <div id="tab-senha" class="profile-tab-content">
+                <form method="POST" style="display: flex; flex-direction: column; gap: 1rem;">
                     {% csrf_token %}
                     <input type="hidden" name="form_type" value="change_password">
                     
-                    <!-- Senha Atual -->
-                    <div class="form-group" style="display: flex; flex-direction: column; gap: 0.4rem;">
-                        <label for="id_old_password" style="font-size: 0.8rem; font-weight: 700; color: var(--text-main);">Senha Atual</label>
+                    <div class="form-group" style="display: flex; flex-direction: column; gap: 0.35rem;">
+                        <label for="id_old_password" style="font-size: 0.78rem; font-weight: 700; color: var(--text-main);">Senha Atual</label>
                         <input type="password" id="id_old_password" name="old_password" class="form-control" placeholder="Digite sua senha atual" required>
                     </div>
                     
                     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem;">
-                        <!-- Nova Senha -->
-                        <div class="form-group" style="display: flex; flex-direction: column; gap: 0.4rem;">
-                            <label for="id_new_password1" style="font-size: 0.8rem; font-weight: 700; color: var(--text-main);">Nova Senha</label>
+                        <div class="form-group" style="display: flex; flex-direction: column; gap: 0.35rem;">
+                            <label for="id_new_password1" style="font-size: 0.78rem; font-weight: 700; color: var(--text-main);">Nova Senha</label>
                             <input type="password" id="id_new_password1" name="new_password1" class="form-control" placeholder="Mínimo 8 caracteres" required>
                         </div>
                         
-                        <!-- Confirmação da Nova Senha -->
-                        <div class="form-group" style="display: flex; flex-direction: column; gap: 0.4rem;">
-                            <label for="id_new_password2" style="font-size: 0.8rem; font-weight: 700; color: var(--text-main);">Confirmar Nova Senha</label>
+                        <div class="form-group" style="display: flex; flex-direction: column; gap: 0.35rem;">
+                            <label for="id_new_password2" style="font-size: 0.78rem; font-weight: 700; color: var(--text-main);">Confirmar Nova Senha</label>
                             <input type="password" id="id_new_password2" name="new_password2" class="form-control" placeholder="Repita a nova senha" required>
                         </div>
                     </div>
                     
-                    <!-- Dica de Segurança -->
-                    <div style="background-color: rgba(99, 102, 241, 0.05); border-left: 3px solid var(--brand-primary); padding: 0.75rem 1rem; border-radius: 0 6px 6px 0; display: flex; align-items: start; gap: 0.5rem; font-size: 0.75rem; color: var(--text-muted);">
-                        <i data-lucide="info" style="width: 16px; height: 16px; color: var(--brand-primary); margin-top: 0.05rem; flex-shrink: 0;"></i>
+                    <div style="background-color: rgba(99, 102, 241, 0.04); border-left: 3px solid var(--brand-primary); padding: 0.6rem 0.85rem; border-radius: 0 6px 6px 0; display: flex; align-items: start; gap: 0.5rem; font-size: 0.72rem; color: var(--text-muted); line-height: 1.4;">
+                        <i data-lucide="info" style="width: 14px; height: 14px; color: var(--brand-primary); flex-shrink: 0; margin-top: 0.05rem;"></i>
                         <span>A nova senha deve possuir pelo menos 8 caracteres, contendo letras e números para maior segurança da sua conta.</span>
                     </div>
                     
                     <div style="display: flex; justify-content: flex-end; margin-top: 0.5rem;">
-                        <button type="submit" class="btn btn-primary" style="display: inline-flex; align-items: center; gap: 0.5rem; background-color: #6366f1; border-color: #6366f1;">
+                        <button type="submit" class="btn btn-primary" style="display: inline-flex; align-items: center; gap: 0.5rem; background-color: #6366f1; border-color: #6366f1; padding: 0.65rem 1.25rem;">
                             <i data-lucide="lock" style="width: 16px; height: 16px;"></i>
                             Atualizar Senha
                         </button>
                     </div>
                 </form>
             </div>
+
+            <!-- Conteúdo da Aba 3: Permissões -->
+            <div id="tab-permissoes" class="profile-tab-content">
+                <div style="display: flex; flex-direction: column; gap: 1rem; padding: 0.5rem 0;">
+                    <div style="display: flex; align-items: center; gap: 0.5rem; background-color: rgba(99, 102, 241, 0.05); padding: 0.75rem 1rem; border-radius: 8px;">
+                        <i data-lucide="shield" style="width: 18px; height: 18px; color: var(--brand-primary);"></i>
+                        <span style="font-weight: 700; font-size: 0.82rem; color: var(--text-main);">
+                            Acesso Atribuído: {{ user.get_role_display }}
+                        </span>
+                    </div>
+                    
+                    <div style="font-size: 0.82rem; color: var(--text-muted); line-height: 1.6; display: flex; flex-direction: column; gap: 0.85rem;">
+                        {% if user.role == 'ADMIN' %}
+                            <div style="display: flex; gap: 0.6rem; align-items: start;">
+                                <i data-lucide="check" style="width: 16px; height: 16px; color: #10b981; margin-top: 0.1rem; flex-shrink: 0;"></i>
+                                <span><strong>Acesso Administrativo Geral:</strong> Acesso total às configurações globais, exclusão de sites e gerenciamento de bases.</span>
+                            </div>
+                            <div style="display: flex; gap: 0.6rem; align-items: start;">
+                                <i data-lucide="check" style="width: 16px; height: 16px; color: #10b981; margin-top: 0.1rem; flex-shrink: 0;"></i>
+                                <span><strong>Operações Completas de Site:</strong> Permissão para cadastrar, editar, replanejar datas e remover fisicamente qualquer site.</span>
+                            </div>
+                            <div style="display: flex; gap: 0.6rem; align-items: start;">
+                                <i data-lucide="check" style="width: 16px; height: 16px; color: #10b981; margin-top: 0.1rem; flex-shrink: 0;"></i>
+                                <span><strong>Monitoramento NOC Completo:</strong> Recebimento em tempo real de alertas de prazo vencido e sites em alerta de infraestrutura.</span>
+                            </div>
+                        {% elif user.role == 'ENGINEER' %}
+                            <div style="display: flex; gap: 0.6rem; align-items: start;">
+                                <i data-lucide="check" style="width: 16px; height: 16px; color: #10b981; margin-top: 0.1rem; flex-shrink: 0;"></i>
+                                <span><strong>Gerenciamento de Rollout:</strong> Criação de novos sites e definição de prazos/etapas de vistorias, laudos e instalações.</span>
+                            </div>
+                            <div style="display: flex; gap: 0.6rem; align-items: start;">
+                                <i data-lucide="check" style="width: 16px; height: 16px; color: #10b981; margin-top: 0.1rem; flex-shrink: 0;"></i>
+                                <span><strong>Controle de Acessos:</strong> Permissão para liberar ou solicitar acessos a sites do tipo Greenfield ou Rooftop.</span>
+                            </div>
+                            <div style="display: flex; gap: 0.6rem; align-items: start;">
+                                <i data-lucide="check" style="width: 16px; height: 16px; color: #10b981; margin-top: 0.1rem; flex-shrink: 0;"></i>
+                                <span><strong>Histórico de Replanejamento:</strong> Permissão para reagendar datas de etapas inserindo justificativas técnicas.</span>
+                            </div>
+                        {% else %}
+                            <div style="display: flex; gap: 0.6rem; align-items: start;">
+                                <i data-lucide="check" style="width: 16px; height: 16px; color: #10b981; margin-top: 0.1rem; flex-shrink: 0;"></i>
+                                <span><strong>Consulta Operacional:</strong> Visualização de localizações, fichas técnicas de equipamentos e andamento das etapas.</span>
+                            </div>
+                            <div style="display: flex; gap: 0.6rem; align-items: start;">
+                                <i data-lucide="check" style="width: 16px; height: 16px; color: #10b981; margin-top: 0.1rem; flex-shrink: 0;"></i>
+                                <span><strong>Repositório de Arquivos:</strong> Envio de relatórios fotográficos de campo, laudos executados e vistorias técnicas.</span>
+                            </div>
+                            <div style="display: flex; gap: 0.6rem; align-items: start;">
+                                <i data-lucide="x" style="width: 16px; height: 16px; color: #ef4444; margin-top: 0.1rem; flex-shrink: 0;"></i>
+                                <span style="opacity: 0.7;"><strong>Restrição:</strong> Sem permissão para cadastrar ou remover sites, editar datas de cronograma ou redefinir prazos.</span>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
             
         </div>
         
     </div>
 </div>
+
+<!-- Form de Upload de Imagem Instantâneo oculto -->
+<form id="upload-picture-form" method="POST" enctype="multipart/form-data" style="display: none;">
+    {% csrf_token %}
+    <input type="hidden" name="form_type" value="profile_data">
+    <input type="file" id="instant-profile-picture-input" name="profile_picture" accept="image/*" onchange="this.form.submit()">
+</form>
 
 {% if user.profile_picture %}
 <form id="delete-picture-form" method="POST" style="display: none;">
@@ -329,17 +371,14 @@
 {% endif %}
 
 <script>
-    function updateFileNameLabel(input) {
-        const label = document.getElementById('file-name-label');
-        if (input.files && input.files.length > 0) {
-            label.textContent = input.files[0].name;
-            label.style.color = 'var(--brand-primary)';
-            label.style.fontWeight = '600';
-        } else {
-            label.textContent = 'Nenhum arquivo selecionado';
-            label.style.color = 'var(--text-muted)';
-            label.style.fontWeight = 'normal';
-        }
+    function switchTab(tabId, btnElement) {
+        // Remove active class de todos os botões e conteúdos
+        document.querySelectorAll('.profile-tab-btn').forEach(btn => btn.classList.remove('active'));
+        document.querySelectorAll('.profile-tab-content').forEach(content => content.classList.remove('active'));
+        
+        // Adiciona active no botão clicado e no conteúdo correspondente
+        btnElement.classList.add('active');
+        document.getElementById(tabId).classList.add('active');
     }
 </script>
 {% endblock %}
