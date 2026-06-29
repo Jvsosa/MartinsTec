@@ -857,7 +857,7 @@
                                 <span style="font-size: 0.68rem; font-weight: 700; padding: 0.25rem 0.6rem; border-radius: 6px; background-color: {% if site.status == 'MAINTENANCE' %}#fffbeb{% else %}#fdeceb{% endif %}; color: {% if site.status == 'MAINTENANCE' %}#d97706{% else %}#dc2626{% endif %};">
                                     {% if site.status == 'MAINTENANCE' %}Em Alerta{% else %}Atrasado{% endif %}
                                 </span>
-                                <a href="{% url 'site_detail' pk=site.pk %}" class="btn-ent" style="background: var(--ent-primary); color: white; border: none; padding: 0.45rem 0.9rem; font-size: 0.75rem; font-weight: 700; border-radius: 8px; display: inline-flex; align-items: center; gap: 0.35rem; text-decoration: none; box-shadow: var(--ent-shadow-sm); transition: background 0.2s;" onmouseover="this.style.background='#1e293b'" onmouseout="this.style.background='var(--ent-primary)'">
+                                <a href="{% url 'site_detail' pk=site.pk %}" class="btn-ent" style="background: #f1f5f9; color: #334155; border: 1px solid #e2e8f0; padding: 0.45rem 0.9rem; font-size: 0.75rem; font-weight: 700; border-radius: 8px; display: inline-flex; align-items: center; gap: 0.35rem; text-decoration: none; transition: all 0.2s;" onmouseover="this.style.background='#e2e8f0'; this.style.color='#0f172a'; this.style.borderColor='#cbd5e1';" onmouseout="this.style.background='#f1f5f9'; this.style.color='#334155'; this.style.borderColor='#e2e8f0';">
                                     Gerenciar <i data-lucide="arrow-right" style="width: 12px; height: 12px;"></i>
                                 </a>
                             </div>
