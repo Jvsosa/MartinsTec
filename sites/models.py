@@ -734,10 +734,14 @@ class Site(models.Model):
                 
                 # Dispara notificação de integração de novo site
                 try:
+                    user_name = "Sistema"
+                    if hasattr(self, 'modified_by') and self.modified_by:
+                        user_name = self.modified_by.first_name or self.modified_by.username
+
                     Notification.create_notification(
                         site=self,
                         title=f"Novo Site Cadastrado: {self.name}",
-                        message=f"O site {self.name} foi integrado no escopo {self.get_scope_type_display()}.",
+                        message=f"O site {self.name} foi integrado no escopo {self.get_scope_type_display()} por {user_name}.",
                         notification_type=Notification.NotificationType.INFO
                     )
                 except Exception as e:
@@ -760,18 +764,22 @@ class Site(models.Model):
                 try:
                     new_status = self.status
                     if old_status and old_status != new_status:
+                        user_name = "Sistema"
+                        if hasattr(self, 'modified_by') and self.modified_by:
+                            user_name = self.modified_by.first_name or self.modified_by.username
+
                         if new_status == self.SiteStatus.MAINTENANCE:
                             Notification.create_notification(
                                 site=self,
                                 title=f"Site em Alerta: {self.name}",
-                                message=f"O site {self.name} entrou em estado 'Em Alerta' no monitoramento NOC.",
+                                message=f"O site {self.name} entrou em estado 'Em Alerta' no monitoramento NOC por {user_name}.",
                                 notification_type=Notification.NotificationType.ALERT
                             )
                         elif new_status == self.SiteStatus.INACTIVE:
                             Notification.create_notification(
                                 site=self,
                                 title=f"Prazo Vencido: {self.name}",
-                                message=f"O site {self.name} entrou em estado 'Prazo Vencido' devido a atrasos.",
+                                message=f"O site {self.name} entrou em estado 'Prazo Vencido' por {user_name}.",
                                 notification_type=Notification.NotificationType.ALERT
                             )
                 except Exception as e:

@@ -77,7 +77,7 @@ def site_list(request):
         description = request.POST.get('description')
  
         try:
-            new_site = Site.objects.create(
+            new_site = Site(
                 site_id=site_id,
                 name=name,
                 address=address,
@@ -92,6 +92,8 @@ def site_list(request):
                 planned_report_date=planned_report_date,
                 description=description
             )
+            new_site.modified_by = request.user
+            new_site.save()
             messages.success(request, f"Site {new_site.site_id or new_site.name} cadastrado com sucesso!")
         except IntegrityError:
             messages.error(request, f"Erro: O ID do Site '{site_id}' já está cadastrado.")
@@ -727,6 +729,7 @@ def site_detail(request, pk):
             site.actual_report_date  = a_report
 
             try:
+                site.modified_by = request.user
                 site.save()
                 messages.success(request, "Fluxo de trabalho e prazos atualizados com sucesso!")
             except Exception as e:
@@ -766,6 +769,7 @@ def site_detail(request, pk):
                 messages.info(request, "Controle de acesso reiniciado.")
 
             try:
+                site.modified_by = request.user
                 site.save()
             except Exception as e:
                 messages.error(request, f"Erro ao salvar status de acesso: {str(e)}")
@@ -808,6 +812,7 @@ def site_detail(request, pk):
                 site.partner_company = request.POST.get('partner_company', '').strip() or None
 
             try:
+                site.modified_by = request.user
                 site.save()
                 messages.success(request, f"Etapa '{stage_name}' atualizada com sucesso!")
             except Exception as e:
@@ -833,6 +838,7 @@ def site_detail(request, pk):
             stage_obj.site = site
             stage_obj.save(update_fields=['planned_date', 'updated_at'])
 
+            site.modified_by = request.user
             site.save()  # recalcula status
             messages.success(request, f"Data planejada para '{stage_name}' definida com sucesso!")
             return redirect('site_detail', pk=pk)
@@ -866,6 +872,7 @@ def site_detail(request, pk):
             stage_obj.save(update_fields=['planned_date', 'updated_at'])
 
             site.reschedule_count = (site.reschedule_count or 0) + 1
+            site.modified_by = request.user
             site.save()
 
             messages.warning(request, f"Replanejamento da etapa '{stage_name}' registrado! Total: {site.reschedule_count}")
@@ -932,6 +939,7 @@ def site_detail(request, pk):
                 site.description = request.POST.get('description', '').strip() or None
 
             try:
+                site.modified_by = request.user
                 site.save()
                 messages.success(request, "Informações do site e ficha técnica atualizadas com sucesso!")
             except Exception as e:
