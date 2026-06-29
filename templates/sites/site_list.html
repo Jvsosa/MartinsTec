@@ -943,66 +943,6 @@
             </div>
         </div>
 
-        <!-- Tabela de Carga por Parceiro / Empresa Fornecedora -->
-        <div class="ent-card" style="padding: 2rem; border: none; background: white; border-radius: 12px; box-shadow: var(--ent-shadow-sm); margin-bottom: 2rem;">
-            <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--ent-border); padding-bottom: 1rem; margin-bottom: 1rem;">
-                <div>
-                    <h3 style="font-family: var(--font-heading); font-size: 1.25rem; font-weight: 800; color: var(--ent-primary);">Distribuição de Rollout por Empresa Parceira</h3>
-                    <p style="font-size: 0.8rem; color: var(--ent-text-muted); font-weight: 500; margin-top: 0.25rem;">Volume de projetos ativos e concluídos por fornecedor cadastrado na base.</p>
-                </div>
-                <span style="font-size: 0.72rem; font-weight: 700; color: var(--ent-accent); background: #eff6ff; padding: 0.4rem 0.8rem; border-radius: 20px; text-transform: uppercase;">Gestão de Carga</span>
-            </div>
-            
-            <div class="ent-table-wrapper">
-                <table class="ent-table">
-                    <thead>
-                        <tr>
-                            <th>Parceiro</th>
-                            <th style="text-align: center;">Total de Projetos</th>
-                            <th style="text-align: center;">Projetos Concluídos</th>
-                            <th style="text-align: center;">Ciclo Médio de Trabalho</th>
-                            <th style="text-align: center;">Desempenho</th>
-                            <th style="width: 250px;">Taxa de Entrega</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for stat in partner_stats %}
-                        <tr>
-                            <td style="font-weight: 700; color: var(--ent-primary);">{{ stat.partner }}</td>
-                            <td style="text-align: center; font-weight: 600;">{{ stat.total_sites }}</td>
-                            <td style="text-align: center; font-weight: 600;">{{ stat.finished_sites }}</td>
-                            <td style="text-align: center; font-weight: 700; color: var(--ent-accent);">
-                                {% if stat.avg_partner_time %}{{ stat.avg_partner_time }} dias{% else %}--{% endif %}
-                            </td>
-                            <td style="text-align: center;">
-                                {% if stat.perf_badge == 'fast' %}
-                                <span style="font-size: 0.65rem; font-weight: 700; padding: 0.25rem 0.6rem; background: #ecfdf5; color: var(--ent-success); border-radius: 30px; border: 1px solid #d1fae5;">Rápido</span>
-                                {% elif stat.perf_badge == 'normal' %}
-                                <span style="font-size: 0.65rem; font-weight: 700; padding: 0.25rem 0.6rem; background: #fffbeb; color: #d97706; border-radius: 30px; border: 1px solid #fef3c7;">Normal</span>
-                                {% elif stat.perf_badge == 'slow' %}
-                                <span style="font-size: 0.65rem; font-weight: 700; padding: 0.25rem 0.6rem; background: #fef2f2; color: var(--ent-danger); border-radius: 30px; border: 1px solid #fee2e2;">Lento</span>
-                                {% else %}
-                                <span style="font-size: 0.65rem; font-weight: 700; padding: 0.25rem 0.6rem; background: #f1f5f9; color: #64748b; border-radius: 30px;">Sem dados</span>
-                                {% endif %}
-                            </td>
-                            <td>
-                                <div style="display: flex; align-items: center; gap: 0.5rem;">
-                                    <div style="flex: 1; height: 6px; background-color: #f1f5f9; border-radius: 4px; overflow: hidden;">
-                                        <div style="height: 100%; background-color: {% if stat.completion_pct >= 80 %}#10B981{% elif stat.completion_pct >= 50 %}#3B82F6{% else %}#F59E0B{% endif %}; width: {{ stat.completion_pct }}%; border-radius: 4px;"></div>
-                                    </div>
-                                    <span style="font-size: 0.75rem; font-weight: 700; color: var(--ent-primary); width: 35px; text-align: right;">{{ stat.completion_pct }}%</span>
-                                </div>
-                            </td>
-                        </tr>
-                        {% empty %}
-                        <tr>
-                            <td colspan="6" style="text-align: center; padding: 3rem; color: var(--ent-text-muted);">Sem parceiros ou projetos cadastrados.</td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            </div>
-        </div>
     </div>
 
     <!-- ==========================================
