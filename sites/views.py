@@ -138,9 +138,7 @@ def site_list(request):
     inactive_sites = Site.objects.filter(status=Site.SiteStatus.INACTIVE).count()
     total_files = SiteFile.objects.count()
 
-    # Listas para o dashboard de prazos
-    overdue_list = Site.objects.filter(status=Site.SiteStatus.INACTIVE)
-    alert_list = Site.objects.filter(status=Site.SiteStatus.MAINTENANCE)
+
 
     # Contagem de arquivos por categoria para gráficos
     pdf_files = SiteFile.objects.filter(category='PDF').count()
@@ -556,8 +554,7 @@ def site_list(request):
         'maintenance_sites': maintenance_sites,
         'planned_sites': planned_sites,
         'inactive_sites': inactive_sites,
-        'overdue_list': overdue_list,
-        'alert_list': alert_list,
+
         'total_files': total_files,
         'pdf_files': pdf_files,
         'image_files': image_files,
