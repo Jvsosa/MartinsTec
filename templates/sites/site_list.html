@@ -849,15 +849,15 @@
                                     <i data-lucide="alert-triangle" style="width: 18px; height: 18px;"></i>
                                 </div>
                                 <div>
-                                    <div style="font-weight: 700; color: var(--ent-primary); font-size: 0.9rem; margin-bottom: 0.15rem;">{{ site.site_id }}</div>
-                                    <div style="font-size: 0.78rem; color: var(--ent-text-muted); font-weight: 500;">{{ site.name }} ({{ site.get_scope_type_display }})</div>
+                                    <div style="font-weight: 700; color: var(--ent-primary); font-size: 0.9rem; margin-bottom: 0.15rem;">{{ site.name|default:"Sem Nome" }}</div>
+                                    <div style="font-size: 0.78rem; color: var(--ent-text-muted); font-weight: 500;">ID: {{ site.site_id|default:"Sem ID" }} ({{ site.get_scope_type_display }})</div>
                                 </div>
                             </div>
                             <div style="display: flex; align-items: center; gap: 0.75rem;">
                                 <span style="font-size: 0.68rem; font-weight: 700; padding: 0.25rem 0.6rem; border-radius: 6px; background-color: {% if site.status == 'MAINTENANCE' %}#fffbeb{% else %}#fdeceb{% endif %}; color: {% if site.status == 'MAINTENANCE' %}#d97706{% else %}#dc2626{% endif %};">
                                     {% if site.status == 'MAINTENANCE' %}Em Alerta{% else %}Atrasado{% endif %}
                                 </span>
-                                <a href="{% url 'site_detail' pk=site.pk %}" class="btn-ent btn-ent-outline" style="padding: 0.35rem 0.75rem; font-size: 0.75rem; border-radius: 8px; display: inline-flex; align-items: center; gap: 0.25rem;">
+                                <a href="{% url 'site_detail' pk=site.pk %}" class="btn-ent" style="background: var(--ent-primary); color: white; border: none; padding: 0.45rem 0.9rem; font-size: 0.75rem; font-weight: 700; border-radius: 8px; display: inline-flex; align-items: center; gap: 0.35rem; text-decoration: none; box-shadow: var(--ent-shadow-sm); transition: background 0.2s;" onmouseover="this.style.background='#1e293b'" onmouseout="this.style.background='var(--ent-primary)'">
                                     Gerenciar <i data-lucide="arrow-right" style="width: 12px; height: 12px;"></i>
                                 </a>
                             </div>
