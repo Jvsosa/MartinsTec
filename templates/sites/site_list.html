@@ -811,11 +811,16 @@
                 </div>
 
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; align-items: center; flex: 1;">
-                    <!-- Gráfico 1: Rosca (Status) -->
-                    <div style="display: flex; flex-direction: column; align-items: center;">
-                        <h4 style="font-size: 0.8rem; font-weight: 700; color: var(--ent-secondary); margin-bottom: 1rem; text-transform: uppercase; letter-spacing: 0.05em;">Status dos Ativos</h4>
-                        <div style="position: relative; height: 220px; width: 100%;">
-                            <canvas id="statusDoughnutChart"></canvas>
+                    <!-- Gráfico 1: Rosca (Operadoras) -->
+                    <div style="display: flex; flex-direction: column; align-items: center; width: 100%;">
+                        <h4 style="font-size: 0.8rem; font-weight: 700; color: var(--ent-secondary); margin-bottom: 1rem; text-transform: uppercase; letter-spacing: 0.05em;">Distribuição por Operadora</h4>
+                        <div style="display: flex; align-items: center; gap: 1rem; width: 100%; height: 220px;">
+                            <div style="position: relative; height: 220px; width: 45%;">
+                                <canvas id="operatorDoughnutChart"></canvas>
+                            </div>
+                            <div id="operator-chart-legend" style="display: flex; flex-direction: column; gap: 0.5rem; justify-content: center; font-size: 0.75rem; font-weight: 600; color: var(--ent-primary); width: 55%; padding-left: 0.5rem;">
+                                <!-- Será populada dinamicamente via JS -->
+                            </div>
                         </div>
                     </div>
                     
@@ -877,30 +882,14 @@
             </div>
         </div>
 
-        <!-- Seção Secundária: Operadoras e Progresso por Escopo (2 colunas) -->
-        <div style="display: grid; grid-template-columns: 1.8fr 1.2fr; gap: 1.5rem; margin-bottom: 2rem;">
-            
-            <!-- Gráfico de Operadoras (Esquerda, redondo/pie) -->
+        <!-- Seção Secundária: Progresso por Escopo (Largura Total) -->
+        <div style="margin-bottom: 2rem;">
+            <!-- Progresso do Rollout (Largura Total) -->
             <div class="ent-card" style="padding: 2rem; border: none; display: flex; flex-direction: column; background: white; border-radius: 12px; box-shadow: var(--ent-shadow-sm);">
-                <h3 style="font-family: var(--font-heading); font-size: 1.25rem; font-weight: 800; color: var(--ent-primary); margin-bottom: 0.25rem;">Distribuição por Operadora</h3>
-                <p style="font-size: 0.8rem; color: var(--ent-text-muted); font-weight: 500; margin-bottom: 1.5rem;">Divisão de ativos de telecom por operadora cadastrada.</p>
+                <h3 style="font-family: var(--font-heading); font-size: 1.25rem; font-weight: 800; color: var(--ent-primary); margin-bottom: 0.25rem;">Progresso do Rollout</h3>
+                <p style="font-size: 0.8rem; color: var(--ent-text-muted); font-weight: 500; margin-bottom: 2rem;">Percentual concluído por tipo de escopo de obra.</p>
                 
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2.5rem; align-items: center; flex: 1;">
-                    <div style="position: relative; height: 200px; width: 100%;">
-                        <canvas id="operatorDoughnutChart"></canvas>
-                    </div>
-                    <div id="operator-chart-legend" style="display: flex; flex-direction: column; gap: 0.8rem; justify-content: center; font-size: 0.85rem; font-weight: 600; color: var(--ent-primary);">
-                        <!-- Será populada dinamicamente via JS -->
-                    </div>
-                </div>
-            </div>
-
-            <!-- Progresso do Rollout (Direita, vertical) -->
-            <div class="ent-card" style="padding: 2rem; border: none; display: flex; flex-direction: column; background: white; border-radius: 12px; box-shadow: var(--ent-shadow-sm);">
-                <h3 style="font-family: var(--font-heading); font-size: 1.25rem; font-weight: 800; color: var(--ent-primary); margin-bottom: 0.25rem;">Progresso por Escopo</h3>
-                <p style="font-size: 0.8rem; color: var(--ent-text-muted); font-weight: 500; margin-bottom: 2rem;">Percentual concluído por tipo de escopo.</p>
-                
-                <div style="display: flex; flex-direction: column; gap: 1.5rem; flex: 1; justify-content: center;">
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 2rem; flex: 1;">
                     {% for scope_key, scope_info in scope_analytics.items %}
                     <div class="progress-item">
                         <div class="progress-item-header" style="display: flex; justify-content: space-between; font-size: 0.85rem; font-weight: 700; color: var(--ent-primary);">
@@ -2157,41 +2146,6 @@
     // --- 5. GRÁFICO CHART.JS ---
     document.addEventListener("DOMContentLoaded", function() {
         initMap();
-
-        // Dados do backend
-        const active = {{ active_sites|default:0 }};
-        const planned = {{ planned_sites|default:0 }};
-        const maintenance = {{ maintenance_sites|default:0 }};
-        const inactive = {{ inactive_sites|default:0 }};
-
-        // Gráfico de Rosca Premium
-        const statusCtx = document.getElementById('statusDoughnutChart').getContext('2d');
-        new Chart(statusCtx, {
-            type: 'doughnut',
-            data: {
-                labels: ['Finalizados', 'Cadastrados', 'Em Alerta', 'Prazos Vencidos'],
-                datasets: [{
-                    data: [active, planned, maintenance, inactive],
-                    backgroundColor: ['#10B981', '#3B82F6', '#F59E0B', '#EF4444'],
-                    borderWidth: 2,
-                    borderColor: '#ffffff',
-                    hoverOffset: 4
-                }]
-            },
-            options: {
-                cutout: '70%',
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: { display: false },
-                    tooltip: {
-                        backgroundColor: '#0f172a',
-                        titleFont: { family: "'Outfit', sans-serif", size: 12 },
-                        bodyFont: { family: "'Inter', sans-serif", size: 12 }
-                    }
-                }
-            }
-        });
 
         // Gráfico de Barras de Escopo
         const scopeLabels = [];
