@@ -1258,7 +1258,7 @@
 
             async function fetchNotifications(silent = false) {
                 try {
-                    const response = await fetch('/notifications/');
+                    const response = await fetch('/notifications/?_=' + new Date().getTime());
                     const data = await response.json();
                     if (data.status === 'success') {
                         // Atualiza o contador de não lidas
@@ -1278,6 +1278,16 @@
                     }
                 } catch (err) {
                     console.error("Erro ao carregar notificações:", err);
+                    if (!silent) {
+                        container.innerHTML = `
+                            <div style="padding: 2rem 1rem; text-align: center; color: var(--text-danger); font-size: 0.8rem; display: flex; flex-direction: column; align-items: center; gap: 0.5rem;">
+                                <i data-lucide="alert-circle" style="width: 24px; height: 24px; color: var(--text-danger);"></i>
+                                <span style="font-weight: 700;">Erro ao carregar</span>
+                                <span style="font-size: 0.72rem; opacity: 0.8;">${err.message}</span>
+                            </div>
+                        `;
+                        lucide.createIcons();
+                    }
                 }
             }
 
