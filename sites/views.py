@@ -1414,6 +1414,7 @@ def mark_notification_read(request):
 def user_profile(request):
     from django.contrib.auth.forms import PasswordChangeForm
     from django.contrib.auth import update_session_auth_hash
+    import os
     
     if request.method == 'POST':
         form_type = request.POST.get('form_type')
@@ -1421,6 +1422,7 @@ def user_profile(request):
             first_name = request.POST.get('first_name', '').strip()
             last_name = request.POST.get('last_name', '').strip()
             email = request.POST.get('email', '').strip()
+            profile_pic = request.FILES.get('profile_picture')
             
             if not first_name:
                 messages.error(request, "O primeiro nome é obrigatório.")
@@ -1428,8 +1430,35 @@ def user_profile(request):
                 request.user.first_name = first_name
                 request.user.last_name = last_name
                 request.user.email = email
+                
+                if profile_pic:
+                    ext = os.path.splitext(profile_pic.name)[1].lower()
+                    if ext in ['.jpg', '.jpeg', '.png', '.webp', '.gif']:
+                        if request.user.profile_picture:
+                            try:
+                                if os.path.exists(request.user.profile_picture.path):
+                                    os.remove(request.user.profile_picture.path)
+                            except Exception:
+                                pass
+                        request.user.profile_picture = profile_pic
+                    else:
+                        messages.error(request, "Formato de imagem inválido. Use JPG, PNG, WEBP ou GIF.")
+                        return redirect('user_profile')
+                
                 request.user.save()
                 messages.success(request, "Dados pessoais atualizados com sucesso!")
+            return redirect('user_profile')
+            
+        elif form_type == 'delete_picture':
+            if request.user.profile_picture:
+                try:
+                    if os.path.exists(request.user.profile_picture.path):
+                        os.remove(request.user.profile_picture.path)
+                except Exception:
+                    pass
+                request.user.profile_picture = None
+                request.user.save()
+                messages.success(request, "Foto de perfil removida com sucesso!")
             return redirect('user_profile')
             
         elif form_type == 'change_password':

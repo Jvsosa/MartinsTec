@@ -4,12 +4,84 @@
 {% block title %}Meu Perfil - MartinsTec{% endblock %}
 
 {% block content %}
+<style>
+    /* Estilos premium para as inputs (caixas de texto) */
+    .form-control {
+        width: 100%;
+        padding: 0.75rem 1rem;
+        border: 1.5px solid #e2e8f0;
+        border-radius: 10px;
+        font-family: inherit;
+        font-size: 0.9rem;
+        color: var(--text-main);
+        background-color: var(--card-bg, #ffffff);
+        transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.02);
+    }
+    .form-control:hover {
+        border-color: #cbd5e1;
+    }
+    .form-control:focus {
+        outline: none;
+        border-color: var(--brand-primary);
+        box-shadow: 0 0 0 3.5px rgba(99, 102, 241, 0.15);
+        background-color: #ffffff;
+    }
+    .form-control:disabled, .form-control[readonly] {
+        background-color: #f8fafc;
+        border-color: #f1f5f9;
+        color: #94a3b8;
+        cursor: not-allowed;
+    }
+    
+    /* Botão de Upload Personalizado */
+    .photo-upload-btn {
+        background-color: var(--brand-primary);
+        color: #fff;
+        padding: 0.5rem 1rem;
+        border-radius: 8px;
+        font-size: 0.78rem;
+        font-weight: 600;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.4rem;
+        transition: all 0.2s ease;
+        border: 1px solid var(--brand-primary);
+    }
+    .photo-upload-btn:hover {
+        background-color: #4f46e5;
+        border-color: #4f46e5;
+        transform: translateY(-1px);
+    }
+    
+    /* Botão de Excluir Foto */
+    .photo-delete-btn {
+        background-color: transparent;
+        color: #ef4444;
+        padding: 0.5rem 1rem;
+        border-radius: 8px;
+        font-size: 0.78rem;
+        font-weight: 600;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.4rem;
+        transition: all 0.2s ease;
+        border: 1px solid rgba(239, 68, 68, 0.2);
+    }
+    .photo-delete-btn:hover {
+        background-color: rgba(239, 68, 68, 0.05);
+        border-color: #ef4444;
+    }
+</style>
+
 <div class="dashboard-wrapper" style="padding: 2rem; max-width: 1200px; margin: 0 auto; display: flex; flex-direction: column; gap: 2rem;">
     
     <!-- Cabeçalho Principal -->
     <div style="display: flex; flex-direction: column; gap: 0.5rem;">
         <h1 style="font-size: 1.8rem; font-weight: 800; color: var(--text-main); margin: 0;">Meu Perfil</h1>
-        <p style="font-size: 0.9rem; color: var(--text-muted); margin: 0;">Gerencie suas informações pessoais, altere sua senha de acesso e verifique suas permissões no sistema.</p>
+        <p style="font-size: 0.9rem; color: var(--text-muted); margin: 0;">Gerencie suas informações pessoais, adicione sua foto personalizada e altere sua senha.</p>
     </div>
 
     <!-- Layout Grid de 2 Colunas -->
@@ -20,9 +92,16 @@
             
             <!-- Card de Avatar Premium -->
             <div class="card" style="text-align: center; padding: 2.5rem 1.5rem; display: flex; flex-direction: column; align-items: center; gap: 1.25rem;">
-                <div style="width: 90px; height: 90px; border-radius: 50%; background: linear-gradient(135deg, var(--brand-primary), #6366f1); display: flex; align-items: center; justify-content: center; font-size: 2.5rem; font-weight: 800; color: #ffffff; box-shadow: var(--shadow-md);">
-                    {{ user.username|slice:":1"|upper|default:"A" }}
+                <div style="position: relative;">
+                    <div style="width: 105px; height: 105px; border-radius: 50%; background: linear-gradient(135deg, var(--brand-primary), #6366f1); display: flex; align-items: center; justify-content: center; font-size: 2.7rem; font-weight: 800; color: #ffffff; box-shadow: var(--shadow-md); overflow: hidden; border: 4px solid var(--card-bg, #ffffff);">
+                        {% if user.profile_picture %}
+                            <img src="{{ user.profile_picture.url }}" alt="Avatar" style="width: 100%; height: 100%; object-fit: cover;">
+                        {% else %}
+                            {{ user.username|slice:":1"|upper|default:"A" }}
+                        {% endif %}
+                    </div>
                 </div>
+                
                 <div style="display: flex; flex-direction: column; gap: 0.25rem;">
                     <h3 style="font-size: 1.2rem; font-weight: 700; color: var(--text-main); margin: 0;">
                         {{ user.first_name|default:user.username }} {{ user.last_name|default:"" }}
@@ -121,21 +200,50 @@
                     <h3 style="font-size: 1.1rem; font-weight: 700; color: var(--text-main); margin: 0;">Dados Cadastrais</h3>
                 </div>
                 
-                <form method="POST" style="display: flex; flex-direction: column; gap: 1.25rem;">
+                <form method="POST" enctype="multipart/form-data" style="display: flex; flex-direction: column; gap: 1.5rem;">
                     {% csrf_token %}
                     <input type="hidden" name="form_type" value="profile_data">
+                    
+                    <!-- Foto de Perfil Upload Area -->
+                    <div style="display: flex; align-items: center; gap: 1.5rem; background-color: rgba(99, 102, 241, 0.02); padding: 1rem; border-radius: 10px; border: 1px dashed var(--border-color);">
+                        <div style="width: 60px; height: 60px; border-radius: 50%; background: linear-gradient(135deg, var(--brand-primary), #6366f1); display: flex; align-items: center; justify-content: center; font-size: 1.5rem; font-weight: 800; color: #ffffff; overflow: hidden; flex-shrink: 0; border: 2px solid #fff; box-shadow: var(--shadow-sm);">
+                            {% if user.profile_picture %}
+                                <img src="{{ user.profile_picture.url }}" alt="Preview" style="width: 100%; height: 100%; object-fit: cover;">
+                            {% else %}
+                                {{ user.username|slice:":1"|upper|default:"A" }}
+                            {% endif %}
+                        </div>
+                        <div style="display: flex; flex-direction: column; gap: 0.5rem; flex: 1;">
+                            <label style="font-size: 0.8rem; font-weight: 700; color: var(--text-main); margin: 0;">Foto de Perfil</label>
+                            <div style="display: flex; align-items: center; gap: 0.75rem; flex-wrap: wrap;">
+                                <label class="photo-upload-btn">
+                                    <i data-lucide="upload" style="width: 14px; height: 14px;"></i>
+                                    Escolher Foto
+                                    <input type="file" name="profile_picture" accept="image/*" style="display: none;" onchange="updateFileNameLabel(this)">
+                                </label>
+                                <span id="file-name-label" style="font-size: 0.72rem; color: var(--text-muted);">Nenhum arquivo selecionado</span>
+                                
+                                {% if user.profile_picture %}
+                                    <button type="button" class="photo-delete-btn" onclick="document.getElementById('delete-picture-form').submit()">
+                                        <i data-lucide="trash-2" style="width: 14px; height: 14px;"></i>
+                                        Remover Foto
+                                    </button>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
                     
                     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem;">
                         <!-- Primeiro Nome -->
                         <div class="form-group" style="display: flex; flex-direction: column; gap: 0.4rem;">
                             <label for="first_name" style="font-size: 0.8rem; font-weight: 700; color: var(--text-main);">Nome *</label>
-                            <input type="text" id="first_name" name="first_name" value="{{ user.first_name }}" class="form-control" style="width: 100%;" required>
+                            <input type="text" id="first_name" name="first_name" value="{{ user.first_name }}" class="form-control" placeholder="Seu nome" required>
                         </div>
                         
                         <!-- Sobrenome -->
                         <div class="form-group" style="display: flex; flex-direction: column; gap: 0.4rem;">
                             <label for="last_name" style="font-size: 0.8rem; font-weight: 700; color: var(--text-main);">Sobrenome</label>
-                            <input type="text" id="last_name" name="last_name" value="{{ user.last_name }}" class="form-control" style="width: 100%;">
+                            <input type="text" id="last_name" name="last_name" value="{{ user.last_name }}" class="form-control" placeholder="Seu sobrenome">
                         </div>
                     </div>
 
@@ -143,13 +251,13 @@
                         <!-- E-mail -->
                         <div class="form-group" style="display: flex; flex-direction: column; gap: 0.4rem;">
                             <label for="email" style="font-size: 0.8rem; font-weight: 700; color: var(--text-main);">E-mail</label>
-                            <input type="email" id="email" name="email" value="{{ user.email }}" class="form-control" style="width: 100%;">
+                            <input type="email" id="email" name="email" value="{{ user.email }}" class="form-control" placeholder="Seu endereço de e-mail">
                         </div>
                         
                         <!-- Nome de Usuário (Bloqueado) -->
-                        <div class="form-group" style="display: flex; flex-direction: column; gap: 0.4rem; opacity: 0.7;">
+                        <div class="form-group" style="display: flex; flex-direction: column; gap: 0.4rem;">
                             <label style="font-size: 0.8rem; font-weight: 700; color: var(--text-main);">Usuário (Login)</label>
-                            <input type="text" value="{{ user.username }}" class="form-control" style="width: 100%; cursor: not-allowed; background-color: rgba(0,0,0,0.03);" disabled>
+                            <input type="text" value="{{ user.username }}" class="form-control" disabled readonly>
                         </div>
                     </div>
                     
@@ -176,20 +284,20 @@
                     <!-- Senha Atual -->
                     <div class="form-group" style="display: flex; flex-direction: column; gap: 0.4rem;">
                         <label for="id_old_password" style="font-size: 0.8rem; font-weight: 700; color: var(--text-main);">Senha Atual</label>
-                        <input type="password" id="id_old_password" name="old_password" class="form-control" style="width: 100%;" required>
+                        <input type="password" id="id_old_password" name="old_password" class="form-control" placeholder="Digite sua senha atual" required>
                     </div>
                     
                     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem;">
                         <!-- Nova Senha -->
                         <div class="form-group" style="display: flex; flex-direction: column; gap: 0.4rem;">
                             <label for="id_new_password1" style="font-size: 0.8rem; font-weight: 700; color: var(--text-main);">Nova Senha</label>
-                            <input type="password" id="id_new_password1" name="new_password1" class="form-control" style="width: 100%;" required>
+                            <input type="password" id="id_new_password1" name="new_password1" class="form-control" placeholder="Mínimo 8 caracteres" required>
                         </div>
                         
                         <!-- Confirmação da Nova Senha -->
                         <div class="form-group" style="display: flex; flex-direction: column; gap: 0.4rem;">
                             <label for="id_new_password2" style="font-size: 0.8rem; font-weight: 700; color: var(--text-main);">Confirmar Nova Senha</label>
-                            <input type="password" id="id_new_password2" name="new_password2" class="form-control" style="width: 100%;" required>
+                            <input type="password" id="id_new_password2" name="new_password2" class="form-control" placeholder="Repita a nova senha" required>
                         </div>
                     </div>
                     
@@ -212,4 +320,26 @@
         
     </div>
 </div>
+
+{% if user.profile_picture %}
+<form id="delete-picture-form" method="POST" style="display: none;">
+    {% csrf_token %}
+    <input type="hidden" name="form_type" value="delete_picture">
+</form>
+{% endif %}
+
+<script>
+    function updateFileNameLabel(input) {
+        const label = document.getElementById('file-name-label');
+        if (input.files && input.files.length > 0) {
+            label.textContent = input.files[0].name;
+            label.style.color = 'var(--brand-primary)';
+            label.style.fontWeight = '600';
+        } else {
+            label.textContent = 'Nenhum arquivo selecionado';
+            label.style.color = 'var(--text-muted)';
+            label.style.fontWeight = 'normal';
+        }
+    }
+</script>
 {% endblock %}

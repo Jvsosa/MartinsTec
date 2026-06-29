@@ -17,6 +17,13 @@ class User(AbstractUser):
         verbose_name="Cargo / Nível de Acesso"
     )
 
+    profile_picture = models.FileField(
+        upload_to="profile_pics/",
+        null=True,
+        blank=True,
+        verbose_name="Foto de Perfil"
+    )
+
     class Meta:
         verbose_name = "Usuário"
         verbose_name_plural = "Usuários"
