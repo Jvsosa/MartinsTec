@@ -450,10 +450,15 @@ def site_list(request):
         else:
             perf_badge = 'none'
 
+        total_s = data['total_sites']
+        finished_s = data['finished_sites']
+        completion_pct = int(round((finished_s / total_s) * 100)) if total_s > 0 else 0
+
         partner_stats.append({
             'partner': partner,
-            'total_sites': data['total_sites'],
-            'finished_sites': data['finished_sites'],
+            'total_sites': total_s,
+            'finished_sites': finished_s,
+            'completion_pct': completion_pct,
             'avg_total_days': avg_total,
             'avg_survey_days': avg_survey,
             'avg_report_days': avg_report,

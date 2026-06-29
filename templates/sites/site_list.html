@@ -704,176 +704,170 @@
 <div class="dashboard-wrapper">
     
     <!-- ==========================================
-         VIEW 1: DASHBOARD CORPORATIVO
+         VIEW 1: DASHBOARD CORPORATIVO (REDESENHADO)
          ========================================== -->
     <div id="dashboard-view" class="view-container" style="display: block;">
         
-        <!-- Header da Página (Mesmo padrão das outras abas) -->
+        <!-- Header da Página -->
         <div class="page-header" style="margin-bottom: 2rem;">
             <div class="page-header-text">
-                <h2>Visão Geral da Rede</h2>
-                <p>Monitoramento integrado de infraestrutura física, licenças de rádio, vistorias e NOC MartinsTec</p>
+                <h2 style="font-family: var(--font-heading); font-size: 1.8rem; font-weight: 800; color: var(--ent-primary);">Dashboard Executivo</h2>
+                <p style="font-size: 0.88rem; color: var(--ent-text-muted);">Painel consolidado de status de rede, performance de fornecedores e controle do NOC MartinsTec.</p>
             </div>
             <div style="display: flex; align-items: center; gap: 0.75rem;">
-                <div style="background: #f8fafc; border: 1px solid var(--ent-border); border-radius: 8px; padding: 0.5rem 1rem; display: flex; align-items: center; gap: 0.5rem; font-size: 0.85rem; font-weight: 600; color: var(--ent-primary);">
+                <div style="background: #f8fafc; border: 1px solid var(--ent-border); border-radius: 10px; padding: 0.55rem 1.1rem; display: flex; align-items: center; gap: 0.5rem; font-size: 0.85rem; font-weight: 700; color: var(--ent-primary); box-shadow: var(--ent-shadow-sm);">
                     <i data-lucide="calendar" style="width: 16px; height: 16px; color: #2563EB;"></i>
                     <span id="current-date" style="color: var(--ent-primary);"></span>
                 </div>
-                <button class="btn-ent btn-ent-primary">
+                <button class="btn-ent btn-ent-primary" style="border-radius: 10px; padding: 0.6rem 1.2rem; font-weight: 700; display: inline-flex; align-items: center; gap: 0.5rem; box-shadow: var(--ent-shadow-sm);">
                     <i data-lucide="download-cloud" style="width: 16px; height: 16px;"></i> Exportar NOC
                 </button>
             </div>
         </div>
 
-
-        <!-- KPIs Modernos -->
-        <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 1.5rem; margin-bottom: 2.5rem;">
-            
-            <div class="ent-card" style="padding: 1.5rem 1.75rem;">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
-                    <span style="font-size: 0.85rem; font-weight: 600; color: var(--ent-text-muted);">Total de Sites</span>
-                    <div style="width: 38px; height: 38px; border-radius: 10px; background: #eff6ff; display: flex; align-items: center; justify-content: center; color: var(--ent-accent);">
-                        <i data-lucide="layers" style="width: 20px; height: 20px;"></i>
+        <!-- Painel de KPIs Globais (5 colunas) -->
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.25rem; margin-bottom: 2rem;">
+            <!-- Card 1: Total de Sites -->
+            <div class="ent-card" style="background: white; border: none; box-shadow: var(--ent-shadow-sm); padding: 1.5rem; display: flex; align-items: center; justify-content: space-between; border-radius: 12px; transition: all 0.3s ease; position: relative; overflow: hidden;" onmouseover="this.style.transform='translateY(-3px)'; this.style.boxShadow='var(--ent-shadow-md)'" onmouseout="this.style.transform='none'; this.style.boxShadow='var(--ent-shadow-sm)'">
+                <div>
+                    <div style="font-size: 0.72rem; font-weight: 700; color: var(--ent-text-muted); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.35rem;">Total de Sites</div>
+                    <div style="font-family: var(--font-heading); font-size: 2rem; font-weight: 800; color: var(--ent-primary); line-height: 1.2;">
+                        {{ total_sites|default:0 }}
                     </div>
+                    <p style="font-size: 0.72rem; color: var(--ent-text-muted); margin-top: 0.25rem;">Estruturas gerenciadas</p>
                 </div>
-                <div style="font-family: var(--font-heading); font-size: 2.2rem; font-weight: 700; color: var(--ent-primary); line-height: 1.2; margin-bottom: 0.25rem;">{{ total_sites|default:0 }}</div>
-                <div style="font-size: 0.75rem; color: var(--ent-text-muted); font-weight: 500;">Estruturas cadastradas</div>
-            </div>
-
-            <div class="ent-card" style="padding: 1.5rem 1.75rem;">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
-                    <span style="font-size: 0.85rem; font-weight: 600; color: var(--ent-text-muted);">Sites Finalizados</span>
-                    <div style="width: 38px; height: 38px; border-radius: 10px; background: #ecfdf5; display: flex; align-items: center; justify-content: center; color: #10B981;">
-                        <i data-lucide="check-circle" style="width: 20px; height: 20px;"></i>
-                    </div>
-                </div>
-                <div style="font-family: var(--font-heading); font-size: 2.2rem; font-weight: 700; color: var(--ent-primary); line-height: 1.2; margin-bottom: 0.25rem;">{{ active_sites|default:0 }}</div>
-                <div style="font-size: 0.75rem; color: #10B981; font-weight: 600; display: flex; align-items: center; gap: 0.25rem;">
-                    <span style="width: 6px; height: 6px; background-color: #10B981; border-radius: 50%;"></span>
-                    Concluídos e operacionais
+                <div style="width: 44px; height: 44px; border-radius: 10px; background: #eff6ff; color: var(--ent-accent); display: flex; align-items: center; justify-content: center;">
+                    <i data-lucide="layers" style="width: 22px; height: 22px;"></i>
                 </div>
             </div>
 
-            <div class="ent-card" style="padding: 1.5rem 1.75rem;">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
-                    <span style="font-size: 0.85rem; font-weight: 600; color: var(--ent-text-muted);">Em Alerta</span>
-                    <div style="width: 38px; height: 38px; border-radius: 10px; background: #fffbeb; display: flex; align-items: center; justify-content: center; color: #F59E0B;">
-                        <i data-lucide="alert-triangle" style="width: 20px; height: 20px;"></i>
+            <!-- Card 2: Sites Finalizados -->
+            <div class="ent-card" style="background: white; border: none; box-shadow: var(--ent-shadow-sm); padding: 1.5rem; display: flex; align-items: center; justify-content: space-between; border-radius: 12px; transition: all 0.3s ease;" onmouseover="this.style.transform='translateY(-3px)'; this.style.boxShadow='var(--ent-shadow-md)'" onmouseout="this.style.transform='none'; this.style.boxShadow='var(--ent-shadow-sm)'">
+                <div>
+                    <div style="font-size: 0.72rem; font-weight: 700; color: var(--ent-text-muted); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.35rem;">Finalizados</div>
+                    <div style="font-family: var(--font-heading); font-size: 2rem; font-weight: 800; color: #10B981; line-height: 1.2;">
+                        {{ active_sites|default:0 }}
                     </div>
+                    <p style="font-size: 0.72rem; color: var(--ent-text-muted); margin-top: 0.25rem;">Prontos e operacionais</p>
                 </div>
-                <div style="font-family: var(--font-heading); font-size: 2.2rem; font-weight: 700; color: var(--ent-primary); line-height: 1.2; margin-bottom: 0.25rem;">{{ maintenance_sites|default:0 }}</div>
-                <div style="font-size: 0.75rem; color: #F59E0B; font-weight: 600; display: flex; align-items: center; gap: 0.25rem;">
-                    <span style="width: 6px; height: 6px; background-color: #F59E0B; border-radius: 50%;"></span>
-                    Demandam atenção ou técnica
+                <div style="width: 44px; height: 44px; border-radius: 10px; background: #ecfdf5; color: #10B981; display: flex; align-items: center; justify-content: center;">
+                    <i data-lucide="check-circle" style="width: 22px; height: 22px;"></i>
                 </div>
             </div>
 
-            <div class="ent-card" style="padding: 1.5rem 1.75rem;">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
-                    <span style="font-size: 0.85rem; font-weight: 600; color: var(--ent-text-muted);">Prazos Vencidos</span>
-                    <div style="width: 38px; height: 38px; border-radius: 10px; background: #fef2f2; display: flex; align-items: center; justify-content: center; color: #EF4444;">
-                        <i data-lucide="clock" style="width: 20px; height: 20px;"></i>
+            <!-- Card 3: Em Alerta -->
+            <div class="ent-card" style="background: white; border: none; box-shadow: var(--ent-shadow-sm); padding: 1.5rem; display: flex; align-items: center; justify-content: space-between; border-radius: 12px; transition: all 0.3s ease;" onmouseover="this.style.transform='translateY(-3px)'; this.style.boxShadow='var(--ent-shadow-md)'" onmouseout="this.style.transform='none'; this.style.boxShadow='var(--ent-shadow-sm)'">
+                <div>
+                    <div style="font-size: 0.72rem; font-weight: 700; color: var(--ent-text-muted); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.35rem;">Em Alerta</div>
+                    <div style="font-family: var(--font-heading); font-size: 2rem; font-weight: 800; color: #F59E0B; line-height: 1.2;">
+                        {{ maintenance_sites|default:0 }}
                     </div>
+                    <p style="font-size: 0.72rem; color: var(--ent-text-muted); margin-top: 0.25rem;">Demandam ajuste técnico</p>
                 </div>
-                <div style="font-family: var(--font-heading); font-size: 2.2rem; font-weight: 700; color: var(--ent-primary); line-height: 1.2; margin-bottom: 0.25rem;">{{ inactive_sites|default:0 }}</div>
-                <div style="font-size: 0.75rem; color: #EF4444; font-weight: 600; display: flex; align-items: center; gap: 0.25rem;">
-                    <span style="width: 6px; height: 6px; background-color: #EF4444; border-radius: 50%;"></span>
-                    Pendências críticas no NOC
+                <div style="width: 44px; height: 44px; border-radius: 10px; background: #fffbeb; color: #F59E0B; display: flex; align-items: center; justify-content: center;">
+                    <i data-lucide="alert-triangle" style="width: 22px; height: 22px;"></i>
                 </div>
             </div>
 
+            <!-- Card 4: Prazos Vencidos -->
+            <div class="ent-card" style="background: white; border: none; box-shadow: var(--ent-shadow-sm); padding: 1.5rem; display: flex; align-items: center; justify-content: space-between; border-radius: 12px; transition: all 0.3s ease;" onmouseover="this.style.transform='translateY(-3px)'; this.style.boxShadow='var(--ent-shadow-md)'" onmouseout="this.style.transform='none'; this.style.boxShadow='var(--ent-shadow-sm)'">
+                <div>
+                    <div style="font-size: 0.72rem; font-weight: 700; color: var(--ent-text-muted); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.35rem;">Atrasados</div>
+                    <div style="font-family: var(--font-heading); font-size: 2rem; font-weight: 800; color: #EF4444; line-height: 1.2;">
+                        {{ inactive_sites|default:0 }}
+                    </div>
+                    <p style="font-size: 0.72rem; color: var(--ent-text-muted); margin-top: 0.25rem;">Prazos críticos estourados</p>
+                </div>
+                <div style="width: 44px; height: 44px; border-radius: 10px; background: #fef2f2; color: #EF4444; display: flex; align-items: center; justify-content: center;">
+                    <i data-lucide="clock" style="width: 22px; height: 22px;"></i>
+                </div>
+            </div>
+
+            <!-- Card 5: Acervo de Documentos -->
+            <div class="ent-card" style="background: white; border: none; box-shadow: var(--ent-shadow-sm); padding: 1.5rem; display: flex; align-items: center; justify-content: space-between; border-radius: 12px; transition: all 0.3s ease;" onmouseover="this.style.transform='translateY(-3px)'; this.style.boxShadow='var(--ent-shadow-md)'" onmouseout="this.style.transform='none'; this.style.boxShadow='var(--ent-shadow-sm)'">
+                <div>
+                    <div style="font-size: 0.72rem; font-weight: 700; color: var(--ent-text-muted); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.35rem;">Documentação</div>
+                    <div style="font-family: var(--font-heading); font-size: 2rem; font-weight: 800; color: var(--ent-secondary); line-height: 1.2;">
+                        {{ total_files|default:0 }}
+                    </div>
+                    <p style="font-size: 0.72rem; color: var(--ent-text-muted); margin-top: 0.25rem;">Arquivos na nuvem</p>
+                </div>
+                <div style="width: 44px; height: 44px; border-radius: 10px; background: #f5f3ff; color: #7c3aed; display: flex; align-items: center; justify-content: center;">
+                    <i data-lucide="file-text" style="width: 22px; height: 22px;"></i>
+                </div>
+            </div>
         </div>
 
-        <!-- Gráficos e Alertas -->
-        <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 1.5rem;">
+        <!-- Seção Principal de Gráficos e Analytics (2 colunas) -->
+        <div style="display: grid; grid-template-columns: 2fr 1.2fr; gap: 1.5rem; margin-bottom: 2rem;">
             
-            <div class="ent-card" style="padding: 2.2rem; border: none; display: flex; flex-direction: column;">
+            <!-- Card Esquerdo: Visão Operacional e Gráficos -->
+            <div class="ent-card" style="padding: 2rem; border: none; display: flex; flex-direction: column; background: white; border-radius: 12px; box-shadow: var(--ent-shadow-sm);">
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
                     <div>
-                        <h3 style="font-family: var(--font-heading); font-size: 1.25rem; font-weight: 700; color: var(--ent-primary); margin-bottom: 0.25rem;">Distribuição dos Status de Rede</h3>
-                        <p style="font-size: 0.8rem; color: var(--ent-text-muted); font-weight: 500;">Percentual operacional consolidado de todos os ativos</p>
-                    </div>
-                    <div style="background: #f4f7fe; padding: 0.25rem; border-radius: 10px; display: flex; gap: 0.25rem;">
-                        <span style="padding: 0.4rem 1rem; border-radius: 8px; border: none; background: white; box-shadow: var(--ent-shadow-sm); font-weight: 600; font-size: 0.8rem; color: var(--ent-primary); display: flex; align-items: center; gap: 0.35rem;">
-                            <i data-lucide="pie-chart" style="width: 14px; height: 14px; color: var(--ent-accent);"></i> NOC Analytics
-                        </span>
+                        <h3 style="font-family: var(--font-heading); font-size: 1.25rem; font-weight: 800; color: var(--ent-primary); margin-bottom: 0.25rem;">Visão Geral da Rede</h3>
+                        <p style="font-size: 0.8rem; color: var(--ent-text-muted); font-weight: 500;">Distribuição operacional e volume por escopo de rollout.</p>
                     </div>
                 </div>
-                
-                <div style="display: grid; grid-template-columns: 1.2fr 1fr; gap: 2.5rem; align-items: center; flex: 1;">
-                    <!-- Gráfico -->
-                    <div style="position: relative; height: 260px; display: flex; align-items: center; justify-content: center;">
-                        <canvas id="statusDoughnutChart"></canvas>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; align-items: center; flex: 1;">
+                    <!-- Gráfico 1: Rosca (Status) -->
+                    <div style="display: flex; flex-direction: column; align-items: center;">
+                        <h4 style="font-size: 0.8rem; font-weight: 700; color: var(--ent-secondary); margin-bottom: 1rem; text-transform: uppercase; letter-spacing: 0.05em;">Status dos Ativos</h4>
+                        <div style="position: relative; height: 220px; width: 100%;">
+                            <canvas id="statusDoughnutChart"></canvas>
+                        </div>
                     </div>
                     
-                    <!-- Barra de progresso das métricas -->
-                    <div style="display: flex; flex-direction: column; gap: 1.25rem;">
-                        
-                        <div class="progress-item">
-                            <div class="progress-item-header">
-                                <span style="color: var(--ent-primary); font-weight: 600; display: flex; align-items: center; gap: 0.5rem;">
-                                    <span style="width: 8px; height: 8px; border-radius: 50%; background-color: #10B981; display: inline-block;"></span>
-                                    Sites Finalizados
-                                </span>
-                                <span id="pct-active-text" style="color: var(--ent-text-muted); font-weight: 700;">--</span>
-                            </div>
-                            <div class="progress-bar-bg">
-                                <div id="pct-active-bar" class="progress-bar-fill" style="width: 0%; background-color: #10B981;"></div>
-                            </div>
+                    <!-- Gráfico 2: Barra (Escopo) -->
+                    <div style="display: flex; flex-direction: column; align-items: center;">
+                        <h4 style="font-size: 0.8rem; font-weight: 700; color: var(--ent-secondary); margin-bottom: 1rem; text-transform: uppercase; letter-spacing: 0.05em;">Projetos por Escopo</h4>
+                        <div style="position: relative; height: 220px; width: 100%;">
+                            <canvas id="scopeBarChart"></canvas>
                         </div>
-
-                        <div class="progress-item">
-                            <div class="progress-item-header">
-                                <span style="color: var(--ent-primary); font-weight: 600; display: flex; align-items: center; gap: 0.5rem;">
-                                    <span style="width: 8px; height: 8px; border-radius: 50%; background-color: #3B82F6; display: inline-block;"></span>
-                                    Cadastrados
-                                </span>
-                                <span id="pct-planned-text" style="color: var(--ent-text-muted); font-weight: 700;">--</span>
-                            </div>
-                            <div class="progress-bar-bg">
-                                <div id="pct-planned-bar" class="progress-bar-fill" style="width: 0%; background-color: #3B82F6;"></div>
-                            </div>
-                        </div>
-
-                        <div class="progress-item">
-                            <div class="progress-item-header">
-                                <span style="color: var(--ent-primary); font-weight: 600; display: flex; align-items: center; gap: 0.5rem;">
-                                    <span style="width: 8px; height: 8px; border-radius: 50%; background-color: #F59E0B; display: inline-block;"></span>
-                                    Em Alerta
-                                </span>
-                                <span id="pct-maintenance-text" style="color: var(--ent-text-muted); font-weight: 700;">--</span>
-                            </div>
-                            <div class="progress-bar-bg">
-                                <div id="pct-maintenance-bar" class="progress-bar-fill" style="width: 0%; background-color: #F59E0B;"></div>
-                            </div>
-                        </div>
-
-                        <div class="progress-item">
-                            <div class="progress-item-header">
-                                <span style="color: var(--ent-primary); font-weight: 600; display: flex; align-items: center; gap: 0.5rem;">
-                                    <span style="width: 8px; height: 8px; border-radius: 50%; background-color: #EF4444; display: inline-block;"></span>
-                                    Prazos Vencidos
-                                </span>
-                                <span id="pct-inactive-text" style="color: var(--ent-text-muted); font-weight: 700;">--</span>
-                            </div>
-                            <div class="progress-bar-bg">
-                                <div id="pct-inactive-bar" class="progress-bar-fill" style="width: 0%; background-color: #EF4444;"></div>
-                            </div>
-                        </div>
-
                     </div>
                 </div>
             </div>
 
-            <!-- Tabela de Ocorrências Modernizada -->
-            <div class="ent-card" style="padding: 2.2rem; border: none; display: flex; flex-direction: column;">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
-                    <h3 style="font-family: var(--font-heading); font-size: 1.25rem; font-weight: 700; color: var(--ent-primary);">Alertas Recentes</h3>
-                    <span style="font-size: 0.75rem; font-weight: 700; color: var(--ent-danger); background: #fdeceb; padding: 0.35rem 0.75rem; border-radius: 20px;">NOC Monitor</span>
-                </div>
-                <p style="font-size: 0.8rem; color: var(--ent-text-muted); font-weight: 500; margin-bottom: 1.5rem;">Ocorrências que exigem vistoria ou ação imediata</p>
+            <!-- Card Direito: Progresso do Rollout -->
+            <div class="ent-card" style="padding: 2rem; border: none; display: flex; flex-direction: column; background: white; border-radius: 12px; box-shadow: var(--ent-shadow-sm);">
+                <h3 style="font-family: var(--font-heading); font-size: 1.25rem; font-weight: 800; color: var(--ent-primary); margin-bottom: 0.25rem;">Progresso por Escopo</h3>
+                <p style="font-size: 0.8rem; color: var(--ent-text-muted); font-weight: 500; margin-bottom: 2rem;">Percentual concluído por tipo de rollout.</p>
                 
-                <div style="flex: 1; overflow-y: auto; padding-right: 0.5rem; display: flex; flex-direction: column; gap: 1rem;">
+                <div style="display: flex; flex-direction: column; gap: 1.5rem; flex: 1; justify-content: center;">
+                    {% for scope_key, scope_info in scope_analytics.items %}
+                    <div class="progress-item">
+                        <div class="progress-item-header" style="display: flex; justify-content: space-between; font-size: 0.85rem; font-weight: 700; color: var(--ent-primary);">
+                            <span style="display: flex; align-items: center; gap: 0.5rem;">
+                                <span style="width: 8px; height: 8px; border-radius: 50%; background-color: {% if scope_key == 'LAUDOS' %}#2563eb{% elif scope_key == 'INSTALACAO' %}#059669{% elif scope_key == 'INFRA' %}#d97706{% else %}#7c3aed{% endif %}; display: inline-block;"></span>
+                                {{ scope_info.display }}
+                            </span>
+                            <span>{{ scope_info.finished_sites }} / {{ scope_info.total_sites }}</span>
+                        </div>
+                        <div class="progress-bar-bg" style="width: 100%; height: 8px; background-color: #f1f5f9; border-radius: 4px; overflow: hidden; margin-top: 0.35rem;">
+                            <!-- Progresso do Escopo -->
+                            <div class="progress-bar-fill" style="height: 100%; border-radius: 4px; width: 0%; background-color: {% if scope_key == 'LAUDOS' %}#2563eb{% elif scope_key == 'INSTALACAO' %}#059669{% elif scope_key == 'INFRA' %}#d97706{% else %}#7c3aed{% endif %}; transition: width 0.8s ease;" data-pct="{% if scope_info.total_sites > 0 %}{% widthratio scope_info.finished_sites scope_info.total_sites 100 %}{% else %}0{% endif %}"></div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Seção Inferior: Alertas do NOC e Acervo Recente -->
+        <div style="display: grid; grid-template-columns: 1.5fr 1fr; gap: 1.5rem; margin-bottom: 2rem;">
+            
+            <!-- Alertas Críticos do NOC -->
+            <div class="ent-card" style="padding: 2rem; border: none; display: flex; flex-direction: column; background: white; border-radius: 12px; box-shadow: var(--ent-shadow-sm);">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+                    <div>
+                        <h3 style="font-family: var(--font-heading); font-size: 1.25rem; font-weight: 800; color: var(--ent-primary);">Central de Incidentes e Alertas</h3>
+                        <p style="font-size: 0.8rem; color: var(--ent-text-muted); font-weight: 500;">Rollouts marcados como 'Em Alerta' ou 'Prazos Vencidos'.</p>
+                    </div>
+                    <span style="font-size: 0.72rem; font-weight: 700; color: var(--ent-danger); background: #fdeceb; padding: 0.4rem 0.8rem; border-radius: 20px; text-transform: uppercase;">Monitor NOC</span>
+                </div>
+                
+                <div style="flex: 1; max-height: 310px; overflow-y: auto; padding-right: 0.5rem; display: flex; flex-direction: column; gap: 0.75rem;">
                     {% if maintenance_sites > 0 or inactive_sites > 0 %}
                         {% for site in sites_map %}
                         {% if site.status == 'MAINTENANCE' or site.status == 'INACTIVE' %}
@@ -884,30 +878,129 @@
                                 </div>
                                 <div>
                                     <div style="font-weight: 700; color: var(--ent-primary); font-size: 0.9rem; margin-bottom: 0.15rem;">{{ site.site_id }}</div>
-                                    <div style="font-size: 0.78rem; color: var(--ent-text-muted); font-weight: 500; white-space: nowrap; text-overflow: ellipsis; overflow: hidden; max-width: 140px;">{{ site.name }}</div>
+                                    <div style="font-size: 0.78rem; color: var(--ent-text-muted); font-weight: 500;">{{ site.name }} ({{ site.get_scope_type_display }})</div>
                                 </div>
                             </div>
-                            <div style="display: flex; align-items: center; gap: 0.5rem;">
-                                <span style="font-size: 0.68rem; font-weight: 700; padding: 0.2rem 0.5rem; border-radius: 6px; background-color: {% if site.status == 'MAINTENANCE' %}#fffbeb{% else %}#fdeceb{% endif %}; color: {% if site.status == 'MAINTENANCE' %}#d97706{% else %}#dc2626{% endif %};">
-                                    {% if site.status == 'MAINTENANCE' %}Ajuste{% else %}Offline{% endif %}
+                            <div style="display: flex; align-items: center; gap: 0.75rem;">
+                                <span style="font-size: 0.68rem; font-weight: 700; padding: 0.25rem 0.6rem; border-radius: 6px; background-color: {% if site.status == 'MAINTENANCE' %}#fffbeb{% else %}#fdeceb{% endif %}; color: {% if site.status == 'MAINTENANCE' %}#d97706{% else %}#dc2626{% endif %};">
+                                    {% if site.status == 'MAINTENANCE' %}Em Alerta{% else %}Atrasado{% endif %}
                                 </span>
-                                <a href="{% url 'site_detail' pk=site.pk %}" style="width: 30px; height: 30px; border-radius: 50%; background: white; display: flex; align-items: center; justify-content: center; box-shadow: var(--ent-shadow-sm); color: var(--ent-accent); border: 1px solid #E2E8F0; transition: all 0.2s; text-decoration: none;">
-                                    <i data-lucide="arrow-right" style="width: 14px; height: 14px;"></i>
+                                <a href="{% url 'site_detail' pk=site.pk %}" class="btn-ent btn-ent-outline" style="padding: 0.35rem 0.75rem; font-size: 0.75rem; border-radius: 8px; display: inline-flex; align-items: center; gap: 0.25rem;">
+                                    Gerenciar <i data-lucide="arrow-right" style="width: 12px; height: 12px;"></i>
                                 </a>
                             </div>
                         </div>
                         {% endif %}
                         {% endfor %}
                     {% else %}
-                        <div style="height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 2rem 0;">
+                        <div style="height: 200px; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 2rem 0;">
                             <div style="width: 58px; height: 58px; border-radius: 50%; background: #ecfdf5; display: flex; align-items: center; justify-content: center; color: #10B981; margin-bottom: 1rem; border: 1px solid #a7f3d0;">
                                 <i data-lucide="shield-check" style="width: 28px; height: 28px;"></i>
                             </div>
                             <h4 style="font-family: var(--font-heading); font-size: 1.05rem; font-weight: 700; color: var(--ent-primary); margin-bottom: 0.25rem;">NOC Normalizado</h4>
-                            <p style="font-size: 0.8rem; color: var(--ent-text-muted); max-width: 180px;">Sem intercorrências registradas no momento.</p>
+                            <p style="font-size: 0.8rem; color: var(--ent-text-muted); max-width: 220px;">Nenhum site se encontra em alerta ou com prazos estourados.</p>
                         </div>
                     {% endif %}
                 </div>
+            </div>
+
+            <!-- Recentes do Acervo Digital -->
+            <div class="ent-card" style="padding: 2rem; border: none; display: flex; flex-direction: column; background: white; border-radius: 12px; box-shadow: var(--ent-shadow-sm);">
+                <h3 style="font-family: var(--font-heading); font-size: 1.25rem; font-weight: 800; color: var(--ent-primary); margin-bottom: 0.25rem;">Acervo e Auditoria</h3>
+                <p style="font-size: 0.8rem; color: var(--ent-text-muted); font-weight: 500; margin-bottom: 1.5rem;">Arquivos recentes carregados no data room.</p>
+                
+                <div style="flex: 1; display: flex; flex-direction: column; justify-content: space-between;">
+                    <div style="display: flex; flex-direction: column; gap: 0.75rem; max-height: 220px; overflow-y: auto;">
+                        {% for activity in recent_activities %}
+                        <div style="display: flex; align-items: center; justify-content: space-between; padding: 0.65rem 0.75rem; border-radius: 8px; background: #f8fafc; border: 1px solid #e2e8f0;">
+                            <div style="display: flex; align-items: center; gap: 0.5rem; overflow: hidden; white-space: nowrap; text-overflow: ellipsis;">
+                                <i data-lucide="{% if activity.category == 'PDF' %}file-text{% elif activity.category == 'IMAGE' %}image{% elif activity.category == 'DWG' %}pen-tool{% else %}file{% endif %}" style="width: 16px; height: 16px; color: #64748b; flex-shrink: 0;"></i>
+                                <span style="font-size: 0.78rem; font-weight: 600; color: var(--ent-primary); overflow: hidden; text-overflow: ellipsis;" title="{{ activity.filename }}">{{ activity.filename }}</span>
+                            </div>
+                            <span style="font-size: 0.7rem; color: var(--ent-text-muted); flex-shrink: 0; font-family: monospace;">{{ activity.uploaded_at|date:"d/m H:i" }}</span>
+                        </div>
+                        {% empty %}
+                        <p style="font-size: 0.8rem; color: var(--ent-text-muted); text-align: center; margin: auto;">Nenhum arquivo recente.</p>
+                        {% endfor %}
+                    </div>
+                    
+                    <!-- Breakdown de Arquivos -->
+                    <div style="display: flex; gap: 0.5rem; margin-top: 1rem; flex-wrap: wrap;">
+                        <span style="font-size: 0.68rem; font-weight: 700; padding: 0.25rem 0.5rem; background: #eff6ff; color: #1e40af; border-radius: 6px; border: 1px solid #bfdbfe;">
+                            <i data-lucide="file-text" style="width: 11px; height: 11px; display: inline-block; vertical-align: middle; margin-right: 0.15rem;"></i>
+                            PDFs: {{ pdf_files }}
+                        </span>
+                        <span style="font-size: 0.68rem; font-weight: 700; padding: 0.25rem 0.5rem; background: #ecfdf5; color: #065f46; border-radius: 6px; border: 1px solid #a7f3d0;">
+                            <i data-lucide="image" style="width: 11px; height: 11px; display: inline-block; vertical-align: middle; margin-right: 0.15rem;"></i>
+                            Fotos: {{ image_files }}
+                        </span>
+                        <span style="font-size: 0.68rem; font-weight: 700; padding: 0.25rem 0.5rem; background: #fffbeb; color: #92400e; border-radius: 6px; border: 1px solid #fde68a;">
+                            <i data-lucide="pen-tool" style="width: 11px; height: 11px; display: inline-block; vertical-align: middle; margin-right: 0.15rem;"></i>
+                            DWGs: {{ dwg_files }}
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tabela de Carga por Parceiro / Empresa Fornecedora -->
+        <div class="ent-card" style="padding: 2rem; border: none; background: white; border-radius: 12px; box-shadow: var(--ent-shadow-sm); margin-bottom: 2rem;">
+            <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--ent-border); padding-bottom: 1rem; margin-bottom: 1rem;">
+                <div>
+                    <h3 style="font-family: var(--font-heading); font-size: 1.25rem; font-weight: 800; color: var(--ent-primary);">Distribuição de Rollout por Empresa Parceira</h3>
+                    <p style="font-size: 0.8rem; color: var(--ent-text-muted); font-weight: 500; margin-top: 0.25rem;">Volume de projetos ativos e concluídos por fornecedor cadastrado na base.</p>
+                </div>
+                <span style="font-size: 0.72rem; font-weight: 700; color: var(--ent-accent); background: #eff6ff; padding: 0.4rem 0.8rem; border-radius: 20px; text-transform: uppercase;">Gestão de Carga</span>
+            </div>
+            
+            <div class="ent-table-wrapper">
+                <table class="ent-table">
+                    <thead>
+                        <tr>
+                            <th>Parceiro</th>
+                            <th style="text-align: center;">Total de Projetos</th>
+                            <th style="text-align: center;">Projetos Concluídos</th>
+                            <th style="text-align: center;">Ciclo Médio de Trabalho</th>
+                            <th style="text-align: center;">Desempenho</th>
+                            <th style="width: 250px;">Taxa de Entrega</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for stat in partner_stats %}
+                        <tr>
+                            <td style="font-weight: 700; color: var(--ent-primary);">{{ stat.partner }}</td>
+                            <td style="text-align: center; font-weight: 600;">{{ stat.total_sites }}</td>
+                            <td style="text-align: center; font-weight: 600;">{{ stat.finished_sites }}</td>
+                            <td style="text-align: center; font-weight: 700; color: var(--ent-accent);">
+                                {% if stat.avg_partner_time %}{{ stat.avg_partner_time }} dias{% else %}--{% endif %}
+                            </td>
+                            <td style="text-align: center;">
+                                {% if stat.perf_badge == 'fast' %}
+                                <span style="font-size: 0.65rem; font-weight: 700; padding: 0.25rem 0.6rem; background: #ecfdf5; color: var(--ent-success); border-radius: 30px; border: 1px solid #d1fae5;">Rápido</span>
+                                {% elif stat.perf_badge == 'normal' %}
+                                <span style="font-size: 0.65rem; font-weight: 700; padding: 0.25rem 0.6rem; background: #fffbeb; color: #d97706; border-radius: 30px; border: 1px solid #fef3c7;">Normal</span>
+                                {% elif stat.perf_badge == 'slow' %}
+                                <span style="font-size: 0.65rem; font-weight: 700; padding: 0.25rem 0.6rem; background: #fef2f2; color: var(--ent-danger); border-radius: 30px; border: 1px solid #fee2e2;">Lento</span>
+                                {% else %}
+                                <span style="font-size: 0.65rem; font-weight: 700; padding: 0.25rem 0.6rem; background: #f1f5f9; color: #64748b; border-radius: 30px;">Sem dados</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <div style="display: flex; align-items: center; gap: 0.5rem;">
+                                    <div style="flex: 1; height: 6px; background-color: #f1f5f9; border-radius: 4px; overflow: hidden;">
+                                        <div style="height: 100%; background-color: {% if stat.completion_pct >= 80 %}#10B981{% elif stat.completion_pct >= 50 %}#3B82F6{% else %}#F59E0B{% endif %}; width: {{ stat.completion_pct }}%; border-radius: 4px;"></div>
+                                    </div>
+                                    <span style="font-size: 0.75rem; font-weight: 700; color: var(--ent-primary); width: 35px; text-align: right;">{{ stat.completion_pct }}%</span>
+                                </div>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="6" style="text-align: center; padding: 3rem; color: var(--ent-text-muted);">Sem parceiros ou projetos cadastrados.</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
             </div>
         </div>
     </div>
@@ -2022,62 +2115,88 @@
         const maintenance = {{ maintenance_sites|default:0 }};
         const inactive = {{ inactive_sites|default:0 }};
 
-        // Calcular e preencher as barras de progresso dinamicamente
-        const total = (active + planned + maintenance + inactive) || 1;
-        const activePct = Math.round((active / total) * 100);
-        const plannedPct = Math.round((planned / total) * 100);
-        const maintenancePct = Math.round((maintenance / total) * 100);
-        const inactivePct = Math.round((inactive / total) * 100);
-
-        if (document.getElementById('pct-active-text')) {
-            document.getElementById('pct-active-text').textContent = activePct + '%';
-            document.getElementById('pct-active-bar').style.width = activePct + '%';
-        }
-        if (document.getElementById('pct-planned-text')) {
-            document.getElementById('pct-planned-text').textContent = plannedPct + '%';
-            document.getElementById('pct-planned-bar').style.width = plannedPct + '%';
-        }
-        if (document.getElementById('pct-maintenance-text')) {
-            document.getElementById('pct-maintenance-text').textContent = maintenancePct + '%';
-            document.getElementById('pct-maintenance-bar').style.width = maintenancePct + '%';
-        }
-        if (document.getElementById('pct-inactive-text')) {
-            document.getElementById('pct-inactive-text').textContent = inactivePct + '%';
-            document.getElementById('pct-inactive-bar').style.width = inactivePct + '%';
-        }
-
-        // Gráfico de Rosca Premium (Cores Coesas com a Identidade MartinsTec)
+        // Gráfico de Rosca Premium
         const statusCtx = document.getElementById('statusDoughnutChart').getContext('2d');
         new Chart(statusCtx, {
             type: 'doughnut',
             data: {
-                labels: ['Sites Finalizados', 'Cadastrados', 'Em Alerta', 'Prazos Vencidos'],
+                labels: ['Finalizados', 'Cadastrados', 'Em Alerta', 'Prazos Vencidos'],
                 datasets: [{
                     data: [active, planned, maintenance, inactive],
                     backgroundColor: ['#10B981', '#3B82F6', '#F59E0B', '#EF4444'],
-                    borderWidth: 3,
+                    borderWidth: 2,
                     borderColor: '#ffffff',
                     hoverOffset: 4
                 }]
             },
             options: {
-                cutout: '75%',
+                cutout: '70%',
                 responsive: true,
                 maintainAspectRatio: false,
                 plugins: {
-                    legend: { 
-                        display: false // Oculta legenda padrão do Chart.js pois criamos uma customizada muito mais rica
-                    },
+                    legend: { display: false },
                     tooltip: {
                         backgroundColor: '#0f172a',
-                        titleFont: { family: "'Outfit', sans-serif", size: 13 },
-                        bodyFont: { family: "'Inter', sans-serif", size: 12 },
-                        padding: 12,
-                        cornerRadius: 8
+                        titleFont: { family: "'Outfit', sans-serif", size: 12 },
+                        bodyFont: { family: "'Inter', sans-serif", size: 12 }
                     }
                 }
             }
         });
+
+        // Gráfico de Barras de Escopo
+        const scopeLabels = [];
+        const scopeData = [];
+        {% for scope_key, scope_info in scope_analytics.items %}
+            scopeLabels.push("{{ scope_info.display }}");
+            scopeData.push({{ scope_info.total_sites }});
+        {% endfor %}
+
+        const scopeBarCtx = document.getElementById('scopeBarChart').getContext('2d');
+        new Chart(scopeBarCtx, {
+            type: 'bar',
+            data: {
+                labels: scopeLabels,
+                datasets: [{
+                    data: scopeData,
+                    backgroundColor: ['#2563EB', '#059669', '#D97706', '#7C3AED'],
+                    borderRadius: 6,
+                    barPercentage: 0.5
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    x: {
+                        grid: { display: false },
+                        ticks: { font: { family: "'Inter', sans-serif", size: 10 }, color: '#64748b' }
+                    },
+                    y: {
+                        beginAtZero: true,
+                        grid: { color: '#f1f5f9' },
+                        ticks: { font: { family: "'Inter', sans-serif", size: 10 }, color: '#64748b', stepSize: 1 }
+                    }
+                },
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        backgroundColor: '#0f172a',
+                        titleFont: { family: "'Outfit', sans-serif", size: 12 },
+                        bodyFont: { family: "'Inter', sans-serif", size: 12 }
+                    }
+                }
+            }
+        });
+
+        // Animação das barras de progresso do rollout
+        const progressBars = document.querySelectorAll('.progress-bar-fill[data-pct]');
+        setTimeout(() => {
+            progressBars.forEach(bar => {
+                const pct = bar.getAttribute('data-pct');
+                bar.style.width = pct + '%';
+            });
+        }, 150);
 
         // --- 6. GESTÃO DE ABAS DE DESEMPENHO E GRÁFICOS DE LEAD TIME ---
         let partnerCompChart = null;
