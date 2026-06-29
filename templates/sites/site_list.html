@@ -798,63 +798,7 @@
             </div>
         </div>
 
-        <!-- Seção Principal de Gráficos e Analytics (2 colunas) -->
-        <div style="display: grid; grid-template-columns: 2fr 1.2fr; gap: 1.5rem; margin-bottom: 2rem;">
-            
-            <!-- Card Esquerdo: Visão Operacional e Gráficos -->
-            <div class="ent-card" style="padding: 2rem; border: none; display: flex; flex-direction: column; background: white; border-radius: 12px; box-shadow: var(--ent-shadow-sm);">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
-                    <div>
-                        <h3 style="font-family: var(--font-heading); font-size: 1.25rem; font-weight: 800; color: var(--ent-primary); margin-bottom: 0.25rem;">Visão Geral da Rede</h3>
-                        <p style="font-size: 0.8rem; color: var(--ent-text-muted); font-weight: 500;">Distribuição operacional e volume por escopo de rollout.</p>
-                    </div>
-                </div>
-
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; align-items: center; flex: 1;">
-                    <!-- Gráfico 1: Rosca (Status) -->
-                    <div style="display: flex; flex-direction: column; align-items: center;">
-                        <h4 style="font-size: 0.8rem; font-weight: 700; color: var(--ent-secondary); margin-bottom: 1rem; text-transform: uppercase; letter-spacing: 0.05em;">Status dos Ativos</h4>
-                        <div style="position: relative; height: 220px; width: 100%;">
-                            <canvas id="statusDoughnutChart"></canvas>
-                        </div>
-                    </div>
-                    
-                    <!-- Gráfico 2: Barra (Escopo) -->
-                    <div style="display: flex; flex-direction: column; align-items: center;">
-                        <h4 style="font-size: 0.8rem; font-weight: 700; color: var(--ent-secondary); margin-bottom: 1rem; text-transform: uppercase; letter-spacing: 0.05em;">Projetos por Escopo</h4>
-                        <div style="position: relative; height: 220px; width: 100%;">
-                            <canvas id="scopeBarChart"></canvas>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Card Direito: Progresso do Rollout -->
-            <div class="ent-card" style="padding: 2rem; border: none; display: flex; flex-direction: column; background: white; border-radius: 12px; box-shadow: var(--ent-shadow-sm);">
-                <h3 style="font-family: var(--font-heading); font-size: 1.25rem; font-weight: 800; color: var(--ent-primary); margin-bottom: 0.25rem;">Progresso por Escopo</h3>
-                <p style="font-size: 0.8rem; color: var(--ent-text-muted); font-weight: 500; margin-bottom: 2rem;">Percentual concluído por tipo de rollout.</p>
-                
-                <div style="display: flex; flex-direction: column; gap: 1.5rem; flex: 1; justify-content: center;">
-                    {% for scope_key, scope_info in scope_analytics.items %}
-                    <div class="progress-item">
-                        <div class="progress-item-header" style="display: flex; justify-content: space-between; font-size: 0.85rem; font-weight: 700; color: var(--ent-primary);">
-                            <span style="display: flex; align-items: center; gap: 0.5rem;">
-                                <span style="width: 8px; height: 8px; border-radius: 50%; background-color: {% if scope_key == 'LAUDOS' %}#2563eb{% elif scope_key == 'INSTALACAO' %}#059669{% elif scope_key == 'INFRA' %}#d97706{% else %}#7c3aed{% endif %}; display: inline-block;"></span>
-                                {{ scope_info.display }}
-                            </span>
-                            <span>{{ scope_info.finished_sites }} / {{ scope_info.total_sites }}</span>
-                        </div>
-                        <div class="progress-bar-bg" style="width: 100%; height: 8px; background-color: #f1f5f9; border-radius: 4px; overflow: hidden; margin-top: 0.35rem;">
-                            <!-- Progresso do Escopo -->
-                            <div class="progress-bar-fill" style="height: 100%; border-radius: 4px; width: 0%; background-color: {% if scope_key == 'LAUDOS' %}#2563eb{% elif scope_key == 'INSTALACAO' %}#059669{% elif scope_key == 'INFRA' %}#d97706{% else %}#7c3aed{% endif %}; transition: width 0.8s ease;" data-pct="{% if scope_info.total_sites > 0 %}{% widthratio scope_info.finished_sites scope_info.total_sites 100 %}{% else %}0{% endif %}"></div>
-                        </div>
-                    </div>
-                    {% endfor %}
-                </div>
-            </div>
-        </div>
-
-        <!-- Seção Inferior: Alertas do NOC e Acervo Recente -->
+        <!-- Seção Principal: Alertas do NOC e Acervo Recente (2 colunas) -->
         <div style="display: grid; grid-template-columns: 1.5fr 1fr; gap: 1.5rem; margin-bottom: 2rem;">
             
             <!-- Alertas Críticos do NOC -->
@@ -939,6 +883,62 @@
                             DWGs: {{ dwg_files }}
                         </span>
                     </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Seção Secundária: Gráficos e Analytics (2 colunas) -->
+        <div style="display: grid; grid-template-columns: 2fr 1.2fr; gap: 1.5rem; margin-bottom: 2rem;">
+            
+            <!-- Card Esquerdo: Visão Operacional e Gráficos -->
+            <div class="ent-card" style="padding: 2rem; border: none; display: flex; flex-direction: column; background: white; border-radius: 12px; box-shadow: var(--ent-shadow-sm);">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+                    <div>
+                        <h3 style="font-family: var(--font-heading); font-size: 1.25rem; font-weight: 800; color: var(--ent-primary); margin-bottom: 0.25rem;">Visão Geral da Rede</h3>
+                        <p style="font-size: 0.8rem; color: var(--ent-text-muted); font-weight: 500;">Distribuição operacional e volume por escopo de rollout.</p>
+                    </div>
+                </div>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; align-items: center; flex: 1;">
+                    <!-- Gráfico 1: Rosca (Status) -->
+                    <div style="display: flex; flex-direction: column; align-items: center;">
+                        <h4 style="font-size: 0.8rem; font-weight: 700; color: var(--ent-secondary); margin-bottom: 1rem; text-transform: uppercase; letter-spacing: 0.05em;">Status dos Ativos</h4>
+                        <div style="position: relative; height: 220px; width: 100%;">
+                            <canvas id="statusDoughnutChart"></canvas>
+                        </div>
+                    </div>
+                    
+                    <!-- Gráfico 2: Barra (Escopo) -->
+                    <div style="display: flex; flex-direction: column; align-items: center;">
+                        <h4 style="font-size: 0.8rem; font-weight: 700; color: var(--ent-secondary); margin-bottom: 1rem; text-transform: uppercase; letter-spacing: 0.05em;">Projetos por Escopo</h4>
+                        <div style="position: relative; height: 220px; width: 100%;">
+                            <canvas id="scopeBarChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Card Direito: Progresso do Rollout -->
+            <div class="ent-card" style="padding: 2rem; border: none; display: flex; flex-direction: column; background: white; border-radius: 12px; box-shadow: var(--ent-shadow-sm);">
+                <h3 style="font-family: var(--font-heading); font-size: 1.25rem; font-weight: 800; color: var(--ent-primary); margin-bottom: 0.25rem;">Progresso por Escopo</h3>
+                <p style="font-size: 0.8rem; color: var(--ent-text-muted); font-weight: 500; margin-bottom: 2rem;">Percentual concluído por tipo de rollout.</p>
+                
+                <div style="display: flex; flex-direction: column; gap: 1.5rem; flex: 1; justify-content: center;">
+                    {% for scope_key, scope_info in scope_analytics.items %}
+                    <div class="progress-item">
+                        <div class="progress-item-header" style="display: flex; justify-content: space-between; font-size: 0.85rem; font-weight: 700; color: var(--ent-primary);">
+                            <span style="display: flex; align-items: center; gap: 0.5rem;">
+                                <span style="width: 8px; height: 8px; border-radius: 50%; background-color: {% if scope_key == 'LAUDOS' %}#2563eb{% elif scope_key == 'INSTALACAO' %}#059669{% elif scope_key == 'INFRA' %}#d97706{% else %}#7c3aed{% endif %}; display: inline-block;"></span>
+                                {{ scope_info.display }}
+                            </span>
+                            <span>{{ scope_info.finished_sites }} / {{ scope_info.total_sites }}</span>
+                        </div>
+                        <div class="progress-bar-bg" style="width: 100%; height: 8px; background-color: #f1f5f9; border-radius: 4px; overflow: hidden; margin-top: 0.35rem;">
+                            <!-- Progresso do Escopo -->
+                            <div class="progress-bar-fill" style="height: 100%; border-radius: 4px; width: 0%; background-color: {% if scope_key == 'LAUDOS' %}#2563eb{% elif scope_key == 'INSTALACAO' %}#059669{% elif scope_key == 'INFRA' %}#d97706{% else %}#7c3aed{% endif %}; transition: width 0.8s ease;" data-pct="{% if scope_info.total_sites > 0 %}{% widthratio scope_info.finished_sites scope_info.total_sites 100 %}{% else %}0{% endif %}"></div>
+                        </div>
+                    </div>
+                    {% endfor %}
                 </div>
             </div>
         </div>
