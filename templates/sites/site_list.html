@@ -882,32 +882,6 @@
             </div>
         </div>
 
-        <!-- Seção Secundária: Progresso por Escopo (Largura Total) -->
-        <div style="margin-bottom: 2rem;">
-            <!-- Progresso do Rollout (Largura Total) -->
-            <div class="ent-card" style="padding: 2rem; border: none; display: flex; flex-direction: column; background: white; border-radius: 12px; box-shadow: var(--ent-shadow-sm);">
-                <h3 style="font-family: var(--font-heading); font-size: 1.25rem; font-weight: 800; color: var(--ent-primary); margin-bottom: 0.25rem;">Progresso do Rollout</h3>
-                <p style="font-size: 0.8rem; color: var(--ent-text-muted); font-weight: 500; margin-bottom: 2rem;">Percentual concluído por tipo de escopo de obra.</p>
-                
-                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 2rem; flex: 1;">
-                    {% for scope_key, scope_info in scope_analytics.items %}
-                    <div class="progress-item">
-                        <div class="progress-item-header" style="display: flex; justify-content: space-between; font-size: 0.85rem; font-weight: 700; color: var(--ent-primary);">
-                            <span style="display: flex; align-items: center; gap: 0.5rem;">
-                                <span style="width: 8px; height: 8px; border-radius: 50%; background-color: {% if scope_key == 'LAUDOS' %}#2563eb{% elif scope_key == 'INSTALACAO' %}#059669{% elif scope_key == 'INFRA' %}#d97706{% else %}#7c3aed{% endif %}; display: inline-block;"></span>
-                                {{ scope_info.display }}
-                            </span>
-                            <span>{{ scope_info.finished_sites }} / {{ scope_info.total_sites }}</span>
-                        </div>
-                        <div class="progress-bar-bg" style="width: 100%; height: 8px; background-color: #f1f5f9; border-radius: 4px; overflow: hidden; margin-top: 0.35rem;">
-                            <!-- Progresso do Escopo -->
-                            <div class="progress-bar-fill" style="height: 100%; border-radius: 4px; width: 0%; background-color: {% if scope_key == 'LAUDOS' %}#2563eb{% elif scope_key == 'INSTALACAO' %}#059669{% elif scope_key == 'INFRA' %}#d97706{% else %}#7c3aed{% endif %}; transition: width 0.8s ease;" data-pct="{% if scope_info.total_sites > 0 %}{% widthratio scope_info.finished_sites scope_info.total_sites 100 %}{% else %}0{% endif %}"></div>
-                        </div>
-                    </div>
-                    {% endfor %}
-                </div>
-            </div>
-        </div>
     </div>
 
     <!-- ==========================================
@@ -2192,14 +2166,6 @@
             }
         });
 
-        // Animação das barras de progresso do rollout
-        const progressBars = document.querySelectorAll('.progress-bar-fill[data-pct]');
-        setTimeout(() => {
-            progressBars.forEach(bar => {
-                const pct = bar.getAttribute('data-pct');
-                bar.style.width = pct + '%';
-            });
-        }, 150);
 
         // Gráfico de Rosca de Operadoras
         const operatorData = JSON.parse('{{ operator_chart_data_json|safe }}');
