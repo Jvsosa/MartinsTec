@@ -1424,3 +1424,15 @@ class UserProfileTests(TestCase):
         self.assertTrue(login_success)
 
 
+    def test_login_invalid_credentials_shows_warning(self):
+        """Verify posting invalid credentials renders the warning message on the login page."""
+        url = reverse('login')
+        response = self.client.post(url, {
+            'username': 'wrong_user',
+            'password': 'wrong_password'
+        })
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Usuário ou senha inválidos.")
+
+
+
