@@ -24,6 +24,12 @@ class User(AbstractUser):
         verbose_name="Foto de Perfil"
     )
 
+    profile_picture_base64 = models.TextField(
+        null=True,
+        blank=True,
+        verbose_name="Foto de Perfil (Base64)"
+    )
+
     class Meta:
         verbose_name = "Usuário"
         verbose_name_plural = "Usuários"

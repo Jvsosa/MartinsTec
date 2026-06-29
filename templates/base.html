@@ -1091,8 +1091,8 @@
             <!-- Perfil com Dropdown -->
             <div class="topbar-profile" id="topbar-profile-trigger">
                 <div class="topbar-avatar" style="overflow: hidden; display: flex; align-items: center; justify-content: center; padding: 0;">
-                    {% if user.profile_picture %}
-                        <img src="{{ user.profile_picture.url }}" alt="Avatar" style="width: 100%; height: 100%; object-fit: cover;">
+                    {% if user.profile_picture_base64 %}
+                        <img src="{{ user.profile_picture_base64 }}" alt="Avatar" style="width: 100%; height: 100%; object-fit: cover;">
                     {% else %}
                         {{ user.username|slice:":1"|upper|default:"A" }}
                     {% endif %}

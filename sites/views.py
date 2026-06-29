@@ -1432,15 +1432,28 @@ def user_profile(request):
                 request.user.email = email
                 
                 if profile_pic:
+                    if profile_pic.size > 2 * 1024 * 1024:
+                        messages.error(request, "A imagem deve ter no máximo 2MB.")
+                        return redirect('user_profile')
+                    
                     ext = os.path.splitext(profile_pic.name)[1].lower()
                     if ext in ['.jpg', '.jpeg', '.png', '.webp', '.gif']:
-                        if request.user.profile_picture:
-                            try:
-                                if os.path.exists(request.user.profile_picture.path):
-                                    os.remove(request.user.profile_picture.path)
-                            except Exception:
-                                pass
-                        request.user.profile_picture = profile_pic
+                        import base64
+                        try:
+                            image_data = profile_pic.read()
+                            base64_data = base64.b64encode(image_data).decode('utf-8')
+                            mime = "image/png"
+                            if ext in ['.jpg', '.jpeg']:
+                                mime = "image/jpeg"
+                            elif ext == '.webp':
+                                mime = "image/webp"
+                            elif ext == '.gif':
+                                mime = "image/gif"
+                            
+                            request.user.profile_picture_base64 = f"data:{mime};base64,{base64_data}"
+                        except Exception as e:
+                            messages.error(request, f"Erro ao processar imagem: {str(e)}")
+                            return redirect('user_profile')
                     else:
                         messages.error(request, "Formato de imagem inválido. Use JPG, PNG, WEBP ou GIF.")
                         return redirect('user_profile')
@@ -1450,31 +1463,38 @@ def user_profile(request):
             return redirect('user_profile')
             
         elif form_type == 'delete_picture':
-            if request.user.profile_picture:
-                try:
-                    if os.path.exists(request.user.profile_picture.path):
-                        os.remove(request.user.profile_picture.path)
-                except Exception:
-                    pass
-                request.user.profile_picture = None
-                request.user.save()
-                messages.success(request, "Foto de perfil removida com sucesso!")
+            request.user.profile_picture_base64 = None
+            request.user.save()
+            messages.success(request, "Foto de perfil removida com sucesso!")
             return redirect('user_profile')
             
         elif form_type == 'upload_picture':
             profile_pic = request.FILES.get('profile_picture')
             if profile_pic:
+                if profile_pic.size > 2 * 1024 * 1024:
+                    messages.error(request, "A imagem deve ter no máximo 2MB.")
+                    return redirect('user_profile')
+                
                 ext = os.path.splitext(profile_pic.name)[1].lower()
                 if ext in ['.jpg', '.jpeg', '.png', '.webp', '.gif']:
-                    if request.user.profile_picture:
-                        try:
-                            if os.path.exists(request.user.profile_picture.path):
-                                os.remove(request.user.profile_picture.path)
-                        except Exception:
-                            pass
-                    request.user.profile_picture = profile_pic
-                    request.user.save()
-                    messages.success(request, "Foto de perfil atualizada com sucesso!")
+                    import base64
+                    try:
+                        image_data = profile_pic.read()
+                        base64_data = base64.b64encode(image_data).decode('utf-8')
+                        mime = "image/png"
+                        if ext in ['.jpg', '.jpeg']:
+                            mime = "image/jpeg"
+                        elif ext == '.webp':
+                            mime = "image/webp"
+                        elif ext == '.gif':
+                            mime = "image/gif"
+                        
+                        request.user.profile_picture_base64 = f"data:{mime};base64,{base64_data}"
+                        request.user.save()
+                        messages.success(request, "Foto de perfil atualizada com sucesso!")
+                    except Exception as e:
+                        messages.error(request, f"Erro ao processar imagem: {str(e)}")
+                    return redirect('user_profile')
                 else:
                     messages.error(request, "Formato de imagem inválido. Use JPG, PNG, WEBP ou GIF.")
             else:
