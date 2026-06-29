@@ -5,7 +5,7 @@ from django.contrib.auth import login, logout, authenticate
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.http import FileResponse, Http404, HttpResponseForbidden
-from .models import Site, SiteFile, User, SiteRescheduleHistory, SiteStage, SiteStageReschedule
+from .models import Site, SiteFile, User, SiteRescheduleHistory, SiteStage, SiteStageReschedule, Notification
 from django.db import IntegrityError
 from django.utils.dateparse import parse_date
 
@@ -969,6 +969,17 @@ def site_detail(request, pk):
                 uploaded_by=request.user
             )
             messages.success(request, f"Arquivo '{os.path.basename(site_file.file.name)}' enviado com sucesso!")
+            
+            # Dispara notificação de upload de arquivo
+            try:
+                Notification.create_notification(
+                    site=site,
+                    title=f"Novo Arquivo: {site.name}",
+                    message=f"O usuário {request.user.first_name or request.user.username} enviou um arquivo de categoria {site_file.get_category_display()} ({os.path.basename(site_file.file.name)}).",
+                    notification_type=Notification.NotificationType.UPLOAD
+                )
+            except Exception as e:
+                pass
         except Exception as e:
             messages.error(request, f"Erro no upload: {str(e)}")
 
@@ -1344,5 +1355,50 @@ def delete_calendar_note(request):
         return JsonResponse({'status': 'success'})
     except CalendarNote.DoesNotExist:
         return JsonResponse({'status': 'error', 'message': 'Nota não encontrada.'}, status=404)
+
+
+@login_required
+def get_notifications(request):
+    from django.contrib.humanize.templatetags.humanize import naturaltime
+    from django.http import JsonResponse
+    
+    notifications = request.user.notifications.all()[:15]
+    unread_count = request.user.notifications.filter(is_read=False).count()
+    
+    data = []
+    for n in notifications:
+        data.append({
+            'id': n.id,
+            'title': n.title,
+            'message': n.message,
+            'type': n.notification_type,
+            'is_read': n.is_read,
+            'created_at': naturaltime(n.created_at),
+            'site_id': n.site.id if n.site else None,
+            'site_name': n.site.name if n.site else None,
+        })
+        
+    return JsonResponse({
+        'status': 'success',
+        'unread_count': unread_count,
+        'notifications': data
+    })
+
+
+@login_required
+@require_POST
+def mark_notification_read(request):
+    from django.http import JsonResponse
+    
+    notif_id = request.POST.get('id')
+    if notif_id:
+        notification = request.user.notifications.filter(id=notif_id).first()
+        if notification:
+            notification.is_read = True
+            notification.save(update_fields=['is_read'])
+    else:
+        request.user.notifications.filter(is_read=False).update(is_read=True)
+        
+    return JsonResponse({'status': 'success'})
 
 

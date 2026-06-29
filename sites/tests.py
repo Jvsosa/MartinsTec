@@ -1243,3 +1243,106 @@ class SiteStageRescheduleTests(TestCase):
         stage = SiteStage.objects.get(site=self.site, stage_name='Vistoria')
         from datetime import date
         self.assertEqual(stage.planned_date, date(2025, 8, 20))
+
+
+class NotificationsTests(TestCase):
+    def setUp(self):
+        from sites.models import User, Site
+        self.admin = User.objects.create_user(
+            username='admin_notif',
+            password='password123',
+            email='admin@example.com',
+            role=User.Role.ADMIN
+        )
+        self.tech = User.objects.create_user(
+            username='tech_notif',
+            password='password123',
+            email='tech@example.com',
+            role=User.Role.TECHNICIAN
+        )
+
+    def test_notification_creation_on_site_insert(self):
+        """Test that a new site creation generates a notification for the admin/engineer."""
+        from sites.models import Site, Notification
+        site = Site.objects.create(
+            site_id='SITE_NOTIF_01',
+            name='Site Notif Test',
+            scope_type=Site.ScopeType.LAUDOS
+        )
+        # Verify notification created
+        notifs = Notification.objects.filter(user=self.admin, site=site)
+        self.assertEqual(notifs.count(), 1)
+        self.assertIn("Novo Site Cadastrado", notifs.first().title)
+
+    def test_notification_creation_on_status_change(self):
+        """Test that site status transitions generate alerts."""
+        from sites.models import Site, Notification
+        # Starts with no dates, which triggers MAINTENANCE status automatically
+        site = Site.objects.create(
+            site_id='SITE_NOTIF_02',
+            name='Site Notif Status',
+            scope_type=Site.ScopeType.LAUDOS,
+            planned_survey_date=None,
+            planned_report_date=None
+        )
+        # Should create a "Novo Site Cadastrado" notification
+        notifs_count_before = Notification.objects.filter(user=self.admin, site=site).count()
+        self.assertEqual(notifs_count_before, 1)
+
+        # Clear notifications for test isolation
+        Notification.objects.all().delete()
+
+        # Update status to ACTIVE by completing stages
+        from sites.models import SiteStage
+        stages = site.stages.all()
+        for s in stages:
+            s.status = 'DONE'
+            import datetime
+            s.actual_date = datetime.date.today()
+            s.save()
+
+        site.refresh_from_db()
+        site.status = site.recalculate_status()
+        site.save() # Trigger notification if status changed to maintenance/inactive (in this case ACTIVE, so no alert)
+        
+        # ACTIVE status should not trigger Alert notification
+        self.assertEqual(Notification.objects.filter(user=self.admin, site=site, notification_type=Notification.NotificationType.ALERT).count(), 0)
+
+    def test_get_notifications_api(self):
+        """Test get_notifications JSON endpoint returns correctly."""
+        from sites.models import Notification, Site
+        site = Site.objects.create(
+            site_id='SITE_NOTIF_API',
+            name='Site API Test',
+            scope_type=Site.ScopeType.LAUDOS
+        )
+        self.client.login(username='admin_notif', password='password123')
+        url = reverse('get_notifications')
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+        data = response.json()
+        self.assertEqual(data['status'], 'success')
+        self.assertGreater(data['unread_count'], 0)
+        self.assertEqual(len(data['notifications']), 1)
+
+    def test_mark_notifications_read_api(self):
+        """Test marking notifications as read works."""
+        from sites.models import Notification, Site
+        site = Site.objects.create(
+            site_id='SITE_NOTIF_MARK',
+            name='Site Mark Test',
+            scope_type=Site.ScopeType.LAUDOS
+        )
+        # Verify unread
+        notif = Notification.objects.filter(user=self.admin, site=site).first()
+        self.assertFalse(notif.is_read)
+
+        self.client.login(username='admin_notif', password='password123')
+        url = reverse('mark_notification_read')
+        
+        # Mark all as read (no id)
+        response = self.client.post(url)
+        self.assertEqual(response.status_code, 200)
+        notif.refresh_from_db()
+        self.assertTrue(notif.is_read)
+

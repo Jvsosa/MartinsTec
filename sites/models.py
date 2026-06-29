@@ -705,6 +705,12 @@ class Site(models.Model):
                     setattr(self, field, parse_date(val) if val else None)
 
             is_new = self.pk is None
+            
+            # Captura status anterior se não for novo
+            old_status = None
+            if not is_new:
+                old_status = type(self).objects.filter(pk=self.pk).values_list('status', flat=True).first()
+
             self.status = self.recalculate_status()  # PLANNED para site novo (sem PK ainda)
             super().save(*args, **kwargs)
 
@@ -725,6 +731,17 @@ class Site(models.Model):
                     'planned_report_date': self.planned_report_date,
                     'actual_report_date': self.actual_report_date,
                 }
+                
+                # Dispara notificação de integração de novo site
+                try:
+                    Notification.create_notification(
+                        site=self,
+                        title=f"Novo Site Cadastrado: {self.name}",
+                        message=f"O site {self.name} foi integrado no escopo {self.get_scope_type_display()}.",
+                        notification_type=Notification.NotificationType.INFO
+                    )
+                except Exception as e:
+                    pass
             else:
                 # Se não for novo, sincroniza apenas os campos legados alterados em memória
                 changed_fields = {}
@@ -738,6 +755,27 @@ class Site(models.Model):
                 if changed_fields:
                     self.sync_legacy_fields_to_stages(only_fields=changed_fields.keys())
                     initial_vals.update(changed_fields)
+                
+                # Dispara notificações de mudança de status
+                try:
+                    new_status = self.status
+                    if old_status and old_status != new_status:
+                        if new_status == self.SiteStatus.MAINTENANCE:
+                            Notification.create_notification(
+                                site=self,
+                                title=f"Site em Alerta: {self.name}",
+                                message=f"O site {self.name} entrou em estado 'Em Alerta' no monitoramento NOC.",
+                                notification_type=Notification.NotificationType.ALERT
+                            )
+                        elif new_status == self.SiteStatus.INACTIVE:
+                            Notification.create_notification(
+                                site=self,
+                                title=f"Prazo Vencido: {self.name}",
+                                message=f"O site {self.name} entrou em estado 'Prazo Vencido' devido a atrasos.",
+                                notification_type=Notification.NotificationType.ALERT
+                            )
+                except Exception as e:
+                    pass
         finally:
             self._saving_site = False
 
@@ -964,5 +1002,62 @@ class CalendarNote(models.Model):
 
     def __str__(self):
         return f"{self.date} - {self.title}"
+
+
+class Notification(models.Model):
+    class NotificationType(models.TextChoices):
+        INFO = 'INFO', 'Informativo'
+        ALERT = 'ALERT', 'Alerta / Atraso'
+        UPLOAD = 'UPLOAD', 'Upload de Arquivo'
+
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name='notifications',
+        verbose_name="Usuário"
+    )
+    title = models.CharField(max_length=200, verbose_name="Título")
+    message = models.TextField(verbose_name="Mensagem")
+    notification_type = models.CharField(
+        max_length=20,
+        choices=NotificationType.choices,
+        default=NotificationType.INFO,
+        verbose_name="Tipo de Notificação"
+    )
+    site = models.ForeignKey(
+        'Site',
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True,
+        related_name='notifications',
+        verbose_name="Site Relacionado"
+    )
+    is_read = models.BooleanField(default=False, verbose_name="Lida")
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name="Criado em")
+
+    class Meta:
+        ordering = ['-created_at']
+        verbose_name = "Notificação"
+        verbose_name_plural = "Notificações"
+
+    def __str__(self):
+        return f"{self.user.username} - {self.title} ({'Lida' if self.is_read else 'Não Lida'})"
+
+    @classmethod
+    def create_notification(cls, site, title, message, notification_type):
+        # Seleciona todos os administradores e engenheiros
+        recipients = User.objects.filter(role__in=[User.Role.ADMIN, User.Role.ENGINEER])
+        notifications = [
+            cls(
+                user=recipient,
+                title=title,
+                message=message,
+                notification_type=notification_type,
+                site=site
+            )
+            for recipient in recipients
+        ]
+        if notifications:
+            cls.objects.bulk_create(notifications)
 
 
