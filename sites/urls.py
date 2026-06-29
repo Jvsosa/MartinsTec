@@ -15,4 +15,5 @@ urlpatterns = [
     path('calendar/note/delete/', views.delete_calendar_note, name='delete_calendar_note'),
     path('notifications/', views.get_notifications, name='get_notifications'),
     path('notifications/mark-read/', views.mark_notification_read, name='mark_notification_read'),
+    path('profile/', views.user_profile, name='user_profile'),
 ]

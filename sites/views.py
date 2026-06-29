@@ -1410,3 +1410,44 @@ def mark_notification_read(request):
     return JsonResponse({'status': 'success'})
 
 
+@login_required
+def user_profile(request):
+    from django.contrib.auth.forms import PasswordChangeForm
+    from django.contrib.auth import update_session_auth_hash
+    
+    if request.method == 'POST':
+        form_type = request.POST.get('form_type')
+        if form_type == 'profile_data':
+            first_name = request.POST.get('first_name', '').strip()
+            last_name = request.POST.get('last_name', '').strip()
+            email = request.POST.get('email', '').strip()
+            
+            if not first_name:
+                messages.error(request, "O primeiro nome é obrigatório.")
+            else:
+                request.user.first_name = first_name
+                request.user.last_name = last_name
+                request.user.email = email
+                request.user.save()
+                messages.success(request, "Dados pessoais atualizados com sucesso!")
+            return redirect('user_profile')
+            
+        elif form_type == 'change_password':
+            password_form = PasswordChangeForm(user=request.user, data=request.POST)
+            if password_form.is_valid():
+                password_form.save()
+                update_session_auth_hash(request, password_form.user)
+                messages.success(request, "Sua senha foi alterada com sucesso!")
+                return redirect('user_profile')
+            else:
+                for field, errors in password_form.errors.items():
+                    for error in errors:
+                        messages.error(request, f"Erro ao alterar senha: {error}")
+                return redirect('user_profile')
+                
+    password_form = PasswordChangeForm(user=request.user)
+    return render(request, 'profile.html', {
+        'password_form': password_form
+    })
+
+

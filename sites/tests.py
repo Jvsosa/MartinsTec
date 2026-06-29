@@ -1346,3 +1346,81 @@ class NotificationsTests(TestCase):
         notif.refresh_from_db()
         self.assertTrue(notif.is_read)
 
+
+class UserProfileTests(TestCase):
+    def setUp(self):
+        from sites.models import User
+        self.user = User.objects.create_user(
+            username='profile_user',
+            password='password123',
+            email='profile@example.com',
+            first_name='Test',
+            last_name='User',
+            role=User.Role.ENGINEER
+        )
+
+    def test_profile_page_requires_login(self):
+        """Verify redirect to login when requesting profile page while anonymous."""
+        url = reverse('user_profile')
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 302)
+        self.assertIn('/login/', response.url)
+
+    def test_profile_page_renders_for_logged_in_user(self):
+        """Verify profile page loads correctly for authenticated user."""
+        self.client.login(username='profile_user', password='password123')
+        url = reverse('user_profile')
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Meu Perfil")
+        self.assertContains(response, "profile_user")
+
+    def test_profile_data_update_saves_to_db(self):
+        """Verify posting updated profile data successfully updates the user attributes."""
+        self.client.login(username='profile_user', password='password123')
+        url = reverse('user_profile')
+        response = self.client.post(url, {
+            'form_type': 'profile_data',
+            'first_name': 'NewFirst',
+            'last_name': 'NewLast',
+            'email': 'new_email@example.com'
+        })
+        self.assertEqual(response.status_code, 302)
+        self.user.refresh_from_db()
+        self.assertEqual(self.user.first_name, 'NewFirst')
+        self.assertEqual(self.user.last_name, 'NewLast')
+        self.assertEqual(self.user.email, 'new_email@example.com')
+
+    def test_change_password_success(self):
+        """Verify user can change their password using correct current password."""
+        self.client.login(username='profile_user', password='password123')
+        url = reverse('user_profile')
+        response = self.client.post(url, {
+            'form_type': 'change_password',
+            'old_password': 'password123',
+            'new_password1': 'newsecurepass123',
+            'new_password2': 'newsecurepass123'
+        })
+        self.assertEqual(response.status_code, 302)
+        
+        # Verify user can log in with new password
+        login_success = self.client.login(username='profile_user', password='newsecurepass123')
+        self.assertTrue(login_success)
+
+    def test_change_password_mismatch(self):
+        """Verify password change fails when new passwords do not match."""
+        self.client.login(username='profile_user', password='password123')
+        url = reverse('user_profile')
+        response = self.client.post(url, {
+            'form_type': 'change_password',
+            'old_password': 'password123',
+            'new_password1': 'newsecurepass123',
+            'new_password2': 'differentpass123'
+        })
+        self.assertEqual(response.status_code, 302)
+        
+        # Verify old password still works
+        login_success = self.client.login(username='profile_user', password='password123')
+        self.assertTrue(login_success)
+
+
