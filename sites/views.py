@@ -1461,6 +1461,26 @@ def user_profile(request):
                 messages.success(request, "Foto de perfil removida com sucesso!")
             return redirect('user_profile')
             
+        elif form_type == 'upload_picture':
+            profile_pic = request.FILES.get('profile_picture')
+            if profile_pic:
+                ext = os.path.splitext(profile_pic.name)[1].lower()
+                if ext in ['.jpg', '.jpeg', '.png', '.webp', '.gif']:
+                    if request.user.profile_picture:
+                        try:
+                            if os.path.exists(request.user.profile_picture.path):
+                                os.remove(request.user.profile_picture.path)
+                        except Exception:
+                            pass
+                    request.user.profile_picture = profile_pic
+                    request.user.save()
+                    messages.success(request, "Foto de perfil atualizada com sucesso!")
+                else:
+                    messages.error(request, "Formato de imagem inválido. Use JPG, PNG, WEBP ou GIF.")
+            else:
+                messages.error(request, "Nenhuma imagem enviada.")
+            return redirect('user_profile')
+            
         elif form_type == 'change_password':
             password_form = PasswordChangeForm(user=request.user, data=request.POST)
             if password_form.is_valid():
