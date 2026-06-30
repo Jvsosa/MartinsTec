@@ -55,6 +55,16 @@
             --brand-primary: #3B82F6; /* Premium Corporate Accent Blue */
             --brand-hover: #60A5FA;
             --brand-light: rgba(59, 130, 246, 0.15);
+
+            /* MartinsTec Next-Gen overrides */
+            --ent-primary: #F4F4F5 !important;
+            --ent-secondary: #A1A1AA !important;
+            --ent-bg-main: #09090B !important;
+            --ent-bg-card: #18181B !important;
+            --ent-border: #27272A !important;
+            --ent-text-main: #F4F4F5 !important;
+            --ent-text-muted: #A1A1AA !important;
+            --ent-primary-rgb: 244, 244, 245 !important;
         }
 
         html[data-theme="dark"] body {
@@ -265,6 +275,73 @@
 
         html[data-theme="dark"] .timeline-line {
             background-color: var(--border-color) !important;
+        }
+
+        /* Inline backgrounds and details overrides for site_list.html */
+        html[data-theme="dark"] [style*="background: white"],
+        html[data-theme="dark"] [style*="background:white"],
+        html[data-theme="dark"] [style*="background: #ffffff"],
+        html[data-theme="dark"] [style*="background:#ffffff"] {
+            background-color: var(--bg-surface) !important;
+            background: var(--bg-surface) !important;
+        }
+
+        html[data-theme="dark"] [style*="background: #f8fafc"],
+        html[data-theme="dark"] [style*="background:#f8fafc"],
+        html[data-theme="dark"] [style*="background: #F8FAFC"] {
+            background-color: var(--bg-body) !important;
+            background: var(--bg-body) !important;
+        }
+
+        html[data-theme="dark"] [style*="background: #f1f5f9"],
+        html[data-theme="dark"] [style*="background:#f1f5f9"] {
+            background-color: var(--bg-body) !important;
+            background: var(--bg-body) !important;
+        }
+
+        html[data-theme="dark"] [style*="color: #1e3a8a"],
+        html[data-theme="dark"] [style*="color:#1e3a8a"],
+        html[data-theme="dark"] [style*="color: #065f46"],
+        html[data-theme="dark"] [style*="color:#065f46"],
+        html[data-theme="dark"] [style*="color: #0c4a6e"],
+        html[data-theme="dark"] [style*="color: #0f172a"],
+        html[data-theme="dark"] [style*="color:#0f172a"] {
+            color: var(--text-main) !important;
+        }
+
+        /* KPI Icon wrapper backdrops in dark mode */
+        html[data-theme="dark"] .kpi-icon-wrapper.blue {
+            background-color: rgba(59, 130, 246, 0.15) !important;
+            color: #60A5FA !important;
+        }
+        html[data-theme="dark"] .kpi-icon-wrapper.green {
+            background-color: rgba(16, 185, 129, 0.15) !important;
+            color: #34D399 !important;
+        }
+        html[data-theme="dark"] .kpi-icon-wrapper.orange {
+            background-color: rgba(245, 158, 11, 0.15) !important;
+            color: #FBBF24 !important;
+        }
+        html[data-theme="dark"] .kpi-icon-wrapper.red {
+            background-color: rgba(239, 68, 68, 0.15) !important;
+            color: #F87171 !important;
+        }
+
+        /* Leaflet Dark Theme Overrides */
+        html[data-theme="dark"] .leaflet-bar a {
+            background-color: var(--bg-surface) !important;
+            color: var(--text-main) !important;
+            border-bottom: 1px solid var(--border-color) !important;
+        }
+        html[data-theme="dark"] .leaflet-bar a:hover {
+            background-color: #27272A !important;
+        }
+        html[data-theme="dark"] .leaflet-popup-content-wrapper,
+        html[data-theme="dark"] .leaflet-popup-tip {
+            background-color: var(--bg-surface) !important;
+            color: var(--text-main) !important;
+            border: 1px solid var(--border-color) !important;
+            box-shadow: 0 3px 14px rgba(0,0,0,0.4) !important;
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; }

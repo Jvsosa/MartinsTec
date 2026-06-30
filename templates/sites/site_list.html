@@ -2040,8 +2040,12 @@
 
         map = L.map('map-container').setView(defaultCenter, defaultZoom);
 
-        // Mapa estilo Carto Light (Clean & Corporate)
-        L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
+        const isDarkTheme = document.documentElement.getAttribute('data-theme') === 'dark';
+        const mapUrl = isDarkTheme
+            ? 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png'
+            : 'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png';
+
+        L.tileLayer(mapUrl, {
             attribution: '&copy; OpenStreetMap &copy; CARTO',
             subdomains: 'abcd',
             maxZoom: 20
@@ -2299,6 +2303,12 @@
 
     // --- 5. GRÁFICO CHART.JS ---
     document.addEventListener("DOMContentLoaded", function() {
+        const isDarkTheme = document.documentElement.getAttribute('data-theme') === 'dark';
+        const chartTextCol = isDarkTheme ? '#a1a1aa' : '#64748b';
+        const chartGridCol = isDarkTheme ? '#27272a' : '#f1f5f9';
+        const chartTitleCol = isDarkTheme ? '#f4f4f5' : '#0F172A';
+        const chartBorderCol = isDarkTheme ? '#18181b' : '#ffffff';
+
         initMap();
 
         // Gráfico de Barras de Escopo
@@ -2327,18 +2337,18 @@
                 scales: {
                     x: {
                         grid: { display: false },
-                        ticks: { font: { family: "'Inter', sans-serif", size: 10 }, color: '#64748b' }
+                        ticks: { font: { family: "'Inter', sans-serif", size: 10 }, color: chartTextCol }
                     },
                     y: {
                         beginAtZero: true,
-                        grid: { color: '#f1f5f9' },
-                        ticks: { font: { family: "'Inter', sans-serif", size: 10 }, color: '#64748b', stepSize: 1 }
+                        grid: { color: chartGridCol },
+                        ticks: { font: { family: "'Inter', sans-serif", size: 10 }, color: chartTextCol, stepSize: 1 }
                     }
                 },
                 plugins: {
                     legend: { display: false },
                     tooltip: {
-                        backgroundColor: '#0f172a',
+                        backgroundColor: '#09090b',
                         titleFont: { family: "'Outfit', sans-serif", size: 12 },
                         bodyFont: { family: "'Inter', sans-serif", size: 12 }
                     }
@@ -2361,7 +2371,7 @@
                         data: operatorData.values,
                         backgroundColor: operatorColors.slice(0, operatorData.labels.length),
                         borderWidth: 2,
-                        borderColor: '#ffffff',
+                        borderColor: chartBorderCol,
                         hoverOffset: 4
                     }]
                 },
@@ -2502,6 +2512,11 @@
             const canvas = document.getElementById(`scopeChart-${scopeKey}`);
             if (!canvas) return;
 
+            const isDarkTheme = document.documentElement.getAttribute('data-theme') === 'dark';
+            const chartTextCol = isDarkTheme ? '#a1a1aa' : '#64748b';
+            const chartGridCol = isDarkTheme ? '#27272a' : '#f1f5f9';
+            const chartTitleCol = isDarkTheme ? '#f4f4f5' : '#0F172A';
+
             const ctx = canvas.getContext('2d');
             scopeCharts[scopeKey] = new Chart(ctx, {
                 type: 'bar',
@@ -2522,18 +2537,18 @@
                     scales: {
                         x: {
                             beginAtZero: true,
-                            grid: { color: '#f1f5f9' },
-                            ticks: { font: { family: "'Inter', sans-serif" }, color: '#64748b' }
+                            grid: { color: chartGridCol },
+                            ticks: { font: { family: "'Inter', sans-serif" }, color: chartTextCol }
                         },
                         y: {
                             grid: { display: false },
-                            ticks: { font: { family: "'Inter', sans-serif" }, color: '#0F172A' }
+                            ticks: { font: { family: "'Inter', sans-serif" }, color: chartTitleCol }
                         }
                     },
                     plugins: {
                         legend: { display: false },
                         tooltip: {
-                            backgroundColor: '#0f172a',
+                            backgroundColor: '#09090b',
                             titleFont: { family: "'Outfit', sans-serif", size: 12 },
                             bodyFont: { family: "'Inter', sans-serif", size: 12 },
                             callbacks: {
@@ -2561,6 +2576,10 @@
             const canvas = document.getElementById('partnerComparisonChart');
             if (!canvas) return;
 
+            const isDarkTheme = document.documentElement.getAttribute('data-theme') === 'dark';
+            const chartTextCol = isDarkTheme ? '#a1a1aa' : '#64748b';
+            const chartGridCol = isDarkTheme ? '#27272a' : '#f1f5f9';
+
             const ctx = canvas.getContext('2d');
             partnerCompChart = new Chart(ctx, {
                 type: 'bar',
@@ -2580,18 +2599,18 @@
                     scales: {
                         x: {
                             grid: { display: false },
-                            ticks: { font: { family: "'Inter', sans-serif" }, color: '#64748b' }
+                            ticks: { font: { family: "'Inter', sans-serif" }, color: chartTextCol }
                         },
                         y: {
                             beginAtZero: true,
-                            grid: { color: '#f1f5f9' },
-                            ticks: { font: { family: "'Inter', sans-serif" }, color: '#64748b' }
+                            grid: { color: chartGridCol },
+                            ticks: { font: { family: "'Inter', sans-serif" }, color: chartTextCol }
                         }
                     },
                     plugins: {
                         legend: { display: false },
                         tooltip: {
-                            backgroundColor: '#0f172a',
+                            backgroundColor: '#09090b',
                             titleFont: { family: "'Outfit', sans-serif", size: 12 },
                             bodyFont: { family: "'Inter', sans-serif", size: 12 },
                             callbacks: {
