@@ -314,6 +314,31 @@ class SiteGeocodingAndOptionalCoordsTests(TestCase):
         # The bottleneck should be 'Vistoria → Laudo' (3.0 days) because access stages are excluded
         self.assertEqual(rank_item['bottleneck_stage'], 'Vistoria → Laudo')
         self.assertEqual(rank_item['bottleneck_avg'], 3.0)
+        
+        # Verify the new Vistoria and Laudo columns data
+        self.assertEqual(rank_item['avg_vistoria'], 2.0)
+        self.assertEqual(rank_item['avg_laudo'], 3.0)
+        
+        # Verify the site-by-site audit and autocomplete JSON data
+        self.assertIn('site_audit_data_json', response.context)
+        self.assertIn('site_autocomplete_json', response.context)
+        
+        import json
+        audit_data = json.loads(response.context['site_audit_data_json'])
+        autocomplete_data = json.loads(response.context['site_autocomplete_json'])
+        
+        self.assertIn('SITE_RANK_TEST', audit_data)
+        site_audit = audit_data['SITE_RANK_TEST']
+        self.assertEqual(site_audit['site_id'], 'SITE_RANK_TEST')
+        self.assertEqual(site_audit['partner'], 'RANK_TEST')
+        self.assertEqual(site_audit['scope'], 'Laudos')
+        self.assertTrue(len(site_audit['stages']) > 0)
+        
+        # Verify autocomplete search list contains this site
+        autocomplete_item = next((item for item in autocomplete_data if item['site_id'] == 'SITE_RANK_TEST'), None)
+        self.assertIsNotNone(autocomplete_item)
+        self.assertEqual(autocomplete_item['name'], 'Site Rank')
+        self.assertEqual(autocomplete_item['partner'], 'RANK_TEST')
 
 
 class SiteRolloutWorkflowTests(TestCase):

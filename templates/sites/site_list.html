@@ -1147,7 +1147,7 @@
                                 <div style="display: flex; flex-direction: column; gap: 0.75rem;">
                                     {% for stage in scope_info.stages %}
                                         {% if scope_key == 'LAUDOS' and stage.stage_name == 'Acionamento Parceiro' or stage.stage_name == 'Acesso' or not scope_key == 'LAUDOS' and stage.stage_name == 'Acesso' %}
-                                        <div style="background: white; border: 1px solid var(--ent-border); border-radius: 8px; padding: 0.85rem; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 1px 3px rgba(0,0,0,0.02);">
+                                        <div style="background: white; border: 1px solid var(--ent-border); border-radius: 8px; padding: 0.85rem; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 1px 3px rgba(0,0,0,0.02); {% if stage.is_bottleneck %}border-left: 4px solid #dc2626;{% endif %}">
                                             <div>
                                                 <div style="font-weight: 700; color: var(--ent-primary); font-size: 0.82rem;">{{ stage.label }}</div>
                                                 <span style="font-size: 0.7rem; color: var(--ent-text-muted);">
@@ -1157,8 +1157,15 @@
                                                         Trâmites internos de abertura de ordem
                                                     {% endif %}
                                                 </span>
+                                                {% if stage.is_bottleneck %}
+                                                <br>
+                                                <span style="font-size: 0.62rem; color: #dc2626; background: #fef2f2; border: 1px solid #fecaca; padding: 0.1rem 0.35rem; border-radius: 4px; font-weight: 700; display: inline-flex; align-items: center; gap: 0.15rem; margin-top: 0.25rem;">
+                                                    <i data-lucide="alert-triangle" style="width: 10px; height: 10px;"></i>
+                                                    GARGALO DO ESCOPO
+                                                </span>
+                                                {% endif %}
                                             </div>
-                                            <span style="font-family: var(--font-heading); font-size: 1.05rem; font-weight: 800; color: #2563eb; background: #eff6ff; padding: 0.25rem 0.5rem; border-radius: 6px; white-space: nowrap;">
+                                            <span style="font-family: var(--font-heading); font-size: 1.05rem; font-weight: 800; color: {% if stage.is_bottleneck %}#dc2626{% else %}#2563eb{% endif %}; background: {% if stage.is_bottleneck %}#fef2f2{% else %}#eff6ff{% endif %}; {% if stage.is_bottleneck %}border: 1px solid #fecaca;{% endif %} padding: 0.25rem 0.5rem; border-radius: 6px; white-space: nowrap;">
                                                 +{{ stage.avg_days }} dias
                                             </span>
                                         </div>
@@ -1175,7 +1182,7 @@
                                 <div style="display: flex; flex-direction: column; gap: 0.75rem;">
                                     {% for stage in scope_info.stages %}
                                         {% if scope_key == 'LAUDOS' and stage.stage_name == 'Vistoria' or stage.stage_name == 'Laudo' or not scope_key == 'LAUDOS' and stage.stage_name != 'Acesso' %}
-                                        <div style="background: white; border: 1px solid var(--ent-border); border-radius: 8px; padding: 0.85rem; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 1px 3px rgba(0,0,0,0.02);">
+                                        <div style="background: white; border: 1px solid var(--ent-border); border-radius: 8px; padding: 0.85rem; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 1px 3px rgba(0,0,0,0.02); {% if stage.is_bottleneck %}border-left: 4px solid #dc2626;{% endif %}">
                                             <div>
                                                 <div style="font-weight: 700; color: var(--ent-primary); font-size: 0.82rem;">{{ stage.label }}</div>
                                                 <span style="font-size: 0.7rem; color: var(--ent-text-muted);">
@@ -1187,8 +1194,15 @@
                                                         Trabalho e execução em andamento
                                                     {% endif %}
                                                 </span>
+                                                {% if stage.is_bottleneck %}
+                                                <br>
+                                                <span style="font-size: 0.62rem; color: #dc2626; background: #fef2f2; border: 1px solid #fecaca; padding: 0.1rem 0.35rem; border-radius: 4px; font-weight: 700; display: inline-flex; align-items: center; gap: 0.15rem; margin-top: 0.25rem;">
+                                                    <i data-lucide="alert-triangle" style="width: 10px; height: 10px;"></i>
+                                                    GARGALO DO ESCOPO
+                                                </span>
+                                                {% endif %}
                                             </div>
-                                            <span style="font-family: var(--font-heading); font-size: 1.05rem; font-weight: 800; color: #059669; background: #ecfdf5; padding: 0.25rem 0.5rem; border-radius: 6px; white-space: nowrap;">
+                                            <span style="font-family: var(--font-heading); font-size: 1.05rem; font-weight: 800; color: {% if stage.is_bottleneck %}#dc2626{% else %}#059669{% endif %}; background: {% if stage.is_bottleneck %}#fef2f2{% else %}#ecfdf5{% endif %}; {% if stage.is_bottleneck %}border: 1px solid #fecaca;{% endif %} padding: 0.25rem 0.5rem; border-radius: 6px; white-space: nowrap;">
                                                 +{{ stage.avg_days }} dias
                                             </span>
                                         </div>
@@ -1385,6 +1399,8 @@
                                         <th>Posição</th>
                                         <th>Empresa Parceira</th>
                                         <th style="text-align: center;">Sites Finalizados</th>
+                                        <th style="text-align: right;">Média Vistoria</th>
+                                        <th style="text-align: right;">Média Laudo/Projeto</th>
                                         <th style="text-align: right;">Tempo de Atendimento</th>
                                         <th style="text-align: center;">Desempenho</th>
                                     </tr>
@@ -1405,6 +1421,12 @@
                                         </td>
                                         <td style="font-weight: 700; color: var(--ent-primary);">{{ stat.partner }}</td>
                                         <td style="text-align: center; font-weight: 600;">{{ stat.finished_sites }} / {{ stat.total_sites }}</td>
+                                        <td style="text-align: right; font-weight: 600; color: #0f766e;">
+                                            {% if stat.avg_vistoria %}{{ stat.avg_vistoria }} dias{% else %}--{% endif %}
+                                        </td>
+                                        <td style="text-align: right; font-weight: 600; color: #0369a1;">
+                                            {% if stat.avg_laudo %}{{ stat.avg_laudo }} dias{% else %}--{% endif %}
+                                        </td>
                                         <td style="text-align: right; font-weight: 700; color: var(--ent-accent);">
                                             {% if stat.avg_partner_time %}{{ stat.avg_partner_time }} dias{% else %}--{% endif %}
                                         </td>
@@ -1436,90 +1458,135 @@
 
         <!-- ==================== ABA 3: ANALISE SITE POR SITE ==================== -->
         <div id="analytics-tab-site" style="display: none;">
-            <!-- Buscador Integrado -->
-            <div class="ent-card" style="padding: 1.25rem; margin-bottom: 1.5rem; border: none; box-shadow: var(--ent-shadow-sm); background: white;">
-                <div style="display: flex; gap: 0.75rem; width: 100%;">
-                    <div style="position: relative; flex: 1;">
-                        <i data-lucide="search" style="position: absolute; left: 1rem; top: 50%; transform: translateY(-50%); width: 18px; height: 18px; color: var(--ent-secondary);"></i>
-                        <input type="text" id="analytics-search-input" class="form-control" placeholder="Buscar por código, nome do site, parceiro ou escopo..." style="padding-left: 2.75rem; height: 44px; border-radius: 8px;" onkeyup="filterAnalyticsSites()">
+            <!-- Buscador com Autocomplete -->
+            <div class="ent-card" style="padding: 1.5rem; margin-bottom: 2rem; border: none; box-shadow: var(--ent-shadow-sm); background: white; position: relative; z-index: 100;">
+                <label style="font-family: var(--font-heading); font-size: 0.95rem; font-weight: 700; color: var(--ent-primary); margin-bottom: 0.75rem; display: block;">
+                    Ferramenta de Busca & Auditoria de Ativo
+                </label>
+                <div style="position: relative; width: 100%;">
+                    <i data-lucide="search" style="position: absolute; left: 1.25rem; top: 50%; transform: translateY(-50%); width: 20px; height: 20px; color: var(--ent-secondary);"></i>
+                    <input type="text" id="site-audit-search" class="form-control" placeholder="Digite o código (Site ID) ou Nome do site para auditar..." style="padding-left: 3rem; height: 48px; border-radius: 10px; font-size: 0.95rem; border: 1.5px solid var(--ent-border);" oninput="handleSiteSearch(this.value)" autocomplete="off">
+                    
+                    <!-- Dropdown de Sugestões -->
+                    <div id="site-search-suggestions" style="display: none; position: absolute; top: 54px; left: 0; right: 0; background: white; border: 1px solid var(--ent-border); border-radius: 10px; box-shadow: var(--ent-shadow-lg); max-height: 280px; overflow-y: auto; z-index: 1000; padding: 0.5rem 0;">
                     </div>
                 </div>
             </div>
 
-            <!-- Tabela de Análise Detalhada -->
-            <div class="ent-card" style="padding: 0; border: none; box-shadow: var(--ent-shadow-sm); background: white;">
-                <div style="padding: 1.5rem 1.5rem 1rem 1.5rem; border-bottom: 1px solid var(--ent-border); display: flex; justify-content: space-between; align-items: center;">
-                    <div>
-                        <h3 style="font-family: var(--font-heading); font-size: 1.15rem; font-weight: 700; color: var(--ent-primary);">Detalhamento Individual de Gargalos</h3>
-                        <p style="font-size: 0.75rem; color: var(--ent-text-muted); margin-top: 0.25rem;">Histórico de lead time de todas as transições de etapas para cada site ativo ou concluído.</p>
-                    </div>
-                    <span id="analytics-filter-count" style="font-size: 0.75rem; font-weight: 700; color: var(--ent-accent); background: #eff6ff; padding: 0.35rem 0.75rem; border-radius: 20px;">
-                        {{ detailed_lead_times|length }} site(s)
-                    </span>
+            <!-- Placeholder State (Quando nada está selecionado) -->
+            <div id="audit-placeholder" style="display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 5rem 2rem; text-align: center; background: white; border-radius: 20px; border: 1px dashed var(--ent-border); box-shadow: var(--ent-shadow-sm);">
+                <div style="width: 64px; height: 64px; border-radius: 50%; background: #eff6ff; color: #3b82f6; display: flex; align-items: center; justify-content: center; margin-bottom: 1.5rem;">
+                    <i data-lucide="compass" style="width: 32px; height: 32px;"></i>
                 </div>
-                <div class="ent-table-wrapper">
-                    {% if detailed_lead_times %}
-                    <table class="ent-table">
-                        <thead>
-                            <tr>
-                                <th>Código</th>
-                                <th>Nome do Site</th>
-                                <th>Escopo</th>
-                                <th>Empresa Parceira</th>
-                                <th style="text-align: right;">
-                                    <span style="display: inline-flex; align-items: center; gap: 0.35rem; justify-content: flex-end; width: 100%;">
-                                        <i data-lucide="building-2" style="width: 14px; height: 14px; color: #2563eb;"></i> Gestão MartinsTec
-                                    </span>
-                                </th>
-                                <th style="text-align: right;">
-                                    <span style="display: inline-flex; align-items: center; gap: 0.35rem; justify-content: flex-end; width: 100%;">
-                                        <i data-lucide="settings" style="width: 14px; height: 14px; color: #059669;"></i> Fase de Execução
-                                    </span>
-                                </th>
-                                <th style="text-align: right;">Ciclo Total</th>
-                                <th style="text-align: center;">Status</th>
-                                <th style="text-align: center;">Transições</th>
-                            </tr>
-                        </thead>
-                        <tbody id="analytics-table-body">
-                            {% for item in detailed_lead_times %}
-                            <tr class="analytics-row" data-code="{{ item.site_id|lower }}" data-name="{{ item.name|lower }}" data-partner="{{ item.partner_company|lower }}" data-scope="{{ item.scope_type|lower }}">
-                                <td style="font-weight: 700; color: var(--ent-primary);">
-                                    <a href="{% url 'site_detail' pk=item.id %}" style="color: inherit; text-decoration: none; border-bottom: 1px dashed var(--ent-secondary);">
-                                        {{ item.site_id }}
-                                    </a>
-                                </td>
-                                <td>{{ item.name }}</td>
-                                <td style="font-size: 0.8rem; font-weight: 600;">{{ item.scope_type }}</td>
-                                <td style="font-weight: 600; color: var(--ent-primary);">{{ item.partner_company }}</td>
-                                <td style="text-align: right; font-weight: 600; color: #2563eb;">{{ item.martinstec_days }} dias</td>
-                                <td style="text-align: right; font-weight: 600; color: {% if item.partner_days %}#059669{% else %}#64748b{% endif %};">{{ item.partner_display }}</td>
-                                <td style="text-align: right; font-weight: 700; color: var(--ent-primary);">{{ item.total_display }}</td>
-                                <td style="text-align: center;">
-                                    <span class="status-badge badge-{{ item.status|lower }}" style="font-size: 0.65rem;">
-                                        <span class="status-dot"></span>
-                                        {{ item.get_status_display }}
-                                    </span>
-                                </td>
-                                <td style="text-align: center;">
-                                    <!-- Mini visualizador de progresso de transições -->
-                                    <div style="display: flex; gap: 3px; justify-content: center; align-items: center;" title="Passe o mouse para ver detalhes das etapas">
-                                        {% for t in item.transitions %}
-                                        <div style="width: 14px; height: 8px; border-radius: 2px; background: {% if t.days is not None %}{% if t.days > 15 %}var(--ent-danger){% elif t.days > 8 %}var(--ent-warning){% else %}var(--ent-success){% endif %}{% else %}#e2e8f0{% endif %};" 
-                                             title="{{ t.from }} → {{ t.to }}: {{ t.display }}"></div>
-                                        {% endfor %}
-                                    </div>
-                                </td>
-                            </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
-                    {% else %}
-                    <div style="padding: 3rem 2rem; text-align: center; color: var(--ent-text-muted);">
-                        <i data-lucide="table-properties" style="width: 48px; height: 48px; margin-bottom: 0.75rem; opacity: 0.5;"></i>
-                        <p style="font-size: 0.9rem;">Nenhum site cadastrado para listar tempos de leadtime.</p>
+                <h4 style="font-family: var(--font-heading); font-size: 1.2rem; font-weight: 700; color: var(--ent-primary); margin-bottom: 0.5rem;">Auditoria de Ativo em Tempo Real</h4>
+                <p style="font-size: 0.88rem; color: var(--ent-text-muted); max-width: 480px; margin: 0 auto 1.5rem auto;">
+                    Busque e selecione um Site ID específico na caixa acima para acessar a linha do tempo completa do cronograma planejado vs. realizado, lead time por etapa, tempos de retenção (dias parado) e histórico de replanejamentos.
+                </p>
+            </div>
+
+            <!-- Conteúdo da Auditoria (Escondido por padrão) -->
+            <div id="audit-content" style="display: none; animation: fadeIn 0.3s ease;">
+                <!-- 1. Cabeçalho do Site & KPIs -->
+                <div style="display: grid; grid-template-columns: 1.2fr 0.8fr; gap: 1.5rem; margin-bottom: 1.5rem; align-items: stretch;">
+                    <!-- Informações Gerais -->
+                    <div class="ent-card" style="padding: 1.75rem; border: none; box-shadow: var(--ent-shadow-sm); background: white; display: flex; flex-direction: column; justify-content: space-between;">
+                        <div>
+                            <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1rem;">
+                                <div>
+                                    <span id="audit-site-scope" style="font-size: 0.72rem; text-transform: uppercase; font-weight: 700; color: white; background: var(--ent-accent); padding: 0.25rem 0.6rem; border-radius: 4px; display: inline-block; margin-bottom: 0.5rem;">LAUDOS</span>
+                                    <h2 id="audit-site-id" style="font-family: var(--font-heading); font-size: 1.8rem; font-weight: 800; color: var(--ent-primary); margin: 0;">SITE-001</h2>
+                                    <h5 id="audit-site-name" style="font-size: 0.95rem; font-weight: 600; color: var(--ent-secondary); margin: 0.25rem 0 0 0;">Nome do Site de Exemplo</h5>
+                                </div>
+                                <span id="audit-site-status-badge" class="status-badge" style="padding: 0.35rem 0.75rem; font-size: 0.75rem;">
+                                    <span class="status-dot"></span>
+                                    <span id="audit-site-status">Ativo</span>
+                                </span>
+                            </div>
+                        </div>
+                        <div style="border-top: 1px solid var(--ent-border); padding-top: 1rem; display: flex; justify-content: space-between; align-items: center; gap: 1rem;">
+                            <div>
+                                <span style="font-size: 0.72rem; text-transform: uppercase; font-weight: 700; color: var(--ent-text-muted); display: block; margin-bottom: 0.2rem;">Empresa Parceira</span>
+                                <span id="audit-site-partner" style="font-weight: 700; color: var(--ent-primary); font-size: 0.95rem;">FECAP ENGENHARIA</span>
+                            </div>
+                            <div style="text-align: right;">
+                                <a id="audit-site-detail-link" href="#" class="btn-submit" style="display: inline-flex; align-items: center; gap: 0.35rem; padding: 0.45rem 1rem; font-size: 0.78rem; background: #e11d48; color: white; text-decoration: none; border-radius: 8px; font-weight: 700; transition: background 0.2s;">
+                                    Acessar Data Room <i data-lucide="arrow-up-right" style="width: 14px; height: 14px;"></i>
+                                </a>
+                            </div>
+                        </div>
                     </div>
-                    {% endif %}
+
+                    <!-- KPIs Operacionais -->
+                    <div style="display: grid; grid-template-rows: 1fr 1fr; gap: 1rem;">
+                        <!-- Acionamento / Conclusão -->
+                        <div class="ent-card" style="padding: 1.25rem; border: none; box-shadow: var(--ent-shadow-sm); background: white; display: flex; align-items: center; gap: 1rem;">
+                            <div style="width: 44px; height: 44px; border-radius: 10px; background: #eff6ff; color: #2563eb; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                                <i data-lucide="calendar" style="width: 20px; height: 20px;"></i>
+                            </div>
+                            <div>
+                                <div style="font-size: 0.72rem; font-weight: 700; color: var(--ent-text-muted); text-transform: uppercase;">Ciclo Operacional</div>
+                                <div style="font-size: 0.88rem; font-weight: 700; color: var(--ent-primary); margin-top: 0.15rem;">
+                                    Acionamento: <span id="audit-kpi-start" style="color: var(--ent-primary);">25/06/2026</span>
+                                </div>
+                                <div style="font-size: 0.82rem; font-weight: 600; color: var(--ent-text-muted); margin-top: 0.05rem;">
+                                    Conclusão: <span id="audit-kpi-end">Em Andamento</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Dias Acumulados / Retenção -->
+                        <div class="ent-card" style="padding: 1.25rem; border: none; box-shadow: var(--ent-shadow-sm); background: white; display: flex; align-items: center; gap: 1rem;">
+                            <div style="width: 44px; height: 44px; border-radius: 10px; background: #fef2f2; color: #dc2626; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                                <i data-lucide="clock" style="width: 20px; height: 20px;"></i>
+                            </div>
+                            <div>
+                                <div style="font-size: 0.72rem; font-weight: 700; color: var(--ent-text-muted); text-transform: uppercase;">Tempo de Retenção Acumulado</div>
+                                <div id="audit-kpi-retention" style="font-family: var(--font-heading); font-size: 1.35rem; font-weight: 800; color: #dc2626;">5 dias</div>
+                                <p style="font-size: 0.7rem; color: var(--ent-text-muted); margin: 0.05rem 0 0 0;">Tempo acumulado parado ou em atraso.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 2. Linha do Tempo Vertical e Histórico de Replanejamento -->
+                <div style="display: grid; grid-template-columns: 1.2fr 0.8fr; gap: 1.5rem; align-items: start; margin-bottom: 2rem;">
+                    <!-- Linha do Tempo -->
+                    <div class="ent-card" style="padding: 1.75rem; border: none; box-shadow: var(--ent-shadow-sm); background: white;">
+                        <h4 style="font-family: var(--font-heading); font-size: 1.1rem; font-weight: 700; color: var(--ent-primary); margin-bottom: 1.75rem; display: flex; align-items: center; gap: 0.5rem;">
+                            <i data-lucide="git-commit" style="color: var(--ent-accent); width: 20px; height: 20px;"></i>
+                            Linha do Tempo Cronológica e Baseline
+                        </h4>
+                        
+                        <div id="audit-timeline-container" style="position: relative; padding-left: 2.25rem;">
+                            <!-- Linha vertical de progresso conectando etapas -->
+                            <div style="position: absolute; top: 12px; bottom: 12px; left: 11px; width: 3px; background: #f1f5f9;"></div>
+                            
+                            <!-- Exemplo de etapa gerado via JS -->
+                        </div>
+                    </div>
+
+                    <!-- Replanejamentos -->
+                    <div class="ent-card" style="padding: 0; border: none; box-shadow: var(--ent-shadow-sm); background: white; display: flex; flex-direction: column;">
+                        <div style="padding: 1.5rem 1.5rem 1rem 1.5rem; border-bottom: 1px solid var(--ent-border); display: flex; align-items: center; gap: 0.5rem;">
+                            <i data-lucide="history" style="color: var(--ent-secondary); width: 20px; height: 20px;"></i>
+                            <h4 style="font-family: var(--font-heading); font-size: 1.1rem; font-weight: 700; color: var(--ent-primary); margin: 0;">Histórico de Replanejamentos</h4>
+                        </div>
+                        <div class="ent-table-wrapper" style="max-height: 400px; overflow-y: auto;">
+                            <table class="ent-table" style="font-size: 0.8rem;">
+                                <thead>
+                                    <tr>
+                                        <th>Etapa</th>
+                                        <th>Baseline</th>
+                                        <th>Nova Data</th>
+                                        <th>Motivo</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="audit-reschedules-tbody">
+                                    <!-- Preenchido via JS -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -2423,31 +2490,6 @@
             setTimeout(() => initScopeChart(scopeKey), 50);
         };
 
-        window.filterAnalyticsSites = function() {
-            const query = document.getElementById('analytics-search-input').value.toLowerCase().trim();
-            const rows = document.querySelectorAll('.analytics-row');
-            let visibleCount = 0;
-
-            rows.forEach(row => {
-                const code = row.getAttribute('data-code') || '';
-                const name = row.getAttribute('data-name') || '';
-                const partner = row.getAttribute('data-partner') || '';
-                const scope = row.getAttribute('data-scope') || '';
-
-                if (code.includes(query) || name.includes(query) || partner.includes(query) || scope.includes(query)) {
-                    row.style.display = '';
-                    visibleCount++;
-                } else {
-                    row.style.display = 'none';
-                }
-            });
-
-            const countEl = document.getElementById('analytics-filter-count');
-            if (countEl) {
-                countEl.textContent = `${visibleCount} site(s)`;
-            }
-        };
-
         function initScopeChart(scopeKey) {
             const data = scopeChartData[scopeKey];
             if (!data || data.labels.length === 0) return;
@@ -2576,6 +2618,220 @@
                 else p.classList.remove('active');
             });
         };
+
+        // ==========================================
+        // SCRIPT DE BUSCA E AUDITORIA SITE-A-SITE
+        // ==========================================
+        const siteAuditData = JSON.parse(document.getElementById('site-audit-data-json').textContent);
+        const siteAutocompleteList = JSON.parse(document.getElementById('site-autocomplete-json').textContent);
+
+        window.handleSiteSearch = function(query) {
+            const suggestionsBox = document.getElementById('site-search-suggestions');
+            if (!query || query.trim() === '') {
+                suggestionsBox.style.display = 'none';
+                return;
+            }
+            
+            const term = query.toLowerCase().trim();
+            const matches = siteAutocompleteList.filter(item => 
+                item.site_id.toLowerCase().includes(term) || 
+                item.name.toLowerCase().includes(term) || 
+                item.partner.toLowerCase().includes(term)
+            ).slice(0, 8);
+            
+            if (matches.length === 0) {
+                suggestionsBox.innerHTML = '<div style="padding: 0.75rem 1.25rem; font-size: 0.82rem; color: var(--ent-text-muted);">Nenhum site encontrado.</div>';
+                suggestionsBox.style.display = 'block';
+                return;
+            }
+            
+            let html = '';
+            matches.forEach(item => {
+                html += `
+                    <div class="search-suggestion-item" 
+                         style="padding: 0.75rem 1.25rem; cursor: pointer; border-bottom: 1px solid #f8fafc; font-size: 0.88rem; transition: background 0.2s;"
+                         onmouseover="this.style.background='#f1f5f9'"
+                         onmouseout="this.style.background='white'"
+                         onclick="selectAuditSite('${item.site_id}')">
+                         <strong style="color: var(--ent-primary);">${item.site_id}</strong> - <span style="color: var(--ent-secondary);">${item.name}</span>
+                         <div style="font-size: 0.72rem; color: var(--ent-text-muted); margin-top: 0.15rem;">Escopo: ${item.scope} | Fornecedor: ${item.partner}</div>
+                    </div>
+                `;
+            });
+            
+            suggestionsBox.innerHTML = html;
+            suggestionsBox.style.display = 'block';
+        };
+
+        window.selectAuditSite = function(siteId) {
+            document.getElementById('site-search-suggestions').style.display = 'none';
+            document.getElementById('site-audit-search').value = siteId;
+            
+            const siteData = siteAuditData[siteId];
+            if (!siteData) return;
+            
+            document.getElementById('audit-placeholder').style.display = 'none';
+            document.getElementById('audit-content').style.display = 'block';
+            
+            document.getElementById('audit-site-scope').textContent = siteData.scope;
+            document.getElementById('audit-site-id').textContent = siteData.site_id;
+            document.getElementById('audit-site-name').textContent = siteData.name;
+            document.getElementById('audit-site-partner').textContent = siteData.partner;
+            document.getElementById('audit-site-detail-link').href = `/sites/${siteData.id}/`;
+            
+            const statusText = siteData.status_display;
+            const statusVal = siteData.status;
+            document.getElementById('audit-site-status').textContent = statusText;
+            const badge = document.getElementById('audit-site-status-badge');
+            badge.className = `status-badge badge-${statusVal.toLowerCase()}`;
+            
+            document.getElementById('audit-kpi-start').textContent = siteData.created_at;
+            document.getElementById('audit-kpi-end').textContent = siteData.finished_at;
+            
+            let totalRetention = 0;
+            siteData.stages.forEach(st => {
+                totalRetention += st.retention_days || 0;
+            });
+            
+            const retentionKPI = document.getElementById('audit-kpi-retention');
+            retentionKPI.textContent = `${totalRetention} dias`;
+            if (totalRetention > 10) {
+                retentionKPI.style.color = '#dc2626';
+            } else if (totalRetention > 0) {
+                retentionKPI.style.color = '#d97706';
+            } else {
+                retentionKPI.style.color = '#059669';
+            }
+            
+            const timelineContainer = document.getElementById('audit-timeline-container');
+            let timelineHTML = '<div style="position: absolute; top: 12px; bottom: 12px; left: 11px; width: 3px; background: #f1f5f9;"></div>';
+            
+            siteData.stages.forEach((st, idx) => {
+                let iconName = 'clock';
+                let circleBg = '#f1f5f9';
+                let circleColor = '#64748b';
+                let borderStyle = '1px solid #cbd5e1';
+                
+                if (st.comparison_class === 'success') {
+                    iconName = 'check-circle';
+                    circleBg = '#ecfdf5';
+                    circleColor = '#059669';
+                    borderStyle = '1px solid #a7f3d0';
+                } else if (st.comparison_class === 'warning') {
+                    iconName = 'alert-circle';
+                    circleBg = '#fffbeb';
+                    circleColor = '#d97706';
+                    borderStyle = '1px solid #fef3c7';
+                } else if (st.comparison_class === 'danger') {
+                    iconName = 'alert-triangle';
+                    circleBg = '#fef2f2';
+                    circleColor = '#dc2626';
+                    borderStyle = '1px solid #fecaca';
+                } else if (st.comparison_class === 'info') {
+                    iconName = 'clock';
+                    circleBg = '#eff6ff';
+                    circleColor = '#2563eb';
+                    borderStyle = '1px solid #bfdbfe';
+                } else if (st.comparison_class === 'muted') {
+                    iconName = 'skip-forward';
+                    circleBg = '#f8fafc';
+                    circleColor = '#94a3b8';
+                    borderStyle = '1px solid #e2e8f0';
+                }
+                
+                let retBadgeColor = '#64748b';
+                let retBadgeBg = '#f1f5f9';
+                let retBadgeBorder = '1px solid #e2e8f0';
+                
+                if (st.comparison_class === 'danger') {
+                    retBadgeColor = '#dc2626';
+                    retBadgeBg = '#fef2f2';
+                    retBadgeBorder = '1px solid #fecaca';
+                } else if (st.comparison_class === 'warning') {
+                    retBadgeColor = '#d97706';
+                    retBadgeBg = '#fffbeb';
+                    retBadgeBorder = '1px solid #fde68a';
+                } else if (st.comparison_class === 'success') {
+                    retBadgeColor = '#059669';
+                    retBadgeBg = '#ecfdf5';
+                    retBadgeBorder = '1px solid #a7f3d0';
+                }
+                
+                timelineHTML += `
+                    <div style="display: flex; gap: 1.25rem; margin-bottom: 2rem; position: relative; z-index: 5;">
+                        <div style="width: 26px; height: 26px; border-radius: 50%; background: ${circleBg}; color: ${circleColor}; border: ${borderStyle}; display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-size: 0.72rem;">
+                            <i data-lucide="${iconName}" style="width: 14px; height: 14px;"></i>
+                        </div>
+                        
+                        <div style="flex: 1; background: #f8fafc; border: 1px solid var(--ent-border); border-radius: 10px; padding: 1rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+                            <div>
+                                <h5 style="margin: 0; font-size: 0.88rem; font-weight: 700; color: var(--ent-primary);">${st.name}</h5>
+                                <div style="display: flex; gap: 1rem; font-size: 0.75rem; color: var(--ent-text-muted); margin-top: 0.25rem; flex-wrap: wrap;">
+                                    <span><strong>Previsto:</strong> ${st.planned_date}</span>
+                                    <span><strong>Realizado:</strong> ${st.actual_date}</span>
+                                </div>
+                            </div>
+                            
+                            <div style="display: flex; gap: 0.5rem; align-items: center; flex-wrap: wrap;">
+                                <span style="font-size: 0.72rem; font-weight: 700; color: var(--ent-secondary); background: #f1f5f9; padding: 0.25rem 0.5rem; border-radius: 6px;">
+                                    Tempo Gasto: +${st.duration_days} d
+                                </span>
+                                
+                                <span style="font-size: 0.72rem; font-weight: 700; color: ${retBadgeColor}; background: ${retBadgeBg}; border: ${retBadgeBorder}; padding: 0.25rem 0.5rem; border-radius: 6px; display: inline-flex; align-items: center; gap: 0.25rem;">
+                                    <i data-lucide="clock" style="width: 10px; height: 10px;"></i>
+                                    ${st.retention_msg}
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            timelineContainer.innerHTML = timelineHTML;
+            
+            const reschedulesTbody = document.getElementById('audit-reschedules-tbody');
+            let reschedulesHTML = '';
+            
+            if (siteData.reschedules && siteData.reschedules.length > 0) {
+                siteData.reschedules.forEach(r => {
+                    reschedulesHTML += `
+                        <tr>
+                            <td style="font-weight: 700; color: var(--ent-primary);">${r.stage}</td>
+                            <td style="color: var(--ent-text-muted);">${r.prev_date}</td>
+                            <td style="font-weight: 600; color: var(--ent-accent);">${r.new_date}</td>
+                            <td>
+                                <span style="font-weight: 500;" title="${r.reason}">${r.reason}</span>
+                                <div style="font-size: 0.65rem; color: var(--ent-text-muted); margin-top: 0.1rem;">Por: ${r.created_by} em ${r.created_at}</div>
+                            </td>
+                        </tr>
+                    `;
+                });
+            } else {
+                reschedulesHTML = `
+                    <tr>
+                        <td colspan="4" style="text-align: center; padding: 2rem; color: var(--ent-text-muted);">Nenhum replanejamento registrado.</td>
+                    </tr>
+                `;
+            }
+            
+            reschedulesTbody.innerHTML = reschedulesHTML;
+            lucide.createIcons();
+        };
+
+        document.addEventListener('click', function(e) {
+            const input = document.getElementById('site-audit-search');
+            const suggestions = document.getElementById('site-search-suggestions');
+            if (input && suggestions && e.target !== input && !suggestions.contains(e.target)) {
+                suggestions.style.display = 'none';
+            }
+        });
     });
+</script>
+
+<script id="site-audit-data-json" type="application/json">
+    {{ site_audit_data_json|safe }}
+</script>
+<script id="site-autocomplete-json" type="application/json">
+    {{ site_autocomplete_json|safe }}
 </script>
 {% endblock %}
