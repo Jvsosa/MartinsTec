@@ -989,16 +989,46 @@
             gap: 2rem !important;
         }
         
-        /* Evita tabelas estourando a tela horizontalmente no mobile */
-        .ent-table-wrapper, 
-        .table-responsive {
-            width: 100% !important;
-            overflow-x: auto !important;
-            -webkit-overflow-scrolling: touch !important;
+            /* Evita tabelas estourando a tela horizontalmente no mobile */
+            .ent-table-wrapper, 
+            .table-responsive {
+                width: 100% !important;
+                overflow-x: auto !important;
+                -webkit-overflow-scrolling: touch !important;
+            }
+
+            /* Central de Incidentes no Celular */
+            .noc-alerts-header {
+                flex-direction: column !important;
+                align-items: flex-start !important;
+                gap: 0.75rem !important;
+            }
+            .noc-alerts-header span {
+                align-self: flex-start !important;
+            }
+
+            .noc-alert-box {
+                flex-direction: column !important;
+                align-items: flex-start !important;
+                gap: 0.85rem !important;
+                padding: 1rem !important;
+            }
+            
+            /* Div da esquerda (Icone + Dados) toma largura total */
+            .noc-alert-box > div:first-child {
+                width: 100% !important;
+            }
+            
+            /* Div da direita (Badge + Botao Gerenciar) toma largura total e faz space-between */
+            .noc-alert-box > div:last-child {
+                width: 100% !important;
+                justify-content: space-between !important;
+                border-top: 1px solid var(--ent-border);
+                padding-top: 0.75rem;
+            }
         }
-    }
-</style>
-{% endblock %}
+    </style>
+    {% endblock %}
 
 {% block content %}
 <div class="dashboard-wrapper">
@@ -1136,7 +1166,7 @@
 
             <!-- Alertas Críticos do NOC (right) -->
             <div class="ent-card" style="padding: 2rem; border: none; display: flex; flex-direction: column; background: white; border-radius: 12px; box-shadow: var(--ent-shadow-sm);">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+                <div class="noc-alerts-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
                     <div>
                         <h3 style="font-family: var(--font-heading); font-size: 1.25rem; font-weight: 800; color: var(--ent-primary);">Central de Incidentes e Alertas</h3>
                         <p style="font-size: 0.8rem; color: var(--ent-text-muted); font-weight: 500;">Sites marcados como 'Em Alerta' ou 'Prazos Vencidos'.</p>
