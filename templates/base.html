@@ -343,6 +343,95 @@
             border: 1px solid var(--border-color) !important;
             box-shadow: 0 3px 14px rgba(0,0,0,0.4) !important;
         }
+        /* modern-site-card dark theme overrides */
+        html[data-theme="dark"] .modern-site-card {
+            background-color: var(--bg-surface) !important;
+            background: var(--bg-surface) !important;
+            border-color: var(--border-color) !important;
+            color: var(--text-main) !important;
+            box-shadow: none !important;
+        }
+
+        html[data-theme="dark"] .modern-site-card:hover {
+            border-color: var(--brand-primary) !important;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.4) !important;
+        }
+
+        html[data-theme="dark"] .site-milestones {
+            background-color: var(--bg-body) !important;
+            background: var(--bg-body) !important;
+            border-color: var(--border-color) !important;
+        }
+
+        html[data-theme="dark"] .milestone-header {
+            border-bottom-color: var(--border-color) !important;
+            color: var(--text-muted) !important;
+        }
+
+        html[data-theme="dark"] .milestone-label {
+            color: var(--text-muted) !important;
+        }
+        
+        html[data-theme="dark"] .milestone-label i {
+            color: var(--text-muted) !important;
+        }
+
+        html[data-theme="dark"] .milestone-date-val.planned {
+            color: var(--text-muted) !important;
+        }
+
+        html[data-theme="dark"] .milestone-date-val.realized {
+            color: var(--text-main) !important;
+        }
+
+        html[data-theme="dark"] .milestone-date-val.completed {
+            color: #34D399 !important;
+        }
+
+        html[data-theme="dark"] .milestone-date-val.overdue {
+            color: #F87171 !important;
+        }
+
+        html[data-theme="dark"] .milestone-date-val.alert {
+            color: #FBBF24 !important;
+        }
+
+        html[data-theme="dark"] .scope-badge {
+            background-color: var(--bg-body) !important;
+            border-color: var(--border-color) !important;
+            color: var(--text-muted) !important;
+        }
+
+        html[data-theme="dark"] .site-card-id-pill {
+            background-color: var(--bg-body) !important;
+            color: var(--text-muted) !important;
+        }
+
+        html[data-theme="dark"] .site-card-footer {
+            border-top-color: var(--border-color) !important;
+        }
+
+        html[data-theme="dark"] .partner-info {
+            color: var(--text-muted) !important;
+        }
+
+        html[data-theme="dark"] .btn-card-action {
+            background-color: var(--bg-body) !important;
+            border: 1px solid var(--border-color) !important;
+            color: var(--text-main) !important;
+        }
+        
+        html[data-theme="dark"] .btn-card-action:hover {
+            background-color: #34343A !important;
+            border-color: var(--brand-primary) !important;
+        }
+
+        /* Operator Badges Muted for Dark Theme */
+        html[data-theme="dark"] .operator-badge.op-vivo { background: rgba(37, 99, 235, 0.15) !important; color: #60A5FA !important; border-color: rgba(37, 99, 235, 0.25) !important; }
+        html[data-theme="dark"] .operator-badge.op-tim { background: rgba(219, 39, 119, 0.15) !important; color: #F472B6 !important; border-color: rgba(219, 39, 119, 0.25) !important; }
+        html[data-theme="dark"] .operator-badge.op-claro { background: rgba(220, 38, 38, 0.15) !important; color: #F87171 !important; border-color: rgba(220, 38, 38, 0.25) !important; }
+        html[data-theme="dark"] .operator-badge.op-oi { background: rgba(217, 119, 6, 0.15) !important; color: #FBBF24 !important; border-color: rgba(217, 119, 6, 0.25) !important; }
+        html[data-theme="dark"] .operator-badge.op-outro { background: rgba(71, 85, 105, 0.15) !important; color: #94A3B8 !important; border-color: rgba(71, 85, 105, 0.25) !important; }
 
         * { margin: 0; padding: 0; box-sizing: border-box; }
 
