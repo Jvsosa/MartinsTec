@@ -585,11 +585,11 @@
 
                 <div class="info-item">
                     <span class="info-label">Etapa Atual</span>
-                    <div style="display: flex; flex-direction: column; align-items: flex-end; gap: 0.35rem;">
-                        <span class="info-value" style="font-weight: 700;">{{ site.current_stage_name }}</span>
+                    <div style="display: flex; flex-direction: column; align-items: flex-start; gap: 0.35rem;">
+                        <span class="info-value" style="font-weight: 700; color: var(--text-main);">{{ site.current_stage_name }}</span>
                         {% if not site.current_stage_name == 'Finalizado' %}
-                        <span style="font-size: 0.72rem; color: #b45309; background: #fffbeb; border: 1px solid #fde68a; padding: 0.15rem 0.55rem; border-radius: 6px; font-weight: 600; display: inline-flex; align-items: center; gap: 0.25rem;">
-                            <i data-lucide="clock" style="width: 12px; height: 12px;"></i>
+                        <span style="font-size: 0.72rem; color: #dc2626; background: #fef2f2; border: 1px solid #fecaca; padding: 0.15rem 0.55rem; border-radius: 6px; font-weight: 700; display: inline-flex; align-items: center; gap: 0.25rem;">
+                            <i data-lucide="clock" style="width: 12px; height: 12px; color: #dc2626;"></i>
                             Parado há {{ site.current_stage_age_days }} dias
                         </span>
                         {% endif %}
@@ -736,8 +736,8 @@
                     <h5 style="margin: 0; font-size: 0.88rem; font-weight: 700; color: var(--text-main); display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap;">
                         Fase Atual Recomendada: {{ recommended_stage_name }}
                         {% if not site.current_stage_name == 'Finalizado' %}
-                        <span style="font-size: 0.72rem; color: #b45309; background: #fffbeb; border: 1px solid #fde68a; padding: 0.15rem 0.55rem; border-radius: 20px; font-weight: 700; display: inline-flex; align-items: center; gap: 0.25rem;">
-                            <i data-lucide="clock" style="width: 12px; height: 12px;"></i>
+                        <span style="font-size: 0.72rem; color: #dc2626; background: #fef2f2; border: 1px solid #fecaca; padding: 0.15rem 0.55rem; border-radius: 20px; font-weight: 700; display: inline-flex; align-items: center; gap: 0.25rem;">
+                            <i data-lucide="clock" style="width: 12px; height: 12px; color: #dc2626;"></i>
                             Parado há {{ site.current_stage_age_days }} dias
                         </span>
                         {% endif %}
