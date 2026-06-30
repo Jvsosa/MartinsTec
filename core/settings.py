@@ -19,7 +19,16 @@ if IS_RENDER:
     # URL externa fornecida pelo Render
     ALLOWED_HOSTS = [os.environ.get('RENDER_EXTERNAL_HOSTNAME', '*')]
 else:
-    ALLOWED_HOSTS = ['localhost', '127.0.0.1']
+    # Permite todos os hosts em desenvolvimento local para facilitar acesso pelo celular na mesma rede wifi
+    ALLOWED_HOSTS = ['*']
+
+# Origens confiáveis para verificação de CSRF (obrigatório para HTTPS no Django 4+)
+CSRF_TRUSTED_ORIGINS = [
+    'https://*.onrender.com',
+]
+render_hostname = os.environ.get('RENDER_EXTERNAL_HOSTNAME')
+if render_hostname:
+    CSRF_TRUSTED_ORIGINS.append(f'https://{render_hostname}')
 
 # Configuração do Modelo de Usuário Customizado (RBAC)
 AUTH_USER_MODEL = 'sites.User'
