@@ -1056,6 +1056,14 @@
             .chart-canvas-wrapper {
                 width: 180px !important;
                 height: 180px !important;
+                overflow: hidden !important;
+            }
+
+            /* Força a redução do tamanho do canvas do Chart.js que é definido via inline js style */
+            .chart-canvas-wrapper canvas,
+            .chart-canvas-wrapper-bar canvas {
+                width: 100% !important;
+                height: 100% !important;
             }
 
             .chart-legend-wrapper {
@@ -1066,6 +1074,13 @@
                 justify-content: center !important;
                 gap: 0.75rem !important;
                 font-size: 0.72rem !important;
+            }
+
+            /* Permite que itens da legenda fiquem em linha e embrulhem */
+            .chart-legend-wrapper > div {
+                width: auto !important;
+                justify-content: flex-start !important;
+                gap: 0.35rem !important;
             }
 
             .chart-canvas-wrapper-bar {
