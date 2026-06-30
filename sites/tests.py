@@ -1020,6 +1020,40 @@ class SiteCardMilestonesTests(TestCase):
         site.save()
         self.assertEqual(site.current_stage_name, "Vistoria")
 
+    def test_current_stage_age_days(self):
+        """Test current_stage_age_days logic for first stage and subsequent stages."""
+        from django.utils import timezone
+        import datetime
+        from sites.models import SiteStage
+        
+        today = timezone.localdate()
+        
+        site = Site.objects.create(
+            site_id='SITE_AGE_TEST',
+            name='Site Age Test',
+            scope_type='LAUDOS',
+        )
+        
+        # 1. First stage ('Acionamento Parceiro') is pending. Since it's the first stage, start date is site.created_at.
+        self.assertEqual(site.current_stage_name, "Acionamento Parceiro")
+        self.assertEqual(site.current_stage_age_days, 0)
+        
+        # Mock created_at to 5 days ago
+        Site.objects.filter(pk=site.pk).update(created_at=timezone.now() - datetime.timedelta(days=5))
+        site.refresh_from_db()
+        self.assertEqual(site.current_stage_age_days, 5)
+        
+        # 2. Complete the first stage ('Acionamento Parceiro') with an actual_date 3 days ago.
+        acionamento = SiteStage.objects.get(site=site, stage_name='Acionamento Parceiro')
+        acionamento.status = SiteStage.Status.DONE
+        acionamento.actual_date = today - datetime.timedelta(days=3)
+        acionamento.save()
+        
+        # The next stage is 'Acesso' (PENDING).
+        site.refresh_from_db()
+        self.assertEqual(site.current_stage_name, "Acesso")
+        self.assertEqual(site.current_stage_age_days, 3)
+
     def test_get_card_milestones_laudos(self):
         """Test card milestones and status checks for LAUDOS scope."""
         from django.utils import timezone

@@ -257,6 +257,38 @@ class Site(models.Model):
             return first_pending.stage_name
         return "Finalizado"
 
+    @property
+    def current_stage_age_days(self):
+        from django.utils import timezone
+        stages = list(self.stages.all().order_by('order'))
+        if not stages:
+            return 0
+            
+        active_idx = -1
+        for idx, stage in enumerate(stages):
+            if stage.status == 'PENDING':
+                active_idx = idx
+                break
+                
+        if active_idx == -1:
+            return 0
+            
+        start_date = None
+        if active_idx > 0:
+            prev_stage = stages[active_idx - 1]
+            if prev_stage.actual_date:
+                start_date = prev_stage.actual_date
+            else:
+                start_date = prev_stage.updated_at.date()
+        else:
+            start_date = self.created_at.date()
+            
+        if start_date:
+            today = timezone.localdate()
+            delta = today - start_date
+            return max(0, delta.days)
+        return 0
+
     def get_merged_reschedule_history(self):
         """Retorna o histórico unificado de replanejamentos de todas as etapas."""
         from django.utils import timezone
