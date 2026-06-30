@@ -240,6 +240,81 @@ class SiteGeocodingAndOptionalCoordsTests(TestCase):
         self.assertEqual(btl_stat['avg_report_days'], 4.0)
         self.assertEqual(btl_stat['avg_total_days'], 8.0)
 
+    def test_partner_ranking_bottlenecks(self):
+        """Test that partner ranking statistics include individual stage averages and bottlenecks."""
+        from django.utils import timezone
+        import datetime
+        from unittest.mock import patch
+        
+        self.client.login(username='engineer', password='password123')
+        
+        # Create a site under LAUDOS scope with partner 'RANK_TEST'
+        site = Site.objects.create(
+            site_id='SITE_RANK_TEST',
+            name='Site Rank',
+            scope_type='LAUDOS',
+            partner_company='RANK_TEST',
+        )
+        
+        # We manually update created_at to 15 days ago
+        Site.objects.filter(pk=site.pk).update(created_at=timezone.now() - datetime.timedelta(days=15))
+        
+        # Get stage objects and update their actual_date
+        # Acionamento Parceiro: 10 days ago (transition 1: 5 days)
+        # Acesso: 6 days ago (transition 2: 4 days)
+        # Vistoria: 4 days ago (transition 3: 2 days)
+        # Laudo: 1 day ago (transition 4: 3 days)
+        from sites.models import SiteStage
+        stages = {s.stage_name: s for s in site.stages.all()}
+        
+        acionamento_p = stages.get('Acionamento Parceiro')
+        acionamento_p.actual_date = timezone.localdate() - datetime.timedelta(days=10)
+        acionamento_p.status = 'DONE'
+        acionamento_p.save()
+        
+        acesso = stages.get('Acesso')
+        acesso.actual_date = timezone.localdate() - datetime.timedelta(days=6)
+        acesso.status = 'DONE'
+        acesso.save()
+        
+        survey = stages.get('Vistoria')
+        survey.actual_date = timezone.localdate() - datetime.timedelta(days=4)
+        survey.status = 'DONE'
+        survey.save()
+        
+        laudo = stages.get('Laudo')
+        laudo.actual_date = timezone.localdate() - datetime.timedelta(days=1)
+        laudo.status = 'DONE'
+        laudo.save()
+        
+        url = reverse('site_list')
+        with patch('django.test.client.copy', lambda x: x):
+            response = self.client.get(url)
+            
+        self.assertEqual(response.status_code, 200)
+        scope_partner_rankings = response.context['scope_partner_rankings']
+        self.assertIn('LAUDOS', scope_partner_rankings)
+        
+        rankings = scope_partner_rankings['LAUDOS']
+        rank_item = next((item for item in rankings if item['partner'] == 'RANK_TEST'), None)
+        self.assertIsNotNone(rank_item)
+        self.assertEqual(rank_item['total_sites'], 1)
+        self.assertEqual(rank_item['finished_sites'], 1)
+        
+        # Check transition stage averages:
+        # Acionamento -> Acionamento Parceiro: 5 days
+        # Acionamento Parceiro -> Acesso: 4 days
+        # Acesso -> Vistoria: 2 days
+        # Vistoria -> Laudo: 3 days
+        self.assertEqual(rank_item['stage_averages'].get('Acionamento → Acionamento Parceiro'), 5.0)
+        self.assertEqual(rank_item['stage_averages'].get('Acionamento Parceiro → Acesso'), 4.0)
+        self.assertEqual(rank_item['stage_averages'].get('Acesso → Vistoria'), 2.0)
+        self.assertEqual(rank_item['stage_averages'].get('Vistoria → Laudo'), 3.0)
+        
+        # The bottleneck should be 'Acionamento → Acionamento Parceiro' (5.0 days)
+        self.assertEqual(rank_item['bottleneck_stage'], 'Acionamento → Acionamento Parceiro')
+        self.assertEqual(rank_item['bottleneck_avg'], 5.0)
+
 
 class SiteRolloutWorkflowTests(TestCase):
     def setUp(self):

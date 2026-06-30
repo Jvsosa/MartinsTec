@@ -1273,6 +1273,7 @@
                                         <th style="text-align: center;">Sites Finalizados</th>
                                         <th style="text-align: right;">Tempo de Atendimento</th>
                                         <th style="text-align: center;">Desempenho</th>
+                                        <th style="text-align: center;">Gargalos</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -1305,10 +1306,55 @@
                                             <span style="font-size: 0.65rem; font-weight: 700; padding: 0.25rem 0.6rem; background: #f1f5f9; color: #64748b; border-radius: 30px;">Sem dados</span>
                                             {% endif %}
                                         </td>
+                                        <td style="text-align: center;">
+                                            {% if stat.avg_partner_time %}
+                                            <button class="btn-ent" onclick="togglePartnerDetails('details-{{ scope_key }}-{{ forloop.counter }}', this)" style="background: #f1f5f9; border: 1px solid #e2e8f0; color: var(--ent-primary); padding: 0.35rem 0.7rem; font-size: 0.72rem; font-weight: 700; border-radius: 6px; display: inline-flex; align-items: center; gap: 0.25rem; cursor: pointer; transition: all 0.15s ease;">
+                                                <i data-lucide="chevron-down" style="width: 14px; height: 14px; transition: transform 0.2s;"></i>
+                                                Ver Gargalos
+                                            </button>
+                                            {% else %}
+                                            <span style="font-size: 0.72rem; color: var(--ent-text-muted);">--</span>
+                                            {% endif %}
+                                        </td>
                                     </tr>
+                                    {% if stat.avg_partner_time %}
+                                    <tr id="details-{{ scope_key }}-{{ forloop.counter }}" class="partner-details-row" style="display: none; background-color: #f8fafc;">
+                                        <td colspan="6" style="padding: 1.25rem 1.5rem; border-top: none;">
+                                            <div style="display: flex; flex-direction: column; gap: 1rem;">
+                                                <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.5rem;">
+                                                    <h5 style="margin: 0; font-size: 0.8rem; font-weight: 800; color: var(--ent-primary); text-transform: uppercase; letter-spacing: 0.05em;">
+                                                        Tempo Médio do Parceiro por Transição de Etapa
+                                                    </h5>
+                                                    {% if stat.bottleneck_avg > 0 %}
+                                                    <span style="font-size: 0.72rem; font-weight: 700; color: #b45309; background: #fffbeb; padding: 0.3rem 0.65rem; border-radius: 6px; border: 1px solid #fef3c7; display: inline-flex; align-items: center; gap: 0.25rem;">
+                                                        <i data-lucide="alert-triangle" style="width: 13px; height: 13px; color: #d97706;"></i>
+                                                        Maior Gargalo: <strong>{{ stat.bottleneck_stage }}</strong> (Média {{ stat.bottleneck_avg }}d)
+                                                    </span>
+                                                    {% endif %}
+                                                </div>
+                                                
+                                                <!-- Grid de Transições do Parceiro -->
+                                                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 0.85rem;">
+                                                    {% for transition, avg_days in stat.stage_averages.items %}
+                                                    <div style="background: white; border: 1px solid var(--ent-border); border-radius: 8px; padding: 0.65rem 0.85rem; display: flex; flex-direction: column; gap: 0.25rem; box-shadow: 0 1px 2px rgba(0,0,0,0.02);">
+                                                        <span style="font-size: 0.7rem; font-weight: 700; color: var(--ent-text-muted); text-overflow: ellipsis; overflow: hidden; white-space: nowrap;" title="{{ transition }}">
+                                                            {{ transition }}
+                                                        </span>
+                                                        <span style="font-size: 1.05rem; font-weight: 800; color: {% if avg_days >= stat.bottleneck_avg and stat.bottleneck_avg > 0 %}#dc2626{% elif avg_days > 15 %}#d97706{% else %}#059669{% endif %};">
+                                                            {{ avg_days }} dias
+                                                        </span>
+                                                    </div>
+                                                    {% empty %}
+                                                    <span style="font-size: 0.75rem; color: var(--ent-text-muted);">Sem registros de transições completadas por este parceiro.</span>
+                                                    {% endfor %}
+                                                </div>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    {% endif %}
                                     {% empty %}
                                     <tr>
-                                        <td colspan="5" style="text-align: center; padding: 3rem 2rem; color: var(--ent-text-muted);">Sem parceiros registrados para este escopo.</td>
+                                        <td colspan="6" style="text-align: center; padding: 3rem 2rem; color: var(--ent-text-muted);">Sem parceiros registrados para este escopo.</td>
                                     </tr>
                                     {% endfor %}
                                 </tbody>
@@ -2446,6 +2492,22 @@
                     }
                 }
             });
+        function togglePartnerDetails(rowId, btnElement) {
+            const row = document.getElementById(rowId);
+            const icon = btnElement.querySelector('svg');
+            if (row.style.display === 'none') {
+                row.style.display = 'table-row';
+                icon.style.transform = 'rotate(180deg)';
+                btnElement.style.background = 'var(--brand-primary)';
+                btnElement.style.color = '#ffffff';
+                btnElement.style.borderColor = 'var(--brand-primary)';
+            } else {
+                row.style.display = 'none';
+                icon.style.transform = 'rotate(0deg)';
+                btnElement.style.background = '#f1f5f9';
+                btnElement.style.color = 'var(--ent-primary)';
+                btnElement.style.borderColor = '#e2e8f0';
+            }
         }
     });
 </script>

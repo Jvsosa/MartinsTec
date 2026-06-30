@@ -523,12 +523,26 @@ def site_list(request):
             else:
                 perf_badge = 'none'
 
+            stage_averages = {}
+            bottleneck_stage = None
+            bottleneck_avg = 0
+            
+            for transition, times in scope_info.get('transitions', {}).items():
+                avg = round(sum(times) / len(times), 1) if times else 0
+                stage_averages[transition] = avg
+                if avg > bottleneck_avg:
+                    bottleneck_avg = avg
+                    bottleneck_stage = transition
+
             scope_partner_rankings[scope_key].append({
                 'partner': partner,
                 'total_sites': scope_info['total_sites'],
                 'finished_sites': scope_info['finished_sites'],
                 'avg_partner_time': avg_partner_time,
                 'perf_badge': perf_badge,
+                'stage_averages': stage_averages,
+                'bottleneck_stage': bottleneck_stage,
+                'bottleneck_avg': bottleneck_avg,
             })
 
     # Ordenar cada ranking por escopo
