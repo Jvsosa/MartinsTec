@@ -302,16 +302,16 @@ class SiteGeocodingAndOptionalCoordsTests(TestCase):
         self.assertEqual(rank_item['finished_sites'], 1)
         
         # Check transition stage averages:
-        # Acionamento -> Acionamento Parceiro: (Excluded)
-        # Acionamento Parceiro -> Acesso: (Excluded)
+        # Acionamento -> Acionamento Parceiro: 5 days (but excluded from bottleneck)
+        # Acionamento Parceiro -> Acesso: 4 days (but excluded from bottleneck)
         # Acesso -> Vistoria: 2 days
         # Vistoria -> Laudo: 3 days
-        self.assertNotIn('Acionamento → Acionamento Parceiro', rank_item['stage_averages'])
-        self.assertNotIn('Acionamento Parceiro → Acesso', rank_item['stage_averages'])
+        self.assertEqual(rank_item['stage_averages'].get('Acionamento → Acionamento Parceiro'), 5.0)
+        self.assertEqual(rank_item['stage_averages'].get('Acionamento Parceiro → Acesso'), 4.0)
         self.assertEqual(rank_item['stage_averages'].get('Acesso → Vistoria'), 2.0)
         self.assertEqual(rank_item['stage_averages'].get('Vistoria → Laudo'), 3.0)
         
-        # The bottleneck should be 'Vistoria → Laudo' (3.0 days)
+        # The bottleneck should be 'Vistoria → Laudo' (3.0 days) because access stages are excluded
         self.assertEqual(rank_item['bottleneck_stage'], 'Vistoria → Laudo')
         self.assertEqual(rank_item['bottleneck_avg'], 3.0)
 

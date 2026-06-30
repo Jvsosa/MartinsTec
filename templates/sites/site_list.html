@@ -1355,21 +1355,67 @@
                                         {% endif %}
                                     </div>
 
-                                    <!-- Grid de Etapas -->
-                                    <div style="display: flex; flex-direction: column; gap: 0.35rem;">
-                                        <span style="font-size: 0.72rem; font-weight: 700; color: var(--ent-primary); text-transform: uppercase; letter-spacing: 0.03em;">Média de Dias por Transição:</span>
-                                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 0.65rem;">
-                                            {% for transition, avg_days in stat.stage_averages.items %}
-                                            <div style="background: #f8fafc; border: 1px solid var(--ent-border); border-radius: 8px; padding: 0.6rem 0.8rem; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 1px 2px rgba(0,0,0,0.01);">
-                                                <span style="font-size: 0.7rem; font-weight: 700; color: var(--ent-text-muted); text-overflow: ellipsis; overflow: hidden; white-space: nowrap;" title="{{ transition }}">{{ transition }}</span>
-                                                <span style="font-size: 0.82rem; font-weight: 800; color: {% if avg_days >= stat.bottleneck_avg and stat.bottleneck_avg > 0 %}#dc2626{% elif avg_days > 15 %}#d97706{% else %}#059669{% endif %}; background: {% if avg_days >= stat.bottleneck_avg and stat.bottleneck_avg > 0 %}#fef2f2{% elif avg_days > 15 %}#fffbeb{% else %}#ecfdf5{% endif %}; padding: 0.15rem 0.45rem; border-radius: 6px;">
-                                                    {{ avg_days }}d
-                                                </span>
+                                    <!-- Duas Colunas Verticais no estilo Divisão de Responsabilidade -->
+                                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
+                                        
+                                        <!-- Coluna MartinsTec (Gestão de Acesso) -->
+                                        <div style="background: #f8fafc; border-radius: 12px; padding: 1.25rem; border: 1px solid var(--ent-border); border-top: 4px solid #2563eb;">
+                                            <h4 style="font-family: var(--font-heading); font-size: 0.95rem; font-weight: 700; color: #1e3a8a; margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem;">
+                                                <i data-lucide="building-2" style="width: 16px; height: 16px; color: #2563eb;"></i> Etapas sob Gestão MartinsTec (Acesso)
+                                            </h4>
+                                            <div style="display: flex; flex-direction: column; gap: 0.75rem;">
+                                                {% for transition, avg_days in stat.stage_averages.items %}
+                                                    {% if '→ Acionamento Parceiro' in transition or '→ Acesso' in transition %}
+                                                    <div style="background: white; border: 1px solid var(--ent-border); border-radius: 8px; padding: 0.85rem; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 1px 3px rgba(0,0,0,0.02);">
+                                                        <div>
+                                                            <div style="font-weight: 700; color: var(--ent-primary); font-size: 0.82rem;">{{ transition }}</div>
+                                                            <span style="font-size: 0.7rem; color: var(--ent-text-muted);">
+                                                                {% if '→ Acesso' in transition %}
+                                                                    Trâmites para liberação física do site
+                                                                {% else %}
+                                                                    Acionamento e direcionamento interno
+                                                                {% endif %}
+                                                            </span>
+                                                        </div>
+                                                        <span style="font-family: var(--font-heading); font-size: 1.05rem; font-weight: 800; color: #2563eb; background: #eff6ff; padding: 0.25rem 0.5rem; border-radius: 6px; white-space: nowrap;">
+                                                            +{{ avg_days }} dias
+                                                        </span>
+                                                    </div>
+                                                    {% endif %}
+                                                {% endfor %}
                                             </div>
-                                            {% empty %}
-                                            <span style="font-size: 0.75rem; color: var(--ent-text-muted); grid-column: 1/-1;">Sem registros de transições concluídas de responsabilidade do parceiro.</span>
-                                            {% endfor %}
                                         </div>
+
+                                        <!-- Coluna Fornecedor (Execução) -->
+                                        <div style="background: #f8fafc; border-radius: 12px; padding: 1.25rem; border: 1px solid var(--ent-border); border-top: 4px solid #059669;">
+                                            <h4 style="font-family: var(--font-heading); font-size: 0.95rem; font-weight: 700; color: #065f46; margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem;">
+                                                <i data-lucide="users" style="width: 16px; height: 16px; color: #059669;"></i> Etapas sob Execução do Fornecedor
+                                            </h4>
+                                            <div style="display: flex; flex-direction: column; gap: 0.75rem;">
+                                                {% for transition, avg_days in stat.stage_averages.items %}
+                                                    {% if not '→ Acionamento Parceiro' in transition and not '→ Acesso' in transition %}
+                                                    <div style="background: white; border: 1px solid var(--ent-border); border-radius: 8px; padding: 0.85rem; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 1px 3px rgba(0,0,0,0.02);">
+                                                        <div>
+                                                            <div style="font-weight: 700; color: var(--ent-primary); font-size: 0.82rem;">{{ transition }}</div>
+                                                            <span style="font-size: 0.7rem; color: var(--ent-text-muted);">
+                                                                {% if '→ Vistoria' in transition %}
+                                                                    Deslocamento e vistoria técnica em campo
+                                                                {% elif '→ Laudo' in transition or '→ Projeto' in transition %}
+                                                                    Elaboração e entrega do laudo técnico
+                                                                {% else %}
+                                                                    Trabalho e execução técnica da etapa
+                                                                {% endif %}
+                                                            </span>
+                                                        </div>
+                                                        <span style="font-family: var(--font-heading); font-size: 1.05rem; font-weight: 800; color: {% if avg_days >= stat.bottleneck_avg and stat.bottleneck_avg > 0 %}#dc2626{% elif avg_days > 15 %}#d97706{% else %}#059669{% endif %}; background: {% if avg_days >= stat.bottleneck_avg and stat.bottleneck_avg > 0 %}#fef2f2{% elif avg_days > 15 %}#fffbeb{% else %}#ecfdf5{% endif %}; padding: 0.25rem 0.5rem; border-radius: 6px; white-space: nowrap;">
+                                                            +{{ avg_days }} dias
+                                                        </span>
+                                                    </div>
+                                                    {% endif %}
+                                                {% endfor %}
+                                            </div>
+                                        </div>
+
                                     </div>
                                 </div>
                             </div>

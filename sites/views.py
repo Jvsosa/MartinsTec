@@ -528,14 +528,15 @@ def site_list(request):
             bottleneck_avg = 0
             
             for transition, times in scope_info.get('transitions', {}).items():
-                # Etapa de acesso e acionamento interno não são de responsabilidade do parceiro
+                avg = round(sum(times) / len(times), 1) if times else 0
+                stage_averages[transition] = avg
+                
+                # Etapa de acesso e acionamento interno não são de responsabilidade do parceiro para cálculo do gargalo
                 parts = transition.split(" → ")
                 target_stage = parts[1] if len(parts) > 1 else ""
                 if target_stage in ['Acionamento Parceiro', 'Acesso']:
                     continue
 
-                avg = round(sum(times) / len(times), 1) if times else 0
-                stage_averages[transition] = avg
                 if avg > bottleneck_avg:
                     bottleneck_avg = avg
                     bottleneck_stage = transition
