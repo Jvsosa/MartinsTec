@@ -793,6 +793,83 @@
     html[data-theme="dark"] [style*="color:#0f172a"] {
         color: var(--ent-text-main) !important;
     }
+
+    /* Ajustes para badges de status (canto superior direito e etapa atual) no modo escuro */
+    html[data-theme="dark"] .badge-active {
+        background-color: rgba(16, 185, 129, 0.15) !important;
+        background: rgba(16, 185, 129, 0.15) !important;
+        color: #34D399 !important;
+        border: 1px solid rgba(16, 185, 129, 0.25) !important;
+    }
+    html[data-theme="dark"] .badge-active .status-dot {
+        background-color: #34D399 !important;
+    }
+
+    html[data-theme="dark"] .badge-planned {
+        background-color: rgba(59, 130, 246, 0.15) !important;
+        background: rgba(59, 130, 246, 0.15) !important;
+        color: #60A5FA !important;
+        border: 1px solid rgba(59, 130, 246, 0.25) !important;
+    }
+    html[data-theme="dark"] .badge-planned .status-dot {
+        background-color: #60A5FA !important;
+    }
+
+    html[data-theme="dark"] .badge-maintenance {
+        background-color: rgba(245, 158, 11, 0.15) !important;
+        background: rgba(245, 158, 11, 0.15) !important;
+        color: #FBBF24 !important;
+        border: 1px solid rgba(245, 158, 11, 0.25) !important;
+    }
+    html[data-theme="dark"] .badge-maintenance .status-dot {
+        background-color: #FBBF24 !important;
+    }
+
+    html[data-theme="dark"] .badge-inactive {
+        background-color: rgba(239, 68, 68, 0.15) !important;
+        background: rgba(239, 68, 68, 0.15) !important;
+        color: #F87171 !important;
+        border: 1px solid rgba(239, 68, 68, 0.25) !important;
+    }
+    html[data-theme="dark"] .badge-inactive .status-dot {
+        background-color: #F87171 !important;
+    }
+
+    /* Etapa atual (canto superior esquerdo) */
+    html[data-theme="dark"] .site-stage-badge.status-inactive {
+        background-color: rgba(239, 68, 68, 0.15) !important;
+        background: rgba(239, 68, 68, 0.15) !important;
+        color: #F87171 !important;
+    }
+    html[data-theme="dark"] .site-stage-badge.status-maintenance {
+        background-color: rgba(245, 158, 11, 0.15) !important;
+        background: rgba(245, 158, 11, 0.15) !important;
+        color: #FBBF24 !important;
+    }
+    html[data-theme="dark"] .site-stage-badge.status-active {
+        background-color: rgba(16, 185, 129, 0.15) !important;
+        background: rgba(16, 185, 129, 0.15) !important;
+        color: #34D399 !important;
+    }
+    html[data-theme="dark"] .site-stage-badge.status-planned {
+        background-color: rgba(124, 58, 237, 0.15) !important;
+        background: rgba(124, 58, 237, 0.15) !important;
+        color: #A78BFA !important;
+    }
+
+    /* Alertas Compactos de Atraso e Falta de Planejamento */
+    html[data-theme="dark"] .compact-alert.alert-danger {
+        background-color: rgba(239, 68, 68, 0.12) !important;
+        background: rgba(239, 68, 68, 0.12) !important;
+        border: 1px solid rgba(239, 68, 68, 0.25) !important;
+        color: #F87171 !important;
+    }
+    html[data-theme="dark"] .compact-alert.alert-warning {
+        background-color: rgba(245, 158, 11, 0.12) !important;
+        background: rgba(245, 158, 11, 0.12) !important;
+        border: 1px solid rgba(245, 158, 11, 0.25) !important;
+        color: #FBBF24 !important;
+    }
 </style>
 {% endblock %}
 
