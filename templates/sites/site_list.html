@@ -889,6 +889,65 @@
         background: var(--ent-bg-card) !important;
         border: 1px solid var(--ent-border) !important;
     }
+
+    /* CSS puro para o botão Gerenciar do NOC (evita travar animação com JavaScript inline) */
+    .noc-manage-btn {
+        background: #f1f5f9;
+        color: #334155;
+        border: 1px solid #e2e8f0;
+        padding: 0.45rem 0.9rem;
+        font-size: 0.75rem;
+        font-weight: 700;
+        border-radius: 8px;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.35rem;
+        text-decoration: none;
+        transition: all 0.2s ease-in-out;
+    }
+    
+    .noc-manage-btn:hover {
+        background: #e2e8f0;
+        color: #0f172a;
+        border-color: #cbd5e1;
+        transform: translateY(-1px);
+    }
+
+    html[data-theme="dark"] .noc-manage-btn {
+        background-color: var(--ent-bg-main) !important;
+        background: var(--ent-bg-main) !important;
+        color: var(--ent-text-main) !important;
+        border-color: var(--ent-border) !important;
+    }
+    
+    html[data-theme="dark"] .noc-manage-btn:hover {
+        background-color: #34343A !important;
+        background: #34343A !important;
+        border-color: var(--ent-accent) !important;
+        color: var(--ent-accent) !important;
+    }
+
+    /* Scrollbar personalizada para a lista de alertas do NOC */
+    .noc-alerts-list::-webkit-scrollbar {
+        width: 6px;
+    }
+    .noc-alerts-list::-webkit-scrollbar-track {
+        background: transparent;
+    }
+    .noc-alerts-list::-webkit-scrollbar-thumb {
+        background: #cbd5e1;
+        border-radius: 10px;
+    }
+    .noc-alerts-list::-webkit-scrollbar-thumb:hover {
+        background: #94a3b8;
+    }
+
+    html[data-theme="dark"] .noc-alerts-list::-webkit-scrollbar-thumb {
+        background: #4A4A50;
+    }
+    html[data-theme="dark"] .noc-alerts-list::-webkit-scrollbar-thumb:hover {
+        background: var(--ent-accent);
+    }
 </style>
 {% endblock %}
 
@@ -1036,7 +1095,7 @@
                     <span style="font-size: 0.72rem; font-weight: 700; color: var(--ent-danger); background: #fdeceb; padding: 0.4rem 0.8rem; border-radius: 20px; text-transform: uppercase;">Monitor NOC</span>
                 </div>
                 
-                <div style="flex: 1; max-height: 250px; overflow-y: auto; padding-right: 0.5rem; display: flex; flex-direction: column; gap: 0.75rem;">
+                <div class="noc-alerts-list" style="flex: 1; max-height: 250px; overflow-y: auto; padding-right: 0.5rem; display: flex; flex-direction: column; gap: 0.75rem;">
                     {% if maintenance_sites > 0 or inactive_sites > 0 %}
                         {% for site in sites_map %}
                         {% if site.status == 'MAINTENANCE' or site.status == 'INACTIVE' %}
@@ -1054,7 +1113,7 @@
                                 <span style="font-size: 0.68rem; font-weight: 700; padding: 0.25rem 0.6rem; border-radius: 6px; background-color: {% if site.status == 'MAINTENANCE' %}#fffbeb{% else %}#fdeceb{% endif %}; color: {% if site.status == 'MAINTENANCE' %}#d97706{% else %}#dc2626{% endif %};">
                                     {% if site.status == 'MAINTENANCE' %}Em Alerta{% else %}Atrasado{% endif %}
                                 </span>
-                                <a href="{% url 'site_detail' pk=site.pk %}" class="btn-ent" style="background: #f1f5f9; color: #334155; border: 1px solid #e2e8f0; padding: 0.45rem 0.9rem; font-size: 0.75rem; font-weight: 700; border-radius: 8px; display: inline-flex; align-items: center; gap: 0.35rem; text-decoration: none; transition: all 0.2s;" onmouseover="this.style.background='#e2e8f0'; this.style.color='#0f172a'; this.style.borderColor='#cbd5e1';" onmouseout="this.style.background='#f1f5f9'; this.style.color='#334155'; this.style.borderColor='#e2e8f0';">
+                                <a href="{% url 'site_detail' pk=site.pk %}" class="btn-ent noc-manage-btn">
                                     Gerenciar <i data-lucide="arrow-right" style="width: 12px; height: 12px;"></i>
                                 </a>
                             </div>
