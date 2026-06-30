@@ -948,6 +948,55 @@
     html[data-theme="dark"] .noc-alerts-list::-webkit-scrollbar-thumb:hover {
         background: var(--ent-accent);
     }
+
+    /* ======================================================== */
+    /* RESPONSIVIDADE E ADAPTAÇÃO PARA CELULARES E TABLETS      */
+    /* ======================================================== */
+    @media (max-width: 992px) {
+        .sites-layout-master {
+            grid-template-columns: 1fr !important;
+            gap: 1.5rem !important;
+        }
+        .sites-layout-master > div:first-child {
+            position: static !important; /* Remove sticky dos filtros no mobile */
+        }
+        .dashboard-main-grid {
+            grid-template-columns: 1fr !important;
+            gap: 1.5rem !important;
+        }
+        .charts-row {
+            grid-template-columns: 1fr !important;
+            gap: 1.5rem !important;
+        }
+    }
+
+    @media (max-width: 768px) {
+        .page-header {
+            flex-direction: column !important;
+            align-items: flex-start !important;
+            gap: 1rem !important;
+        }
+        .page-header > div {
+            width: 100% !important;
+        }
+        .page-header button, 
+        .page-header a {
+            width: 100% !important;
+            justify-content: center !important;
+        }
+        .dashboard-charts-grid {
+            grid-template-columns: 1fr !important;
+            gap: 2rem !important;
+        }
+        
+        /* Evita tabelas estourando a tela horizontalmente no mobile */
+        .ent-table-wrapper, 
+        .table-responsive {
+            width: 100% !important;
+            overflow-x: auto !important;
+            -webkit-overflow-scrolling: touch !important;
+        }
+    }
 </style>
 {% endblock %}
 
@@ -1050,7 +1099,7 @@
         </div>
 
         <!-- Seção Principal: Visão Geral da Rede e Alertas do NOC (2 colunas) -->
-        <div style="display: grid; grid-template-columns: 1.8fr 1.2fr; gap: 1.5rem; margin-bottom: 2rem;">
+        <div class="dashboard-main-grid" style="display: grid; grid-template-columns: 1.8fr 1.2fr; gap: 1.5rem; margin-bottom: 2rem;">
             
             <!-- Visão Geral da Rede (left) -->
             <div class="ent-card" style="padding: 2rem; border: none; display: flex; flex-direction: column; background: white; border-radius: 12px; box-shadow: var(--ent-shadow-sm);">
@@ -1061,7 +1110,7 @@
                     </div>
                 </div>
 
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; align-items: center; flex: 1;">
+                <div class="dashboard-charts-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; align-items: center; flex: 1;">
                     <!-- Gráfico 1: Rosca (Operadoras) -->
                     <div style="display: flex; flex-direction: column; align-items: center; width: 100%;">
                         <h4 style="font-size: 0.8rem; font-weight: 700; color: var(--ent-secondary); margin-bottom: 1rem; text-transform: uppercase; letter-spacing: 0.05em;">Distribuição por Operadora</h4>
