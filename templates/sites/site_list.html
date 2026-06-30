@@ -1087,101 +1087,209 @@
                         <div style="width: 44px; height: 44px; border-radius: 10px; background: #fffbeb; color: var(--ent-warning); display: flex; align-items: center; justify-content: center;">
                             <i data-lucide="gauge" style="width: 20px; height: 20px;"></i>
                         </div>
-                    </div>
-                </div>
-
-                <!-- Diagrama de Fluxo Visual de Leadtime Redesenhado -->
+                          <!-- Diagrama de Fluxo Visual de Leadtime Redesenhado -->
                 <div class="ent-card" style="padding: 2rem; margin-bottom: 2rem; border: none; box-shadow: var(--ent-shadow-sm); background: white;">
-                    <h3 style="font-family: var(--font-heading); font-size: 1.15rem; font-weight: 700; color: var(--ent-primary); margin-bottom: 1.5rem; display: flex; align-items: center; gap: 0.5rem;">
-                        <i data-lucide="split" style="color: var(--ent-accent);"></i> Divisão de Responsabilidade e Tempos Médios
-                    </h3>
-
-                    <!-- Barra de Proporção Visual -->
-                    <div style="margin-bottom: 2rem; background: #f8fafc; padding: 1.25rem; border-radius: 12px; border: 1px solid var(--ent-border);">
-                        <div style="display: flex; justify-content: space-between; font-size: 0.85rem; font-weight: 700; color: var(--ent-primary); margin-bottom: 0.75rem;">
-                            <span>Proporção do Ciclo de Atendimento</span>
-                            <span style="color: var(--ent-accent);">Prazo Médio Geral: {{ scope_info.avg_total|default:"--" }} dias</span>
-                        </div>
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 0.5rem; border-bottom: 1px solid var(--ent-border); padding-bottom: 0.75rem;">
+                        <h3 style="font-family: var(--font-heading); font-size: 1.15rem; font-weight: 700; color: var(--ent-primary); margin: 0; display: flex; align-items: center; gap: 0.5rem;">
+                            <i data-lucide="split" style="color: var(--ent-accent);"></i> Divisão de Responsabilidade e Tempos Médios
+                        </h3>
                         
-                        <div style="display: flex; height: 16px; border-radius: 8px; overflow: hidden; background: #e2e8f0; margin-bottom: 0.5rem;">
-                            <div style="width: {{ scope_info.pct_martinstec }}%; background: #2563eb; transition: width 0.5s;" title="MartinsTec: {{ scope_info.avg_martinstec }}d"></div>
-                            <div style="width: {{ scope_info.pct_partner }}%; background: #059669; transition: width 0.5s;" title="Fornecedor: {{ scope_info.avg_partner }}d"></div>
-                        </div>
-
-                        <div style="display: flex; justify-content: space-between; font-size: 0.75rem; font-weight: 600;">
-                            <span style="display: flex; align-items: center; gap: 0.35rem; color: #2563eb;">
-                                <i data-lucide="building-2" style="width: 14px; height: 14px; color: #2563eb;"></i>
-                                MartinsTec (Acesso): {{ scope_info.avg_martinstec }} dias ({{ scope_info.pct_martinstec }}%)
-                            </span>
-                            <span style="display: flex; align-items: center; gap: 0.35rem; color: #059669;">
-                                <i data-lucide="users" style="width: 14px; height: 14px; color: #059669;"></i>
-                                Fornecedor (Execução): {{ scope_info.avg_partner }} dias ({{ scope_info.pct_partner }}%)
-                            </span>
+                        <!-- Seletor de Parceiro (Abas) -->
+                        <div style="display: flex; gap: 0.35rem; background: #f1f5f9; padding: 0.25rem; border-radius: 8px;">
+                            <button class="filter-pill active" id="btn-resp-partner-{{ scope_key }}-geral" onclick="switchResponsibilityPartner('{{ scope_key }}', 'geral')" style="border-radius: 6px; border: none; font-size: 0.78rem; padding: 0.35rem 0.85rem; font-weight: 700; cursor: pointer; transition: all 0.15s ease;">
+                                Geral
+                            </button>
+                            {% for p_stat in scope_info.partners %}
+                            <button class="filter-pill" id="btn-resp-partner-{{ scope_key }}-{{ forloop.counter }}" onclick="switchResponsibilityPartner('{{ scope_key }}', '{{ forloop.counter }}')" style="border-radius: 6px; border: none; font-size: 0.78rem; padding: 0.35rem 0.85rem; font-weight: 700; cursor: pointer; transition: all 0.15s ease;">
+                                {{ p_stat.partner }}
+                            </button>
+                            {% endfor %}
                         </div>
                     </div>
 
-                    <!-- Duas Colunas Verticais Claras -->
-                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
-                        
-                        <!-- Coluna MartinsTec -->
-                        <div style="background: #f8fafc; border-radius: 12px; padding: 1.25rem; border: 1px solid var(--ent-border); border-top: 4px solid #2563eb;">
-                            <h4 style="font-family: var(--font-heading); font-size: 0.95rem; font-weight: 700; color: #1e3a8a; margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem;">
-                                <i data-lucide="building-2" style="width: 16px; height: 16px; color: #2563eb;"></i> Etapas sob Gestão MartinsTec
-                            </h4>
-                            <div style="display: flex; flex-direction: column; gap: 0.75rem;">
-                                {% for stage in scope_info.stages %}
-                                    {% if scope_key == 'LAUDOS' and stage.stage_name == 'Acionamento Parceiro' or stage.stage_name == 'Acesso' or not scope_key == 'LAUDOS' and stage.stage_name == 'Acesso' %}
-                                    <div style="background: white; border: 1px solid var(--ent-border); border-radius: 8px; padding: 0.85rem; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 1px 3px rgba(0,0,0,0.02);">
-                                        <div>
-                                            <div style="font-weight: 700; color: var(--ent-primary); font-size: 0.82rem;">{{ stage.label }}</div>
-                                            <span style="font-size: 0.7rem; color: var(--ent-text-muted);">
-                                                {% if stage.stage_name == 'Acesso' %}
-                                                    Liberação de chaves e autorizações físicas
-                                                {% else %}
-                                                    Trâmites internos de abertura de ordem
-                                                {% endif %}
-                                            </span>
-                                        </div>
-                                        <span style="font-family: var(--font-heading); font-size: 1.05rem; font-weight: 800; color: #2563eb; background: #eff6ff; padding: 0.25rem 0.5rem; border-radius: 6px; white-space: nowrap;">
-                                            +{{ stage.avg_days }} dias
-                                        </span>
-                                    </div>
-                                    {% endif %}
-                                {% endfor %}
+                    <!-- 1. Bloco de Dados: GERAL -->
+                    <div class="resp-partner-block-{{ scope_key }}" id="resp-partner-block-{{ scope_key }}-geral" style="display: block;">
+                        <!-- Barra de Proporção Visual -->
+                        <div style="margin-bottom: 2rem; background: #f8fafc; padding: 1.25rem; border-radius: 12px; border: 1px solid var(--ent-border);">
+                            <div style="display: flex; justify-content: space-between; font-size: 0.85rem; font-weight: 700; color: var(--ent-primary); margin-bottom: 0.75rem;">
+                                <span>Proporção do Ciclo de Atendimento</span>
+                                <span style="color: var(--ent-accent);">Prazo Médio Geral: {{ scope_info.avg_total|default:"--" }} dias</span>
+                            </div>
+                            
+                            <div style="display: flex; height: 16px; border-radius: 8px; overflow: hidden; background: #e2e8f0; margin-bottom: 0.5rem;">
+                                <div style="width: {{ scope_info.pct_martinstec }}%; background: #2563eb; transition: width 0.5s;" title="MartinsTec: {{ scope_info.avg_martinstec }}d"></div>
+                                <div style="width: {{ scope_info.pct_partner }}%; background: #059669; transition: width 0.5s;" title="Fornecedor: {{ scope_info.avg_partner }}d"></div>
+                            </div>
+
+                            <div style="display: flex; justify-content: space-between; font-size: 0.75rem; font-weight: 600;">
+                                <span style="display: flex; align-items: center; gap: 0.35rem; color: #2563eb;">
+                                    <i data-lucide="building-2" style="width: 14px; height: 14px; color: #2563eb;"></i>
+                                    MartinsTec (Acesso): {{ scope_info.avg_martinstec }} dias ({{ scope_info.pct_martinstec }}%)
+                                </span>
+                                <span style="display: flex; align-items: center; gap: 0.35rem; color: #059669;">
+                                    <i data-lucide="users" style="width: 14px; height: 14px; color: #059669;"></i>
+                                    Fornecedor (Execução): {{ scope_info.avg_partner }} dias ({{ scope_info.pct_partner }}%)
+                                </span>
                             </div>
                         </div>
 
-                        <!-- Coluna Fornecedor -->
-                        <div style="background: #f8fafc; border-radius: 12px; padding: 1.25rem; border: 1px solid var(--ent-border); border-top: 4px solid #059669;">
-                            <h4 style="font-family: var(--font-heading); font-size: 0.95rem; font-weight: 700; color: #065f46; margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem;">
-                                <i data-lucide="users" style="width: 16px; height: 16px; color: #059669;"></i> Etapas sob Execução do Fornecedor
-                            </h4>
-                            <div style="display: flex; flex-direction: column; gap: 0.75rem;">
-                                {% for stage in scope_info.stages %}
-                                    {% if scope_key == 'LAUDOS' and stage.stage_name == 'Vistoria' or stage.stage_name == 'Laudo' or not scope_key == 'LAUDOS' and stage.stage_name != 'Acesso' %}
-                                    <div style="background: white; border: 1px solid var(--ent-border); border-radius: 8px; padding: 0.85rem; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 1px 3px rgba(0,0,0,0.02);">
-                                        <div>
-                                            <div style="font-weight: 700; color: var(--ent-primary); font-size: 0.82rem;">{{ stage.label }}</div>
-                                            <span style="font-size: 0.7rem; color: var(--ent-text-muted);">
-                                                {% if stage.stage_name == 'Vistoria' %}
-                                                    Deslocamento e vistoria em campo
-                                                {% elif stage.stage_name == 'Laudo' or stage.stage_name == 'Projeto' %}
-                                                    Elaboração e entrega técnica final
-                                                {% else %}
-                                                    Trabalho e execução em andamento
-                                                {% endif %}
+                        <!-- Duas Colunas Verticais Claras -->
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
+                            
+                            <!-- Coluna MartinsTec -->
+                            <div style="background: #f8fafc; border-radius: 12px; padding: 1.25rem; border: 1px solid var(--ent-border); border-top: 4px solid #2563eb;">
+                                <h4 style="font-family: var(--font-heading); font-size: 0.95rem; font-weight: 700; color: #1e3a8a; margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem;">
+                                    <i data-lucide="building-2" style="width: 16px; height: 16px; color: #2563eb;"></i> Etapas sob Gestão MartinsTec
+                                </h4>
+                                <div style="display: flex; flex-direction: column; gap: 0.75rem;">
+                                    {% for stage in scope_info.stages %}
+                                        {% if scope_key == 'LAUDOS' and stage.stage_name == 'Acionamento Parceiro' or stage.stage_name == 'Acesso' or not scope_key == 'LAUDOS' and stage.stage_name == 'Acesso' %}
+                                        <div style="background: white; border: 1px solid var(--ent-border); border-radius: 8px; padding: 0.85rem; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 1px 3px rgba(0,0,0,0.02);">
+                                            <div>
+                                                <div style="font-weight: 700; color: var(--ent-primary); font-size: 0.82rem;">{{ stage.label }}</div>
+                                                <span style="font-size: 0.7rem; color: var(--ent-text-muted);">
+                                                    {% if stage.stage_name == 'Acesso' %}
+                                                        Liberação de chaves e autorizações físicas
+                                                    {% else %}
+                                                        Trâmites internos de abertura de ordem
+                                                    {% endif %}
+                                                </span>
+                                            </div>
+                                            <span style="font-family: var(--font-heading); font-size: 1.05rem; font-weight: 800; color: #2563eb; background: #eff6ff; padding: 0.25rem 0.5rem; border-radius: 6px; white-space: nowrap;">
+                                                +{{ stage.avg_days }} dias
                                             </span>
                                         </div>
-                                        <span style="font-family: var(--font-heading); font-size: 1.05rem; font-weight: 800; color: #059669; background: #ecfdf5; padding: 0.25rem 0.5rem; border-radius: 6px; white-space: nowrap;">
-                                            +{{ stage.avg_days }} dias
-                                        </span>
-                                    </div>
-                                    {% endif %}
-                                {% endfor %}
+                                        {% endif %}
+                                    {% endfor %}
+                                </div>
                             </div>
-                        </div>
 
+                            <!-- Coluna Fornecedor -->
+                            <div style="background: #f8fafc; border-radius: 12px; padding: 1.25rem; border: 1px solid var(--ent-border); border-top: 4px solid #059669;">
+                                <h4 style="font-family: var(--font-heading); font-size: 0.95rem; font-weight: 700; color: #065f46; margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem;">
+                                    <i data-lucide="users" style="width: 16px; height: 16px; color: #059669;"></i> Etapas sob Execução do Fornecedor
+                                </h4>
+                                <div style="display: flex; flex-direction: column; gap: 0.75rem;">
+                                    {% for stage in scope_info.stages %}
+                                        {% if scope_key == 'LAUDOS' and stage.stage_name == 'Vistoria' or stage.stage_name == 'Laudo' or not scope_key == 'LAUDOS' and stage.stage_name != 'Acesso' %}
+                                        <div style="background: white; border: 1px solid var(--ent-border); border-radius: 8px; padding: 0.85rem; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 1px 3px rgba(0,0,0,0.02);">
+                                            <div>
+                                                <div style="font-weight: 700; color: var(--ent-primary); font-size: 0.82rem;">{{ stage.label }}</div>
+                                                <span style="font-size: 0.7rem; color: var(--ent-text-muted);">
+                                                    {% if stage.stage_name == 'Vistoria' %}
+                                                        Deslocamento e vistoria em campo
+                                                    {% elif stage.stage_name == 'Laudo' or stage.stage_name == 'Projeto' %}
+                                                        Elaboração e entrega técnica final
+                                                    {% else %}
+                                                        Trabalho e execução em andamento
+                                                    {% endif %}
+                                                </span>
+                                            </div>
+                                            <span style="font-family: var(--font-heading); font-size: 1.05rem; font-weight: 800; color: #059669; background: #ecfdf5; padding: 0.25rem 0.5rem; border-radius: 6px; white-space: nowrap;">
+                                                +{{ stage.avg_days }} dias
+                                            </span>
+                                        </div>
+                                        {% endif %}
+                                    {% endfor %}
+                                </div>
+                            </div>
+
+                        </div>
                     </div>
+
+                    <!-- 2. Blocos de Dados: POR PARCEIRO -->
+                    {% for p_stat in scope_info.partners %}
+                    <div class="resp-partner-block-{{ scope_key }}" id="resp-partner-block-{{ scope_key }}-{{ forloop.counter }}" style="display: none;">
+                        <!-- Barra de Proporção Visual -->
+                        <div style="margin-bottom: 2rem; background: #f8fafc; padding: 1.25rem; border-radius: 12px; border: 1px solid var(--ent-border);">
+                            <div style="display: flex; justify-content: space-between; font-size: 0.85rem; font-weight: 700; color: var(--ent-primary); margin-bottom: 0.75rem;">
+                                <span>Proporção do Ciclo de Atendimento ({{ p_stat.partner }})</span>
+                                <span style="color: var(--ent-accent);">
+                                    Tempo Ativo (Sem Acesso): {% if p_stat.avg_partner_time %}{{ p_stat.avg_partner_time }} dias{% else %}--{% endif %}
+                                </span>
+                            </div>
+                            
+                            <div style="display: flex; height: 16px; border-radius: 8px; overflow: hidden; background: #e2e8f0; margin-bottom: 0.5rem;">
+                                <div style="width: {{ p_stat.pct_martinstec }}%; background: #2563eb; transition: width 0.5s;" title="MartinsTec: {{ p_stat.avg_martinstec }}d"></div>
+                                <div style="width: {{ p_stat.pct_partner }}%; background: #059669; transition: width 0.5s;" title="Fornecedor: {{ p_stat.avg_partner }}d"></div>
+                            </div>
+
+                            <div style="display: flex; justify-content: space-between; font-size: 0.75rem; font-weight: 600;">
+                                <span style="display: flex; align-items: center; gap: 0.35rem; color: #2563eb;">
+                                    <i data-lucide="building-2" style="width: 14px; height: 14px; color: #2563eb;"></i>
+                                    MartinsTec (Acesso): {{ p_stat.avg_martinstec }} dias ({{ p_stat.pct_martinstec }}%)
+                                </span>
+                                <span style="display: flex; align-items: center; gap: 0.35rem; color: #059669;">
+                                    <i data-lucide="users" style="width: 14px; height: 14px; color: #059669;"></i>
+                                    Fornecedor (Execução): {{ p_stat.avg_partner }} dias ({{ p_stat.pct_partner }}%)
+                                </span>
+                            </div>
+                        </div>
+
+                        <!-- Duas Colunas Verticais Claras -->
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
+                            
+                            <!-- Coluna MartinsTec (Gestão de Acesso) -->
+                            <div style="background: #f8fafc; border-radius: 12px; padding: 1.25rem; border: 1px solid var(--ent-border); border-top: 4px solid #2563eb;">
+                                <h4 style="font-family: var(--font-heading); font-size: 0.95rem; font-weight: 700; color: #1e3a8a; margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem;">
+                                    <i data-lucide="building-2" style="width: 16px; height: 16px; color: #2563eb;"></i> Etapas sob Gestão MartinsTec (Acesso)
+                                </h4>
+                                <div style="display: flex; flex-direction: column; gap: 0.75rem;">
+                                    {% for transition, avg_days in p_stat.stage_averages.items %}
+                                        {% if '→ Acionamento Parceiro' in transition or '→ Acesso' in transition %}
+                                        <div style="background: white; border: 1px solid var(--ent-border); border-radius: 8px; padding: 0.85rem; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 1px 3px rgba(0,0,0,0.02);">
+                                            <div>
+                                                <div style="font-weight: 700; color: var(--ent-primary); font-size: 0.82rem;">{{ transition }}</div>
+                                                <span style="font-size: 0.7rem; color: var(--ent-text-muted);">
+                                                    {% if '→ Acesso' in transition %}
+                                                        Trâmites para liberação física do site
+                                                    {% else %}
+                                                        Acionamento e direcionamento interno
+                                                    {% endif %}
+                                                </span>
+                                            </div>
+                                            <span style="font-family: var(--font-heading); font-size: 1.05rem; font-weight: 800; color: #2563eb; background: #eff6ff; padding: 0.25rem 0.5rem; border-radius: 6px; white-space: nowrap;">
+                                                +{{ avg_days }} dias
+                                            </span>
+                                        </div>
+                                        {% endif %}
+                                    {% endfor %}
+                                </div>
+                            </div>
+
+                            <!-- Coluna Fornecedor (Execução) -->
+                            <div style="background: #f8fafc; border-radius: 12px; padding: 1.25rem; border: 1px solid var(--ent-border); border-top: 4px solid #059669;">
+                                <h4 style="font-family: var(--font-heading); font-size: 0.95rem; font-weight: 700; color: #065f46; margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem;">
+                                    <i data-lucide="users" style="width: 16px; height: 16px; color: #059669;"></i> Etapas sob Execução do Fornecedor
+                                </h4>
+                                <div style="display: flex; flex-direction: column; gap: 0.75rem;">
+                                    {% for transition, avg_days in p_stat.stage_averages.items %}
+                                        {% if not '→ Acionamento Parceiro' in transition and not '→ Acesso' in transition %}
+                                        <div style="background: white; border: 1px solid var(--ent-border); border-radius: 8px; padding: 0.85rem; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 1px 3px rgba(0,0,0,0.02);">
+                                            <div>
+                                                <div style="font-weight: 700; color: var(--ent-primary); font-size: 0.82rem;">{{ transition }}</div>
+                                                <span style="font-size: 0.7rem; color: var(--ent-text-muted);">
+                                                    {% if '→ Vistoria' in transition %}
+                                                        Deslocamento e vistoria técnica em campo
+                                                    {% elif '→ Laudo' in transition or '→ Projeto' in transition %}
+                                                        Elaboração e entrega do laudo técnico
+                                                    {% else %}
+                                                        Trabalho e execução técnica da etapa
+                                                    {% endif %}
+                                                </span>
+                                            </div>
+                                            <span style="font-family: var(--font-heading); font-size: 1.05rem; font-weight: 800; color: {% if avg_days >= p_stat.bottleneck_avg and p_stat.bottleneck_avg > 0 %}#dc2626{% elif avg_days > 15 %}#d97706{% else %}#059669{% endif %}; background: {% if avg_days >= p_stat.bottleneck_avg and p_stat.bottleneck_avg > 0 %}#fef2f2{% elif avg_days > 15 %}#fffbeb{% else %}#ecfdf5{% endif %}; padding: 0.25rem 0.5rem; border-radius: 6px; white-space: nowrap;">
+                                                +{{ avg_days }} dias
+                                            </span>
+                                        </div>
+                                        {% endif %}
+                                    {% endfor %}
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                    {% endfor %}
                 </div>
 
                 <!-- Gráfico de Distribuição do Escopo e Tabela Auxiliar -->
@@ -1242,117 +1350,6 @@
                 </button>
                 {% endfor %}
             </div>
-
-            <!-- 1. Detalhamento de Etapas e Gargalos por Parceiro (Full Width no Topo) -->
-            {% for scope_key, ranking_list in scope_partner_rankings.items %}
-            <div class="partner-detail-scope-section" id="partner-detail-scope-{{ scope_key }}" style="display: {% if forloop.first %}block{% else %}none{% endif %}; margin-bottom: 1.5rem;">
-                <div class="ent-card" style="padding: 2rem; border: none; box-shadow: var(--ent-shadow-sm); background: white; display: flex; flex-direction: column; gap: 1.5rem;">
-                    <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--ent-border); padding-bottom: 1rem; flex-wrap: wrap; gap: 0.5rem;">
-                        <div>
-                            <h3 style="font-family: var(--font-heading); font-size: 1.15rem; font-weight: 700; color: var(--ent-primary); margin: 0; display: flex; align-items: center; gap: 0.5rem;">
-                                <i data-lucide="split" style="color: var(--ent-accent);"></i> Detalhamento de Etapas e Gargalos por Parceiro
-                            </h3>
-                            <p style="font-size: 0.75rem; color: var(--ent-text-muted); margin: 0.25rem 0 0 0;">Selecione o parceiro para analisar o detalhamento de responsabilidades e lead times.</p>
-                        </div>
-                        
-                        <!-- Seletor de Parceiro (Tabs) -->
-                        <div style="display: flex; gap: 0.35rem; background: #f1f5f9; padding: 0.25rem; border-radius: 8px;">
-                            {% for stat in ranking_list %}
-                            <button class="filter-pill {% if forloop.first %}active{% endif %}" id="btn-partner-tab-{{ scope_key }}-{{ forloop.counter }}" onclick="switchDetailedPartner('{{ scope_key }}', '{{ forloop.counter }}')" style="border-radius: 6px; border: none; font-size: 0.8rem; padding: 0.45rem 1rem; font-weight: 700; cursor: pointer; transition: all 0.15s ease;">
-                                {{ stat.partner }}
-                            </button>
-                            {% endfor %}
-                        </div>
-                    </div>
-
-                    <!-- Blocos de Detalhes dos Parceiros -->
-                    {% for stat in ranking_list %}
-                    <div class="partner-detail-section-{{ scope_key }}" id="partner-detail-sec-{{ scope_key }}-{{ forloop.counter }}" style="display: {% if forloop.first %}block{% else %}none{% endif %};">
-                        <div style="display: flex; flex-direction: column; gap: 1.25rem;">
-                            <!-- Alerta de Gargalo -->
-                            <div style="display: flex; justify-content: space-between; align-items: center; background: #f8fafc; border: 1px solid var(--ent-border); border-radius: 10px; padding: 0.85rem 1.25rem; font-size: 0.85rem; flex-wrap: wrap; gap: 0.5rem;">
-                                <div>
-                                    <span style="color: var(--ent-text-muted); font-weight: 600;">Tempo Médio Ativo (Sem Acesso):</span>
-                                    <strong style="color: var(--ent-accent); margin-left: 0.25rem; font-size: 1rem;">
-                                        {% if stat.avg_partner_time %}{{ stat.avg_partner_time }} dias{% else %}--{% endif %}
-                                    </strong>
-                                </div>
-                                {% if stat.bottleneck_avg > 0 %}
-                                <div style="color: #b45309; font-weight: 700; display: inline-flex; align-items: center; gap: 0.35rem; background: #fffbeb; padding: 0.35rem 0.75rem; border-radius: 8px; border: 1px solid #fde047; font-size: 0.82rem;">
-                                    <i data-lucide="alert-triangle" style="width: 15px; height: 15px; color: #d97706;"></i>
-                                    Maior Gargalo: <strong>{{ stat.bottleneck_stage }}</strong> ({{ stat.bottleneck_avg }}d)
-                                </div>
-                                {% endif %}
-                            </div>
-
-                            <!-- Duas Colunas Verticais no estilo Divisão de Responsabilidade -->
-                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
-                                
-                                <!-- Coluna MartinsTec (Gestão de Acesso) -->
-                                <div style="background: #f8fafc; border-radius: 12px; padding: 1.25rem; border: 1px solid var(--ent-border); border-top: 4px solid #2563eb;">
-                                    <h4 style="font-family: var(--font-heading); font-size: 0.95rem; font-weight: 700; color: #1e3a8a; margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem;">
-                                        <i data-lucide="building-2" style="width: 16px; height: 16px; color: #2563eb;"></i> Etapas sob Gestão MartinsTec (Acesso)
-                                    </h4>
-                                    <div style="display: flex; flex-direction: column; gap: 0.75rem;">
-                                        {% for transition, avg_days in stat.stage_averages.items %}
-                                            {% if '→ Acionamento Parceiro' in transition or '→ Acesso' in transition %}
-                                            <div style="background: white; border: 1px solid var(--ent-border); border-radius: 8px; padding: 0.85rem; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 1px 3px rgba(0,0,0,0.02);">
-                                                <div>
-                                                    <div style="font-weight: 700; color: var(--ent-primary); font-size: 0.82rem;">{{ transition }}</div>
-                                                    <span style="font-size: 0.7rem; color: var(--ent-text-muted);">
-                                                        {% if '→ Acesso' in transition %}
-                                                            Trâmites para liberação física do site
-                                                        {% else %}
-                                                            Acionamento e direcionamento interno
-                                                        {% endif %}
-                                                    </span>
-                                                </div>
-                                                <span style="font-family: var(--font-heading); font-size: 1.05rem; font-weight: 800; color: #2563eb; background: #eff6ff; padding: 0.25rem 0.5rem; border-radius: 6px; white-space: nowrap;">
-                                                    +{{ avg_days }} dias
-                                                </span>
-                                            </div>
-                                            {% endif %}
-                                        {% endfor %}
-                                    </div>
-                                </div>
-
-                                <!-- Coluna Fornecedor (Execução) -->
-                                <div style="background: #f8fafc; border-radius: 12px; padding: 1.25rem; border: 1px solid var(--ent-border); border-top: 4px solid #059669;">
-                                    <h4 style="font-family: var(--font-heading); font-size: 0.95rem; font-weight: 700; color: #065f46; margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem;">
-                                        <i data-lucide="users" style="width: 16px; height: 16px; color: #059669;"></i> Etapas sob Execução do Fornecedor
-                                    </h4>
-                                    <div style="display: flex; flex-direction: column; gap: 0.75rem;">
-                                        {% for transition, avg_days in stat.stage_averages.items %}
-                                            {% if not '→ Acionamento Parceiro' in transition and not '→ Acesso' in transition %}
-                                            <div style="background: white; border: 1px solid var(--ent-border); border-radius: 8px; padding: 0.85rem; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 1px 3px rgba(0,0,0,0.02);">
-                                                <div>
-                                                    <div style="font-weight: 700; color: var(--ent-primary); font-size: 0.82rem;">{{ transition }}</div>
-                                                    <span style="font-size: 0.7rem; color: var(--ent-text-muted);">
-                                                        {% if '→ Vistoria' in transition %}
-                                                            Deslocamento e vistoria técnica em campo
-                                                        {% elif '→ Laudo' in transition or '→ Projeto' in transition %}
-                                                            Elaboração e entrega do laudo técnico
-                                                        {% else %}
-                                                            Trabalho e execução técnica da etapa
-                                                        {% endif %}
-                                                    </span>
-                                                </div>
-                                                <span style="font-family: var(--font-heading); font-size: 1.05rem; font-weight: 800; color: {% if avg_days >= stat.bottleneck_avg and stat.bottleneck_avg > 0 %}#dc2626{% elif avg_days > 15 %}#d97706{% else %}#059669{% endif %}; background: {% if avg_days >= stat.bottleneck_avg and stat.bottleneck_avg > 0 %}#fef2f2{% elif avg_days > 15 %}#fffbeb{% else %}#ecfdf5{% endif %}; padding: 0.25rem 0.5rem; border-radius: 6px; white-space: nowrap;">
-                                                    +{{ avg_days }} dias
-                                                </span>
-                                            </div>
-                                            {% endif %}
-                                        {% endfor %}
-                                    </div>
-                                </div>
-
-                            </div>
-                        </div>
-                    </div>
-                    {% endfor %}
-                </div>
-            </div>
-            {% endfor %}
 
             <!-- 2. Gráfico e Ranking de Velocidade (Abaixo do Detalhamento) -->
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-bottom: 2rem;">
@@ -2385,13 +2382,7 @@
             const targetSec = document.getElementById(`partner-rank-sec-${scopeKey}`);
             if (targetSec) targetSec.style.display = 'block';
 
-            // Esconde todas as seções de detalhes por escopo
-            const detailSections = document.querySelectorAll('.partner-detail-scope-section');
-            detailSections.forEach(s => s.style.display = 'none');
 
-            // Mostra a seção de detalhes alvo
-            const targetDetail = document.getElementById(`partner-detail-scope-${scopeKey}`);
-            if (targetDetail) targetDetail.style.display = 'block';
 
             // Atualiza botões do seletor
             const pills = document.querySelectorAll('[id^="btn-partner-scope-pill-"]');
@@ -2569,16 +2560,16 @@
             });
         }
 
-        window.switchDetailedPartner = function(scopeKey, counter) {
-            const sections = document.querySelectorAll(`.partner-detail-section-${scopeKey}`);
-            sections.forEach(s => s.style.display = 'none');
+        window.switchResponsibilityPartner = function(scopeKey, counter) {
+            const blocks = document.querySelectorAll(`.resp-partner-block-${scopeKey}`);
+            blocks.forEach(b => b.style.display = 'none');
 
-            const targetSec = document.getElementById(`partner-detail-sec-${scopeKey}-${counter}`);
-            if (targetSec) targetSec.style.display = 'block';
+            const targetBlock = document.getElementById(`resp-partner-block-${scopeKey}-${counter}`);
+            if (targetBlock) targetBlock.style.display = 'block';
 
-            const pills = document.querySelectorAll(`[id^="btn-partner-tab-${scopeKey}-"]`);
+            const pills = document.querySelectorAll(`[id^="btn-resp-partner-${scopeKey}-"]`);
             pills.forEach(p => {
-                if (p.id === `btn-partner-tab-${scopeKey}-${counter}`) p.classList.add('active');
+                if (p.id === `btn-resp-partner-${scopeKey}-${counter}`) p.classList.add('active');
                 else p.classList.remove('active');
             });
         };

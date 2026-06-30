@@ -526,6 +526,8 @@ def site_list(request):
             stage_averages = {}
             bottleneck_stage = None
             bottleneck_avg = 0
+            avg_martinstec = 0
+            avg_partner = 0
             
             for transition, times in scope_info.get('transitions', {}).items():
                 avg = round(sum(times) / len(times), 1) if times else 0
@@ -534,12 +536,32 @@ def site_list(request):
                 # Etapa de acesso e acionamento interno não são de responsabilidade do parceiro para cálculo do gargalo
                 parts = transition.split(" → ")
                 target_stage = parts[1] if len(parts) > 1 else ""
+                
+                if scope_key == 'LAUDOS':
+                    if target_stage in ['Acionamento Parceiro', 'Acesso']:
+                        avg_martinstec += avg
+                    else:
+                        avg_partner += avg
+                else:
+                    if target_stage == 'Acesso':
+                        avg_martinstec += avg
+                    else:
+                        avg_partner += avg
+
                 if target_stage in ['Acionamento Parceiro', 'Acesso']:
                     continue
 
                 if avg > bottleneck_avg:
                     bottleneck_avg = avg
                     bottleneck_stage = transition
+
+            total_sum = avg_martinstec + avg_partner
+            if total_sum > 0:
+                pct_martinstec = int(round((avg_martinstec / total_sum) * 100))
+                pct_partner = 100 - pct_martinstec
+            else:
+                pct_martinstec = 50
+                pct_partner = 50
 
             scope_partner_rankings[scope_key].append({
                 'partner': partner,
@@ -550,16 +572,20 @@ def site_list(request):
                 'stage_averages': stage_averages,
                 'bottleneck_stage': bottleneck_stage,
                 'bottleneck_avg': bottleneck_avg,
+                'avg_martinstec': round(avg_martinstec, 1),
+                'avg_partner': round(avg_partner, 1),
+                'pct_martinstec': pct_martinstec,
+                'pct_partner': pct_partner,
             })
 
-    # Ordenar cada ranking por escopo
+    # Ordenar cada ranking por escopo e anexar ao scope_analytics
     for scope_key in scope_partner_rankings.keys():
         scope_partner_rankings[scope_key].sort(key=lambda x: (x['avg_partner_time'] is None, x['avg_partner_time'] or 999999))
 
-    # Adiciona o parceiro mais rápido de cada escopo ao scope_analytics
     for scope_key, info in scope_analytics.items():
         rankings = scope_partner_rankings.get(scope_key, [])
         info['fastest_partner'] = rankings[0]['partner'] if rankings and rankings[0]['avg_partner_time'] is not None else None
+        info['partners'] = rankings
 
     # KPIs globais
     all_total_times = []
