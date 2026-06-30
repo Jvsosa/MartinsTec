@@ -302,18 +302,18 @@ class SiteGeocodingAndOptionalCoordsTests(TestCase):
         self.assertEqual(rank_item['finished_sites'], 1)
         
         # Check transition stage averages:
-        # Acionamento -> Acionamento Parceiro: 5 days
-        # Acionamento Parceiro -> Acesso: 4 days
+        # Acionamento -> Acionamento Parceiro: (Excluded)
+        # Acionamento Parceiro -> Acesso: (Excluded)
         # Acesso -> Vistoria: 2 days
         # Vistoria -> Laudo: 3 days
-        self.assertEqual(rank_item['stage_averages'].get('Acionamento → Acionamento Parceiro'), 5.0)
-        self.assertEqual(rank_item['stage_averages'].get('Acionamento Parceiro → Acesso'), 4.0)
+        self.assertNotIn('Acionamento → Acionamento Parceiro', rank_item['stage_averages'])
+        self.assertNotIn('Acionamento Parceiro → Acesso', rank_item['stage_averages'])
         self.assertEqual(rank_item['stage_averages'].get('Acesso → Vistoria'), 2.0)
         self.assertEqual(rank_item['stage_averages'].get('Vistoria → Laudo'), 3.0)
         
-        # The bottleneck should be 'Acionamento → Acionamento Parceiro' (5.0 days)
-        self.assertEqual(rank_item['bottleneck_stage'], 'Acionamento → Acionamento Parceiro')
-        self.assertEqual(rank_item['bottleneck_avg'], 5.0)
+        # The bottleneck should be 'Vistoria → Laudo' (3.0 days)
+        self.assertEqual(rank_item['bottleneck_stage'], 'Vistoria → Laudo')
+        self.assertEqual(rank_item['bottleneck_avg'], 3.0)
 
 
 class SiteRolloutWorkflowTests(TestCase):
