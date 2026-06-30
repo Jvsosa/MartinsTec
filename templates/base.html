@@ -445,40 +445,6 @@
             min-height: 100vh;
         }
 
-        /* ======================================================== */
-        /* COMPENSAÇÃO DE ZOOM E ESCALA DO WINDOWS (125% / 150%)    */
-        /* ======================================================== */
-        @media (-webkit-min-device-pixel-ratio: 1.25) and (-webkit-max-device-pixel-ratio: 1.29),
-               (min-resolution: 120dpi) and (max-resolution: 124dpi) {
-            body {
-                zoom: 0.8; /* 1 / 1.25 = 0.8 (Compensa os 125%) */
-            }
-        }
-
-        @media (-webkit-min-device-pixel-ratio: 1.5) and (-webkit-max-device-pixel-ratio: 1.54),
-               (min-resolution: 144dpi) and (max-resolution: 148dpi) {
-            body {
-                zoom: 0.6667; /* 1 / 1.5 = 0.6667 (Compensa os 150%) */
-            }
-        }
-
-        /* ======================================================== */
-        /* COMPENSAÇÃO DE ZOOM E ESCALA DO WINDOWS (125% / 150%)    */
-        /* ======================================================== */
-        @media (-webkit-min-device-pixel-ratio: 1.25) and (-webkit-max-device-pixel-ratio: 1.29),
-               (min-resolution: 120dpi) and (max-resolution: 124dpi) {
-            body {
-                zoom: 0.8; /* 1 / 1.25 = 0.8 (Compensa os 125%) */
-            }
-        }
-
-        @media (-webkit-min-device-pixel-ratio: 1.5) and (-webkit-max-device-pixel-ratio: 1.54),
-               (min-resolution: 144dpi) and (max-resolution: 148dpi) {
-            body {
-                zoom: 0.6667; /* 1 / 1.5 = 0.6667 (Compensa os 150%) */
-            }
-        }
-
         /* ============================================ */
         /* TOP NAVBAR (DashStack Style)                 */
         /* ============================================ */
@@ -1904,6 +1870,33 @@
                 }
             }
         }
+
+        // ========================================================
+        // COMPENSAÇÃO DINÂMICA DE RESOLUÇÃO E ESCALA DO WINDOWS (OPÇÃO 2)
+        // ========================================================
+        function adjustGlobalResolution() {
+            // Apenas para telas desktop/notebooks (> 1024px de largura física)
+            if (window.screen.width > 1024) {
+                const baseWidth = 1920;
+                const currentWidth = window.innerWidth;
+                
+                // Calcula a escala exata baseada na largura da janela
+                let scaleFactor = currentWidth / baseWidth;
+                
+                // Limites de escala para evitar deformidades excessivas
+                if (scaleFactor < 0.65) scaleFactor = 0.65;
+                if (scaleFactor > 1.05) scaleFactor = 1.0; // Não amplia excessivamente em telas maiores que Full HD
+                
+                document.body.style.zoom = scaleFactor;
+            } else {
+                document.body.style.zoom = 1.0;
+            }
+        }
+        
+        window.addEventListener('resize', adjustGlobalResolution);
+        window.addEventListener('DOMContentLoaded', adjustGlobalResolution);
+        // Executamos imediatamente para mitigar efeito de flickers de carregamento
+        adjustGlobalResolution();
 
         window.addEventListener('hashchange', handleNav);
         window.addEventListener('DOMContentLoaded', handleNav);
