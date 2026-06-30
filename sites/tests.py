@@ -1557,6 +1557,36 @@ class UserProfileTests(TestCase):
         login_success = self.client.login(username='profile_user', password='password123')
         self.assertTrue(login_success)
 
+    def test_settings_page_requires_login(self):
+        """Verify redirect to login when requesting settings page while anonymous."""
+        url = reverse('user_settings')
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 302)
+
+    def test_settings_page_renders_for_logged_in_user(self):
+        """Verify settings page loads correctly for authenticated user."""
+        self.client.login(username='profile_user', password='password123')
+        url = reverse('user_settings')
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+
+    def test_settings_save_saves_to_db(self):
+        """Verify posting updated settings successfully saves them to user model."""
+        self.client.login(username='profile_user', password='password123')
+        url = reverse('user_settings')
+        response = self.client.post(url, {
+            'theme_preference': 'dark',
+            'default_view': 'analytics',
+            'receive_email_notifications': 'true'
+        })
+        self.assertEqual(response.status_code, 302)
+        
+        # Reload user
+        from django.contrib.auth import get_user_model
+        user = get_user_model().objects.get(username='profile_user')
+        self.assertEqual(user.theme_preference, 'dark')
+        self.assertEqual(user.default_view, 'analytics')
+        self.assertTrue(user.receive_email_notifications)
 
     def test_login_invalid_credentials_shows_warning(self):
         """Verify posting invalid credentials renders the warning message on the login page."""

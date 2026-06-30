@@ -30,6 +30,30 @@ class User(AbstractUser):
         verbose_name="Foto de Perfil (Base64)"
     )
 
+    theme_preference = models.CharField(
+        max_length=10,
+        default='light',
+        choices=[('light', 'Claro'), ('dark', 'Escuro')],
+        verbose_name="Preferência de Tema"
+    )
+
+    receive_email_notifications = models.BooleanField(
+        default=True,
+        verbose_name="Receber notificações por e-mail"
+    )
+
+    default_view = models.CharField(
+        max_length=20,
+        default='dashboard',
+        choices=[
+            ('dashboard', 'Dashboard'),
+            ('sites', 'Sites'),
+            ('calendario', 'Calendário'),
+            ('analytics', 'Desempenho')
+        ],
+        verbose_name="Visualização Padrão"
+    )
+
     class Meta:
         verbose_name = "Usuário"
         verbose_name_plural = "Usuários"

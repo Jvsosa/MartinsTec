@@ -1,0 +1,331 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Configurações - MartinsTec{% endblock %}
+
+{% block content %}
+<style>
+    /* Estilos premium locais de formulário */
+    .settings-grid {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
+    }
+    @media (min-width: 768px) {
+        .settings-grid {
+            grid-template-columns: 320px 1fr;
+        }
+    }
+    
+    .setting-card {
+        background-color: var(--bg-surface);
+        border: 1px solid var(--border-color);
+        border-radius: 12px;
+        padding: 1.5rem;
+        display: flex;
+        flex-direction: column;
+        gap: 1.25rem;
+        box-shadow: var(--shadow-sm);
+    }
+    
+    .setting-header {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        border-bottom: 1px solid var(--border-color);
+        padding-bottom: 0.75rem;
+        margin-bottom: 0.25rem;
+    }
+    
+    .setting-header h3 {
+        font-size: 1rem;
+        font-weight: 700;
+        color: var(--text-main);
+        margin: 0;
+    }
+    
+    .form-group {
+        display: flex;
+        flex-direction: column;
+        gap: 0.4rem;
+    }
+    
+    .form-group label {
+        font-size: 0.78rem;
+        font-weight: 700;
+        color: var(--text-main);
+    }
+    
+    .form-control {
+        width: 100%;
+        padding: 0.7rem 1rem;
+        border: 1.5px solid var(--border-color);
+        border-radius: 8px;
+        font-family: inherit;
+        font-size: 0.88rem;
+        color: var(--text-main);
+        background-color: var(--bg-body);
+        transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .form-control:focus {
+        outline: none;
+        border-color: var(--brand-primary);
+        box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        background-color: var(--bg-surface);
+    }
+    
+    /* Alternador Visual de Temas (Cards Selecionáveis) */
+    .theme-selector-container {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1rem;
+    }
+    
+    .theme-card {
+        border: 2px solid var(--border-color);
+        border-radius: 10px;
+        padding: 1rem;
+        cursor: pointer;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 0.5rem;
+        text-align: center;
+        transition: all 0.2s ease;
+        background-color: var(--bg-body);
+    }
+    
+    .theme-card:hover {
+        border-color: var(--text-muted);
+    }
+    
+    .theme-card.active {
+        border-color: var(--brand-primary);
+        background-color: var(--brand-light);
+    }
+    
+    .theme-card i {
+        width: 24px;
+        height: 24px;
+        color: var(--text-muted);
+    }
+    .theme-card.active i {
+        color: var(--brand-primary);
+    }
+    
+    .theme-card span {
+        font-size: 0.82rem;
+        font-weight: 700;
+        color: var(--text-main);
+    }
+    
+    /* Toggle Switch Premium para Notificações */
+    .toggle-container {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0.75rem 0;
+    }
+    
+    .toggle-label-group {
+        display: flex;
+        flex-direction: column;
+        gap: 0.15rem;
+    }
+    
+    .toggle-title {
+        font-size: 0.85rem;
+        font-weight: 700;
+        color: var(--text-main);
+    }
+    
+    .toggle-desc {
+        font-size: 0.72rem;
+        color: var(--text-muted);
+    }
+    
+    .switch {
+        position: relative;
+        display: inline-block;
+        width: 44px;
+        height: 24px;
+        flex-shrink: 0;
+    }
+    
+    .switch input {
+        opacity: 0;
+        width: 0;
+        height: 0;
+    }
+    
+    .slider {
+        position: absolute;
+        cursor: pointer;
+        top: 0; left: 0; right: 0; bottom: 0;
+        background-color: var(--border-color);
+        transition: .3s;
+        border-radius: 24px;
+    }
+    
+    .slider:before {
+        position: absolute;
+        content: "";
+        height: 18px;
+        width: 18px;
+        left: 3px;
+        bottom: 3px;
+        background-color: white;
+        transition: .3s;
+        border-radius: 50%;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.15);
+    }
+    
+    input:checked + .slider {
+        background-color: var(--brand-primary);
+    }
+    
+    input:checked + .slider:before {
+        transform: translateX(20px);
+    }
+</style>
+
+<div class="dashboard-wrapper" style="padding: 1.5rem 2rem; max-width: 1100px; margin: 0 auto; display: flex; flex-direction: column; gap: 1.25rem; box-sizing: border-box;">
+    
+    <!-- Cabeçalho Principal -->
+    <div style="display: flex; flex-direction: column; gap: 0.25rem;">
+        <h1 style="font-size: 1.6rem; font-weight: 800; color: var(--text-main); margin: 0;">Configurações do Sistema</h1>
+        <p style="font-size: 0.85rem; color: var(--text-muted); margin: 0;">Configure suas preferências de exibição de dados, alertas de e-mail e tema visual de forma centralizada.</p>
+    </div>
+
+    <form method="POST" id="settings-form">
+        {% csrf_token %}
+        <input type="hidden" name="theme_preference" id="theme-input" value="{{ user.theme_preference }}">
+        <input type="hidden" name="receive_email_notifications" id="email-input" value="{% if user.receive_email_notifications %}true{% else %}false{% endif %}">
+
+        <!-- Grid de 2 Colunas -->
+        <div class="settings-grid">
+            
+            <!-- Coluna Esquerda: Menu Rápido de Configurações -->
+            <div style="display: flex; flex-direction: column; gap: 1rem;">
+                <div class="setting-card" style="padding: 1rem;">
+                    <div style="display: flex; flex-direction: column; gap: 0.5rem;">
+                        <a href="{% url 'user_profile' %}" style="display: flex; align-items: center; gap: 0.75rem; text-decoration: none; padding: 0.75rem; border-radius: 8px; color: var(--text-muted); font-size: 0.85rem; font-weight: 600; transition: background 0.2s;">
+                            <i data-lucide="user" style="width: 18px; height: 18px;"></i>
+                            <span>Meu Perfil</span>
+                        </a>
+                        <a href="{% url 'user_settings' %}" style="display: flex; align-items: center; gap: 0.75rem; text-decoration: none; padding: 0.75rem; border-radius: 8px; color: var(--brand-primary); background-color: var(--brand-light); font-size: 0.85rem; font-weight: 700; transition: background 0.2s;">
+                            <i data-lucide="settings" style="width: 18px; height: 18px;"></i>
+                            <span>Preferências de UI</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Coluna Direita: Cards de Opções -->
+            <div style="display: flex; flex-direction: column; gap: 1.25rem;">
+                
+                <!-- Card 1: Aparência e Tema Visual -->
+                <div class="setting-card">
+                    <div class="setting-header">
+                        <i data-lucide="palette" style="width: 18px; height: 18px; color: var(--brand-primary);"></i>
+                        <h3>Aparência do Painel</h3>
+                    </div>
+                    
+                    <div style="display: flex; flex-direction: column; gap: 0.85rem;">
+                        <label style="font-size: 0.75rem; font-weight: 700; color: var(--text-main);">Escolha o tema visual do sistema:</label>
+                        
+                        <div class="theme-selector-container">
+                            <!-- Card Claro -->
+                            <div class="theme-card {% if user.theme_preference == 'light' %}active{% endif %}" id="theme-card-light" onclick="selectTheme('light')">
+                                <i data-lucide="sun"></i>
+                                <span>Tema Claro</span>
+                            </div>
+                            
+                            <!-- Card Escuro -->
+                            <div class="theme-card {% if user.theme_preference == 'dark' %}active{% endif %}" id="theme-card-dark" onclick="selectTheme('dark')">
+                                <i data-lucide="moon"></i>
+                                <span>Dark Mode Corporativo</span>
+                            </div>
+                        </div>
+                        <p style="font-size: 0.7rem; color: var(--text-muted); line-height: 1.35; margin: 0;">O Dark Mode Corporativo utiliza uma paleta refinada em tons azul-escuros/grafite, reduzindo o cansaço visual em reuniões de acompanhamento ou análises prolongadas de cronograma.</p>
+                    </div>
+                </div>
+
+                <!-- Card 2: Inicialização e Navegação -->
+                <div class="setting-card">
+                    <div class="setting-header">
+                        <i data-lucide="compass" style="width: 18px; height: 18px; color: var(--brand-primary);"></i>
+                        <h3>Visualização Padrão</h3>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="default_view" style="font-size: 0.75rem; font-weight: 700; color: var(--text-main);">Página inicial do Rollout:</label>
+                        <select name="default_view" id="default_view" class="form-control">
+                            <option value="dashboard" {% if user.default_view == 'dashboard' %}selected{% endif %}>Dashboard Geral</option>
+                            <option value="sites" {% if user.default_view == 'sites' %}selected{% endif %}>Lista de Sites</option>
+                            <option value="calendario" {% if user.default_view == 'calendario' %}selected{% endif %}>Calendário de Eventos</option>
+                            <option value="analytics" {% if user.default_view == 'analytics' %}selected{% endif %}>Desempenho & Lead Times</option>
+                        </select>
+                        <p style="font-size: 0.7rem; color: var(--text-muted); margin-top: 0.25rem; margin-bottom: 0;">Define qual aba do sistema de navegação unificada (SPA) será aberta automaticamente ao acessar o endereço inicial do MartinsTec.</p>
+                    </div>
+                </div>
+
+                <!-- Card 3: Notificações por E-mail -->
+                <div class="setting-card">
+                    <div class="setting-header">
+                        <i data-lucide="mail" style="width: 18px; height: 18px; color: var(--brand-primary);"></i>
+                        <h3>Preferências de E-mail</h3>
+                    </div>
+                    
+                    <div class="toggle-container">
+                        <div class="toggle-label-group">
+                            <span class="toggle-title">Notificações por E-mail</span>
+                            <span class="toggle-desc">Receber resumos de replanejamento, atrasos e vistorias agendadas.</span>
+                        </div>
+                        <label class="switch">
+                            <input type="checkbox" id="email-toggle" {% if user.receive_email_notifications %}checked{% endif %} onchange="toggleEmailNotification(this.checked)">
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Botões de Ação na Base -->
+                <div style="display: flex; justify-content: flex-end; gap: 0.75rem; margin-top: 0.5rem;">
+                    <a href="{% url 'site_list' %}" class="btn" style="background-color: transparent; border: 1px solid var(--border-color); color: var(--text-main); font-weight: 600; padding: 0.6rem 1.2rem; border-radius: 8px; font-size: 0.88rem; text-decoration: none;">
+                        Cancelar
+                    </a>
+                    <button type="submit" class="btn btn-primary" style="font-weight: 700; padding: 0.6rem 1.4rem; font-size: 0.88rem; display: inline-flex; align-items: center; gap: 0.4rem;">
+                        <i data-lucide="save" style="width: 16px; height: 16px;"></i>
+                        Salvar Preferências
+                    </button>
+                </div>
+
+            </div>
+            
+        </div>
+    </form>
+</div>
+
+<script>
+    function selectTheme(theme) {
+        document.getElementById('theme-input').value = theme;
+        
+        // Atualizar cards ativos
+        document.getElementById('theme-card-light').classList.remove('active');
+        document.getElementById('theme-card-dark').classList.remove('active');
+        
+        document.getElementById(`theme-card-${theme}`).classList.add('active');
+        
+        // Simular a mudança do tema no DOM imediatamente para feedback do usuário!
+        if (theme === 'dark') {
+            document.documentElement.setAttribute('data-theme', 'dark');
+        } else {
+            document.documentElement.removeAttribute('data-theme');
+        }
+    }
+
+    function toggleEmailNotification(isChecked) {
+        document.getElementById('email-input').value = isChecked ? 'true' : 'false';
+    }
+</script>
+{% endblock %}

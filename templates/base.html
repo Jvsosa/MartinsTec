@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="pt-br">
+<html lang="pt-br" {% if user.is_authenticated and user.theme_preference == 'dark' %}data-theme="dark"{% endif %}>
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -38,6 +38,233 @@
             --topbar-height: 64px;
             --sidebar-width: 285px;
             --sidebar-collapsed: 80px;
+        }
+
+        /* ======================================================== */
+        /* CORPORATE DARK MODE OVERRIDES (Slate-Blue Palette)       */
+        /* ======================================================== */
+        html[data-theme="dark"] {
+            --bg-body: #080C14;       /* Deep dark blue-gray space */
+            --bg-surface: #0F172A;    /* Dark slate blue card background */
+            --text-main: #F8FAFC;     /* Bright clean slate white */
+            --text-muted: #94A3B8;    /* Muted slate gray */
+            --border-color: #1E293B;  /* Slate border lines */
+            --danger: #EF4444;
+            --warning: #F59E0B;
+            
+            --brand-primary: #3B82F6; /* Corporate Slate Blue Accent */
+            --brand-hover: #60A5FA;
+            --brand-light: rgba(59, 130, 246, 0.15);
+        }
+
+        html[data-theme="dark"] body {
+            background-color: var(--bg-body);
+            color: var(--text-main);
+        }
+
+        html[data-theme="dark"] .side-navbar {
+            background: linear-gradient(180deg, #0F172A 0%, #080C14 100%) !important;
+            border-right: 1px solid var(--border-color) !important;
+            box-shadow: none !important;
+        }
+
+        html[data-theme="dark"] .side-navbar .sidebar-header {
+            border-bottom: 1px solid var(--border-color) !important;
+        }
+
+        html[data-theme="dark"] .side-navbar .nav-link {
+            color: var(--text-muted) !important;
+        }
+
+        html[data-theme="dark"] .side-navbar .nav-link:hover {
+            background-color: #1E293B !important;
+            color: var(--text-main) !important;
+        }
+
+        html[data-theme="dark"] .side-navbar .nav-link.active {
+            background-color: rgba(59, 130, 246, 0.12) !important;
+            color: var(--brand-hover) !important;
+        }
+
+        html[data-theme="dark"] .top-navbar {
+            background: var(--bg-surface) !important;
+            border-bottom: 1px solid var(--border-color) !important;
+        }
+
+        html[data-theme="dark"] .topbar-search input {
+            background-color: #080C14 !important;
+            border-color: var(--border-color) !important;
+            color: var(--text-main) !important;
+        }
+
+        html[data-theme="dark"] .topbar-search input:focus {
+            background-color: var(--bg-surface) !important;
+            border-color: var(--brand-primary) !important;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2) !important;
+        }
+
+        html[data-theme="dark"] .topbar-search-icon {
+            color: var(--text-muted) !important;
+        }
+
+        html[data-theme="dark"] .topbar-profile:hover {
+            background-color: #1E293B !important;
+        }
+
+        html[data-theme="dark"] .topbar-dropdown {
+            background-color: var(--bg-surface) !important;
+            border-color: var(--border-color) !important;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5) !important;
+        }
+
+        html[data-theme="dark"] .topbar-dropdown-item {
+            color: var(--text-main) !important;
+        }
+
+        html[data-theme="dark"] .topbar-dropdown-item:hover {
+            background-color: #1E293B !important;
+        }
+
+        html[data-theme="dark"] .topbar-dropdown-item.danger:hover {
+            background-color: rgba(239, 68, 68, 0.1) !important;
+        }
+
+        html[data-theme="dark"] .topbar-dropdown-divider {
+            border-top: 1px solid var(--border-color) !important;
+        }
+
+        html[data-theme="dark"] .topbar-divider {
+            background-color: var(--border-color) !important;
+        }
+
+        html[data-theme="dark"] .ent-card,
+        html[data-theme="dark"] .card,
+        html[data-theme="dark"] .calendar-sidebar-section,
+        html[data-theme="dark"] .calendar-day-header,
+        html[data-theme="dark"] .calendar-body {
+            background-color: var(--bg-surface) !important;
+            background: var(--bg-surface) !important;
+            border-color: var(--border-color) !important;
+            color: var(--text-main) !important;
+        }
+
+        html[data-theme="dark"] .ent-table {
+            background-color: var(--bg-surface) !important;
+        }
+
+        html[data-theme="dark"] .ent-table th {
+            background-color: #080C14 !important;
+            color: var(--text-main) !important;
+            border-bottom: 2px solid var(--border-color) !important;
+        }
+
+        html[data-theme="dark"] .ent-table td {
+            background-color: var(--bg-surface) !important;
+            color: var(--text-main) !important;
+            border-bottom: 1px solid var(--border-color) !important;
+        }
+
+        html[data-theme="dark"] .ent-table tbody tr:hover td {
+            background-color: #162035 !important;
+        }
+
+        html[data-theme="dark"] .form-control,
+        html[data-theme="dark"] input[type="text"],
+        html[data-theme="dark"] input[type="password"],
+        html[data-theme="dark"] input[type="email"],
+        html[data-theme="dark"] select,
+        html[data-theme="dark"] textarea {
+            background-color: #080C14 !important;
+            border-color: var(--border-color) !important;
+            color: var(--text-main) !important;
+        }
+
+        html[data-theme="dark"] .form-control:focus,
+        html[data-theme="dark"] input[type="text"]:focus,
+        html[data-theme="dark"] input[type="password"]:focus,
+        html[data-theme="dark"] select:focus {
+            background-color: var(--bg-surface) !important;
+            border-color: var(--brand-primary) !important;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2) !important;
+        }
+
+        html[data-theme="dark"] .filter-pill {
+            background-color: #162035 !important;
+            border: 1px solid var(--border-color) !important;
+            color: var(--text-muted) !important;
+        }
+
+        html[data-theme="dark"] .filter-pill:hover {
+            background-color: #1E293B !important;
+            color: var(--text-main) !important;
+        }
+
+        html[data-theme="dark"] .filter-pill.active {
+            background-color: var(--brand-primary) !important;
+            color: white !important;
+            border-color: var(--brand-primary) !important;
+        }
+
+        html[data-theme="dark"] h1,
+        html[data-theme="dark"] h2,
+        html[data-theme="dark"] h3,
+        html[data-theme="dark"] h4,
+        html[data-theme="dark"] h5,
+        html[data-theme="dark"] h6,
+        html[data-theme="dark"] strong,
+        html[data-theme="dark"] label {
+            color: var(--text-main) !important;
+        }
+
+        html[data-theme="dark"] .toast-message {
+            background-color: var(--bg-surface) !important;
+            border-color: var(--border-color) !important;
+            color: var(--text-main) !important;
+        }
+
+        html[data-theme="dark"] .notification-item {
+            border-bottom: 1px solid var(--border-color) !important;
+        }
+
+        html[data-theme="dark"] .notification-item:hover {
+            background-color: #162035 !important;
+        }
+
+        html[data-theme="dark"] .notification-item.unread {
+            background-color: #0E1A30 !important;
+        }
+
+        html[data-theme="dark"] .notification-item.unread:hover {
+            background-color: #16294A !important;
+        }
+
+        html[data-theme="dark"] .search-suggestion-item {
+            background-color: var(--bg-surface) !important;
+            border-color: var(--border-color) !important;
+        }
+
+        html[data-theme="dark"] .search-suggestion-item:hover {
+            background-color: #162035 !important;
+        }
+
+        html[data-theme="dark"] .btn-primary,
+        html[data-theme="dark"] .photo-upload-btn {
+            background-color: var(--brand-primary) !important;
+            border-color: var(--brand-primary) !important;
+            color: white !important;
+        }
+
+        html[data-theme="dark"] .btn-primary:hover,
+        html[data-theme="dark"] .photo-upload-btn:hover {
+            background-color: var(--brand-hover) !important;
+        }
+
+        html[data-theme="dark"] .stage-row:hover {
+            background-color: #162035 !important;
+        }
+
+        html[data-theme="dark"] .timeline-line {
+            background-color: var(--border-color) !important;
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -1109,7 +1336,7 @@
                         <i data-lucide="user" style="width: 16px; height: 16px;"></i>
                         Meu Perfil
                     </a>
-                    <a href="#" class="topbar-dropdown-item">
+                    <a href="{% url 'user_settings' %}" class="topbar-dropdown-item">
                         <i data-lucide="settings" style="width: 16px; height: 16px;"></i>
                         Configurações
                     </a>
@@ -1452,7 +1679,8 @@
         // Lógica de Navegação do SPA (Hash)
         function handleNav() {
             const isSiteDetail = window.location.pathname.includes('/site/');
-            const hash = isSiteDetail ? '#sites' : (window.location.hash || '#dashboard');
+            const defaultView = '#{{ user.default_view|default:"dashboard" }}';
+            const hash = isSiteDetail ? '#sites' : (window.location.hash || defaultView);
             const target = hash.substring(1);
             
             // Atualizar links ativos na navbar

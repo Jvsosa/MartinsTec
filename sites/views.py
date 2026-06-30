@@ -1738,3 +1738,26 @@ def user_profile(request):
     })
 
 
+@login_required
+def user_settings(request):
+    if request.method == 'POST':
+        theme_preference = request.POST.get('theme_preference', 'light').strip()
+        default_view = request.POST.get('default_view', 'dashboard').strip()
+        receive_email = request.POST.get('receive_email_notifications') == 'true'
+
+        if theme_preference not in ['light', 'dark']:
+            theme_preference = 'light'
+        if default_view not in ['dashboard', 'sites', 'calendario', 'analytics']:
+            default_view = 'dashboard'
+
+        request.user.theme_preference = theme_preference
+        request.user.default_view = default_view
+        request.user.receive_email_notifications = receive_email
+        request.user.save()
+
+        messages.success(request, "Configurações atualizadas com sucesso!")
+        return redirect('user_settings')
+
+    return render(request, 'settings.html')
+
+
