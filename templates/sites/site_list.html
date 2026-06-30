@@ -870,6 +870,25 @@
         border: 1px solid rgba(245, 158, 11, 0.25) !important;
         color: #FBBF24 !important;
     }
+
+    /* Garantia de bordas e fundos corretos nos cards de KPI do dashboard e boxes do NOC em modo escuro */
+    html[data-theme="dark"] #dashboard-view .ent-card {
+        border: 1px solid var(--ent-border) !important;
+        background-color: var(--ent-bg-card) !important;
+        background: var(--ent-bg-card) !important;
+    }
+    
+    html[data-theme="dark"] .noc-alert-box {
+        background-color: var(--ent-bg-main) !important;
+        background: var(--ent-bg-main) !important;
+        border: 1px solid var(--ent-border) !important;
+    }
+
+    html[data-theme="dark"] .noc-alert-icon {
+        background-color: var(--ent-bg-card) !important;
+        background: var(--ent-bg-card) !important;
+        border: 1px solid var(--ent-border) !important;
+    }
 </style>
 {% endblock %}
 
@@ -1021,9 +1040,9 @@
                     {% if maintenance_sites > 0 or inactive_sites > 0 %}
                         {% for site in sites_map %}
                         {% if site.status == 'MAINTENANCE' or site.status == 'INACTIVE' %}
-                        <div style="display: flex; align-items: center; justify-content: space-between; padding: 0.85rem 1rem; border-radius: 12px; background: #F8FAFC; border: 1px solid #E2E8F0; border-left: 4px solid {% if site.status == 'MAINTENANCE' %}#F59E0B{% else %}#EF4444{% endif %}; transition: all 0.2s;">
+                        <div class="noc-alert-box" style="display: flex; align-items: center; justify-content: space-between; padding: 0.85rem 1rem; border-radius: 12px; background: #F8FAFC; border: 1px solid #E2E8F0; border-left: 4px solid {% if site.status == 'MAINTENANCE' %}#F59E0B{% else %}#EF4444{% endif %}; transition: all 0.2s;">
                             <div style="display: flex; align-items: center; gap: 0.85rem;">
-                                <div style="width: 36px; height: 36px; border-radius: 8px; background: white; display: flex; align-items: center; justify-content: center; box-shadow: var(--ent-shadow-sm); color: {% if site.status == 'MAINTENANCE' %}#F59E0B{% else %}#EF4444{% endif %}; border: 1px solid #E2E8F0;">
+                                <div class="noc-alert-icon" style="width: 36px; height: 36px; border-radius: 8px; background: white; display: flex; align-items: center; justify-content: center; box-shadow: var(--ent-shadow-sm); color: {% if site.status == 'MAINTENANCE' %}#F59E0B{% else %}#EF4444{% endif %}; border: 1px solid #E2E8F0;">
                                     <i data-lucide="alert-triangle" style="width: 18px; height: 18px;"></i>
                                 </div>
                                 <div>
