@@ -1019,12 +1019,30 @@
                 width: 100% !important;
             }
             
-            /* Div da direita (Badge + Botao Gerenciar) toma largura total e faz space-between */
+            /* Div da direita (Badge + Botao Gerenciar) toma largura total e empilha em coluna no celular */
             .noc-alert-box > div:last-child {
                 width: 100% !important;
-                justify-content: space-between !important;
+                display: flex !important;
+                flex-direction: column !important;
+                align-items: stretch !important;
+                gap: 0.5rem !important;
                 border-top: 1px solid var(--ent-border);
                 padding-top: 0.75rem;
+            }
+
+            .noc-alert-box > div:last-child span {
+                align-self: flex-start !important;
+                text-align: center;
+            }
+
+            .noc-alert-box > div:last-child .noc-manage-btn {
+                width: 100% !important;
+                justify-content: center !important;
+            }
+
+            /* Reduz padding dos cards no mobile para ganhar espaço horizontal */
+            .ent-card {
+                padding: 1.25rem !important;
             }
         }
     </style>
