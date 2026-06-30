@@ -2003,7 +2003,7 @@
             <form method="POST" action="{% url 'site_list' %}" id="modal-create-form">
                 {% csrf_token %}
                 
-                <div style="max-height: 55vh; overflow-y: auto; padding-right: 0.5rem; display: flex; flex-direction: column; gap: 1.15rem;">
+                <div class="modal-scrollable-body" style="max-height: 55vh; overflow-y: auto; padding-right: 0.5rem; display: flex; flex-direction: column; gap: 1.15rem;">
                     <div class="ent-form-grid">
                         <div class="form-group">
                             <label for="modal_name">Nome do Site <span style="color: var(--ent-danger);">*</span></label>

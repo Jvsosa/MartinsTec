@@ -1383,6 +1383,40 @@
             font-weight: 500;
         }
 
+        /* Scrollbar elegante para a Central de Notificações, corpo de modais e tabelas */
+        .notifications-list::-webkit-scrollbar,
+        .modal-scrollable-body::-webkit-scrollbar,
+        .ent-table-wrapper::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        .notifications-list::-webkit-scrollbar-track,
+        .modal-scrollable-body::-webkit-scrollbar-track,
+        .ent-table-wrapper::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        .notifications-list::-webkit-scrollbar-thumb,
+        .modal-scrollable-body::-webkit-scrollbar-thumb,
+        .ent-table-wrapper::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 10px;
+        }
+        .notifications-list::-webkit-scrollbar-thumb:hover,
+        .modal-scrollable-body::-webkit-scrollbar-thumb:hover,
+        .ent-table-wrapper::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+
+        html[data-theme="dark"] .notifications-list::-webkit-scrollbar-thumb,
+        html[data-theme="dark"] .modal-scrollable-body::-webkit-scrollbar-thumb,
+        html[data-theme="dark"] .ent-table-wrapper::-webkit-scrollbar-thumb {
+            background: #4A4A50;
+        }
+        html[data-theme="dark"] .notifications-list::-webkit-scrollbar-thumb:hover,
+        html[data-theme="dark"] .modal-scrollable-body::-webkit-scrollbar-thumb:hover,
+        html[data-theme="dark"] .ent-table-wrapper::-webkit-scrollbar-thumb:hover {
+            background: var(--brand-primary);
+        }
     </style>
     {% block extra_head %}{% endblock %}
 </head>
