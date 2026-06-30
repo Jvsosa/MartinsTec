@@ -697,6 +697,102 @@
         from { opacity: 0; transform: scale(0.95); }
         to { opacity: 1; transform: scale(1); }
     }
+
+    /* ======================================================== */
+    /* SEGURANÇA EXTRA PARA MODO DARK (OVERRIDE DE CARDS/TABS)  */
+    /* ======================================================== */
+    html[data-theme="dark"] .modern-site-card {
+        background-color: var(--ent-bg-card) !important;
+        background: var(--ent-bg-card) !important;
+        border-color: var(--ent-border) !important;
+        color: var(--ent-text-main) !important;
+        box-shadow: none !important;
+    }
+    html[data-theme="dark"] .modern-site-card:hover {
+        border-color: var(--ent-accent) !important;
+        box-shadow: 0 8px 30px rgba(0, 0, 0, 0.4) !important;
+    }
+    html[data-theme="dark"] .site-milestones {
+        background-color: var(--ent-bg-main) !important;
+        background: var(--ent-bg-main) !important;
+        border-color: var(--ent-border) !important;
+    }
+    html[data-theme="dark"] .milestone-header {
+        border-bottom-color: var(--ent-border) !important;
+        color: var(--ent-text-muted) !important;
+    }
+    html[data-theme="dark"] .milestone-label {
+        color: var(--ent-text-muted) !important;
+    }
+    html[data-theme="dark"] .milestone-label i {
+        color: var(--ent-text-muted) !important;
+    }
+    html[data-theme="dark"] .milestone-date-val.planned {
+        color: var(--ent-text-muted) !important;
+    }
+    html[data-theme="dark"] .milestone-date-val.realized {
+        color: var(--ent-text-main) !important;
+    }
+    html[data-theme="dark"] .milestone-date-val.completed {
+        color: #34D399 !important;
+    }
+    html[data-theme="dark"] .milestone-date-val.overdue {
+        color: #F87171 !important;
+    }
+    html[data-theme="dark"] .milestone-date-val.alert {
+        color: #FBBF24 !important;
+    }
+    html[data-theme="dark"] .scope-badge {
+        background-color: var(--ent-bg-main) !important;
+        border-color: var(--ent-border) !important;
+        color: var(--ent-text-muted) !important;
+    }
+    html[data-theme="dark"] .site-card-id-pill {
+        background-color: var(--ent-bg-main) !important;
+        color: var(--ent-text-muted) !important;
+    }
+    html[data-theme="dark"] .site-card-footer {
+        border-top-color: var(--ent-border) !important;
+    }
+    html[data-theme="dark"] .partner-info {
+        color: var(--ent-text-muted) !important;
+    }
+    html[data-theme="dark"] .btn-card-action {
+        background-color: var(--ent-bg-main) !important;
+        border: 1px solid var(--ent-border) !important;
+        color: var(--ent-text-main) !important;
+    }
+    html[data-theme="dark"] .btn-card-action:hover {
+        background-color: #34343A !important;
+        border-color: var(--ent-accent) !important;
+    }
+    html[data-theme="dark"] [style*="background: white"],
+    html[data-theme="dark"] [style*="background:white"],
+    html[data-theme="dark"] [style*="background: #ffffff"],
+    html[data-theme="dark"] [style*="background:#ffffff"] {
+        background-color: var(--ent-bg-card) !important;
+        background: var(--ent-bg-card) !important;
+    }
+    html[data-theme="dark"] [style*="background: #f8fafc"],
+    html[data-theme="dark"] [style*="background:#f8fafc"],
+    html[data-theme="dark"] [style*="background: #F8FAFC"] {
+        background-color: var(--ent-bg-main) !important;
+        background: var(--ent-bg-main) !important;
+    }
+    html[data-theme="dark"] [style*="background: #f1f5f9"],
+    html[data-theme="dark"] [style*="background:#f1f5f9"] {
+        background-color: var(--ent-bg-main) !important;
+        background: var(--ent-bg-main) !important;
+    }
+    html[data-theme="dark"] [style*="color: #1e3a8a"],
+    html[data-theme="dark"] [style*="color:#1e3a8a"],
+    html[data-theme="dark"] [style*="color: #065f46"],
+    html[data-theme="dark"] [style*="color:#065f46"],
+    html[data-theme="dark"] [style*="color: #0c4a6e"],
+    html[data-theme="dark"] [style*="color: #0f172a"],
+    html[data-theme="dark"] [style*="color:#0f172a"] {
+        color: var(--ent-text-main) !important;
+    }
 </style>
 {% endblock %}
 
