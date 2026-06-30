@@ -74,6 +74,49 @@
         background-color: rgba(239, 68, 68, 0.05);
         border-color: #ef4444;
     }
+
+    /* ======================================================== */
+    /* RESPONSIVIDADE E ADAPTAÇÃO PARA MÓVEL (CELULAR)          */
+    /* ======================================================== */
+    .profile-grid {
+        display: grid;
+        grid-template-columns: 340px 1fr;
+        gap: 1.25rem;
+        align-items: start;
+    }
+
+    .profile-form-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1rem;
+    }
+
+    @media (max-width: 992px) {
+        .profile-grid {
+            grid-template-columns: 1fr !important;
+        }
+    }
+
+    @media (max-width: 576px) {
+        .profile-form-row {
+            grid-template-columns: 1fr !important;
+            gap: 0.85rem !important;
+        }
+        
+        .dashboard-wrapper {
+            padding: 1rem 0.75rem !important;
+        }
+        
+        .card {
+            padding: 1rem !important;
+        }
+        
+        /* Ajustar o botão de atualizar nos cartões para largura completa no mobile */
+        .card button[type="submit"] {
+            width: 100% !important;
+            justify-content: center !important;
+        }
+    }
 </style>
 
 <div class="dashboard-wrapper" style="padding: 1.5rem 2rem; max-width: 1200px; margin: 0 auto; display: flex; flex-direction: column; gap: 1.25rem; box-sizing: border-box;">
@@ -85,7 +128,7 @@
     </div>
 
     <!-- Layout Grid de 2 Colunas (Equilibrado para caber em uma tela) -->
-    <div style="display: grid; grid-template-columns: 340px 1fr; gap: 1.25rem; align-items: start;">
+    <div class="profile-grid">
         
         <!-- COLUNA ESQUERDA: Avatar + Alterar Senha -->
         <div style="display: flex; flex-direction: column; gap: 1.25rem;">
@@ -179,7 +222,7 @@
                     {% csrf_token %}
                     <input type="hidden" name="form_type" value="profile_data">
                     
-                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                    <div class="profile-form-row">
                         <div class="form-group" style="display: flex; flex-direction: column; gap: 0.3rem;">
                             <label for="first_name" style="font-size: 0.75rem; font-weight: 700; color: var(--text-main);">Nome *</label>
                             <input type="text" id="first_name" name="first_name" value="{{ user.first_name }}" class="form-control" placeholder="Seu nome" required>
@@ -191,7 +234,7 @@
                         </div>
                     </div>
 
-                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                    <div class="profile-form-row">
                         <div class="form-group" style="display: flex; flex-direction: column; gap: 0.3rem;">
                             <label for="email" style="font-size: 0.75rem; font-weight: 700; color: var(--text-main);">E-mail</label>
                             <input type="email" id="email" name="email" value="{{ user.email }}" class="form-control" placeholder="Seu e-mail">
