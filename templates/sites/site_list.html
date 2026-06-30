@@ -2494,18 +2494,18 @@
             });
         }
 
-        function togglePartnerDetails(rowId, btnElement) {
+        window.togglePartnerDetails = function(rowId, btnElement) {
             const row = document.getElementById(rowId);
             const icon = btnElement.querySelector('svg');
             if (row.style.display === 'none') {
                 row.style.display = 'table-row';
-                icon.style.transform = 'rotate(180deg)';
+                if (icon) icon.style.transform = 'rotate(180deg)';
                 btnElement.style.background = 'var(--brand-primary)';
                 btnElement.style.color = '#ffffff';
                 btnElement.style.borderColor = 'var(--brand-primary)';
             } else {
                 row.style.display = 'none';
-                icon.style.transform = 'rotate(0deg)';
+                if (icon) icon.style.transform = 'rotate(0deg)';
                 btnElement.style.background = '#f1f5f9';
                 btnElement.style.color = 'var(--ent-primary)';
                 btnElement.style.borderColor = '#e2e8f0';
