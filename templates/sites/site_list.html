@@ -1044,6 +1044,34 @@
             .ent-card {
                 padding: 1.25rem !important;
             }
+
+            /* Estilização Responsiva dos Gráficos no Mobile */
+            .chart-flex-row {
+                flex-direction: column !important;
+                height: auto !important;
+                gap: 1.25rem !important;
+                align-items: center !important;
+            }
+
+            .chart-canvas-wrapper {
+                width: 180px !important;
+                height: 180px !important;
+            }
+
+            .chart-legend-wrapper {
+                width: 100% !important;
+                padding-left: 0 !important;
+                flex-direction: row !important;
+                flex-wrap: wrap !important;
+                justify-content: center !important;
+                gap: 0.75rem !important;
+                font-size: 0.72rem !important;
+            }
+
+            .chart-canvas-wrapper-bar {
+                height: 180px !important;
+                width: 100% !important;
+            }
         }
     </style>
     {% endblock %}
@@ -1162,20 +1190,20 @@
                     <!-- Gráfico 1: Rosca (Operadoras) -->
                     <div style="display: flex; flex-direction: column; align-items: center; width: 100%;">
                         <h4 style="font-size: 0.8rem; font-weight: 700; color: var(--ent-secondary); margin-bottom: 1rem; text-transform: uppercase; letter-spacing: 0.05em;">Distribuição por Operadora</h4>
-                        <div style="display: flex; align-items: center; gap: 1rem; width: 100%; height: 220px;">
-                            <div style="position: relative; height: 220px; width: 45%;">
+                        <div class="chart-flex-row" style="display: flex; align-items: center; gap: 1rem; width: 100%; height: 220px;">
+                            <div class="chart-canvas-wrapper" style="position: relative; height: 220px; width: 45%;">
                                 <canvas id="operatorDoughnutChart"></canvas>
                             </div>
-                            <div id="operator-chart-legend" style="display: flex; flex-direction: column; gap: 0.5rem; justify-content: center; font-size: 0.75rem; font-weight: 600; color: var(--ent-primary); width: 55%; padding-left: 0.5rem;">
+                            <div id="operator-chart-legend" class="chart-legend-wrapper" style="display: flex; flex-direction: column; gap: 0.5rem; justify-content: center; font-size: 0.75rem; font-weight: 600; color: var(--ent-primary); width: 55%; padding-left: 0.5rem;">
                                 <!-- Será populada dinamicamente via JS -->
                             </div>
                         </div>
                     </div>
                     
                     <!-- Gráfico 2: Barra (Escopo) -->
-                    <div style="display: flex; flex-direction: column; align-items: center;">
+                    <div style="display: flex; flex-direction: column; align-items: center; width: 100%;">
                         <h4 style="font-size: 0.8rem; font-weight: 700; color: var(--ent-secondary); margin-bottom: 1rem; text-transform: uppercase; letter-spacing: 0.05em;">Projetos por Escopo</h4>
-                        <div style="position: relative; height: 220px; width: 100%;">
+                        <div class="chart-canvas-wrapper-bar" style="position: relative; height: 220px; width: 100%;">
                             <canvas id="scopeBarChart"></canvas>
                         </div>
                     </div>
