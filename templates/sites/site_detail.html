@@ -943,16 +943,24 @@
                             <div style="display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap;">
                                 <h5 style="margin: 0; font-size: 0.95rem; font-weight: 700; color: var(--text-main);">Etapa {{ stage.index }}: {{ stage.name }}</h5>
                                 {% if stage.status == 'DONE' %}
-                                    <span style="font-size: 0.68rem; font-weight: 700; background: #ecfdf5; color: #10b981; padding: 0.15rem 0.5rem; border-radius: 20px;">Concluído</span>
+                                    <span style="font-size: 0.68rem; font-weight: 700; background: #ecfdf5; color: #10b981; padding: 0.15rem 0.5rem; border-radius: 20px;">
+                                        Concluído{% if stage.actual_date %} em {{ stage.actual_date|date:"d/m/Y" }}{% endif %}
+                                    </span>
                                 {% elif stage.status == 'SKIPPED' %}
                                     <span style="font-size: 0.68rem; font-weight: 700; background: #f1f5f9; color: #64748b; padding: 0.15rem 0.5rem; border-radius: 20px;">Ignorado</span>
                                 {% elif stage.name == 'Acesso' and site.access_status == 'REQUESTED' %}
-                                    <span style="font-size: 0.68rem; font-weight: 700; background: #eff6ff; color: #1e40af; padding: 0.15rem 0.5rem; border-radius: 20px;">Aguardando liberação</span>
+                                    <span style="font-size: 0.68rem; font-weight: 700; background: #eff6ff; color: #1e40af; padding: 0.15rem 0.5rem; border-radius: 20px;">
+                                        Aguardando liberação{% if site.access_requested_date %} desde {{ site.access_requested_date|date:"d/m/Y" }}{% endif %}
+                                    </span>
                                 {% elif stage.planned_date %}
                                     {% if stage.is_overdue %}
-                                        <span style="font-size: 0.68rem; font-weight: 700; background: #fdf2f2; color: #b91c1c; border: 1px solid #fca5a5; padding: 0.15rem 0.5rem; border-radius: 20px;">Atrasado</span>
+                                        <span style="font-size: 0.68rem; font-weight: 700; background: #fdf2f2; color: #b91c1c; border: 1px solid #fca5a5; padding: 0.15rem 0.5rem; border-radius: 20px;">
+                                            Atrasado (Prazo: {{ stage.planned_date|date:"d/m/Y" }})
+                                        </span>
                                     {% else %}
-                                        <span style="font-size: 0.68rem; font-weight: 700; background: #eff6ff; color: #1d4ed8; border: 1px solid #bfdbfe; padding: 0.15rem 0.5rem; border-radius: 20px;">Agendado</span>
+                                        <span style="font-size: 0.68rem; font-weight: 700; background: #eff6ff; color: #1d4ed8; border: 1px solid #bfdbfe; padding: 0.15rem 0.5rem; border-radius: 20px;">
+                                            Agendado para {{ stage.planned_date|date:"d/m/Y" }}
+                                        </span>
                                     {% endif %}
                                 {% else %}
                                     <span style="font-size: 0.68rem; font-weight: 700; background: #fffbeb; color: #d97706; padding: 0.15rem 0.5rem; border-radius: 20px;">Pendente</span>

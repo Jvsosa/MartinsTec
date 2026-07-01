@@ -1314,6 +1314,7 @@ def site_detail(request, pk):
             'name': stage_obj.stage_name,
             'status': status,
             'date': date.isoformat() if date else None,
+            'actual_date': date,
             'index': idx,
             'planned_date': planned_date_obj,
             'is_due': is_due,
