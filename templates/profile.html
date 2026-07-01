@@ -89,6 +89,47 @@
         }
     }
 
+    .role-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.25rem;
+        font-size: 0.62rem;
+        font-weight: 700;
+        padding: 0.12rem 0.45rem;
+        border-radius: 4px;
+        text-transform: uppercase;
+        letter-spacing: 0.03em;
+    }
+    .role-badge.admin {
+        background-color: rgba(37, 99, 235, 0.12);
+        color: #2563eb;
+        border: 1px solid rgba(37, 99, 235, 0.2);
+    }
+    .role-badge.engineer {
+        background-color: rgba(16, 185, 129, 0.12);
+        color: #10b981;
+        border: 1px solid rgba(16, 185, 129, 0.2);
+    }
+    .role-badge.viewer {
+        background-color: rgba(107, 114, 128, 0.12);
+        color: #6b7280;
+        border: 1px solid rgba(107, 114, 128, 0.2);
+    }
+    html[data-theme="dark"] .role-badge.admin {
+        color: #60a5fa;
+        background-color: rgba(96, 165, 250, 0.12);
+        border-color: rgba(96, 165, 250, 0.2);
+    }
+    html[data-theme="dark"] .role-badge.engineer {
+        color: #34d399;
+        background-color: rgba(52, 211, 153, 0.12);
+        border-color: rgba(52, 211, 153, 0.2);
+    }
+    html[data-theme="dark"] .role-badge.viewer {
+        color: #9ca3af;
+        background-color: rgba(156, 163, 175, 0.12);
+        border-color: rgba(156, 163, 175, 0.2);
+    }
     .setting-card {
         background-color: var(--bg-surface);
         border: 1px solid var(--border-color);
@@ -190,10 +231,16 @@
                 </div>
 
                 <div style="display: flex; flex-direction: column; gap: 0.4rem; flex: 1; min-width: 0;">
-                    <div style="display: flex; flex-direction: column; min-width: 0;">
-                        <h3 style="font-size: 1.05rem; font-weight: 700; color: var(--text-main); margin: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
-                            {{ user.first_name|default:user.username }}
-                        </h3>
+                    <div style="display: flex; flex-direction: column; gap: 0.25rem; min-width: 0;">
+                        <div style="display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap;">
+                            <h3 style="font-size: 1.05rem; font-weight: 700; color: var(--text-main); margin: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                                {{ user.first_name|default:user.username }}
+                            </h3>
+                            <span class="role-badge {% if user.role == 'ADMIN' %}admin{% elif user.role == 'ENGINEER' %}engineer{% else %}viewer{% endif %}">
+                                <i data-lucide="shield" style="width: 10px; height: 10px;"></i>
+                                {{ user.get_role_display }}
+                            </span>
+                        </div>
                         <span style="font-size: 0.72rem; color: var(--text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">@{{ user.username }}</span>
                     </div>
 
@@ -212,7 +259,46 @@
                 </div>
             </div>
 
-            <!-- Card 2: Dados Cadastrais -->
+            <!-- Card 2: Permissões de Acesso -->
+            <div class="setting-card">
+                <div class="setting-header">
+                    <i data-lucide="shield-check" style="width: 18px; height: 18px; color: var(--brand-primary);"></i>
+                    <h3>Minhas Permissões</h3>
+                </div>
+                
+                <div style="font-size: 0.78rem; color: var(--text-muted); line-height: 1.5; display: flex; flex-direction: column; gap: 0.65rem;">
+                    {% if user.role == 'ADMIN' %}
+                        <div style="display: flex; gap: 0.5rem; align-items: start;">
+                            <i data-lucide="check" style="width: 14px; height: 14px; color: #10b981; margin-top: 0.05rem; flex-shrink: 0;"></i>
+                            <span><strong>Acesso Administrativo Geral:</strong> Gerenciamento de bases, exclusão de sites e administração do painel NOC.</span>
+                        </div>
+                        <div style="display: flex; gap: 0.5rem; align-items: start;">
+                            <i data-lucide="check" style="width: 14px; height: 14px; color: #10b981; margin-top: 0.05rem; flex-shrink: 0;"></i>
+                            <span><strong>Ações de Sites:</strong> Permissão total para cadastrar, editar, replanejar e remover dados físicos da base.</span>
+                        </div>
+                    {% elif user.role == 'ENGINEER' %}
+                        <div style="display: flex; gap: 0.5rem; align-items: start;">
+                            <i data-lucide="check" style="width: 14px; height: 14px; color: #10b981; margin-top: 0.05rem; flex-shrink: 0;"></i>
+                            <span><strong>Gerenciamento de Cronograma:</strong> Criação de sites, acompanhamento de vistorias, laudos e projetos.</span>
+                        </div>
+                        <div style="display: flex; gap: 0.5rem; align-items: start;">
+                            <i data-lucide="check" style="width: 14px; height: 14px; color: #10b981; margin-top: 0.05rem; flex-shrink: 0;"></i>
+                            <span><strong>Fluxo de Liberações:</strong> Controle e requisição de acesso e registros detalhados de replanejamento.</span>
+                        </div>
+                    {% else %}
+                        <div style="display: flex; gap: 0.5rem; align-items: start;">
+                            <i data-lucide="check" style="width: 14px; height: 14px; color: #10b981; margin-top: 0.05rem; flex-shrink: 0;"></i>
+                            <span><strong>Consulta de Campo:</strong> Acesso à localização geográfica, ficha técnica de equipamentos e status operacionais.</span>
+                        </div>
+                        <div style="display: flex; gap: 0.5rem; align-items: start;">
+                            <i data-lucide="check" style="width: 14px; height: 14px; color: #10b981; margin-top: 0.05rem; flex-shrink: 0;"></i>
+                            <span><strong>Documentação:</strong> Permissão completa para upload de arquivos de vistoria e arquiteturas de site.</span>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Card 3: Dados Cadastrais -->
             <div class="setting-card">
                 <div class="setting-header">
                     <i data-lucide="user-cog" style="width: 18px; height: 18px; color: var(--brand-primary);"></i>
@@ -256,7 +342,7 @@
                 </form>
             </div>
 
-            <!-- Card 3: Alterar Senha de Acesso -->
+            <!-- Card 4: Alterar Senha de Acesso -->
             <div class="setting-card">
                 <div class="setting-header">
                     <i data-lucide="key-round" style="width: 18px; height: 18px; color: var(--brand-primary);"></i>
@@ -289,45 +375,6 @@
                         </button>
                     </div>
                 </form>
-            </div>
-
-            <!-- Card 4: Permissões de Acesso -->
-            <div class="setting-card">
-                <div class="setting-header">
-                    <i data-lucide="shield-check" style="width: 18px; height: 18px; color: var(--brand-primary);"></i>
-                    <h3>Cargo Atribuído: {{ user.get_role_display }}</h3>
-                </div>
-                
-                <div style="font-size: 0.78rem; color: var(--text-muted); line-height: 1.5; display: flex; flex-direction: column; gap: 0.65rem;">
-                    {% if user.role == 'ADMIN' %}
-                        <div style="display: flex; gap: 0.5rem; align-items: start;">
-                            <i data-lucide="check" style="width: 14px; height: 14px; color: #10b981; margin-top: 0.05rem; flex-shrink: 0;"></i>
-                            <span><strong>Acesso Administrativo Geral:</strong> Gerenciamento de bases, exclusão de sites e administração do painel NOC.</span>
-                        </div>
-                        <div style="display: flex; gap: 0.5rem; align-items: start;">
-                            <i data-lucide="check" style="width: 14px; height: 14px; color: #10b981; margin-top: 0.05rem; flex-shrink: 0;"></i>
-                            <span><strong>Ações de Sites:</strong> Permissão total para cadastrar, editar, replanejar e remover dados físicos da base.</span>
-                        </div>
-                    {% elif user.role == 'ENGINEER' %}
-                        <div style="display: flex; gap: 0.5rem; align-items: start;">
-                            <i data-lucide="check" style="width: 14px; height: 14px; color: #10b981; margin-top: 0.05rem; flex-shrink: 0;"></i>
-                            <span><strong>Gerenciamento de Cronograma:</strong> Criação de sites, acompanhamento de vistorias, laudos e projetos.</span>
-                        </div>
-                        <div style="display: flex; gap: 0.5rem; align-items: start;">
-                            <i data-lucide="check" style="width: 14px; height: 14px; color: #10b981; margin-top: 0.05rem; flex-shrink: 0;"></i>
-                            <span><strong>Fluxo de Liberações:</strong> Controle e requisição de acesso e registros detalhados de replanejamento.</span>
-                        </div>
-                    {% else %}
-                        <div style="display: flex; gap: 0.5rem; align-items: start;">
-                            <i data-lucide="check" style="width: 14px; height: 14px; color: #10b981; margin-top: 0.05rem; flex-shrink: 0;"></i>
-                            <span><strong>Consulta de Campo:</strong> Acesso à localização geográfica, ficha técnica de equipamentos e status operacionais.</span>
-                        </div>
-                        <div style="display: flex; gap: 0.5rem; align-items: start;">
-                            <i data-lucide="check" style="width: 14px; height: 14px; color: #10b981; margin-top: 0.05rem; flex-shrink: 0;"></i>
-                            <span><strong>Documentação:</strong> Permissão completa para upload de arquivos de vistoria e arquiteturas de site.</span>
-                        </div>
-                    {% endif %}
-                </div>
             </div>
 
         </div>
