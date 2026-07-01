@@ -888,7 +888,6 @@
             flex-direction: column;
             gap: 0.4rem;
             width: 100%;
-            flex-grow: 1;
         }
 
         .nav-link {
@@ -1449,10 +1448,8 @@
         </div>
 
         <div class="sidebar-body">
-            <!-- Categoria do Menu -->
-            <div class="nav-section-title">Menu Principal</div>
-
-            <!-- Centro: Links de Navegação -->
+            <!-- Categoria 1: Operações -->
+            <div class="nav-section-title">Operações</div>
             <nav class="nav-links">
                 <a href="{% url 'site_list' %}#dashboard" class="nav-link active" data-target="dashboard">
                     <i data-lucide="layout-dashboard" style="width: 18px; height: 18px;"></i>
@@ -1462,19 +1459,40 @@
                     <i data-lucide="trending-up" style="width: 18px; height: 18px;"></i>
                     <span class="nav-link-text">Desempenho</span>
                 </a>
-                <a href="{% url 'site_list' %}#sites" class="nav-link" data-target="sites">
-                    <i data-lucide="map-pin" style="width: 18px; height: 18px;"></i>
-                    <span class="nav-link-text">Sites</span>
-                </a>
-
                 <a href="{% url 'site_list' %}#calendario" class="nav-link" data-target="calendario">
                     <i data-lucide="calendar" style="width: 18px; height: 18px;"></i>
                     <span class="nav-link-text">Calendário</span>
                 </a>
             </nav>
 
+            <!-- Categoria 2: Cadastros -->
+            <div class="nav-section-title">Ativos</div>
+            <nav class="nav-links">
+                <a href="{% url 'site_list' %}#sites" class="nav-link" data-target="sites">
+                    <i data-lucide="map-pin" style="width: 18px; height: 18px;"></i>
+                    <span class="nav-link-text">Lista de Sites</span>
+                </a>
+            </nav>
+
+            <!-- Categoria 3: Sistema -->
+            <div class="nav-section-title">Sistema</div>
+            <nav class="nav-links">
+                <a href="{% url 'user_profile' %}" class="nav-link {% if request.resolver_match.url_name == 'user_profile' %}active{% endif %}">
+                    <i data-lucide="user" style="width: 18px; height: 18px;"></i>
+                    <span class="nav-link-text">Meu Perfil</span>
+                </a>
+                <a href="{% url 'user_settings' %}" class="nav-link {% if request.resolver_match.url_name == 'user_settings' %}active{% endif %}">
+                    <i data-lucide="settings" style="width: 18px; height: 18px;"></i>
+                    <span class="nav-link-text">Preferências</span>
+                </a>
+                <a href="{% url 'system_logs' %}" class="nav-link {% if request.resolver_match.url_name == 'system_logs' %}active{% endif %}">
+                    <i data-lucide="database" style="width: 18px; height: 18px;"></i>
+                    <span class="nav-link-text">Logs do Sistema</span>
+                </a>
+            </nav>
+
             <!-- Base: Log-out -->
-            <div class="sidebar-footer" style="justify-content: center;">
+            <div class="sidebar-footer" style="justify-content: center; margin-top: auto;">
                 <a href="{% url 'logout' %}" class="logout-btn" title="Sair">
                     <i data-lucide="log-out" style="width: 18px; height: 18px;"></i>
                 </a>
@@ -1900,10 +1918,20 @@
             
             // Atualizar links ativos na navbar
             document.querySelectorAll('.nav-link').forEach(link => {
-                if (link.getAttribute('href').endsWith(hash)) {
-                    link.classList.add('active');
+                const href = link.getAttribute('href');
+                if (href.includes('#')) {
+                    if (href.endsWith(hash)) {
+                        link.classList.add('active');
+                    } else {
+                        link.classList.remove('active');
+                    }
                 } else {
-                    link.classList.remove('active');
+                    // Para links de paginas cheias, ativa se o path atual corresponder ao href
+                    if (window.location.pathname === href || window.location.pathname.endsWith(href)) {
+                        link.classList.add('active');
+                    } else {
+                        link.classList.remove('active');
+                    }
                 }
             });
 
