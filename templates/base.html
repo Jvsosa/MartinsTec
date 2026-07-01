@@ -754,7 +754,8 @@
         .side-navbar.collapsed .profile-info,
         .side-navbar.collapsed .nav-link-text,
         .side-navbar.collapsed .nav-section-title,
-        .side-navbar.collapsed .status-indicator {
+        .side-navbar.collapsed .status-indicator,
+        .side-navbar.collapsed .NOC-status-container {
             display: none;
         }
         .side-navbar.collapsed .nav-brand {
@@ -1482,12 +1483,56 @@
                         <i data-lucide="map-pin" style="width: 18px; height: 18px;"></i>
                         <span class="nav-link-text">Lista de Sites</span>
                     </a>
+                    {% if user.role == 'ADMIN' or user.role == 'ENGINEER' %}
+                    <a href="{% url 'site_list' %}?open_modal=true" class="nav-link" style="color: var(--brand-primary); font-weight: 600;">
+                        <i data-lucide="plus-circle" style="width: 18px; height: 18px;"></i>
+                        <span class="nav-link-text">Integrar Site</span>
+                    </a>
+                    {% endif %}
                 </nav>
             </div>
 
-            <!-- Base: Log-out -->
-            <div class="sidebar-footer" style="justify-content: center; margin-top: auto;">
-                <a href="{% url 'logout' %}" class="logout-btn" title="Sair">
+            <!-- Categoria 3: Suporte (Enfeite) -->
+            <div class="sidebar-category">
+                <div class="nav-section-title">Suporte</div>
+                <nav class="nav-links">
+                    <a href="mailto:suporte@martinstec.com.br" class="nav-link">
+                        <i data-lucide="help-circle" style="width: 18px; height: 18px;"></i>
+                        <span class="nav-link-text">Central de Ajuda</span>
+                    </a>
+                </nav>
+            </div>
+
+            <!-- NOC Status Monitor (Pulsing Indicator Widget) -->
+            <div class="sidebar-category NOC-status-container" style="margin-top: 0.5rem;">
+                <div style="background: rgba(16, 185, 129, 0.05); border: 1px solid rgba(16, 185, 129, 0.15); border-radius: 12px; padding: 0.85rem 1rem; display: flex; align-items: center; gap: 0.75rem;">
+                    <span style="position: relative; display: flex; width: 8px; height: 8px; flex-shrink: 0;">
+                        <span style="animation: ping 1.5s cubic-bezier(0, 0, 0.2, 1) infinite; position: absolute; display: inline-flex; height: 100%; width: 100%; border-radius: 50%; background-color: #10b981; opacity: 0.75;"></span>
+                        <span style="position: relative; display: inline-flex; border-radius: 50%; height: 8px; width: 8px; background-color: #10b981;"></span>
+                    </span>
+                    <div style="display: flex; flex-direction: column;">
+                        <span style="font-size: 0.65rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: #10b981; line-height: 1;">NOC Monitor</span>
+                        <span style="font-size: 0.72rem; color: var(--text-muted); font-weight: 500; margin-top: 0.15rem;">Sistemas Online</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Base: Perfil do Usuário e Logout -->
+            <div class="sidebar-footer" style="margin-top: auto;">
+                <a href="{% url 'user_profile' %}" class="profile-card">
+                    <div style="width: 32px; height: 32px; border-radius: 8px; overflow: hidden; display: flex; align-items: center; justify-content: center; background: var(--brand-primary); color: white; font-weight: 700; font-size: 0.85rem; flex-shrink: 0;">
+                        {% if user.profile_picture_base64 %}
+                            <img src="{{ user.profile_picture_base64 }}" alt="Avatar" style="width: 100%; height: 100%; object-fit: cover;">
+                        {% else %}
+                            {{ user.username|slice:":1"|upper|default:"A" }}
+                        {% endif %}
+                    </div>
+                    <div class="profile-info">
+                        <span class="profile-name">{{ user.first_name|default:user.username }}</span>
+                        <span class="profile-role">{{ user.get_role_display }}</span>
+                    </div>
+                </a>
+                <a href="{% url 'logout' %}" class="logout-btn" title="Sair" style="display: flex; align-items: center; justify-content: center; width: 34px; height: 34px; border-radius: 8px; border: 1px solid var(--border-color); color: var(--text-muted); transition: all 0.2s;">
                     <i data-lucide="log-out" style="width: 18px; height: 18px;"></i>
                 </a>
             </div>

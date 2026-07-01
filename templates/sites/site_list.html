@@ -2690,6 +2690,15 @@
                 initPartnerChart();
             }, 300);
         }
+
+        // Verifica se veio redirecionado para abrir o modal de criação
+        const urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.get('open_modal') === 'true') {
+            openCreateModal();
+            // Remove o parâmetro da URL de forma limpa para não reabrir ao atualizar a página
+            const newUrl = window.location.pathname + window.location.hash;
+            window.history.replaceState({}, document.title, newUrl);
+        }
     });
 
     // --- 5. GRÁFICO CHART.JS ---
