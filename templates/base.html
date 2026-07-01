@@ -1474,23 +1474,6 @@
                 </a>
             </nav>
 
-            <!-- Categoria 3: Sistema -->
-            <div class="nav-section-title">Sistema</div>
-            <nav class="nav-links">
-                <a href="{% url 'user_profile' %}" class="nav-link {% if request.resolver_match.url_name == 'user_profile' %}active{% endif %}">
-                    <i data-lucide="user" style="width: 18px; height: 18px;"></i>
-                    <span class="nav-link-text">Meu Perfil</span>
-                </a>
-                <a href="{% url 'user_settings' %}" class="nav-link {% if request.resolver_match.url_name == 'user_settings' %}active{% endif %}">
-                    <i data-lucide="settings" style="width: 18px; height: 18px;"></i>
-                    <span class="nav-link-text">Preferências</span>
-                </a>
-                <a href="{% url 'system_logs' %}" class="nav-link {% if request.resolver_match.url_name == 'system_logs' %}active{% endif %}">
-                    <i data-lucide="database" style="width: 18px; height: 18px;"></i>
-                    <span class="nav-link-text">Logs do Sistema</span>
-                </a>
-            </nav>
-
             <!-- Base: Log-out -->
             <div class="sidebar-footer" style="justify-content: center; margin-top: auto;">
                 <a href="{% url 'logout' %}" class="logout-btn" title="Sair">
