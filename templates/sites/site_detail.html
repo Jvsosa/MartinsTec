@@ -1146,12 +1146,12 @@
                                             <input type="hidden" name="actual_survey_date" value="{{ site.actual_survey_date|date:'Y-m-d' }}">
                                             <input type="hidden" name="actual_report_date" value="{{ site.actual_report_date|date:'Y-m-d' }}">
                                             
-                                            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 0.75rem; align-items: end;">
-                                                <div class="field-group">
-                                                    <label for="planned_survey_stepper_new" style="font-size: 0.65rem; color: var(--brand-primary);">Data Planejada da Vistoria</label>
-                                                    <input type="date" name="planned_survey_date" id="planned_survey_stepper_new" class="field-control" required style="padding: 0.4rem; font-size: 0.8rem; border-radius: 6px; border: 1px solid var(--border-color); background: white; height: 34px; box-sizing: border-box;">
+                                            <div style="display: flex; gap: 0.75rem; align-items: flex-end; flex-wrap: wrap;">
+                                                <div class="field-group" style="display: flex; flex-direction: column; gap: 0.25rem;">
+                                                    <label for="planned_survey_stepper_new" style="font-size: 0.72rem; color: var(--text-muted); font-weight: 600;">Data Planejada da Vistoria</label>
+                                                    <input type="date" name="planned_survey_date" id="planned_survey_stepper_new" class="field-control" required style="padding: 0.4rem 0.6rem; font-size: 0.8rem; border-radius: 6px; border: 1px solid var(--border-color); background: white; height: 34px; box-sizing: border-box; width: 145px;">
                                                 </div>
-                                                <button type="submit" class="btn-submit" style="padding: 0.5rem 1rem; font-size: 0.8rem; border-radius: 6px; width: 100%; border: none; cursor: pointer; font-weight: 700; height: 34px; background: var(--brand-primary); color: white;">
+                                                <button type="submit" class="btn-ent btn-ent-primary" style="height: 34px; padding: 0 1.25rem; display: inline-flex; align-items: center;">
                                                     Salvar Agendamento
                                                 </button>
                                             </div>
@@ -1220,10 +1220,12 @@
 
 
                                 <div style="display: flex; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 1rem;">
+                                    {% if site.planned_survey_date %}
                                     <button type="button" onclick="toggleRescheduleForm()" class="btn-ent btn-ent-outline">
                                         <i data-lucide="calendar-days" style="width: 14px; height: 14px;"></i>
                                         Replanejar Vistoria
                                     </button>
+                                    {% endif %}
                                     <form method="POST" action="{% url 'site_detail' pk=site.pk %}" style="display:inline;">
                                         {% csrf_token %}
                                         <input type="hidden" name="action" value="update_stage">
@@ -1334,12 +1336,12 @@
                                             <input type="hidden" name="actual_survey_date" value="{{ site.actual_survey_date|date:'Y-m-d' }}">
                                             <input type="hidden" name="actual_report_date" value="{{ site.actual_report_date|date:'Y-m-d' }}">
                                             
-                                            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 0.75rem; align-items: end;">
-                                                <div class="field-group">
-                                                    <label for="planned_report_stepper_new" style="font-size: 0.65rem; color: var(--brand-primary);">Data Planejada do {{ stage.name }}</label>
-                                                    <input type="date" name="planned_report_date" id="planned_report_stepper_new" class="field-control" required style="padding: 0.4rem; font-size: 0.8rem; border-radius: 6px; border: 1px solid var(--border-color); background: white; height: 34px; box-sizing: border-box;">
+                                            <div style="display: flex; gap: 0.75rem; align-items: flex-end; flex-wrap: wrap;">
+                                                <div class="field-group" style="display: flex; flex-direction: column; gap: 0.25rem;">
+                                                    <label for="planned_report_stepper_new" style="font-size: 0.72rem; color: var(--text-muted); font-weight: 600;">Data Planejada do {{ stage.name }}</label>
+                                                    <input type="date" name="planned_report_date" id="planned_report_stepper_new" class="field-control" required style="padding: 0.4rem 0.6rem; font-size: 0.8rem; border-radius: 6px; border: 1px solid var(--border-color); background: white; height: 34px; box-sizing: border-box; width: 145px;">
                                                 </div>
-                                                <button type="submit" class="btn-submit" style="padding: 0.5rem 1rem; font-size: 0.8rem; border-radius: 6px; width: 100%; border: none; cursor: pointer; font-weight: 700; height: 34px; background: var(--brand-primary); color: white;">
+                                                <button type="submit" class="btn-ent btn-ent-primary" style="height: 34px; padding: 0 1.25rem; display: inline-flex; align-items: center;">
                                                     Salvar Agendamento
                                                 </button>
                                             </div>
@@ -1408,10 +1410,12 @@
 
                                 <div style="display: flex; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 1rem;">
                                     {% if user.role == 'ADMIN' or user.role == 'ENGINEER' %}
+                                    {% if site.planned_report_date %}
                                     <button type="button" onclick="toggleRescheduleReportForm()" class="btn-ent btn-ent-outline">
                                         <i data-lucide="calendar-days" style="width: 14px; height: 14px;"></i>
                                         Replanejar {{ stage.name }}
                                     </button>
+                                    {% endif %}
                                     <form method="POST" action="{% url 'site_detail' pk=site.pk %}" style="display:inline;">
                                         {% csrf_token %}
                                         <input type="hidden" name="action" value="update_stage">
