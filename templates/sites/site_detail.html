@@ -593,6 +593,66 @@
         border-color: var(--brand-primary) !important;
     }
 
+    /* Override cores de caixas de ajuda/replanejamento em modo escuro */
+    html[data-theme="dark"] #survey-question-box,
+    html[data-theme="dark"] #report-question-box,
+    html[data-theme="dark"] [id^="generic-question-box-"] {
+        background-color: rgba(59, 130, 246, 0.1) !important;
+        border-color: rgba(59, 130, 246, 0.25) !important;
+    }
+    
+    html[data-theme="dark"] #survey-question-box h6,
+    html[data-theme="dark"] #report-question-box h6,
+    html[data-theme="dark"] [id^="generic-question-box-"] h6 {
+        color: #60a5fa !important;
+    }
+
+    html[data-theme="dark"] #survey-question-box p,
+    html[data-theme="dark"] #report-question-box p,
+    html[data-theme="dark"] [id^="generic-question-box-"] p {
+        color: var(--text-main) !important;
+    }
+
+    html[data-theme="dark"] #survey-realization-container,
+    html[data-theme="dark"] #report-realization-container,
+    html[data-theme="dark"] [id^="generic-realization-container-"] {
+        background-color: rgba(16, 185, 129, 0.1) !important;
+        border-color: rgba(16, 185, 129, 0.25) !important;
+    }
+    
+    html[data-theme="dark"] #survey-realization-container h6,
+    html[data-theme="dark"] #report-realization-container h6,
+    html[data-theme="dark"] [id^="generic-realization-container-"] h6 {
+        color: #34d399 !important;
+    }
+
+    html[data-theme="dark"] #reschedule-form-container,
+    html[data-theme="dark"] #reschedule-report-form-container,
+    html[data-theme="dark"] [id^="generic-reschedule-"] {
+        background-color: rgba(245, 158, 11, 0.1) !important;
+        border-color: rgba(245, 158, 11, 0.25) !important;
+    }
+    
+    html[data-theme="dark"] #reschedule-form-container h6,
+    html[data-theme="dark"] #reschedule-report-form-container h6,
+    html[data-theme="dark"] [id^="generic-reschedule-"] h6 {
+        color: #fbbf24 !important;
+    }
+
+    html[data-theme="dark"] #reschedule-form-container label,
+    html[data-theme="dark"] #reschedule-report-form-container label,
+    html[data-theme="dark"] [id^="generic-reschedule-"] label {
+        color: #f59e0b !important;
+    }
+
+    html[data-theme="dark"] #reschedule-form-container input,
+    html[data-theme="dark"] #reschedule-report-form-container input,
+    html[data-theme="dark"] [id^="generic-reschedule-"] input {
+        border-color: rgba(245, 158, 11, 0.25) !important;
+        background-color: var(--bg-body) !important;
+        color: var(--text-main) !important;
+    }
+
     /* Sobrescreve inline backgrounds de avisos/sucesso/alerta dentro do stepper */
     html[data-theme="dark"] [style*="background: #eff6ff"],
     html[data-theme="dark"] [style*="background:#eff6ff"],
