@@ -72,6 +72,11 @@
             color: var(--text-main);
         }
 
+        html[data-theme="dark"] input[type="date"]::-webkit-calendar-picker-indicator {
+            filter: invert(1) !important;
+            cursor: pointer;
+        }
+
         html[data-theme="dark"] .side-navbar {
             background: linear-gradient(180deg, #2A2A2F 0%, #1E1E22 100%) !important;
             border-right: 1px solid var(--border-color) !important;
