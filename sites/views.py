@@ -1837,6 +1837,18 @@ def user_settings(request):
 @login_required
 def system_logs(request):
     from django.core.paginator import Paginator
+    from .models import Site, SystemLog
+    
+    # Migração retroativa automática de logs antigos sem target_id
+    unmigrated = SystemLog.objects.filter(target_id__isnull=True) | SystemLog.objects.filter(target_id='')
+    if unmigrated.exists():
+        for log in unmigrated:
+            site = Site.objects.filter(site_id=log.target_name).first() or Site.objects.filter(name=log.target_name).first()
+            if site:
+                log.target_id = site.site_id
+                log.target_name = site.name
+                log.save()
+
     logs_qs = SystemLog.objects.select_related('user').order_by('-created_at')
     
     # Simple search
@@ -1847,6 +1859,7 @@ def system_logs(request):
             Q(user_name__icontains=query) |
             Q(action__icontains=query) |
             Q(target_name__icontains=query) |
+            Q(target_id__icontains=query) |
             Q(details__icontains=query)
         )
         
