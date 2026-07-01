@@ -991,9 +991,9 @@
                                                  <input type="hidden" name="action" value="update_access">
                                                  <input type="hidden" name="access_action" value="request_access">
                                                  
-                                                 <div style="display: flex; flex-direction: column; gap: 0.25rem;">
+                                                 <div style="display: flex; flex-direction: column; gap: 0.25rem; width: 180px;">
                                                      <label for="access_requested_date" style="font-size: 0.72rem; color: var(--text-muted); font-weight: 600;">Data da Solicitação (Opcional)</label>
-                                                     <input type="date" name="access_requested_date" id="access_requested_date" class="field-control" style="padding: 0.4rem 0.6rem; font-size: 0.8rem; border: 1px solid var(--border-color); border-radius: 6px; width: 145px; background: white; height: 34px; box-sizing: border-box;">
+                                                     <input type="date" name="access_requested_date" id="access_requested_date" class="field-control" style="padding: 0.4rem 0.6rem; font-size: 0.8rem; border: 1px solid var(--border-color); border-radius: 6px; width: 100%; background: white; height: 34px; box-sizing: border-box;">
                                                  </div>
 
                                                  <button type="submit" class="btn-ent btn-ent-primary" style="height: 34px; padding: 0 1.25rem; display: inline-flex; align-items: center; gap: 0.35rem;">
@@ -1035,9 +1035,9 @@
                                                  <input type="hidden" name="action" value="update_access">
                                                  <input type="hidden" name="access_action" value="release_access">
                                                  
-                                                 <div style="display: flex; flex-direction: column; gap: 0.25rem;">
+                                                 <div style="display: flex; flex-direction: column; gap: 0.25rem; width: 180px;">
                                                      <label for="access_released_date" style="font-size: 0.72rem; color: var(--text-muted); font-weight: 600;">Data da Liberação (Opcional)</label>
-                                                     <input type="date" name="access_released_date" id="access_released_date" class="field-control" style="padding: 0.4rem 0.6rem; font-size: 0.8rem; border: 1px solid var(--border-color); border-radius: 6px; width: 145px; background: white; height: 34px; box-sizing: border-box;">
+                                                     <input type="date" name="access_released_date" id="access_released_date" class="field-control" style="padding: 0.4rem 0.6rem; font-size: 0.8rem; border: 1px solid var(--border-color); border-radius: 6px; width: 100%; background: white; height: 34px; box-sizing: border-box;">
                                                  </div>
 
                                                  <button type="submit" class="btn-ent btn-ent-primary" style="height: 34px; padding: 0 1.25rem; display: inline-flex; align-items: center; gap: 0.35rem;">
@@ -1147,9 +1147,9 @@
                                             <input type="hidden" name="actual_report_date" value="{{ site.actual_report_date|date:'Y-m-d' }}">
                                             
                                             <div style="display: flex; gap: 0.75rem; align-items: flex-end; flex-wrap: wrap;">
-                                                <div class="field-group" style="display: flex; flex-direction: column; gap: 0.25rem;">
+                                                <div class="field-group" style="display: flex; flex-direction: column; gap: 0.25rem; width: 180px;">
                                                     <label for="planned_survey_stepper_new" style="font-size: 0.72rem; color: var(--text-muted); font-weight: 600;">Data Planejada da Vistoria</label>
-                                                    <input type="date" name="planned_survey_date" id="planned_survey_stepper_new" class="field-control" required style="padding: 0.4rem 0.6rem; font-size: 0.8rem; border-radius: 6px; border: 1px solid var(--border-color); background: white; height: 34px; box-sizing: border-box; width: 145px;">
+                                                    <input type="date" name="planned_survey_date" id="planned_survey_stepper_new" class="field-control" required style="padding: 0.4rem 0.6rem; font-size: 0.8rem; border-radius: 6px; border: 1px solid var(--border-color); background: white; height: 34px; box-sizing: border-box; width: 100%;">
                                                 </div>
                                                 <button type="submit" class="btn-ent btn-ent-primary" style="height: 34px; padding: 0 1.25rem; display: inline-flex; align-items: center;">
                                                     Salvar Agendamento
@@ -1337,9 +1337,9 @@
                                             <input type="hidden" name="actual_report_date" value="{{ site.actual_report_date|date:'Y-m-d' }}">
                                             
                                             <div style="display: flex; gap: 0.75rem; align-items: flex-end; flex-wrap: wrap;">
-                                                <div class="field-group" style="display: flex; flex-direction: column; gap: 0.25rem;">
+                                                <div class="field-group" style="display: flex; flex-direction: column; gap: 0.25rem; width: 180px;">
                                                     <label for="planned_report_stepper_new" style="font-size: 0.72rem; color: var(--text-muted); font-weight: 600;">Data Planejada do {{ stage.name }}</label>
-                                                    <input type="date" name="planned_report_date" id="planned_report_stepper_new" class="field-control" required style="padding: 0.4rem 0.6rem; font-size: 0.8rem; border-radius: 6px; border: 1px solid var(--border-color); background: white; height: 34px; box-sizing: border-box; width: 145px;">
+                                                    <input type="date" name="planned_report_date" id="planned_report_stepper_new" class="field-control" required style="padding: 0.4rem 0.6rem; font-size: 0.8rem; border-radius: 6px; border: 1px solid var(--border-color); background: white; height: 34px; box-sizing: border-box; width: 100%;">
                                                 </div>
                                                 <button type="submit" class="btn-ent btn-ent-primary" style="height: 34px; padding: 0 1.25rem; display: inline-flex; align-items: center;">
                                                     Salvar Agendamento
@@ -1825,7 +1825,7 @@
                             <!-- Navigation buttons inside all stepper contents -->
                             <div style="display: flex; justify-content: space-between; margin-top: 1rem; border-top: 1px dashed #e2e8f0; padding-top: 0.75rem; width: 100%;">
                                 {% if stage.index > 1 %}
-                                <button type="button" onclick="selectStep({{ stage.index|add:"-1" }})" class="btn-ent btn-ent-outline">
+                                <button type="button" onclick="selectStep({{ stage.index|add:"-1" }})" class="btn-ent btn-ent-primary">
                                     <i data-lucide="arrow-left" style="width: 14px; height: 14px;"></i>
                                     Anterior
                                 </button>
