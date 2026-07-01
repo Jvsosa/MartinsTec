@@ -817,16 +817,23 @@
             display: flex;
             flex-direction: column;
             flex-grow: 1;
-            padding: 1.5rem;
-            gap: 1.5rem;
+            padding: 2.25rem 1.5rem 1.5rem;
+            gap: 1.75rem;
             overflow-y: auto;
             width: 100%;
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
         .side-navbar.collapsed .sidebar-body {
-            padding: 1.5rem 0.5rem;
+            padding: 2.25rem 0.5rem 1.5rem;
             align-items: center;
+        }
+
+        .sidebar-category {
+            display: flex;
+            flex-direction: column;
+            gap: 0.35rem;
+            width: 100%;
         }
 
         /* Logo no topo da Sidebar */
@@ -878,7 +885,7 @@
             color: var(--text-muted);
             text-transform: uppercase;
             letter-spacing: 0.1em;
-            margin: 0 0.5rem 0.75rem;
+            margin: 0 0.5rem 0.25rem;
             opacity: 0.85;
         }
 
@@ -1449,30 +1456,34 @@
 
         <div class="sidebar-body">
             <!-- Categoria 1: Operações -->
-            <div class="nav-section-title">Operações</div>
-            <nav class="nav-links">
-                <a href="{% url 'site_list' %}#dashboard" class="nav-link active" data-target="dashboard">
-                    <i data-lucide="layout-dashboard" style="width: 18px; height: 18px;"></i>
-                    <span class="nav-link-text">Dashboard</span>
-                </a>
-                <a href="{% url 'site_list' %}#analytics" class="nav-link" data-target="analytics">
-                    <i data-lucide="trending-up" style="width: 18px; height: 18px;"></i>
-                    <span class="nav-link-text">Desempenho</span>
-                </a>
-                <a href="{% url 'site_list' %}#calendario" class="nav-link" data-target="calendario">
-                    <i data-lucide="calendar" style="width: 18px; height: 18px;"></i>
-                    <span class="nav-link-text">Calendário</span>
-                </a>
-            </nav>
+            <div class="sidebar-category">
+                <div class="nav-section-title">Operações</div>
+                <nav class="nav-links">
+                    <a href="{% url 'site_list' %}#dashboard" class="nav-link active" data-target="dashboard">
+                        <i data-lucide="layout-dashboard" style="width: 18px; height: 18px;"></i>
+                        <span class="nav-link-text">Dashboard</span>
+                    </a>
+                    <a href="{% url 'site_list' %}#analytics" class="nav-link" data-target="analytics">
+                        <i data-lucide="trending-up" style="width: 18px; height: 18px;"></i>
+                        <span class="nav-link-text">Desempenho</span>
+                    </a>
+                    <a href="{% url 'site_list' %}#calendario" class="nav-link" data-target="calendario">
+                        <i data-lucide="calendar" style="width: 18px; height: 18px;"></i>
+                        <span class="nav-link-text">Calendário</span>
+                    </a>
+                </nav>
+            </div>
 
             <!-- Categoria 2: Cadastros -->
-            <div class="nav-section-title">Ativos</div>
-            <nav class="nav-links">
-                <a href="{% url 'site_list' %}#sites" class="nav-link" data-target="sites">
-                    <i data-lucide="map-pin" style="width: 18px; height: 18px;"></i>
-                    <span class="nav-link-text">Lista de Sites</span>
-                </a>
-            </nav>
+            <div class="sidebar-category">
+                <div class="nav-section-title">Ativos</div>
+                <nav class="nav-links">
+                    <a href="{% url 'site_list' %}#sites" class="nav-link" data-target="sites">
+                        <i data-lucide="map-pin" style="width: 18px; height: 18px;"></i>
+                        <span class="nav-link-text">Lista de Sites</span>
+                    </a>
+                </nav>
+            </div>
 
             <!-- Base: Log-out -->
             <div class="sidebar-footer" style="justify-content: center; margin-top: auto;">
