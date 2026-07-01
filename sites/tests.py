@@ -1615,13 +1615,15 @@ class SystemLogTests(TestCase):
         log = SystemLog.register_log(
             user=self.user,
             action="Ação de Teste",
-            target_name="SITE_TESTE_LOG",
+            target_name="Nome do Site",
+            target_id="SITE_TESTE_LOG",
             details="Detalhes específicos de teste"
         )
         self.assertEqual(log.user, self.user)
         self.assertEqual(log.user_name, self.user.get_full_name() or self.user.username)
         self.assertEqual(log.action, "Ação de Teste")
-        self.assertEqual(log.target_name, "SITE_TESTE_LOG")
+        self.assertEqual(log.target_name, "Nome do Site")
+        self.assertEqual(log.target_id, "SITE_TESTE_LOG")
         self.assertEqual(log.details, "Detalhes específicos de teste")
 
     def test_logs_page_loads_and_shows_log(self):
@@ -1633,13 +1635,15 @@ class SystemLogTests(TestCase):
         SystemLog.register_log(
             user=self.user,
             action="Integrou novo ativo",
-            target_name="TEST_SITE_A",
+            target_name="Nome do Site A",
+            target_id="TEST_SITE_A",
             details="Detalhes A"
         )
 
         url = reverse('system_logs')
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Nome do Site A")
         self.assertContains(response, "TEST_SITE_A")
         self.assertContains(response, "Integrou novo ativo")
 
@@ -1666,9 +1670,10 @@ class SystemLogTests(TestCase):
         self.assertEqual(response_create.status_code, 302)
         site = Site.objects.get(site_id='TEST_LOG_SITE')
         
-        create_log = SystemLog.objects.filter(target_name='TEST_LOG_SITE', action="Integrou novo ativo").first()
+        create_log = SystemLog.objects.filter(target_id='TEST_LOG_SITE', action="Integrou novo ativo").first()
         self.assertIsNotNone(create_log)
         self.assertEqual(create_log.user, self.user)
+        self.assertEqual(create_log.target_name, 'Site do Log de Teste')
 
 
 

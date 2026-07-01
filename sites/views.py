@@ -97,7 +97,8 @@ def site_list(request):
             SystemLog.register_log(
                 user=request.user,
                 action="Integrou novo ativo",
-                target_name=new_site.site_id or new_site.name,
+                target_name=new_site.name,
+                target_id=new_site.site_id,
                 details=f"Nome: {new_site.name}, Escopo: {new_site.get_scope_type_display()}, Fornecedora: {new_site.partner_company or 'Sem Fornecedora'}"
             )
             messages.success(request, f"Site {new_site.site_id or new_site.name} cadastrado com sucesso!")
@@ -958,7 +959,8 @@ def site_detail(request, pk):
                 SystemLog.register_log(
                     user=request.user,
                     action="Atualizou datas planejadas / fornecedor",
-                    target_name=site.site_id or site.name,
+                    target_name=site.name,
+                    target_id=site.site_id,
                     details=f"Fornecedor: {site.partner_company or 'Sem Fornecedora'}, Vistoria: {p_survey}, Laudo/Projeto: {p_report}"
                 )
                 messages.success(request, "Fluxo de trabalho e prazos atualizados com sucesso!")
@@ -1004,7 +1006,8 @@ def site_detail(request, pk):
                 SystemLog.register_log(
                     user=request.user,
                     action="Atualizou status de acesso",
-                    target_name=site.site_id or site.name,
+                    target_name=site.name,
+                    target_id=site.site_id,
                     details=f"Novo Status: {site.get_access_status_display()}"
                 )
             except Exception as e:
@@ -1053,7 +1056,8 @@ def site_detail(request, pk):
                 SystemLog.register_log(
                     user=request.user,
                     action=f"Atualizou etapa '{stage_name}'",
-                    target_name=site.site_id or site.name,
+                    target_name=site.name,
+                    target_id=site.site_id,
                     details=f"Novo Status: {stage_status}"
                 )
                 messages.success(request, f"Etapa '{stage_name}' atualizada com sucesso!")
@@ -1085,7 +1089,8 @@ def site_detail(request, pk):
             SystemLog.register_log(
                 user=request.user,
                 action=f"Planejou etapa '{stage_name}'",
-                target_name=site.site_id or site.name,
+                target_name=site.name,
+                target_id=site.site_id,
                 details=f"Data Planejada: {planned_date_str}"
             )
             messages.success(request, f"Data planejada para '{stage_name}' definida com sucesso!")
@@ -1126,7 +1131,8 @@ def site_detail(request, pk):
             SystemLog.register_log(
                 user=request.user,
                 action=f"Replanejou etapa '{stage_name}'",
-                target_name=site.site_id or site.name,
+                target_name=site.name,
+                target_id=site.site_id,
                 details=f"Nova Data: {new_planned_date_str}, Motivo: {reason or 'Sem motivo informado'}"
             )
             messages.warning(request, f"Replanejamento da etapa '{stage_name}' registrado! Total: {site.reschedule_count}")
@@ -1198,7 +1204,8 @@ def site_detail(request, pk):
                 SystemLog.register_log(
                     user=request.user,
                     action="Atualizou ficha técnica / localização",
-                    target_name=site.site_id or site.name,
+                    target_name=site.name,
+                    target_id=site.site_id,
                     details=f"Nome: {site.name}, Tipo: {site.get_site_type_display()}, Endereço: {site.address or 'Sem Endereço'}"
                 )
                 messages.success(request, "Informações do site e ficha técnica atualizadas com sucesso!")
@@ -1239,7 +1246,8 @@ def site_detail(request, pk):
             SystemLog.register_log(
                 user=request.user,
                 action="Enviou documento técnico",
-                target_name=site.site_id or site.name,
+                target_name=site.name,
+                target_id=site.site_id,
                 details=f"Arquivo: {os.path.basename(site_file.file.name)}, Categoria: {category}"
             )
             messages.success(request, f"Arquivo '{os.path.basename(site_file.file.name)}' enviado com sucesso!")
@@ -1401,7 +1409,8 @@ def delete_file(request, file_id):
     SystemLog.register_log(
         user=request.user,
         action="Excluiu documento técnico",
-        target_name=site_name,
+        target_name=site_file.site.name,
+        target_id=site_file.site.site_id,
         details=f"Arquivo: {file_name}, Categoria: {site_file.category}"
     )
     site_file.delete()
@@ -1445,7 +1454,8 @@ def delete_site(request, pk):
     SystemLog.register_log(
         user=request.user,
         action="Excluiu o ativo permanentemente",
-        target_name=target_name,
+        target_name=site.name,
+        target_id=site.site_id,
         details=f"Nome: {site.name}, Escopo: {site.get_scope_type_display()}"
     )
     site.delete()

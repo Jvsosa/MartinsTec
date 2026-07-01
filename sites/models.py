@@ -1143,6 +1143,7 @@ class SystemLog(models.Model):
     user_name = models.CharField(max_length=255, verbose_name="Nome do Usuário")
     action = models.CharField(max_length=255, verbose_name="Ação")
     target_name = models.CharField(max_length=255, verbose_name="Alvo / Ativo")
+    target_id = models.CharField(max_length=255, blank=True, null=True, verbose_name="ID do Ativo")
     details = models.TextField(blank=True, null=True, verbose_name="Detalhes")
     created_at = models.DateTimeField(auto_now_add=True, verbose_name="Data / Hora")
 
@@ -1155,13 +1156,14 @@ class SystemLog(models.Model):
         return f"{self.user_name} - {self.action} - {self.target_name} ({self.created_at})"
 
     @classmethod
-    def register_log(cls, user, action, target_name, details=None):
+    def register_log(cls, user, action, target_name, target_id=None, details=None):
         name = (user.get_full_name() or user.username) if user else "Sistema"
         return cls.objects.create(
             user=user,
             user_name=name,
             action=action,
             target_name=target_name,
+            target_id=target_id,
             details=details
         )
 

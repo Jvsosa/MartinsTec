@@ -49,24 +49,18 @@
         gap: 0.75rem;
         width: 100%;
         margin-bottom: 1rem;
+        align-items: center;
     }
 
     .logs-search-input-wrapper {
         position: relative;
         flex-grow: 1;
-    }
-
-    .logs-search-input-wrapper i {
-        position: absolute;
-        left: 1rem;
-        top: 50%;
-        transform: translateY(-50%);
-        color: var(--text-muted);
-        pointer-events: none;
+        height: 42px;
     }
 
     .logs-search-input {
         width: 100%;
+        height: 42px;
         padding: 0.7rem 1rem 0.7rem 2.5rem;
         border: 1.5px solid var(--border-color);
         border-radius: 8px;
@@ -75,6 +69,7 @@
         color: var(--text-main);
         background-color: var(--bg-body);
         transition: all 0.25s ease;
+        box-sizing: border-box;
     }
 
     .logs-search-input:focus {
@@ -95,8 +90,11 @@
         cursor: pointer;
         display: inline-flex;
         align-items: center;
+        justify-content: center;
         gap: 0.5rem;
         transition: background 0.2s ease;
+        height: 42px;
+        box-sizing: border-box;
     }
 
     .btn-search:hover {
@@ -245,14 +243,14 @@
                 <!-- Barra de Busca -->
                 <form method="GET" action="{% url 'system_logs' %}" class="logs-search-bar">
                     <div class="logs-search-input-wrapper">
-                        <i data-lucide="search" style="width: 18px; height: 18px;"></i>
+                        <i data-lucide="search" style="position: absolute; left: 1rem; top: 50%; transform: translateY(-50%); color: var(--text-muted); width: 18px; height: 18px; pointer-events: none;"></i>
                         <input type="text" name="q" value="{{ query|default:'' }}" class="logs-search-input" placeholder="Buscar por usuário, ação, código do site ou detalhes...">
                     </div>
                     <button type="submit" class="btn-search">
                         Buscar
                     </button>
                     {% if query %}
-                        <a href="{% url 'system_logs' %}" class="btn" style="background-color: var(--bg-body); border: 1px solid var(--border-color); color: var(--text-main); font-weight: 600; padding: 0.7rem 1.2rem; border-radius: 8px; font-size: 0.88rem; text-decoration: none; display: inline-flex; align-items: center;">
+                        <a href="{% url 'system_logs' %}" class="btn" style="background-color: var(--bg-body); border: 1px solid var(--border-color); color: var(--text-main); font-weight: 600; padding: 0; width: 80px; height: 42px; border-radius: 8px; font-size: 0.88rem; text-decoration: none; display: inline-flex; align-items: center; justify-content: center; box-sizing: border-box;">
                             Limpar
                         </a>
                     {% endif %}
@@ -303,8 +301,11 @@
                                                 </span>
                                             {% endif %}
                                         </td>
-                                        <td style="font-weight: 700; font-family: monospace; letter-spacing: 0.02em;">
-                                            {{ log.target_name }}
+                                        <td>
+                                            <div style="font-weight: 700; color: var(--text-main);">{{ log.target_name }}</div>
+                                            {% if log.target_id %}
+                                                <div style="font-size: 0.72rem; color: var(--text-muted); font-family: monospace; margin-top: 0.15rem;">{{ log.target_id }}</div>
+                                            {% endif %}
                                         </td>
                                         <td style="font-size: 0.8rem; color: var(--text-muted); line-height: 1.4;">
                                             {{ log.details|default:"--" }}
