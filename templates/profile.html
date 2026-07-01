@@ -78,23 +78,48 @@
     /* ======================================================== */
     /* RESPONSIVIDADE E ADAPTAÇÃO PARA MÓVEL (CELULAR)          */
     /* ======================================================== */
-    .profile-grid {
+    .settings-grid {
         display: grid;
-        grid-template-columns: 340px 1fr;
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
+    }
+    @media (min-width: 768px) {
+        .settings-grid {
+            grid-template-columns: 320px 1fr;
+        }
+    }
+
+    .setting-card {
+        background-color: var(--bg-surface);
+        border: 1px solid var(--border-color);
+        border-radius: 12px;
+        padding: 1.5rem;
+        display: flex;
+        flex-direction: column;
         gap: 1.25rem;
-        align-items: start;
+        box-shadow: var(--shadow-sm);
+    }
+
+    .setting-header {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        border-bottom: 1px solid var(--border-color);
+        padding-bottom: 0.75rem;
+        margin-bottom: 0.25rem;
+    }
+
+    .setting-header h3 {
+        font-size: 1rem;
+        font-weight: 700;
+        color: var(--text-main);
+        margin: 0;
     }
 
     .profile-form-row {
         display: grid;
         grid-template-columns: 1fr 1fr;
         gap: 1rem;
-    }
-
-    @media (max-width: 992px) {
-        .profile-grid {
-            grid-template-columns: 1fr !important;
-        }
     }
 
     @media (max-width: 576px) {
@@ -107,12 +132,11 @@
             padding: 1rem 0.75rem !important;
         }
         
-        .card {
+        .setting-card {
             padding: 1rem !important;
         }
         
-        /* Ajustar o botão de atualizar nos cartões para largura completa no mobile */
-        .card button[type="submit"] {
+        .setting-card button[type="submit"] {
             width: 100% !important;
             justify-content: center !important;
         }
@@ -127,15 +151,34 @@
         <p style="font-size: 0.85rem; color: var(--text-muted); margin: 0;">Gerencie seus dados pessoais, configure seu avatar personalizado e altere sua senha de acesso.</p>
     </div>
 
-    <!-- Layout Grid de 2 Colunas (Equilibrado para caber em uma tela) -->
-    <div class="profile-grid">
+    <!-- Grid de 2 Colunas Padronizado -->
+    <div class="settings-grid">
         
-        <!-- COLUNA ESQUERDA: Avatar + Alterar Senha -->
+        <!-- Coluna Esquerda: Menu Rápido de Configurações -->
+        <div style="display: flex; flex-direction: column; gap: 1rem;">
+            <div class="setting-card" style="padding: 1rem;">
+                <div style="display: flex; flex-direction: column; gap: 0.5rem;">
+                    <a href="{% url 'user_profile' %}" style="display: flex; align-items: center; gap: 0.75rem; text-decoration: none; padding: 0.75rem; border-radius: 8px; color: var(--brand-primary); background-color: var(--brand-light); font-size: 0.85rem; font-weight: 700; transition: background 0.2s;">
+                        <i data-lucide="user" style="width: 18px; height: 18px;"></i>
+                        <span>Meu Perfil</span>
+                    </a>
+                    <a href="{% url 'user_settings' %}" style="display: flex; align-items: center; gap: 0.75rem; text-decoration: none; padding: 0.75rem; border-radius: 8px; color: var(--text-muted); font-size: 0.85rem; font-weight: 600; transition: background 0.2s;">
+                        <i data-lucide="settings" style="width: 18px; height: 18px;"></i>
+                        <span>Preferências de UI</span>
+                    </a>
+                    <a href="{% url 'system_logs' %}" style="display: flex; align-items: center; gap: 0.75rem; text-decoration: none; padding: 0.75rem; border-radius: 8px; color: var(--text-muted); font-size: 0.85rem; font-weight: 600; transition: background 0.2s;">
+                        <i data-lucide="database" style="width: 18px; height: 18px;"></i>
+                        <span>Logs de Alterações</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Coluna Direita: Conteúdo do Perfil -->
         <div style="display: flex; flex-direction: column; gap: 1.25rem;">
             
             <!-- Card 1: Avatar -->
-            <div class="card" style="padding: 1.25rem; display: flex; align-items: center; gap: 1.25rem;">
-                <!-- Container da Foto de Perfil -->
+            <div class="setting-card" style="padding: 1.25rem; display: flex; flex-direction: row; align-items: center; gap: 1.25rem;">
                 <div style="position: relative; width: 75px; height: 75px; flex-shrink: 0;">
                     <div style="width: 75px; height: 75px; border-radius: 50%; background: linear-gradient(135deg, var(--brand-primary), #6366f1); display: flex; align-items: center; justify-content: center; font-size: 2.2rem; font-weight: 800; color: #ffffff; box-shadow: var(--shadow-sm); overflow: hidden; border: 3px solid var(--card-bg, #ffffff);">
                         {% if user.profile_picture_base64 %}
@@ -146,7 +189,6 @@
                     </div>
                 </div>
 
-                <!-- Dados Nome, Cargo e Botões da Foto -->
                 <div style="display: flex; flex-direction: column; gap: 0.4rem; flex: 1; min-width: 0;">
                     <div style="display: flex; flex-direction: column; min-width: 0;">
                         <h3 style="font-size: 1.05rem; font-weight: 700; color: var(--text-main); margin: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
@@ -155,7 +197,6 @@
                         <span style="font-size: 0.72rem; color: var(--text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">@{{ user.username }}</span>
                     </div>
 
-                    <!-- Botões Rápidos de Ação sobre a Foto (Upload Instantâneo) -->
                     <div style="display: flex; align-items: center; gap: 0.4rem; flex-wrap: wrap;">
                         <button type="button" class="photo-upload-btn" onclick="document.getElementById('instant-profile-picture-input').click()">
                             <i data-lucide="upload" style="width: 12px; height: 12px;"></i>
@@ -171,51 +212,11 @@
                 </div>
             </div>
 
-            <!-- Card 2: Alterar Senha de Acesso -->
-            <div class="card" style="padding: 1.25rem; display: flex; flex-direction: column; gap: 1rem;">
-                <div style="display: flex; align-items: center; gap: 0.5rem; border-bottom: 1px solid var(--border-color); padding-bottom: 0.5rem;">
-                    <i data-lucide="key-round" style="width: 18px; height: 18px; color: var(--brand-primary);"></i>
-                    <h3 style="font-size: 0.95rem; font-weight: 700; color: var(--text-main); margin: 0;">Alterar Senha</h3>
-                </div>
-                
-                <form method="POST" style="display: flex; flex-direction: column; gap: 0.85rem;">
-                    {% csrf_token %}
-                    <input type="hidden" name="form_type" value="change_password">
-                    
-                    <div class="form-group" style="display: flex; flex-direction: column; gap: 0.3rem;">
-                        <label for="id_old_password" style="font-size: 0.75rem; font-weight: 700; color: var(--text-main);">Senha Atual</label>
-                        <input type="password" id="id_old_password" name="old_password" class="form-control" placeholder="Senha atual" required>
-                    </div>
-                    
-                    <div class="form-group" style="display: flex; flex-direction: column; gap: 0.3rem;">
-                        <label for="id_new_password1" style="font-size: 0.75rem; font-weight: 700; color: var(--text-main);">Nova Senha</label>
-                        <input type="password" id="id_new_password1" name="new_password1" class="form-control" placeholder="Mínimo 8 caracteres" required>
-                    </div>
-                    
-                    <div class="form-group" style="display: flex; flex-direction: column; gap: 0.3rem;">
-                        <label for="id_new_password2" style="font-size: 0.75rem; font-weight: 700; color: var(--text-main);">Confirmar Senha</label>
-                        <input type="password" id="id_new_password2" name="new_password2" class="form-control" placeholder="Repita a senha" required>
-                    </div>
-                    
-                    <div style="display: flex; justify-content: flex-end; margin-top: 0.25rem;">
-                        <button type="submit" class="btn btn-primary" style="display: inline-flex; align-items: center; gap: 0.4rem; background-color: #6366f1; border-color: #6366f1; padding: 0.5rem 1rem; font-size: 0.78rem;">
-                            <i data-lucide="lock" style="width: 14px; height: 14px;"></i>
-                            Atualizar Senha
-                        </button>
-                    </div>
-                </form>
-            </div>
-            
-        </div>
-
-        <!-- COLUNA DIREITA: Dados Cadastrais + Permissões -->
-        <div style="display: flex; flex-direction: column; gap: 1.25rem;">
-            
-            <!-- Card 3: Dados Cadastrais -->
-            <div class="card" style="padding: 1.25rem 1.5rem; display: flex; flex-direction: column; gap: 1rem;">
-                <div style="display: flex; align-items: center; gap: 0.5rem; border-bottom: 1px solid var(--border-color); padding-bottom: 0.5rem;">
+            <!-- Card 2: Dados Cadastrais -->
+            <div class="setting-card">
+                <div class="setting-header">
                     <i data-lucide="user-cog" style="width: 18px; height: 18px; color: var(--brand-primary);"></i>
-                    <h3 style="font-size: 0.95rem; font-weight: 700; color: var(--text-main); margin: 0;">Dados Cadastrais</h3>
+                    <h3>Dados Cadastrais</h3>
                 </div>
                 
                 <form method="POST" style="display: flex; flex-direction: column; gap: 0.85rem;">
@@ -247,21 +248,54 @@
                     </div>
                     
                     <div style="display: flex; justify-content: flex-end; margin-top: 0.25rem;">
-                        <button type="submit" class="btn btn-primary" style="display: inline-flex; align-items: center; gap: 0.4rem; padding: 0.5rem 1rem; font-size: 0.78rem;">
-                            <i data-lucide="save" style="width: 14px; height: 14px;"></i>
+                        <button type="submit" class="btn btn-primary" style="display: inline-flex; align-items: center; gap: 0.4rem; padding: 0.6rem 1.2rem; font-size: 0.82rem; font-weight: 700; border-radius: 8px;">
+                            <i data-lucide="save" style="width: 16px; height: 16px;"></i>
                             Salvar Dados
                         </button>
                     </div>
                 </form>
             </div>
 
+            <!-- Card 3: Alterar Senha de Acesso -->
+            <div class="setting-card">
+                <div class="setting-header">
+                    <i data-lucide="key-round" style="width: 18px; height: 18px; color: var(--brand-primary);"></i>
+                    <h3>Alterar Senha</h3>
+                </div>
+                
+                <form method="POST" style="display: flex; flex-direction: column; gap: 0.85rem;">
+                    {% csrf_token %}
+                    <input type="hidden" name="form_type" value="change_password">
+                    
+                    <div class="form-group" style="display: flex; flex-direction: column; gap: 0.3rem;">
+                        <label for="id_old_password" style="font-size: 0.75rem; font-weight: 700; color: var(--text-main);">Senha Atual</label>
+                        <input type="password" id="id_old_password" name="old_password" class="form-control" placeholder="Senha atual" required>
+                    </div>
+                    
+                    <div class="form-group" style="display: flex; flex-direction: column; gap: 0.3rem;">
+                        <label for="id_new_password1" style="font-size: 0.75rem; font-weight: 700; color: var(--text-main);">Nova Senha</label>
+                        <input type="password" id="id_new_password1" name="new_password1" class="form-control" placeholder="Mínimo 8 caracteres" required>
+                    </div>
+                    
+                    <div class="form-group" style="display: flex; flex-direction: column; gap: 0.3rem;">
+                        <label for="id_new_password2" style="font-size: 0.75rem; font-weight: 700; color: var(--text-main);">Confirmar Senha</label>
+                        <input type="password" id="id_new_password2" name="new_password2" class="form-control" placeholder="Repita a senha" required>
+                    </div>
+                    
+                    <div style="display: flex; justify-content: flex-end; margin-top: 0.25rem;">
+                        <button type="submit" class="btn btn-primary" style="display: inline-flex; align-items: center; gap: 0.4rem; background-color: #6366f1; border-color: #6366f1; padding: 0.6rem 1.2rem; font-size: 0.82rem; font-weight: 700; border-radius: 8px;">
+                            <i data-lucide="lock" style="width: 16px; height: 16px;"></i>
+                            Atualizar Senha
+                        </button>
+                    </div>
+                </form>
+            </div>
+
             <!-- Card 4: Permissões de Acesso -->
-            <div class="card" style="padding: 1.25rem 1.5rem; display: flex; flex-direction: column; gap: 1rem;">
-                <div style="display: flex; align-items: center; gap: 0.5rem; border-bottom: 1px solid var(--border-color); padding-bottom: 0.5rem;">
+            <div class="setting-card">
+                <div class="setting-header">
                     <i data-lucide="shield-check" style="width: 18px; height: 18px; color: var(--brand-primary);"></i>
-                    <h3 style="font-size: 0.95rem; font-weight: 700; color: var(--text-main); margin: 0;">
-                        Cargo Atribuído: {{ user.get_role_display }}
-                    </h3>
+                    <h3>Cargo Atribuído: {{ user.get_role_display }}</h3>
                 </div>
                 
                 <div style="font-size: 0.78rem; color: var(--text-muted); line-height: 1.5; display: flex; flex-direction: column; gap: 0.65rem;">
