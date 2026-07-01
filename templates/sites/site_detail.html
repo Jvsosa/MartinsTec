@@ -493,6 +493,170 @@
             transform: translateY(0);
         }
     }
+
+    /* ======================================================== */
+    /* MODO ESCURO CORPORATIVO (DARK MODE) - DATA ROOM / DETAIL */
+    /* ======================================================== */
+    html[data-theme="dark"] {
+        --text-primary: #F4F4F5;
+        --text-secondary: #A1A1AA;
+    }
+
+    html[data-theme="dark"] .back-link {
+        background-color: var(--bg-surface) !important;
+        border-color: var(--border-color) !important;
+        color: var(--text-main) !important;
+    }
+    html[data-theme="dark"] .back-link:hover {
+        color: var(--brand-hover) !important;
+        border-color: var(--brand-hover) !important;
+    }
+
+    html[data-theme="dark"] .info-card,
+    html[data-theme="dark"] .repo-card,
+    html[data-theme="dark"] .glass-card,
+    html[data-theme="dark"] .category-section,
+    html[data-theme="dark"] .upload-box,
+    html[data-theme="dark"] .category-upload-box,
+    html[data-theme="dark"] .step-content,
+    html[data-theme="dark"] [style*="background: white"],
+    html[data-theme="dark"] [style*="background:white"],
+    html[data-theme="dark"] [style*="background: #ffffff"],
+    html[data-theme="dark"] [style*="background:#ffffff"],
+    html[data-theme="dark"] [style*="background:  #ffffff"] {
+        background-color: var(--bg-surface) !important;
+        background: var(--bg-surface) !important;
+        border-color: var(--border-color) !important;
+        color: var(--text-main) !important;
+    }
+
+    html[data-theme="dark"] .info-card h3,
+    html[data-theme="dark"] .repo-card h3,
+    html[data-theme="dark"] .category-header,
+    html[data-theme="dark"] .upload-box h4 {
+        border-bottom-color: var(--border-color) !important;
+        color: var(--text-main) !important;
+    }
+
+    html[data-theme="dark"] .info-label,
+    html[data-theme="dark"] .file-desc,
+    html[data-theme="dark"] .file-meta,
+    html[data-theme="dark"] .no-files,
+    html[data-theme="dark"] .field-group label,
+    html[data-theme="dark"] .file-table th {
+        color: var(--text-muted) !important;
+        border-bottom-color: var(--border-color) !important;
+    }
+
+    html[data-theme="dark"] .info-value,
+    html[data-theme="dark"] .file-title {
+        color: var(--text-main) !important;
+    }
+
+    html[data-theme="dark"] .file-table td {
+        border-bottom-color: var(--border-color) !important;
+    }
+
+    html[data-theme="dark"] .action-download {
+        background-color: var(--bg-body) !important;
+        color: var(--text-main) !important;
+    }
+    html[data-theme="dark"] .action-download:hover {
+        background-color: var(--brand-primary) !important;
+        color: white !important;
+    }
+
+    html[data-theme="dark"] .field-control,
+    html[data-theme="dark"] input[type="date"],
+    html[data-theme="dark"] select,
+    html[data-theme="dark"] textarea,
+    html[data-theme="dark"] .form-control {
+        background-color: var(--bg-body) !important;
+        border-color: var(--border-color) !important;
+        color: var(--text-main) !important;
+    }
+    html[data-theme="dark"] .field-control:focus,
+    html[data-theme="dark"] input[type="date"]:focus,
+    html[data-theme="dark"] select:focus,
+    html[data-theme="dark"] textarea:focus {
+        border-color: var(--brand-primary) !important;
+        box-shadow: 0 0 0 4px var(--brand-light) !important;
+    }
+
+    html[data-theme="dark"] .step-header:hover {
+        background-color: var(--bg-body) !important;
+        background: var(--bg-body) !important;
+    }
+    html[data-theme="dark"] .step-active-header {
+        background-color: var(--brand-light) !important;
+        background: var(--brand-light) !important;
+        border-color: var(--brand-primary) !important;
+    }
+
+    /* Sobrescreve inline backgrounds de avisos/sucesso/alerta dentro do stepper */
+    html[data-theme="dark"] [style*="background: #eff6ff"],
+    html[data-theme="dark"] [style*="background:#eff6ff"],
+    html[data-theme="dark"] [style*="background: #eff6ff !important"] {
+        background-color: var(--brand-light) !important;
+        background: var(--brand-light) !important;
+        border-color: var(--brand-primary) !important;
+    }
+    html[data-theme="dark"] [style*="background: #f0fdf4"],
+    html[data-theme="dark"] [style*="background:#f0fdf4"] {
+        background-color: rgba(16, 185, 129, 0.15) !important;
+        background: rgba(16, 185, 129, 0.15) !important;
+        border-color: rgba(16, 185, 129, 0.3) !important;
+        color: #34D399 !important;
+    }
+    html[data-theme="dark"] [style*="background: #fdf2f2"],
+    html[data-theme="dark"] [style*="background:#fdf2f2"] {
+        background-color: rgba(239, 68, 68, 0.15) !important;
+        background: rgba(239, 68, 68, 0.15) !important;
+        border-color: rgba(239, 68, 68, 0.3) !important;
+        color: #F87171 !important;
+    }
+    html[data-theme="dark"] [style*="background: #fffbeb"],
+    html[data-theme="dark"] [style*="background:#fffbeb"] {
+        background-color: rgba(245, 158, 11, 0.15) !important;
+        background: rgba(245, 158, 11, 0.15) !important;
+        border-color: rgba(245, 158, 11, 0.3) !important;
+        color: #FBBF24 !important;
+    }
+    html[data-theme="dark"] [style*="background: #f8fafc"],
+    html[data-theme="dark"] [style*="background:#f8fafc"] {
+        background-color: var(--bg-body) !important;
+        background: var(--bg-body) !important;
+        border-color: var(--border-color) !important;
+    }
+
+    /* Outros textos específicos do fluxo */
+    html[data-theme="dark"] [style*="color: #166534"],
+    html[data-theme="dark"] [style*="color: #1e40af"],
+    html[data-theme="dark"] [style*="color: #991b1b"],
+    html[data-theme="dark"] [style*="color: #78350f"],
+    html[data-theme="dark"] [style*="color: #7f1d1d"] {
+        color: var(--text-main) !important;
+    }
+    
+    html[data-theme="dark"] .btn-ent-outline {
+        background-color: var(--bg-body) !important;
+        color: var(--text-main) !important;
+        border-color: var(--border-color) !important;
+    }
+    html[data-theme="dark"] .btn-ent-outline:hover {
+        background-color: var(--border-color) !important;
+        color: var(--text-main) !important;
+    }
+
+    html[data-theme="dark"] .btn-ent-danger-outline {
+        background-color: rgba(239, 68, 68, 0.1) !important;
+        color: #F87171 !important;
+        border-color: rgba(239, 68, 68, 0.2) !important;
+    }
+    html[data-theme="dark"] .btn-ent-danger-outline:hover {
+        background-color: rgba(239, 68, 68, 0.2) !important;
+        color: #F87171 !important;
+    }
 </style>
 {% endblock %}
 

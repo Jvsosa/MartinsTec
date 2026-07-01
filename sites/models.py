@@ -303,9 +303,9 @@ class Site(models.Model):
             if prev_stage.actual_date:
                 start_date = prev_stage.actual_date
             else:
-                start_date = prev_stage.updated_at.date()
+                start_date = timezone.localdate(prev_stage.updated_at)
         else:
-            start_date = self.created_at.date()
+            start_date = timezone.localdate(self.created_at)
             
         if start_date:
             today = timezone.localdate()
