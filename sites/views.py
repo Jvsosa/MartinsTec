@@ -5,7 +5,7 @@ from django.contrib.auth import login, logout, authenticate
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.http import FileResponse, Http404, HttpResponseForbidden
-from .models import Site, SiteFile, User, SiteRescheduleHistory, SiteStage, SiteStageReschedule, Notification
+from .models import Site, SiteFile, User, SiteRescheduleHistory, SiteStage, SiteStageReschedule, Notification, SystemLog
 from django.db import IntegrityError
 from django.utils.dateparse import parse_date
 
@@ -94,6 +94,12 @@ def site_list(request):
             )
             new_site.modified_by = request.user
             new_site.save()
+            SystemLog.register_log(
+                user=request.user,
+                action="Integrou novo ativo",
+                target_name=new_site.site_id or new_site.name,
+                details=f"Nome: {new_site.name}, Escopo: {new_site.get_scope_type_display()}, Fornecedora: {new_site.partner_company or 'Sem Fornecedora'}"
+            )
             messages.success(request, f"Site {new_site.site_id or new_site.name} cadastrado com sucesso!")
         except IntegrityError:
             messages.error(request, f"Erro: O ID do Site '{site_id}' já está cadastrado.")
@@ -949,6 +955,12 @@ def site_detail(request, pk):
             try:
                 site.modified_by = request.user
                 site.save()
+                SystemLog.register_log(
+                    user=request.user,
+                    action="Atualizou datas planejadas / fornecedor",
+                    target_name=site.site_id or site.name,
+                    details=f"Fornecedor: {site.partner_company or 'Sem Fornecedora'}, Vistoria: {p_survey}, Laudo/Projeto: {p_report}"
+                )
                 messages.success(request, "Fluxo de trabalho e prazos atualizados com sucesso!")
             except Exception as e:
                 messages.error(request, f"Erro ao atualizar prazos: {str(e)}")
@@ -989,6 +1001,12 @@ def site_detail(request, pk):
             try:
                 site.modified_by = request.user
                 site.save()
+                SystemLog.register_log(
+                    user=request.user,
+                    action="Atualizou status de acesso",
+                    target_name=site.site_id or site.name,
+                    details=f"Novo Status: {site.get_access_status_display()}"
+                )
             except Exception as e:
                 messages.error(request, f"Erro ao salvar status de acesso: {str(e)}")
                 
@@ -1032,6 +1050,12 @@ def site_detail(request, pk):
             try:
                 site.modified_by = request.user
                 site.save()
+                SystemLog.register_log(
+                    user=request.user,
+                    action=f"Atualizou etapa '{stage_name}'",
+                    target_name=site.site_id or site.name,
+                    details=f"Novo Status: {stage_status}"
+                )
                 messages.success(request, f"Etapa '{stage_name}' atualizada com sucesso!")
             except Exception as e:
                 messages.error(request, f"Erro ao atualizar etapa: {str(e)}")
@@ -1058,6 +1082,12 @@ def site_detail(request, pk):
 
             site.modified_by = request.user
             site.save()  # recalcula status
+            SystemLog.register_log(
+                user=request.user,
+                action=f"Planejou etapa '{stage_name}'",
+                target_name=site.site_id or site.name,
+                details=f"Data Planejada: {planned_date_str}"
+            )
             messages.success(request, f"Data planejada para '{stage_name}' definida com sucesso!")
             return redirect('site_detail', pk=pk)
 
@@ -1093,6 +1123,12 @@ def site_detail(request, pk):
             site.modified_by = request.user
             site.save()
 
+            SystemLog.register_log(
+                user=request.user,
+                action=f"Replanejou etapa '{stage_name}'",
+                target_name=site.site_id or site.name,
+                details=f"Nova Data: {new_planned_date_str}, Motivo: {reason or 'Sem motivo informado'}"
+            )
             messages.warning(request, f"Replanejamento da etapa '{stage_name}' registrado! Total: {site.reschedule_count}")
             return redirect('site_detail', pk=pk)
 
@@ -1159,6 +1195,12 @@ def site_detail(request, pk):
             try:
                 site.modified_by = request.user
                 site.save()
+                SystemLog.register_log(
+                    user=request.user,
+                    action="Atualizou ficha técnica / localização",
+                    target_name=site.site_id or site.name,
+                    details=f"Nome: {site.name}, Tipo: {site.get_site_type_display()}, Endereço: {site.address or 'Sem Endereço'}"
+                )
                 messages.success(request, "Informações do site e ficha técnica atualizadas com sucesso!")
             except Exception as e:
                 messages.error(request, f"Erro ao atualizar informações do site: {str(e)}")
@@ -1193,6 +1235,12 @@ def site_detail(request, pk):
                 description=description,
                 category=category,
                 uploaded_by=request.user
+            )
+            SystemLog.register_log(
+                user=request.user,
+                action="Enviou documento técnico",
+                target_name=site.site_id or site.name,
+                details=f"Arquivo: {os.path.basename(site_file.file.name)}, Categoria: {category}"
             )
             messages.success(request, f"Arquivo '{os.path.basename(site_file.file.name)}' enviado com sucesso!")
             
@@ -1278,7 +1326,7 @@ def site_detail(request, pk):
     completed_stages = sum(1 for s in stages_list if s['status'] in ['DONE', 'SKIPPED'])
     progress_percent = int((completed_stages / total_stages) * 100) if total_stages > 0 else 0
 
-    recommended_stage_name = "Concluído - Rollout Finalizado"
+    recommended_stage_name = "Concluído "
     for stage in stages_list:
         if stage['status'] == 'PENDING':
             recommended_stage_name = stage['name']
@@ -1348,6 +1396,14 @@ def delete_file(request, file_id):
         # Se o arquivo não existir fisicamente ou houver erro, apenas ignora para limpar o registro
         pass
         
+    file_name = os.path.basename(site_file.file.name)
+    site_name = site_file.site.site_id or site_file.site.name
+    SystemLog.register_log(
+        user=request.user,
+        action="Excluiu documento técnico",
+        target_name=site_name,
+        details=f"Arquivo: {file_name}, Categoria: {site_file.category}"
+    )
     site_file.delete()
     messages.success(request, "Arquivo excluído com sucesso!")
     return redirect('site_detail', pk=site_pk)
@@ -1385,8 +1441,15 @@ def delete_site(request, pk):
                 pass
 
     # Exclui o site do banco de dados (cascade deleta os registros SiteFile)
+    target_name = site_id or site.name
+    SystemLog.register_log(
+        user=request.user,
+        action="Excluiu o ativo permanentemente",
+        target_name=target_name,
+        details=f"Nome: {site.name}, Escopo: {site.get_scope_type_display()}"
+    )
     site.delete()
-    messages.success(request, f"Site {site_id or site.name} removido com sucesso!")
+    messages.success(request, f"Site {target_name} removido com sucesso!")
     return redirect('site_list')
 
 
@@ -1759,5 +1822,32 @@ def user_settings(request):
         return redirect('user_settings')
 
     return render(request, 'settings.html')
+
+
+@login_required
+def system_logs(request):
+    from django.core.paginator import Paginator
+    logs_qs = SystemLog.objects.select_related('user').order_by('-created_at')
+    
+    # Simple search
+    from django.db.models import Q
+    query = request.GET.get('q', '').strip()
+    if query:
+        logs_qs = logs_qs.filter(
+            Q(user_name__icontains=query) |
+            Q(action__icontains=query) |
+            Q(target_name__icontains=query) |
+            Q(details__icontains=query)
+        )
+        
+    # Paginator (50 items per page)
+    paginator = Paginator(logs_qs, 50)
+    page_number = request.GET.get('page', 1)
+    page_obj = paginator.get_page(page_number)
+    
+    return render(request, 'logs.html', {
+        'logs': page_obj,
+        'query': query
+    })
 
 

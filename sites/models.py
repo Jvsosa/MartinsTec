@@ -1138,3 +1138,31 @@ class Notification(models.Model):
             cls.objects.bulk_create(notifications)
 
 
+class SystemLog(models.Model):
+    user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, verbose_name="Usuário")
+    user_name = models.CharField(max_length=255, verbose_name="Nome do Usuário")
+    action = models.CharField(max_length=255, verbose_name="Ação")
+    target_name = models.CharField(max_length=255, verbose_name="Alvo / Ativo")
+    details = models.TextField(blank=True, null=True, verbose_name="Detalhes")
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name="Data / Hora")
+
+    class Meta:
+        ordering = ['-created_at']
+        verbose_name = "Log do Sistema"
+        verbose_name_plural = "Logs do Sistema"
+
+    def __str__(self):
+        return f"{self.user_name} - {self.action} - {self.target_name} ({self.created_at})"
+
+    @classmethod
+    def register_log(cls, user, action, target_name, details=None):
+        name = (user.get_full_name() or user.username) if user else "Sistema"
+        return cls.objects.create(
+            user=user,
+            user_name=name,
+            action=action,
+            target_name=target_name,
+            details=details
+        )
+
+

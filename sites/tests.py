@@ -1599,4 +1599,77 @@ class UserProfileTests(TestCase):
         self.assertContains(response, "Usuário ou senha inválidos.")
 
 
+class SystemLogTests(TestCase):
+    def setUp(self):
+        from django.contrib.auth import get_user_model
+        self.User = get_user_model()
+        self.user = self.User.objects.create_user(
+            username='log_admin',
+            password='password123',
+            role='ADMIN'
+        )
+
+    def test_log_creation_directly(self):
+        """Test system log creation helper function."""
+        from sites.models import SystemLog
+        log = SystemLog.register_log(
+            user=self.user,
+            action="Ação de Teste",
+            target_name="SITE_TESTE_LOG",
+            details="Detalhes específicos de teste"
+        )
+        self.assertEqual(log.user, self.user)
+        self.assertEqual(log.user_name, self.user.get_full_name() or self.user.username)
+        self.assertEqual(log.action, "Ação de Teste")
+        self.assertEqual(log.target_name, "SITE_TESTE_LOG")
+        self.assertEqual(log.details, "Detalhes específicos de teste")
+
+    def test_logs_page_loads_and_shows_log(self):
+        """Test that log page displays registered logs and filters correctly."""
+        self.client.login(username='log_admin', password='password123')
+        from sites.models import SystemLog
+        
+        # Create a log
+        SystemLog.register_log(
+            user=self.user,
+            action="Integrou novo ativo",
+            target_name="TEST_SITE_A",
+            details="Detalhes A"
+        )
+
+        url = reverse('system_logs')
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "TEST_SITE_A")
+        self.assertContains(response, "Integrou novo ativo")
+
+        # Test search filter
+        response_search = self.client.get(url + "?q=TEST_SITE_A")
+        self.assertContains(response_search, "TEST_SITE_A")
+        
+        response_search_empty = self.client.get(url + "?q=NON_EXISTENT")
+        self.assertNotContains(response_search_empty, "TEST_SITE_A")
+
+    def test_site_actions_trigger_logs(self):
+        """Test that views triggering changes also register a SystemLog entry."""
+        self.client.login(username='log_admin', password='password123')
+        from sites.models import SystemLog, Site
+
+        # 1. Site creation
+        url_list = reverse('site_list')
+        response_create = self.client.post(url_list, {
+            'site_id': 'TEST_LOG_SITE',
+            'name': 'Site do Log de Teste',
+            'scope_type': 'LAUDOS',
+            'site_type': 'ROOFTOP'
+        })
+        self.assertEqual(response_create.status_code, 302)
+        site = Site.objects.get(site_id='TEST_LOG_SITE')
+        
+        create_log = SystemLog.objects.filter(target_name='TEST_LOG_SITE', action="Integrou novo ativo").first()
+        self.assertIsNotNone(create_log)
+        self.assertEqual(create_log.user, self.user)
+
+
+
 
