@@ -18,4 +18,5 @@ urlpatterns = [
     path('profile/', views.user_profile, name='user_profile'),
     path('settings/', views.user_settings, name='user_settings'),
     path('logs/', views.system_logs, name='system_logs'),
+    path('help/', views.help_center, name='help_center'),
 ]

@@ -1492,11 +1492,11 @@
                 </nav>
             </div>
 
-            <!-- Categoria 3: Suporte (Enfeite) -->
+            <!-- Categoria 3: Suporte -->
             <div class="sidebar-category">
                 <div class="nav-section-title">Suporte</div>
                 <nav class="nav-links">
-                    <a href="mailto:suporte@martinstec.com.br" class="nav-link">
+                    <a href="{% url 'help_center' %}" class="nav-link {% if request.resolver_match.url_name == 'help_center' %}active{% endif %}">
                         <i data-lucide="help-circle" style="width: 18px; height: 18px;"></i>
                         <span class="nav-link-text">Central de Ajuda</span>
                     </a>

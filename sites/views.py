@@ -1874,4 +1874,12 @@ def system_logs(request):
         'query': query
     })
 
+def help_center(request):
+    from django.contrib.auth.decorators import login_required
+    # Garante que apenas usuários logados acessem a ajuda
+    if not request.user.is_authenticated:
+        from django.shortcuts import redirect
+        return redirect('login')
+    return render(request, 'help_center.html')
+
 
