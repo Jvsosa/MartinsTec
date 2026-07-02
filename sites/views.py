@@ -2166,7 +2166,7 @@ def consult_site(request):
             })
             
         site_id_str = s.site_id or '--'
-        site_audit_data[site_id_str] = {
+        site_audit_data[s.id] = {
             'id': s.id,
             'site_id': site_id_str,
             'name': s.name,
@@ -2187,6 +2187,7 @@ def consult_site(request):
         }
         
         site_autocomplete_list.append({
+            'id': s.id,
             'site_id': site_id_str,
             'name': s.name,
             'scope': s.get_scope_type_display(),
