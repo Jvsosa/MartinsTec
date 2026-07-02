@@ -576,31 +576,72 @@
                     retBadgeBorder = '1px solid rgba(16, 185, 129, 0.15)';
                 }
                 
+                // Construir HTML de revisões se houver
+                let revisionsHTML = '';
+                if (st.revisions && st.revisions.length > 0) {
+                    revisionsHTML = `
+                        <div style="margin-top: 0.75rem; border-top: 1px dashed var(--border-color); padding-top: 0.5rem; width: 100%;">
+                            <span style="font-size: 0.72rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; display: flex; align-items: center; gap: 0.3rem; margin-bottom: 0.45rem;">
+                                <i data-lucide="history" style="width: 12px; height: 12px; color: var(--brand-primary);"></i>
+                                Histórico de Revisões (${st.revisions_count})
+                            </span>
+                            <div style="display: flex; flex-direction: column; gap: 0.4rem;">
+                    `;
+                    st.revisions.forEach(rev => {
+                        let statusColor = rev.status === 'PENDING' ? '#f59e0b' : '#10b981';
+                        let statusBg = rev.status === 'PENDING' ? 'rgba(245, 158, 11, 0.08)' : 'rgba(16, 185, 129, 0.08)';
+                        let statusBorder = rev.status === 'PENDING' ? 'rgba(245, 158, 11, 0.2)' : 'rgba(16, 185, 129, 0.2)';
+                        revisionsHTML += `
+                                <div style="font-size: 0.75rem; background: var(--bg-surface); border: 1px solid var(--border-color); border-radius: 6px; padding: 0.5rem; display: flex; flex-direction: column; gap: 0.2rem;">
+                                    <div style="display: flex; justify-content: space-between; align-items: center; gap: 0.5rem;">
+                                        <strong style="color: var(--brand-primary);">Revisão R${rev.revision_number}</strong>
+                                        <span style="font-size: 0.65rem; font-weight: 700; color: ${statusColor}; background: ${statusBg}; border: 1px solid ${statusBorder}; padding: 0.1rem 0.35rem; border-radius: 4px;">
+                                            ${rev.status_display}
+                                        </span>
+                                    </div>
+                                    <div style="color: var(--text-main); line-height: 1.3; margin-top: 0.15rem; white-space: pre-line;">${rev.reason}</div>
+                                    <div style="font-size: 0.65rem; color: var(--text-muted); margin-top: 0.15rem; display: flex; flex-wrap: wrap; gap: 0.75rem;">
+                                        <span><strong>Solicitado:</strong> ${rev.request_date}</span>
+                                        <span><strong>Retorno:</strong> ${rev.receive_date}</span>
+                                        <span><strong>Por:</strong> ${rev.by}</span>
+                                    </div>
+                                </div>
+                        `;
+                    });
+                    revisionsHTML += `
+                            </div>
+                        </div>
+                    `;
+                }
+
                 timelineHTML += `
                     <div style="display: flex; gap: 1.25rem; margin-bottom: 2rem; position: relative; z-index: 5;">
                         <div style="width: 26px; height: 26px; border-radius: 50%; background: ${circleBg}; color: ${circleColor}; border: ${borderStyle}; display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-size: 0.72rem;">
                             <i data-lucide="${iconName}" style="width: 14px; height: 14px;"></i>
                         </div>
                         
-                        <div style="flex: 1; background: var(--bg-body); border: 1px solid var(--border-color); border-radius: 10px; padding: 1rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
-                            <div>
-                                <h5 style="margin: 0; font-size: 0.88rem; font-weight: 700; color: var(--text-main);">${st.name}</h5>
-                                <div style="display: flex; gap: 1rem; font-size: 0.75rem; color: var(--text-muted); margin-top: 0.25rem; flex-wrap: wrap;">
-                                    <span><strong>Previsto:</strong> ${st.planned_date}</span>
-                                    <span><strong>Realizado:</strong> ${st.actual_date}</span>
+                        <div style="flex: 1; background: var(--bg-body); border: 1px solid var(--border-color); border-radius: 10px; padding: 1rem; display: flex; flex-direction: column; gap: 0.5rem;">
+                            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; width: 100%;">
+                                <div>
+                                    <h5 style="margin: 0; font-size: 0.88rem; font-weight: 700; color: var(--text-main);">${st.name}</h5>
+                                    <div style="display: flex; gap: 1rem; font-size: 0.75rem; color: var(--text-muted); margin-top: 0.25rem; flex-wrap: wrap;">
+                                        <span><strong>Previsto:</strong> ${st.planned_date}</span>
+                                        <span><strong>Realizado:</strong> ${st.actual_date}</span>
+                                    </div>
+                                </div>
+                                
+                                <div style="display: flex; gap: 0.5rem; align-items: center; flex-wrap: wrap;">
+                                    <span style="font-size: 0.72rem; font-weight: 700; color: var(--text-muted); background: var(--bg-surface); border: 1px solid var(--border-color); padding: 0.25rem 0.5rem; border-radius: 6px;">
+                                        Tempo Gasto: +${st.duration_days} d
+                                    </span>
+                                    
+                                    <span style="font-size: 0.72rem; font-weight: 700; color: ${retBadgeColor}; background: ${retBadgeBg}; border: ${retBadgeBorder}; padding: 0.25rem 0.5rem; border-radius: 6px; display: inline-flex; align-items: center; gap: 0.25rem;">
+                                        <i data-lucide="clock" style="width: 10px; height: 10px;"></i>
+                                        ${st.retention_msg}
+                                    </span>
                                 </div>
                             </div>
-                            
-                            <div style="display: flex; gap: 0.5rem; align-items: center; flex-wrap: wrap;">
-                                <span style="font-size: 0.72rem; font-weight: 700; color: var(--text-muted); background: var(--bg-surface); border: 1px solid var(--border-color); padding: 0.25rem 0.5rem; border-radius: 6px;">
-                                    Tempo Gasto: +${st.duration_days} d
-                                </span>
-                                
-                                <span style="font-size: 0.72rem; font-weight: 700; color: ${retBadgeColor}; background: ${retBadgeBg}; border: ${retBadgeBorder}; padding: 0.25rem 0.5rem; border-radius: 6px; display: inline-flex; align-items: center; gap: 0.25rem;">
-                                    <i data-lucide="clock" style="width: 10px; height: 10px;"></i>
-                                    ${st.retention_msg}
-                                </span>
-                            </div>
+                            ${revisionsHTML}
                         </div>
                     </div>
                 `;

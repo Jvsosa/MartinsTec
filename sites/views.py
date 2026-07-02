@@ -2005,7 +2005,7 @@ def consult_site(request):
     from .models import Site
     
     scope_configs = Site.SCOPE_STAGES
-    all_sites = Site.objects.all().prefetch_related('stages', 'files', 'files__uploaded_by')
+    all_sites = Site.objects.all().prefetch_related('stages', 'stages__revisions', 'stages__revisions__created_by', 'files', 'files__uploaded_by')
     
     site_audit_data = {}
     site_autocomplete_list = []
@@ -2106,6 +2106,19 @@ def consult_site(request):
                 comparison_class = 'muted'
                 comparison_icon = 'skip-forward'
                 
+            # Reconstruir histórico de revisões
+            revisions_data = []
+            for rev in st_obj.revisions.all().order_by('revision_number'):
+                revisions_data.append({
+                    'revision_number': rev.revision_number,
+                    'request_date': rev.request_date.strftime('%d/%m/%Y') if rev.request_date else '--',
+                    'receive_date': rev.receive_date.strftime('%d/%m/%Y') if rev.receive_date else '--',
+                    'reason': rev.reason or 'Não informado',
+                    'status': rev.status,
+                    'status_display': rev.get_status_display(),
+                    'by': (rev.created_by.get_full_name() or rev.created_by.username) if rev.created_by else 'Sistema',
+                })
+
             stages_list_data.append({
                 'name': st_name,
                 'status': status,
@@ -2117,6 +2130,8 @@ def consult_site(request):
                 'retention_msg': retention_msg,
                 'comparison_class': comparison_class,
                 'comparison_icon': comparison_icon,
+                'revisions': revisions_data,
+                'revisions_count': len(revisions_data),
             })
             
         # Histórico de replanejamentos
