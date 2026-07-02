@@ -391,11 +391,14 @@
     </div>
 </div>
 
+<script id="site-audit-data-json" type="application/json">{{ site_audit_data_json|safe }}</script>
+<script id="site-autocomplete-json" type="application/json">{{ site_autocomplete_json|safe }}</script>
+
 <!-- Scripts de Busca Reativa -->
 <script>
     document.addEventListener("DOMContentLoaded", function() {
-        const siteAuditData = JSON.parse('{{ site_audit_data_json|safe }}');
-        const siteAutocompleteList = JSON.parse('{{ site_autocomplete_json|safe }}');
+        const siteAuditData = JSON.parse(document.getElementById('site-audit-data-json').textContent);
+        const siteAutocompleteList = JSON.parse(document.getElementById('site-autocomplete-json').textContent);
 
         window.handleSiteSearch = function(query) {
             const suggestionsBox = document.getElementById('site-search-suggestions');
