@@ -139,6 +139,12 @@
         box-shadow: var(--shadow-sm);
     }
 
+    .topic-card.active {
+        border-color: var(--brand-primary) !important;
+        background-color: var(--bg-surface) !important;
+        box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12) !important;
+    }
+
     .topic-icon {
         width: 42px;
         height: 42px;
@@ -221,22 +227,22 @@
 
             <!-- Grade de Tópicos Rápidos (4 colunas horizontais) -->
             <div class="help-topics-grid">
-                <div class="topic-card" onclick="setSearchFilter('acesso')">
+                <div class="topic-card" onclick="setSearchFilter(this, 'acesso')">
                     <div class="topic-icon"><i data-lucide="shield-check" style="width: 20px; height: 20px;"></i></div>
                     <div class="topic-title">Solicitação de Acesso</div>
                     <div class="topic-desc">Liberações, prazos e controle do proprietário.</div>
                 </div>
-                <div class="topic-card" onclick="setSearchFilter('vistoria')">
+                <div class="topic-card" onclick="setSearchFilter(this, 'vistoria')">
                     <div class="topic-icon"><i data-lucide="camera" style="width: 20px; height: 20px;"></i></div>
                     <div class="topic-title">Agendar Vistoria</div>
                     <div class="topic-desc">Parceiros, envio de fotos de campo e prazos.</div>
                 </div>
-                <div class="topic-card" onclick="setSearchFilter('replanejar')">
+                <div class="topic-card" onclick="setSearchFilter(this, 'replanejar')">
                     <div class="topic-icon"><i data-lucide="calendar" style="width: 20px; height: 20px;"></i></div>
                     <div class="topic-title">Replanejar Datas</div>
                     <div class="topic-desc">Histórico de adiamentos e motivos aceitos.</div>
                 </div>
-                <div class="topic-card" onclick="setSearchFilter('etapas')">
+                <div class="topic-card" onclick="setSearchFilter(this, 'etapas')">
                     <div class="topic-icon"><i data-lucide="route" style="width: 20px; height: 20px;"></i></div>
                     <div class="topic-title">Fluxo Customizado</div>
                     <div class="topic-desc">Adicionar e reordenar etapas no workflow.</div>
@@ -353,6 +359,8 @@
         }
     }
 
+    let activeFilterKeyword = null;
+
     // Filtro em tempo real de FAQs por digitação
     function filterFAQs() {
         const input = document.getElementById('faq-search-input');
@@ -375,6 +383,12 @@
             }
         });
 
+        // Se o usuário digitou e não coincide com a palavra-chave selecionada, remove a classe active dos cards
+        if (filter !== activeFilterKeyword) {
+            document.querySelectorAll('.topic-card').forEach(c => c.classList.remove('active'));
+            activeFilterKeyword = null;
+        }
+
         const noResults = document.getElementById('no-faq-results');
         if (visibleCount === 0) {
             noResults.style.display = 'flex';
@@ -384,15 +398,32 @@
     }
 
     // Define filtro rápido pelas tags e rola até o FAQ
-    function setSearchFilter(keyword) {
+    function setSearchFilter(cardElement, keyword) {
         const input = document.getElementById('faq-search-input');
-        input.value = keyword;
+        
+        // Se já estiver selecionado, desmarca
+        if (activeFilterKeyword === keyword) {
+            activeFilterKeyword = null;
+            cardElement.classList.remove('active');
+            input.value = '';
+        } else {
+            // Remove active de todos os outros cards
+            document.querySelectorAll('.topic-card').forEach(c => c.classList.remove('active'));
+            
+            // Marca o atual
+            activeFilterKeyword = keyword;
+            cardElement.classList.add('active');
+            input.value = keyword;
+        }
+        
         filterFAQs();
         
-        // Auto abre a primeira pergunta correspondente
-        const firstVisible = document.querySelector('.faq-item[style="display: block;"] .faq-trigger');
-        if (firstVisible) {
-            toggleFaq(firstVisible);
+        // Auto abre a primeira pergunta correspondente se tiver selecionado
+        if (activeFilterKeyword) {
+            const firstVisible = document.querySelector('.faq-item[style="display: block;"] .faq-trigger');
+            if (firstVisible) {
+                toggleFaq(firstVisible);
+            }
         }
     }
 </script>
