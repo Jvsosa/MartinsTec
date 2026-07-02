@@ -1676,5 +1676,36 @@ class SystemLogTests(TestCase):
         self.assertEqual(create_log.target_name, 'Site do Log de Teste')
 
 
+class ConsultSiteViewTests(TestCase):
+    def setUp(self):
+        self.user = User.objects.create_user(
+            username='consult_user',
+            password='password123',
+            email='consult@example.com',
+            role=User.Role.ENGINEER
+        )
+        self.site = Site.objects.create(
+            site_id='SITE_CONSULT_001',
+            name='Site Consultavel',
+            scope_type='LAUDOS',
+            site_type='ROOFTOP'
+        )
+
+    def test_consult_site_view_requires_login(self):
+        url = reverse('consult_site')
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 302)  # Redirects to login
+
+    def test_consult_site_view_loads_successfully(self):
+        self.client.login(username='consult_user', password='password123')
+        url = reverse('consult_site')
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'sites/consult_site.html')
+        self.assertIn('site_autocomplete_json', response.context)
+        self.assertIn('site_audit_data_json', response.context)
+
+
+
 
 

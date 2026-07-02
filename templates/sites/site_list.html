@@ -2677,10 +2677,7 @@
                 initPartnerChart();
             }, 150);
         }
-        
-        if (typeof window.checkOpenConsult === 'function') {
-            window.checkOpenConsult();
-        }
+
     });
     
     document.addEventListener('DOMContentLoaded', () => {
@@ -2837,19 +2834,6 @@
                     else btn.classList.remove('active');
                 }
             });
-
-            // Sincroniza links de navegação lateral (Desempenho vs Consultar Site)
-            const navAnalytics = document.querySelector('a[data-target="analytics"]');
-            const navConsult = document.getElementById('nav-consult-site');
-            if (navAnalytics && navConsult) {
-                if (tabName === 'site') {
-                    navAnalytics.classList.remove('active');
-                    navConsult.classList.add('active');
-                } else {
-                    navAnalytics.classList.add('active');
-                    navConsult.classList.remove('active');
-                }
-            }
 
             if (tabName === 'scope') {
                 // Inicializa o gráfico do escopo que estiver ativo
@@ -3262,27 +3246,6 @@
             }
         });
 
-        // Lógica para detectar redirecionamento do "Consultar Site"
-        window.checkOpenConsult = function() {
-            const urlParams = new URLSearchParams(window.location.search);
-            if (urlParams.get('open_consult') === 'true') {
-                if (typeof window.switchAnalyticsTab === 'function') {
-                    window.switchAnalyticsTab('site');
-                }
-                const searchInput = document.getElementById('site-audit-search');
-                if (searchInput) {
-                    setTimeout(() => {
-                        searchInput.focus();
-                        searchInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                    }, 150);
-                }
-                const newUrl = window.location.pathname + window.location.hash;
-                window.history.replaceState({}, document.title, newUrl);
-            }
-        };
-
-        // Executa a checagem no carregamento da página
-        window.checkOpenConsult();
     });
 </script>
 

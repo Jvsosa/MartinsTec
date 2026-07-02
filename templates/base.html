@@ -1479,7 +1479,7 @@
             <div class="sidebar-category">
                 <div class="nav-section-title">Ativos</div>
                 <nav class="nav-links">
-                    <a href="{% url 'site_list' %}?open_consult=true#analytics" class="nav-link" id="nav-consult-site" data-target="consult-site" style="color: var(--brand-primary); font-weight: 600;">
+                    <a href="{% url 'consult_site' %}" class="nav-link {% if request.resolver_match.url_name == 'consult_site' %}active{% endif %}" id="nav-consult-site" data-target="consult-site" style="color: var(--brand-primary); font-weight: 600;">
                         <i data-lucide="search" style="width: 18px; height: 18px;"></i>
                         <span class="nav-link-text">Consultar Site</span>
                     </a>
@@ -1935,32 +1935,11 @@
             // Atualizar links ativos na navbar
             document.querySelectorAll('.nav-link').forEach(link => {
                 const href = link.getAttribute('href');
-                const linkTarget = link.getAttribute('data-target');
                 if (href.includes('#')) {
-                    if (hash === '#analytics') {
-                        if (linkTarget === 'analytics') {
-                            const siteTab = document.getElementById('analytics-tab-site');
-                            if (siteTab && siteTab.style.display === 'block') {
-                                link.classList.remove('active');
-                            } else {
-                                link.classList.add('active');
-                            }
-                        } else if (linkTarget === 'consult-site') {
-                            const siteTab = document.getElementById('analytics-tab-site');
-                            if (siteTab && siteTab.style.display === 'block') {
-                                link.classList.add('active');
-                            } else {
-                                link.classList.remove('active');
-                            }
-                        } else {
-                            link.classList.remove('active');
-                        }
+                    if (href.endsWith(hash)) {
+                        link.classList.add('active');
                     } else {
-                        if (href.endsWith(hash)) {
-                            link.classList.add('active');
-                        } else {
-                            link.classList.remove('active');
-                        }
+                        link.classList.remove('active');
                     }
                 } else {
                     // Para links de paginas cheias, ativa se o path atual corresponder ao href

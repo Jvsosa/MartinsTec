@@ -1,0 +1,594 @@
+{% extends 'base.html' %}
+
+{% block title %}Consultar Ativo - MartinsTec{% endblock %}
+
+{% block extra_head %}
+<style>
+    /* Layout Containment to prevent outer page scrollbar */
+    .consult-page-wrapper {
+        display: flex;
+        flex-direction: column;
+        gap: 1.5rem;
+        height: calc(100vh - 100px);
+        box-sizing: border-box;
+        overflow: hidden;
+        padding: 1.5rem 2rem;
+    }
+
+    .consult-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-shrink: 0;
+    }
+
+    .consult-header h2 {
+        font-family: var(--font-heading);
+        font-size: 1.6rem;
+        font-weight: 800;
+        color: var(--text-main);
+        margin: 0;
+    }
+
+    .consult-header p {
+        font-size: 0.85rem;
+        color: var(--text-muted);
+        margin: 0.25rem 0 0 0;
+    }
+
+    /* Search bar container */
+    .consult-search-card {
+        background: var(--bg-surface);
+        border: 1px solid var(--border-color);
+        border-radius: 16px;
+        padding: 1.25rem;
+        box-shadow: var(--shadow-sm);
+        flex-shrink: 0;
+        position: relative;
+        z-index: 100;
+    }
+
+    .consult-search-wrapper {
+        position: relative;
+        width: 100%;
+    }
+
+    .consult-search-input {
+        width: 100%;
+        height: 48px;
+        padding: 0 1rem 0 3rem;
+        background: var(--bg-body);
+        border: 1px solid var(--border-color);
+        color: var(--text-main);
+        border-radius: 10px;
+        font-size: 0.95rem;
+        box-sizing: border-box;
+        transition: all 0.2s ease;
+    }
+
+    .consult-search-input:focus {
+        outline: none;
+        border-color: var(--brand-primary);
+        box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+    }
+
+    .consult-suggestions-dropdown {
+        display: none;
+        position: absolute;
+        top: 54px;
+        left: 0;
+        right: 0;
+        background: var(--bg-surface);
+        border: 1px solid var(--border-color);
+        border-radius: 10px;
+        box-shadow: var(--shadow-lg);
+        max-height: 280px;
+        overflow-y: auto;
+        z-index: 1000;
+        padding: 0.5rem 0;
+    }
+
+    .suggestion-item {
+        padding: 0.75rem 1.25rem;
+        cursor: pointer;
+        font-size: 0.88rem;
+        transition: all 0.2s ease;
+        border-bottom: 1px solid var(--border-color);
+    }
+
+    .suggestion-item:last-child {
+        border-bottom: none;
+    }
+
+    .suggestion-item:hover {
+        background-color: rgba(37, 99, 235, 0.06);
+    }
+
+    /* Columns display grid */
+    .consult-content-grid {
+        display: grid;
+        grid-template-columns: 1fr 1.8fr;
+        gap: 1.5rem;
+        flex: 1;
+        min-height: 0; /* Important for inner height flex child scroll */
+    }
+
+    /* Cards structure */
+    .consult-card {
+        background: var(--bg-surface);
+        border: 1px solid var(--border-color);
+        border-radius: 16px;
+        box-shadow: var(--shadow-sm);
+        padding: 1.5rem;
+        box-sizing: border-box;
+        display: flex;
+        flex-direction: column;
+        min-height: 0; /* Allow scroll inside child */
+    }
+
+    .consult-card-scrollable {
+        flex: 1;
+        overflow-y: auto;
+        padding-right: 0.5rem;
+    }
+
+    /* Scrollbar decoration */
+    .consult-card-scrollable::-webkit-scrollbar,
+    .consult-suggestions-dropdown::-webkit-scrollbar {
+        width: 6px;
+    }
+
+    .consult-card-scrollable::-webkit-scrollbar-track,
+    .consult-suggestions-dropdown::-webkit-scrollbar-track {
+        background: transparent;
+    }
+
+    .consult-card-scrollable::-webkit-scrollbar-thumb,
+    .consult-suggestions-dropdown::-webkit-scrollbar-thumb {
+        background: var(--border-color);
+        border-radius: 10px;
+    }
+
+    .consult-card-scrollable::-webkit-scrollbar-thumb:hover,
+    .consult-suggestions-dropdown::-webkit-scrollbar-thumb:hover {
+        background: var(--brand-primary);
+    }
+
+    /* Placeholder style */
+    .placeholder-container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        background: var(--bg-surface);
+        border: 1px dashed var(--border-color);
+        border-radius: 16px;
+        padding: 4rem 2rem;
+        flex: 1;
+    }
+
+    .placeholder-title {
+        font-family: var(--font-heading);
+        font-size: 1.25rem;
+        font-weight: 700;
+        color: var(--text-main);
+        margin: 0 0 0.5rem 0;
+    }
+
+    .placeholder-text {
+        font-size: 0.88rem;
+        color: var(--text-muted);
+        max-width: 480px;
+        margin: 0;
+    }
+
+    /* Custom badge status */
+    .status-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.35rem;
+        font-weight: 700;
+        border-radius: 6px;
+        padding: 0.35rem 0.75rem;
+        font-size: 0.75rem;
+        width: fit-content;
+    }
+
+    .badge-ativo { background: rgba(16, 185, 129, 0.1); color: #10b981; }
+    .badge-manutencao { background: rgba(245, 158, 11, 0.1); color: #f59e0b; }
+    .badge-planejado { background: rgba(59, 130, 246, 0.1); color: #3b82f6; }
+    .badge-inativo { background: rgba(107, 114, 128, 0.1); color: #6b7280; }
+
+    /* Key-Value Details grid */
+    .detail-grid {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 1.25rem;
+        margin-top: 1.25rem;
+    }
+
+    .detail-item {
+        border-bottom: 1px solid var(--border-color);
+        padding-bottom: 0.75rem;
+    }
+
+    .detail-item:last-child {
+        border-bottom: none;
+        padding-bottom: 0;
+    }
+
+    .detail-label {
+        font-size: 0.72rem;
+        text-transform: uppercase;
+        font-weight: 700;
+        color: var(--text-muted);
+        display: block;
+        margin-bottom: 0.25rem;
+    }
+
+    .detail-value {
+        font-size: 0.95rem;
+        font-weight: 600;
+        color: var(--text-main);
+    }
+
+    /* Reschedules Table */
+    .reschedule-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 1rem;
+        font-size: 0.85rem;
+    }
+
+    .reschedule-table th {
+        text-align: left;
+        padding: 0.6rem 0.75rem;
+        font-weight: 700;
+        color: var(--text-muted);
+        font-size: 0.72rem;
+        text-transform: uppercase;
+        border-bottom: 2px solid var(--border-color);
+    }
+
+    .reschedule-table td {
+        padding: 0.75rem;
+        border-bottom: 1px solid var(--border-color);
+        color: var(--text-main);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="consult-page-wrapper">
+    <!-- Cabeçalho -->
+    <div class="consult-header">
+        <div>
+            <h2>Consultar Site / Ativo</h2>
+            <p>Audite cronogramas planejados vs. realizados, lead times de etapas e histórico de replanejamentos.</p>
+        </div>
+    </div>
+
+    <!-- Barra de Busca -->
+    <div class="consult-search-card">
+        <label style="font-family: var(--font-heading); font-size: 0.95rem; font-weight: 700; color: var(--text-main); margin-bottom: 0.75rem; display: block;">
+            Ferramenta de Busca & Auditoria de Ativo
+        </label>
+        <div class="consult-search-wrapper">
+            <i data-lucide="search" style="position: absolute; left: 1.25rem; top: 50%; transform: translateY(-50%); width: 20px; height: 20px; color: var(--text-muted);"></i>
+            <input type="text" id="site-audit-search" class="consult-search-input" placeholder="Digite o código (Site ID) ou Nome do site para auditar..." oninput="handleSiteSearch(this.value)" autocomplete="off">
+            <div id="site-search-suggestions" class="consult-suggestions-dropdown"></div>
+        </div>
+    </div>
+
+    <!-- Placeholder State -->
+    <div id="audit-placeholder" class="placeholder-container">
+        <div class="placeholder-icon">
+            <i data-lucide="compass" style="width: 32px; height: 32px;"></i>
+        </div>
+        <h4 class="placeholder-title">Auditoria de Ativo em Tempo Real</h4>
+        <p class="placeholder-text">
+            Busque e selecione um Site ID ou Nome de Ativo na caixa acima para acessar a linha do tempo completa do cronograma planejado vs. realizado, lead time por etapa, tempos de retenção (dias parado) e histórico de replanejamentos.
+        </p>
+    </div>
+
+    <!-- Conteúdo da Auditoria (Escondido por padrão) -->
+    <div id="audit-content" class="consult-content-grid" style="display: none;">
+        <!-- Coluna da Esquerda: Dados do Site -->
+        <div class="consult-card">
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; border-bottom: 1px solid var(--border-color); padding-bottom: 1rem; margin-bottom: 1rem;">
+                <div>
+                    <span id="audit-site-scope" style="font-size: 0.72rem; text-transform: uppercase; font-weight: 700; color: white; background: var(--brand-primary); padding: 0.25rem 0.6rem; border-radius: 4px; display: inline-block; margin-bottom: 0.5rem;">LAUDOS</span>
+                    <h2 id="audit-site-id" style="font-family: var(--font-heading); font-size: 1.6rem; font-weight: 800; color: var(--text-main); margin: 0;">SITE-001</h2>
+                    <h5 id="audit-site-name" style="font-size: 0.9rem; font-weight: 600; color: var(--text-muted); margin: 0.25rem 0 0 0;">Nome do Site</h5>
+                </div>
+                <span id="audit-site-status-badge" class="status-badge">
+                    <span id="audit-site-status">Ativo</span>
+                </span>
+            </div>
+
+            <!-- Detalhes do Site -->
+            <div class="consult-card-scrollable">
+                <div class="detail-grid">
+                    <div class="detail-item">
+                        <span class="detail-label">Empresa Parceira / Contratada</span>
+                        <span id="audit-site-partner" class="detail-value"> FECAP ENGENHARIA </span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">Data de Criação</span>
+                        <span id="audit-kpi-start" class="detail-value">--</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">Data de Conclusão do Cronograma</span>
+                        <span id="audit-kpi-end" class="detail-value">--</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">Total Dias de Retenção (Parado)</span>
+                        <span id="audit-kpi-retention" class="detail-value" style="font-weight: 700;">0 dias</span>
+                    </div>
+                </div>
+
+                <div style="margin-top: 2rem;">
+                    <a id="audit-site-detail-link" href="#" class="btn-submit" style="display: flex; align-items: center; justify-content: center; gap: 0.5rem; width: 100%; text-decoration: none; box-sizing: border-box; text-align: center; height: 42px;">
+                        Acessar Data Room <i data-lucide="arrow-up-right" style="width: 16px; height: 16px;"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Coluna da Direita: Linha do Tempo & Replanejamentos -->
+        <div class="consult-card">
+            <h4 style="font-family: var(--font-heading); font-size: 1.1rem; font-weight: 700; color: var(--text-main); margin: 0 0 1.25rem 0; display: flex; align-items: center; gap: 0.5rem;">
+                <i data-lucide="git-commit" style="color: var(--brand-primary); width: 20px; height: 20px;"></i>
+                Linha do Tempo & Histórico
+            </h4>
+
+            <div class="consult-card-scrollable">
+                <!-- Seção da Linha do Tempo -->
+                <div style="position: relative; margin-bottom: 2.5rem; padding-left: 0.5rem;" id="audit-timeline-container">
+                    <!-- Linha do tempo será injetada por JS -->
+                </div>
+
+                <!-- Seção de Replanejamento -->
+                <div style="border-top: 1px solid var(--border-color); padding-top: 1.5rem;">
+                    <h4 style="font-family: var(--font-heading); font-size: 1.1rem; font-weight: 700; color: var(--text-main); margin: 0 0 1rem 0; display: flex; align-items: center; gap: 0.5rem;">
+                        <i data-lucide="history" style="color: var(--brand-primary); width: 20px; height: 20px;"></i>
+                        Histórico de Replanejamento
+                    </h4>
+                    
+                    <div style="overflow-x: auto; background: var(--bg-body); border: 1px solid var(--border-color); border-radius: 12px; margin-bottom: 1rem;">
+                        <table class="reschedule-table">
+                            <thead>
+                                <tr>
+                                    <th>Etapa</th>
+                                    <th>Data Anterior</th>
+                                    <th>Nova Data</th>
+                                    <th>Motivo & Responsável</th>
+                                </tr>
+                            </thead>
+                            <tbody id="audit-reschedules-tbody">
+                                <!-- Replanejamentos injetados por JS -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Scripts de Busca Reativa -->
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        const siteAuditData = JSON.parse('{{ site_audit_data_json|safe }}');
+        const siteAutocompleteList = JSON.parse('{{ site_autocomplete_json|safe }}');
+
+        window.handleSiteSearch = function(query) {
+            const suggestionsBox = document.getElementById('site-search-suggestions');
+            if (!query || query.trim() === '') {
+                suggestionsBox.style.display = 'none';
+                return;
+            }
+            
+            const term = query.toLowerCase().trim();
+            const matches = siteAutocompleteList.filter(item => 
+                item.site_id.toLowerCase().includes(term) || 
+                item.name.toLowerCase().includes(term) || 
+                item.partner.toLowerCase().includes(term)
+            ).slice(0, 8);
+            
+            if (matches.length === 0) {
+                suggestionsBox.innerHTML = '<div style="padding: 0.75rem 1.25rem; font-size: 0.82rem; color: var(--text-muted);">Nenhum site encontrado.</div>';
+                suggestionsBox.style.display = 'block';
+                return;
+            }
+            
+            let html = '';
+            matches.forEach(item => {
+                html += `
+                    <div class="suggestion-item" onclick="selectAuditSite('${item.site_id}')"
+                         style="padding: 0.75rem 1.25rem; cursor: pointer; border-bottom: 1px solid var(--border-color); font-size: 0.88rem; transition: background 0.2s;"
+                         onmouseover="this.style.background='rgba(37, 99, 235, 0.06)'"
+                         onmouseout="this.style.background='transparent'">
+                         <strong style="color: var(--text-main);">${item.site_id}</strong> - <span style="color: var(--text-muted);">${item.name}</span>
+                         <div style="font-size: 0.72rem; color: var(--text-muted); margin-top: 0.15rem;">Escopo: ${item.scope} | Fornecedor: ${item.partner}</div>
+                    </div>
+                `;
+            });
+            
+            suggestionsBox.innerHTML = html;
+            suggestionsBox.style.display = 'block';
+        };
+
+        window.selectAuditSite = function(siteId) {
+            document.getElementById('site-search-suggestions').style.display = 'none';
+            document.getElementById('site-audit-search').value = siteId;
+            
+            const siteData = siteAuditData[siteId];
+            if (!siteData) return;
+            
+            document.getElementById('audit-placeholder').style.display = 'none';
+            document.getElementById('audit-content').style.display = 'grid';
+            
+            document.getElementById('audit-site-scope').textContent = siteData.scope;
+            document.getElementById('audit-site-id').textContent = siteData.site_id;
+            document.getElementById('audit-site-name').textContent = siteData.name;
+            document.getElementById('audit-site-partner').textContent = siteData.partner;
+            document.getElementById('audit-site-detail-link').href = `/site/${siteData.id}/`;
+            
+            const statusText = siteData.status_display;
+            const statusVal = siteData.status;
+            document.getElementById('audit-site-status').textContent = statusText;
+            const badge = document.getElementById('audit-site-status-badge');
+            badge.className = `status-badge badge-${statusVal.toLowerCase()}`;
+            
+            document.getElementById('audit-kpi-start').textContent = siteData.created_at;
+            document.getElementById('audit-kpi-end').textContent = siteData.finished_at;
+            
+            let totalRetention = 0;
+            siteData.stages.forEach(st => {
+                totalRetention += st.retention_days || 0;
+            });
+            
+            const retentionKPI = document.getElementById('audit-kpi-retention');
+            retentionKPI.textContent = `${totalRetention} dias`;
+            if (totalRetention > 10) {
+                retentionKPI.style.color = '#dc2626';
+            } else if (totalRetention > 0) {
+                retentionKPI.style.color = '#d97706';
+            } else {
+                retentionKPI.style.color = '#059669';
+            }
+            
+            const timelineContainer = document.getElementById('audit-timeline-container');
+            let timelineHTML = '<div style="position: absolute; top: 12px; bottom: 12px; left: 17px; width: 3px; background: var(--border-color);"></div>';
+            
+            siteData.stages.forEach((st, idx) => {
+                let iconName = 'clock';
+                let circleBg = 'var(--bg-body)';
+                let circleColor = 'var(--text-muted)';
+                let borderStyle = '1px solid var(--border-color)';
+                
+                if (st.comparison_class === 'success') {
+                    iconName = 'check-circle';
+                    circleBg = 'rgba(16, 185, 129, 0.08)';
+                    circleColor = '#10b981';
+                    borderStyle = '1px solid #10b981';
+                } else if (st.comparison_class === 'warning') {
+                    iconName = 'alert-circle';
+                    circleBg = 'rgba(245, 158, 11, 0.08)';
+                    circleColor = '#f59e0b';
+                    borderStyle = '1px solid #f59e0b';
+                } else if (st.comparison_class === 'danger') {
+                    iconName = 'alert-triangle';
+                    circleBg = 'rgba(239, 68, 68, 0.08)';
+                    circleColor = '#ef4444';
+                    borderStyle = '1px solid #ef4444';
+                } else if (st.comparison_class === 'info') {
+                    iconName = 'clock';
+                    circleBg = 'rgba(59, 130, 246, 0.08)';
+                    circleColor = '#3b82f6';
+                    borderStyle = '1px solid #3b82f6';
+                } else if (st.comparison_class === 'muted') {
+                    iconName = 'skip-forward';
+                    circleBg = 'var(--bg-body)';
+                    circleColor = 'var(--text-muted)';
+                    borderStyle = '1px solid var(--border-color)';
+                }
+                
+                let retBadgeColor = 'var(--text-muted)';
+                let retBadgeBg = 'var(--bg-body)';
+                let retBadgeBorder = '1px solid var(--border-color)';
+                
+                if (st.comparison_class === 'danger') {
+                    retBadgeColor = '#ef4444';
+                    retBadgeBg = 'rgba(239, 68, 68, 0.06)';
+                    retBadgeBorder = '1px solid rgba(239, 68, 68, 0.15)';
+                } else if (st.comparison_class === 'warning') {
+                    retBadgeColor = '#f59e0b';
+                    retBadgeBg = 'rgba(245, 158, 11, 0.06)';
+                    retBadgeBorder = '1px solid rgba(245, 158, 11, 0.15)';
+                } else if (st.comparison_class === 'success') {
+                    retBadgeColor = '#10b981';
+                    retBadgeBg = 'rgba(16, 185, 129, 0.06)';
+                    retBadgeBorder = '1px solid rgba(16, 185, 129, 0.15)';
+                }
+                
+                timelineHTML += `
+                    <div style="display: flex; gap: 1.25rem; margin-bottom: 2rem; position: relative; z-index: 5;">
+                        <div style="width: 26px; height: 26px; border-radius: 50%; background: ${circleBg}; color: ${circleColor}; border: ${borderStyle}; display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-size: 0.72rem;">
+                            <i data-lucide="${iconName}" style="width: 14px; height: 14px;"></i>
+                        </div>
+                        
+                        <div style="flex: 1; background: var(--bg-body); border: 1px solid var(--border-color); border-radius: 10px; padding: 1rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+                            <div>
+                                <h5 style="margin: 0; font-size: 0.88rem; font-weight: 700; color: var(--text-main);">${st.name}</h5>
+                                <div style="display: flex; gap: 1rem; font-size: 0.75rem; color: var(--text-muted); margin-top: 0.25rem; flex-wrap: wrap;">
+                                    <span><strong>Previsto:</strong> ${st.planned_date}</span>
+                                    <span><strong>Realizado:</strong> ${st.actual_date}</span>
+                                </div>
+                            </div>
+                            
+                            <div style="display: flex; gap: 0.5rem; align-items: center; flex-wrap: wrap;">
+                                <span style="font-size: 0.72rem; font-weight: 700; color: var(--text-muted); background: var(--bg-surface); border: 1px solid var(--border-color); padding: 0.25rem 0.5rem; border-radius: 6px;">
+                                    Tempo Gasto: +${st.duration_days} d
+                                </span>
+                                
+                                <span style="font-size: 0.72rem; font-weight: 700; color: ${retBadgeColor}; background: ${retBadgeBg}; border: ${retBadgeBorder}; padding: 0.25rem 0.5rem; border-radius: 6px; display: inline-flex; align-items: center; gap: 0.25rem;">
+                                    <i data-lucide="clock" style="width: 10px; height: 10px;"></i>
+                                    ${st.retention_msg}
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            timelineContainer.innerHTML = timelineHTML;
+            
+            const reschedulesTbody = document.getElementById('audit-reschedules-tbody');
+            let reschedulesHTML = '';
+            
+            if (siteData.reschedules && siteData.reschedules.length > 0) {
+                siteData.reschedules.forEach(r => {
+                    reschedulesHTML += `
+                        <tr>
+                            <td style="font-weight: 700; color: var(--text-main);">${r.stage}</td>
+                            <td style="color: var(--text-muted);">${r.prev_date}</td>
+                            <td style="font-weight: 600; color: var(--brand-primary);">${r.new_date}</td>
+                            <td>
+                                <span style="font-weight: 500;" title="${r.reason}">${r.reason}</span>
+                                <div style="font-size: 0.65rem; color: var(--text-muted); margin-top: 0.1rem;">Por: ${r.created_by} em ${r.created_at}</div>
+                            </td>
+                        </tr>
+                    `;
+                });
+            } else {
+                reschedulesHTML = `
+                    <tr>
+                        <td colspan="4" style="text-align: center; padding: 2rem; color: var(--text-muted);">Nenhum replanejamento registrado.</td>
+                    </tr>
+                `;
+            }
+            
+            reschedulesTbody.innerHTML = reschedulesHTML;
+            lucide.createIcons();
+        };
+
+        // Close suggestions dropdown when clicking outside
+        document.addEventListener('click', function(e) {
+            const input = document.getElementById('site-audit-search');
+            const suggestions = document.getElementById('site-search-suggestions');
+            if (input && suggestions && e.target !== input && !suggestions.contains(e.target)) {
+                suggestions.style.display = 'none';
+            }
+        });
+        
+        // Auto focus search input on load
+        const mainSearchInput = document.getElementById('site-audit-search');
+        if (mainSearchInput) {
+            mainSearchInput.focus();
+        }
+    });
+</script>
+{% endblock %}

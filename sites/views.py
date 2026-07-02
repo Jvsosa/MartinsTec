@@ -1883,3 +1883,171 @@ def help_center(request):
     return render(request, 'help_center.html')
 
 
+@login_required
+def consult_site(request):
+    from django.utils import timezone
+    import json as _json
+    from .models import Site
+    
+    scope_configs = Site.SCOPE_STAGES
+    all_sites = Site.objects.all().prefetch_related('stages')
+    
+    site_audit_data = {}
+    site_autocomplete_list = []
+    today = timezone.localdate()
+    
+    for s in all_sites:
+        scope = s.scope_type
+        stages_config = scope_configs.get(scope, [])
+        if not stages_config:
+            continue
+            
+        stage_objs = {st.stage_name: st for st in s.stages.all()}
+        stages_list_data = []
+        
+        # Encontra a primeira etapa pendente (etapa ativa)
+        active_idx = -1
+        stages_ordered = []
+        for stage_name in stages_config:
+            st_obj = stage_objs.get(stage_name)
+            if st_obj:
+                stages_ordered.append(st_obj)
+                
+        for idx, st_obj in enumerate(stages_ordered):
+            if st_obj.status == 'PENDING':
+                active_idx = idx
+                break
+                
+        creation_date = timezone.localdate(s.created_at)
+        prev_date = creation_date
+        
+        for idx, st_obj in enumerate(stages_ordered):
+            st_name = st_obj.stage_name
+            status = st_obj.status
+            planned_date = st_obj.planned_date
+            actual_date = st_obj.actual_date
+            
+            # Start Date da etapa
+            start_date = prev_date
+            
+            # End Date / Conclusão
+            end_date = None
+            if status == 'DONE':
+                end_date = actual_date if actual_date else st_obj.updated_at.date()
+                prev_date = end_date
+            elif status == 'SKIPPED':
+                end_date = st_obj.updated_at.date()
+                prev_date = end_date
+            elif status == 'PENDING':
+                if idx == active_idx:
+                    end_date = today
+                else:
+                    end_date = None
+                    
+            # Duração (lead time de transição)
+            duration = None
+            if end_date and start_date:
+                duration = max(0, (end_date - start_date).days)
+                
+            # Retenção / Gargalo Interno
+            retention_days = 0
+            retention_msg = 'No prazo'
+            comparison_class = 'info'
+            comparison_icon = 'clock'
+            
+            if status == 'PENDING':
+                if idx == active_idx:
+                    retention_days = max(0, (today - start_date).days)
+                    if planned_date and today > planned_date:
+                        delay = (today - planned_date).days
+                        retention_msg = f"Atrasado há {delay} dias (Prazo era {planned_date.strftime('%d/%m/%Y')})"
+                        comparison_class = 'danger'
+                        comparison_icon = 'alert-triangle'
+                    else:
+                        retention_msg = f"Parado há {retention_days} dias na etapa"
+                        comparison_class = 'info'
+                        comparison_icon = 'clock'
+                else:
+                    retention_msg = "Aguardando início"
+                    comparison_class = 'muted'
+                    comparison_icon = 'clock'
+            elif status == 'DONE':
+                if planned_date and actual_date and actual_date > planned_date:
+                    retention_days = (actual_date - planned_date).days
+                    retention_msg = f"Entregue com atraso de {retention_days} dias"
+                    comparison_class = 'warning'
+                    comparison_icon = 'alert-circle'
+                else:
+                    retention_msg = "Entregue no prazo"
+                    comparison_class = 'success'
+                    comparison_icon = 'check-circle'
+            elif status == 'SKIPPED':
+                retention_msg = "Ignorado"
+                comparison_class = 'muted'
+                comparison_icon = 'skip-forward'
+                
+            stages_list_data.append({
+                'name': st_name,
+                'status': status,
+                'status_display': st_obj.get_status_display(),
+                'planned_date': planned_date.strftime('%d/%m/%Y') if planned_date else '--',
+                'actual_date': actual_date.strftime('%d/%m/%Y') if actual_date else '--',
+                'duration_days': duration if duration is not None else '--',
+                'retention_days': retention_days,
+                'retention_msg': retention_msg,
+                'comparison_class': comparison_class,
+                'comparison_icon': comparison_icon,
+            })
+            
+        # Histórico de replanejamentos
+        reschedules_data = []
+        for r in s.get_merged_reschedule_history():
+            reschedules_data.append({
+                'created_at': r['created_at'].strftime('%d/%m/%Y %H:%M'),
+                'created_by': r['created_by_name'],
+                'reason': r['reason'] or 'Não informado',
+                'stage': r['changes'][0]['stage_name'],
+                'prev_date': r['changes'][0]['previous_date'].strftime('%d/%m/%Y') if r['changes'][0]['previous_date'] else '-',
+                'new_date': r['changes'][0]['new_date'].strftime('%d/%m/%Y') if r['changes'][0]['new_date'] else '-',
+            })
+            
+        # Data de conclusão
+        last_stage_obj = stage_objs.get(stages_config[-1])
+        is_finished = last_stage_obj and last_stage_obj.status in ('DONE', 'SKIPPED')
+        finished_date_str = '--'
+        if is_finished and last_stage_obj:
+            f_date = last_stage_obj.actual_date if last_stage_obj.actual_date else last_stage_obj.updated_at.date()
+            finished_date_str = f_date.strftime('%d/%m/%Y')
+            
+        site_id_str = s.site_id or '--'
+        site_audit_data[site_id_str] = {
+            'id': s.id,
+            'site_id': site_id_str,
+            'name': s.name,
+            'scope': s.get_scope_type_display(),
+            'scope_key': scope,
+            'partner': s.partner_company or 'Sem Fornecedor',
+            'status_display': s.get_status_display(),
+            'status': s.status,
+            'created_at': creation_date.strftime('%d/%m/%Y'),
+            'finished_at': finished_date_str,
+            'stages': stages_list_data,
+            'reschedules': reschedules_data,
+        }
+        
+        site_autocomplete_list.append({
+            'site_id': site_id_str,
+            'name': s.name,
+            'scope': s.get_scope_type_display(),
+            'partner': s.partner_company or 'Sem Fornecedor',
+        })
+        
+    context = {
+        'site_audit_data_json': _json.dumps(site_audit_data),
+        'site_autocomplete_json': _json.dumps(site_autocomplete_list),
+    }
+    
+    return render(request, 'sites/consult_site.html', context)
+
+
+
