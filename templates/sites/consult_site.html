@@ -312,7 +312,20 @@
                 <div class="detail-grid">
                     <div class="detail-item">
                         <span class="detail-label">Empresa Parceira / Contratada</span>
-                        <span id="audit-site-partner" class="detail-value"> FECAP ENGENHARIA </span>
+                        <span id="audit-site-partner" class="detail-value"> -- </span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">Operadora</span>
+                        <span id="audit-site-operator" class="detail-value"> -- </span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">Tipo do Site</span>
+                        <span id="audit-site-type" class="detail-value"> -- </span>
+                    </div>
+                    <div class="detail-item" style="background: rgba(37, 99, 235, 0.05); border: 1px solid var(--border-color); border-radius: 10px; padding: 0.75rem 1rem;">
+                        <span class="detail-label" style="color: var(--brand-primary); font-weight: 700;">Etapa Atual Ativa</span>
+                        <span id="audit-site-current-stage" class="detail-value" style="display: block; font-size: 1.05rem; font-weight: 800; margin-top: 0.25rem;"> -- </span>
+                        <span id="audit-site-current-age" style="font-size: 0.75rem; font-weight: 600; color: #ef4444; display: block; margin-top: 0.15rem;"> Parado há -- dias </span>
                     </div>
                     <div class="detail-item">
                         <span class="detail-label">Data de Criação</span>
@@ -328,7 +341,18 @@
                     </div>
                 </div>
 
-                <div style="margin-top: 2rem;">
+                <!-- Seção de Arquivos / Documentos -->
+                <div style="margin-top: 1.5rem; border-top: 1px solid var(--border-color); padding-top: 1.25rem;">
+                    <h4 style="font-family: var(--font-heading); font-size: 0.95rem; font-weight: 700; color: var(--text-main); margin: 0 0 0.75rem 0; display: flex; align-items: center; gap: 0.35rem;">
+                        <i data-lucide="files" style="color: var(--brand-primary); width: 16px; height: 16px;"></i>
+                        Arquivos e Documentos (<span id="audit-files-count">0</span>)
+                    </h4>
+                    <div id="audit-files-container" style="display: flex; flex-direction: column; gap: 0.6rem; max-height: 200px; overflow-y: auto; padding-right: 0.25rem;">
+                        <!-- Arquivos injetados por JS -->
+                    </div>
+                </div>
+
+                <div style="margin-top: 1.5rem;">
                     <a id="audit-site-detail-link" href="#" class="btn-submit" style="display: flex; align-items: center; justify-content: center; gap: 0.5rem; width: 100%; text-decoration: none; box-sizing: border-box; text-align: center; height: 42px;">
                         Acessar Data Room <i data-lucide="arrow-up-right" style="width: 16px; height: 16px;"></i>
                     </a>
@@ -434,7 +458,55 @@
             document.getElementById('audit-site-id').textContent = siteData.site_id;
             document.getElementById('audit-site-name').textContent = siteData.name;
             document.getElementById('audit-site-partner').textContent = siteData.partner;
+            document.getElementById('audit-site-operator').textContent = siteData.operator;
+            document.getElementById('audit-site-type').textContent = siteData.site_type;
             document.getElementById('audit-site-detail-link').href = `/site/${siteData.id}/`;
+            
+            // Etapa atual ativa
+            const currentStageVal = siteData.current_stage_name;
+            const currentStageDays = siteData.current_stage_days;
+            document.getElementById('audit-site-current-stage').textContent = currentStageVal;
+            const currentAgeEl = document.getElementById('audit-site-current-age');
+            if (currentStageVal === 'Concluído' || currentStageVal === 'Finalizado') {
+                currentAgeEl.textContent = 'Projeto concluído com sucesso';
+                currentAgeEl.style.color = '#10b981';
+            } else {
+                currentAgeEl.textContent = `Parado há ${currentStageDays} dias nesta etapa`;
+                currentAgeEl.style.color = currentStageDays > 5 ? '#ef4444' : 'var(--text-muted)';
+            }
+
+            // Renderizar arquivos
+            const filesCountEl = document.getElementById('audit-files-count');
+            const filesContainer = document.getElementById('audit-files-container');
+            filesCountEl.textContent = siteData.files.length;
+            
+            if (siteData.files && siteData.files.length > 0) {
+                let filesHTML = '';
+                siteData.files.forEach(f => {
+                    let fileIcon = 'file-text';
+                    if (f.category.includes('PDF')) fileIcon = 'file-text';
+                    else if (f.category.includes('Foto')) fileIcon = 'image';
+                    else if (f.category.includes('Planta')) fileIcon = 'file-code';
+                    
+                    filesHTML += `
+                        <div style="display: flex; align-items: center; justify-content: space-between; background: var(--bg-body); border: 1px solid var(--border-color); border-radius: 8px; padding: 0.6rem 0.8rem; font-size: 0.8rem;">
+                            <div style="display: flex; align-items: center; gap: 0.5rem; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; flex: 1; padding-right: 0.5rem;">
+                                <i data-lucide="${fileIcon}" style="width: 16px; height: 16px; color: var(--brand-primary); flex-shrink: 0;"></i>
+                                <div style="overflow: hidden; text-overflow: ellipsis;">
+                                    <span style="font-weight: 700; color: var(--text-main); display: block; overflow: hidden; text-overflow: ellipsis;" title="${f.name}">${f.name}</span>
+                                    <span style="font-size: 0.65rem; color: var(--text-muted);">${f.category} • Por: ${f.uploaded_by}</span>
+                                </div>
+                            </div>
+                            <a href="${f.url}" download class="btn-action" style="padding: 0.25rem 0.5rem; text-decoration: none; display: inline-flex; align-items: center; justify-content: center; background: rgba(37, 99, 235, 0.08); border-radius: 4px; color: var(--brand-primary); flex-shrink: 0;" title="Baixar Arquivo">
+                                <i data-lucide="download" style="width: 14px; height: 14px;"></i>
+                            </a>
+                        </div>
+                    `;
+                });
+                filesContainer.innerHTML = filesHTML;
+            } else {
+                filesContainer.innerHTML = '<div style="text-align: center; padding: 1.5rem; color: var(--text-muted); font-size: 0.8rem; border: 1px dashed var(--border-color); border-radius: 8px;">Nenhum arquivo anexado a este site.</div>';
+            }
             
             const statusText = siteData.status_display;
             const statusVal = siteData.status;

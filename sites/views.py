@@ -1885,12 +1885,13 @@ def help_center(request):
 
 @login_required
 def consult_site(request):
+    import os
     from django.utils import timezone
     import json as _json
     from .models import Site
     
     scope_configs = Site.SCOPE_STAGES
-    all_sites = Site.objects.all().prefetch_related('stages')
+    all_sites = Site.objects.all().prefetch_related('stages', 'files', 'files__uploaded_by')
     
     site_audit_data = {}
     site_autocomplete_list = []
@@ -1920,6 +1921,9 @@ def consult_site(request):
                 
         creation_date = timezone.localdate(s.created_at)
         prev_date = creation_date
+        
+        current_stage_name = 'Concluído'
+        current_stage_days = 0
         
         for idx, st_obj in enumerate(stages_ordered):
             st_name = st_obj.stage_name
@@ -1967,6 +1971,8 @@ def consult_site(request):
                         retention_msg = f"Parado há {retention_days} dias na etapa"
                         comparison_class = 'info'
                         comparison_icon = 'clock'
+                    current_stage_name = st_name
+                    current_stage_days = retention_days
                 else:
                     retention_msg = "Aguardando início"
                     comparison_class = 'muted'
@@ -2019,6 +2025,17 @@ def consult_site(request):
             f_date = last_stage_obj.actual_date if last_stage_obj.actual_date else last_stage_obj.updated_at.date()
             finished_date_str = f_date.strftime('%d/%m/%Y')
             
+        # Lista de arquivos anexados ao site
+        files_list = []
+        for f in s.files.all():
+            files_list.append({
+                'name': os.path.basename(f.file.name) if f.file else 'Arquivo',
+                'url': f.file.url if f.file else '#',
+                'category': f.get_category_display(),
+                'uploaded_by': (f.uploaded_by.get_full_name() or f.uploaded_by.username) if f.uploaded_by else 'Sistema',
+                'uploaded_at': timezone.localtime(f.uploaded_at).strftime('%d/%m/%Y %H:%M')
+            })
+            
         site_id_str = s.site_id or '--'
         site_audit_data[site_id_str] = {
             'id': s.id,
@@ -2026,13 +2043,18 @@ def consult_site(request):
             'name': s.name,
             'scope': s.get_scope_type_display(),
             'scope_key': scope,
+            'operator': s.get_operator_display() if s.operator else 'Sem Operadora',
+            'site_type': s.get_site_type_display() if s.site_type else 'Não Definido',
             'partner': s.partner_company or 'Sem Fornecedor',
             'status_display': s.get_status_display(),
             'status': s.status,
             'created_at': creation_date.strftime('%d/%m/%Y'),
             'finished_at': finished_date_str,
+            'current_stage_name': current_stage_name,
+            'current_stage_days': current_stage_days,
             'stages': stages_list_data,
             'reschedules': reschedules_data,
+            'files': files_list,
         }
         
         site_autocomplete_list.append({
