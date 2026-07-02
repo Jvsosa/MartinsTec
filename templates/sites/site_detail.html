@@ -1569,136 +1569,9 @@
                                 {% endif %}{# end not site.planned_report_date #}
 
                                 {% if stage.name == 'Laudo' %}
-                                <!-- SEÇÃO DE REVISÕES (APENAS PARA A ETAPA LAUDO) -->
-                                <div style="margin-top: 1.5rem; padding-top: 1.5rem; border-top: 1px solid var(--border-color);">
-                                    <h6 style="margin: 0 0 1rem 0; font-size: 0.85rem; font-weight: 700; color: var(--text-main); display: flex; align-items: center; gap: 0.4rem;">
-                                        <i data-lucide="history" style="width: 16px; height: 16px; color: var(--text-muted);"></i>
-                                        Controle de Revisões do Laudo (R1, R2, etc.)
-                                    </h6>
-
-                                    <!-- Tabela de Histórico de Revisões -->
-                                    {% if stage.revisions_count > 0 %}
-                                    <div style="background: var(--bg-surface); border: 1.5px solid var(--border-color); border-radius: 8px; overflow: hidden; margin-bottom: 1rem;">
-                                        <table style="width: 100%; border-collapse: collapse; text-align: left; font-size: 0.78rem;">
-                                            <thead>
-                                                <tr class="revision-table-header-row" style="border-bottom: 1.5px solid var(--border-color);">
-                                                    <th style="padding: 0.6rem 0.85rem; font-weight: 700; color: var(--text-main);">Revisão</th>
-                                                    <th style="padding: 0.6rem 0.85rem; font-weight: 700; color: var(--text-main);">Solicitada em</th>
-                                                    <th style="padding: 0.6rem 0.85rem; font-weight: 700; color: var(--text-main);">Motivo / Detalhes</th>
-                                                    <th style="padding: 0.6rem 0.85rem; font-weight: 700; color: var(--text-main);">Recebida em</th>
-                                                    <th style="padding: 0.6rem 0.85rem; font-weight: 700; color: var(--text-main);">Status</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody>
-                                                {% for rev in stage.revisions %}
-                                                <tr style="border-bottom: 1px solid var(--border-color); background: white;">
-                                                    <td style="padding: 0.6rem 0.85rem; font-weight: 700; color: var(--brand-primary);">R{{ rev.revision_number }}</td>
-                                                    <td style="padding: 0.6rem 0.85rem; color: var(--text-muted);">{{ rev.request_date|date:"d/m/Y" }}</td>
-                                                    <td style="padding: 0.6rem 0.85rem; color: var(--text-main); white-space: pre-line;">{{ rev.reason }}</td>
-                                                    <td style="padding: 0.6rem 0.85rem; color: var(--text-muted);">
-                                                        {% if rev.receive_date %}
-                                                            {{ rev.receive_date|date:"d/m/Y" }}
-                                                        {% else %}
-                                                            --
-                                                        {% endif %}
-                                                    </td>
-                                                    <td style="padding: 0.6rem 0.85rem;">
-                                                        {% if rev.status == 'PENDING' %}
-                                                            <span style="background: #fff7ed; color: #c2410c; border: 1px solid #fed7aa; padding: 0.1rem 0.4rem; border-radius: 4px; font-weight: 700; font-size: 0.68rem;">Aguardando Retorno</span>
-                                                        {% else %}
-                                                            <span style="background: #f0fdf4; color: #166534; border: 1px solid #bbf7d0; padding: 0.1rem 0.4rem; border-radius: 4px; font-weight: 700; font-size: 0.68rem;">Recebida</span>
-                                                        {% endif %}
-                                                    </td>
-                                                </tr>
-                                                {% endfor %}
-                                            </tbody>
-                                        </table>
-                                    </div>
-                                    {% else %}
-                                    <p style="margin: 0 0 1rem 0; font-size: 0.78rem; color: var(--text-muted); font-style: italic;">
-                                        Nenhuma revisão solicitada até o momento.
-                                    </p>
-                                    {% endif %}
-
-                                    {% if user.role == 'ADMIN' or user.role == 'ENGINEER' %}
-                                        <!-- Se houver revisão pendente ativa: Exibir formulário de recebimento -->
-                                        {% if stage.has_pending_revision %}
-                                        <div class="revision-pending-container" style="border-radius: 8px; padding: 1rem; margin-bottom: 1rem;">
-                                            <h6 style="margin: 0 0 0.75rem 0; font-size: 0.8rem; font-weight: 700; color: #c2410c; display: flex; align-items: center; gap: 0.35rem;">
-                                                <i data-lucide="check-square" style="width: 16px; height: 16px;"></i>
-                                                Confirmar Recebimento da Revisão R{{ stage.pending_revision_number }}
-                                            </h6>
-                                            <form method="POST" action="{% url 'site_detail' pk=site.pk %}">
-                                                {% csrf_token %}
-                                                <input type="hidden" name="action" value="receive_stage_revision">
-                                                <input type="hidden" name="stage_name" value="Laudo">
-                                                
-                                                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 0.75rem; align-items: end;">
-                                                    <div class="field-group">
-                                                        <label for="rev_receive_date" style="font-size: 0.65rem; color: #c2410c; font-weight: 600;">Data de Recebimento</label>
-                                                        <div style="display: flex; gap: 0.4rem; align-items: center; width: 100%;">
-                                                            <input type="date" name="receive_date" id="rev_receive_date" class="field-control" style="padding: 0.4rem; font-size: 0.8rem; border-radius: 6px; border: 1px solid #fed7aa; background: white; height: 34px; box-sizing: border-box;" required>
-                                                            <button type="button" onclick="document.getElementById('rev_receive_date').value='{% now 'Y-m-d' %}'" class="btn-ent btn-ent-primary" style="flex-shrink: 0; height: 34px;">Hoje</button>
-                                                        </div>
-                                                    </div>
-                                                    <div class="field-group" style="flex: 2;">
-                                                        <label for="rev_comments" style="font-size: 0.65rem; color: #c2410c; font-weight: 600;">Comentários do Retorno (Opcional)</label>
-                                                        <input type="text" name="comments" id="rev_comments" placeholder="Ex: Ajustado conforme R1 da engenharia..." class="field-control" style="padding: 0.4rem; font-size: 0.8rem; border-radius: 6px; border: 1px solid #fed7aa; background: white; height: 34px; box-sizing: border-box;">
-                                                    </div>
-                                                    <button type="submit" class="btn-ent btn-ent-primary" style="height: 34px;">
-                                                        Confirmar Retorno
-                                                    </button>
-                                                </div>
-                                            </form>
-                                        </div>
-                                        {% else %}
-                                            <!-- Se NÃO houver revisão pendente: Exibir formulário de solicitação (Apenas se o Laudo original foi entregue) -->
-                                            {% if stage.status == 'DONE' %}
-                                            <button type="button" onclick="document.getElementById('request-rev-form-container').style.display='block'; this.style.display='none';" class="btn-ent btn-ent-outline" style="margin-bottom: 1rem;">
-                                                <i data-lucide="plus-circle" style="width: 14px; height: 14px;"></i>
-                                                Solicitar Nova Revisão (R{{ stage.revisions_count|add:"1" }})
-                                            </button>
-
-                                            <div id="request-rev-form-container" class="revision-request-container" style="display: none; border-radius: 8px; padding: 1rem; margin-bottom: 1rem;">
-                                                <h6 style="margin: 0 0 0.75rem 0; font-size: 0.8rem; font-weight: 700; color: var(--text-main); display: flex; align-items: center; gap: 0.35rem;">
-                                                    <i data-lucide="plus-circle" style="width: 16px; height: 16px; color: var(--brand-primary);"></i>
-                                                    Nova Solicitação de Revisão (R{{ stage.revisions_count|add:"1" }})
-                                                </h6>
-                                                <form method="POST" action="{% url 'site_detail' pk=site.pk %}">
-                                                    {% csrf_token %}
-                                                    <input type="hidden" name="action" value="request_stage_revision">
-                                                    <input type="hidden" name="stage_name" value="Laudo">
-
-                                                    <div style="display: flex; flex-direction: column; gap: 0.75rem;">
-                                                        <div class="field-group" style="width: 250px;">
-                                                            <label for="rev_request_date" style="font-size: 0.65rem; color: var(--text-muted); font-weight: 600;">Data da Solicitação</label>
-                                                            <div style="display: flex; gap: 0.4rem; align-items: center; width: 100%;">
-                                                                <input type="date" name="request_date" id="rev_request_date" class="field-control" style="padding: 0.4rem; font-size: 0.8rem; border-radius: 6px; border: 1px solid var(--border-color); background: white; height: 34px; box-sizing: border-box;" required>
-                                                                <button type="button" onclick="document.getElementById('rev_request_date').value='{% now 'Y-m-d' %}'" class="btn-ent btn-ent-primary" style="flex-shrink: 0; height: 34px;">Hoje</button>
-                                                            </div>
-                                                        </div>
-
-                                                        <div class="field-group">
-                                                            <label for="rev_reason" style="font-size: 0.65rem; color: var(--text-muted); font-weight: 600;">Motivo da Revisão (Detalhes dos erros/ajustes) *</label>
-                                                            <textarea name="reason" id="rev_reason" placeholder="Descreva os erros detectados e ajustes solicitados para a revisão técnica..." class="field-control" rows="3" style="padding: 0.5rem; font-size: 0.8rem; border-radius: 6px; border: 1px solid var(--border-color); background: white; box-sizing: border-box; resize: vertical;" required></textarea>
-                                                        </div>
-
-                                                        <div style="display: flex; gap: 0.5rem; align-items: center;">
-                                                            <button type="submit" class="btn-ent btn-ent-primary">
-                                                                Enviar Solicitação
-                                                            </button>
-                                                            <button type="button" onclick="document.getElementById('request-rev-form-container').style.display='none'; document.querySelector('[onclick*=\'request-rev-form-container\']').style.display='inline-flex';" class="btn-ent btn-ent-outline" style="background: transparent; border: 1px solid var(--border-color); color: var(--text-main);">
-                                                                Cancelar
-                                                            </button>
-                                                        </div>
-                                                    </div>
-                                                </form>
-                                            </div>
-                                            {% endif %}
-                                        {% endif %}
-                                    {% endif %}
-                                </div>
+                                <!-- Bloco de revisões movido para a seção genérica do acordeon -->
                                 {% endif %}
+
 
                             {% elif stage.name == 'Acionamento Parceiro' %}
 
@@ -2054,6 +1927,138 @@
                                     </div>
                                     {% endif %}{# end status check #}
                                 {% endif %}{# end user.role #}
+                            {% endif %}
+
+                            <!-- SEÇÃO DE REVISÕES (Dinamizada para etapas compatíveis) -->
+                            {% if stage.name == 'Laudo' or stage.name == 'QRF' or stage.name == 'WarRoom' or stage.name == 'PPI' or stage.name == 'ARQ' %}
+                            <div style="margin-top: 1.5rem; padding-top: 1.5rem; border-top: 1px solid var(--border-color);">
+                                <h6 style="margin: 0 0 1rem 0; font-size: 0.85rem; font-weight: 700; color: var(--text-main); display: flex; align-items: center; gap: 0.4rem;">
+                                    <i data-lucide="history" style="width: 16px; height: 16px; color: var(--text-muted);"></i>
+                                    Controle de Revisões da Etapa {{ stage.name }} (R1, R2, etc.)
+                                </h6>
+
+                                <!-- Tabela de Histórico de Revisões -->
+                                {% if stage.revisions_count > 0 %}
+                                <div style="background: var(--bg-surface); border: 1.5px solid var(--border-color); border-radius: 8px; overflow: hidden; margin-bottom: 1rem;">
+                                    <table style="width: 100%; border-collapse: collapse; text-align: left; font-size: 0.78rem;">
+                                        <thead>
+                                            <tr class="revision-table-header-row" style="border-bottom: 1.5px solid var(--border-color);">
+                                                <th style="padding: 0.6rem 0.85rem; font-weight: 700; color: var(--text-main);">Revisão</th>
+                                                <th style="padding: 0.6rem 0.85rem; font-weight: 700; color: var(--text-main);">Solicitada em</th>
+                                                <th style="padding: 0.6rem 0.85rem; font-weight: 700; color: var(--text-main);">Motivo / Detalhes</th>
+                                                <th style="padding: 0.6rem 0.85rem; font-weight: 700; color: var(--text-main);">Recebida em</th>
+                                                <th style="padding: 0.6rem 0.85rem; font-weight: 700; color: var(--text-main);">Status</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {% for rev in stage.revisions %}
+                                            <tr style="border-bottom: 1px solid var(--border-color); background: white;">
+                                                <td style="padding: 0.6rem 0.85rem; font-weight: 700; color: var(--brand-primary);">R{{ rev.revision_number }}</td>
+                                                <td style="padding: 0.6rem 0.85rem; color: var(--text-muted);">{{ rev.request_date|date:"d/m/Y" }}</td>
+                                                <td style="padding: 0.6rem 0.85rem; color: var(--text-main); white-space: pre-line;">{{ rev.reason }}</td>
+                                                <td style="padding: 0.6rem 0.85rem; color: var(--text-muted);">
+                                                    {% if rev.receive_date %}
+                                                        {{ rev.receive_date|date:"d/m/Y" }}
+                                                    {% else %}
+                                                        --
+                                                    {% endif %}
+                                                </td>
+                                                <td style="padding: 0.6rem 0.85rem;">
+                                                    {% if rev.status == 'PENDING' %}
+                                                        <span style="background: #fff7ed; color: #c2410c; border: 1px solid #fed7aa; padding: 0.1rem 0.4rem; border-radius: 4px; font-weight: 700; font-size: 0.68rem;">Aguardando Retorno</span>
+                                                    {% else %}
+                                                        <span style="background: #f0fdf4; color: #166534; border: 1px solid #bbf7d0; padding: 0.1rem 0.4rem; border-radius: 4px; font-weight: 700; font-size: 0.68rem;">Recebida</span>
+                                                    {% endif %}
+                                                </td>
+                                            </tr>
+                                            {% endfor %}
+                                        </tbody>
+                                    </table>
+                                </div>
+                                {% else %}
+                                <p style="margin: 0 0 1rem 0; font-size: 0.78rem; color: var(--text-muted); font-style: italic;">
+                                    Nenhuma revisão solicitada até o momento.
+                                </p>
+                                {% endif %}
+
+                                {% if user.role == 'ADMIN' or user.role == 'ENGINEER' %}
+                                    <!-- Se houver revisão pendente ativa: Exibir formulário de recebimento -->
+                                    {% if stage.has_pending_revision %}
+                                    <div class="revision-pending-container" style="border-radius: 8px; padding: 1rem; margin-bottom: 1rem;">
+                                        <h6 style="margin: 0 0 0.75rem 0; font-size: 0.8rem; font-weight: 700; color: #c2410c; display: flex; align-items: center; gap: 0.35rem;">
+                                            <i data-lucide="check-square" style="width: 16px; height: 16px;"></i>
+                                            Confirmar Recebimento da Revisão R{{ stage.pending_revision_number }}
+                                        </h6>
+                                        <form method="POST" action="{% url 'site_detail' pk=site.pk %}">
+                                            {% csrf_token %}
+                                            <input type="hidden" name="action" value="receive_stage_revision">
+                                            <input type="hidden" name="stage_name" value="{{ stage.name }}">
+                                            
+                                            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 0.75rem; align-items: end;">
+                                                <div class="field-group">
+                                                    <label for="rev_receive_date_{{ stage.index }}" style="font-size: 0.65rem; color: #c2410c; font-weight: 600;">Data de Recebimento</label>
+                                                    <div style="display: flex; gap: 0.4rem; align-items: center; width: 100%;">
+                                                        <input type="date" name="receive_date" id="rev_receive_date_{{ stage.index }}" class="field-control" style="padding: 0.4rem; font-size: 0.8rem; border-radius: 6px; border: 1px solid #fed7aa; background: white; height: 34px; box-sizing: border-box;" required>
+                                                        <button type="button" onclick="document.getElementById('rev_receive_date_{{ stage.index }}').value='{% now 'Y-m-d' %}'" class="btn-ent btn-ent-primary" style="flex-shrink: 0; height: 34px;">Hoje</button>
+                                                    </div>
+                                                </div>
+                                                <div class="field-group" style="flex: 2;">
+                                                    <label for="rev_comments_{{ stage.index }}" style="font-size: 0.65rem; color: #c2410c; font-weight: 600;">Comentários do Retorno (Opcional)</label>
+                                                    <input type="text" name="comments" id="rev_comments_{{ stage.index }}" placeholder="Ex: Ajustado conforme R1 da engenharia..." class="field-control" style="padding: 0.4rem; font-size: 0.8rem; border-radius: 6px; border: 1px solid #fed7aa; background: white; height: 34px; box-sizing: border-box;">
+                                                </div>
+                                                <button type="submit" class="btn-ent btn-ent-primary" style="height: 34px;">
+                                                    Confirmar Retorno
+                                                </button>
+                                            </div>
+                                        </form>
+                                    </div>
+                                    {% else %}
+                                        <!-- Se NÃO houver revisão pendente: Exibir formulário de solicitação (Apenas se a etapa original foi concluída/DONE) -->
+                                        {% if stage.status == 'DONE' %}
+                                        <button type="button" onclick="document.getElementById('request-rev-form-container-{{ stage.index }}').style.display='block'; this.style.display='none';" class="btn-ent btn-ent-outline" style="margin-bottom: 1rem;">
+                                            <i data-lucide="plus-circle" style="width: 14px; height: 14px;"></i>
+                                            Solicitar Nova Revisão (R{{ stage.revisions_count|add:"1" }})
+                                        </button>
+
+                                        <div id="request-rev-form-container-{{ stage.index }}" class="revision-request-container" style="display: none; border-radius: 8px; padding: 1rem; margin-bottom: 1rem;">
+                                            <h6 style="margin: 0 0 0.75rem 0; font-size: 0.8rem; font-weight: 700; color: var(--text-main); display: flex; align-items: center; gap: 0.35rem;">
+                                                <i data-lucide="plus-circle" style="width: 16px; height: 16px; color: var(--brand-primary);"></i>
+                                                Nova Solicitação de Revisão (R{{ stage.revisions_count|add:"1" }})
+                                            </h6>
+                                            <form method="POST" action="{% url 'site_detail' pk=site.pk %}">
+                                                {% csrf_token %}
+                                                <input type="hidden" name="action" value="request_stage_revision">
+                                                <input type="hidden" name="stage_name" value="{{ stage.name }}">
+
+                                                <div style="display: flex; flex-direction: column; gap: 0.75rem;">
+                                                    <div class="field-group" style="width: 250px;">
+                                                        <label for="rev_request_date_{{ stage.index }}" style="font-size: 0.65rem; color: var(--text-muted); font-weight: 600;">Data da Solicitação</label>
+                                                        <div style="display: flex; gap: 0.4rem; align-items: center; width: 100%;">
+                                                            <input type="date" name="request_date" id="rev_request_date_{{ stage.index }}" class="field-control" style="padding: 0.4rem; font-size: 0.8rem; border-radius: 6px; border: 1px solid var(--border-color); background: white; height: 34px; box-sizing: border-box;" required>
+                                                            <button type="button" onclick="document.getElementById('rev_request_date_{{ stage.index }}').value='{% now 'Y-m-d' %}'" class="btn-ent btn-ent-primary" style="flex-shrink: 0; height: 34px;">Hoje</button>
+                                                        </div>
+                                                    </div>
+
+                                                    <div class="field-group">
+                                                        <label for="rev_reason_{{ stage.index }}" style="font-size: 0.65rem; color: var(--text-muted); font-weight: 600;">Motivo da Revisão (Detalhes dos erros/ajustes) *</label>
+                                                        <textarea name="reason" id="rev_reason_{{ stage.index }}" placeholder="Descreva os erros detectados e ajustes solicitados para a revisão técnica..." class="field-control" rows="3" style="padding: 0.5rem; font-size: 0.8rem; border-radius: 6px; border: 1px solid var(--border-color); background: white; box-sizing: border-box; resize: vertical;" required></textarea>
+                                                    </div>
+
+                                                    <div style="display: flex; gap: 0.5rem; align-items: center;">
+                                                        <button type="submit" class="btn-ent btn-ent-primary">
+                                                            Enviar Solicitação
+                                                        </button>
+                                                        <button type="button" onclick="document.getElementById('request-rev-form-container-{{ stage.index }}').style.display='none'; document.querySelector('[onclick*=\'request-rev-form-container-{{ stage.index }}\']').style.display='inline-flex';" class="btn-ent btn-ent-outline" style="background: transparent; border: 1px solid var(--border-color); color: var(--text-main);">
+                                                            Cancelar
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            </form>
+                                        </div>
+                                        {% endif %}
+                                    {% endif %}
+                                {% endif %}
+                            </div>
                             {% endif %}
 
                             <!-- Navigation buttons inside all stepper contents -->

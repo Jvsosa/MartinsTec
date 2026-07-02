@@ -1938,6 +1938,40 @@ class SiteStageRevisionTests(TestCase):
         self.assertEqual(rev.receive_date.isoformat(), '2026-07-15')
         self.assertIn('Retorno da revisão concluído.', rev.reason)
 
+    def test_instalacao_stage_revision(self):
+        # Cria um site no escopo INSTALACAO
+        site_inst = Site.objects.create(
+            site_id='INST_REV_01',
+            name='Site Instalação Revisavel',
+            scope_type='INSTALACAO',
+            planned_survey_date='2026-07-02',
+            planned_report_date='2026-07-10'
+        )
+        # Sincroniza stages para colocar a etapa QRF como DONE
+        qrf_stage = site_inst.stages.get(stage_name='QRF')
+        qrf_stage.status = 'DONE'
+        qrf_stage.save()
+
+        self.client.login(username='revision_user', password='password123')
+        url = reverse('site_detail', kwargs={'pk': site_inst.pk})
+
+        # Solicita revisão na etapa QRF
+        response = self.client.post(url, {
+            'action': 'request_stage_revision',
+            'stage_name': 'QRF',
+            'request_date': '2026-07-12',
+            'reason': 'Ajustar projeto elétrico na etapa QRF.'
+        })
+        self.assertEqual(response.status_code, 302)
+
+        qrf_stage.refresh_from_db()
+        self.assertEqual(qrf_stage.revisions.count(), 1)
+        rev = qrf_stage.revisions.first()
+        self.assertEqual(rev.revision_number, 1)
+        self.assertEqual(rev.status, 'PENDING')
+        self.assertEqual(rev.reason, 'Ajustar projeto elétrico na etapa QRF.')
+
+
 
 
 
