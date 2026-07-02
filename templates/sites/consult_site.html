@@ -9,9 +9,7 @@
         display: flex;
         flex-direction: column;
         gap: 1.5rem;
-        height: calc(100vh - 100px);
         box-sizing: border-box;
-        overflow: hidden;
         padding: 1.5rem 2rem;
     }
 
@@ -109,8 +107,6 @@
         display: grid;
         grid-template-columns: 1fr 1.8fr;
         gap: 1.5rem;
-        flex: 1;
-        min-height: 0; /* Important for inner height flex child scroll */
     }
 
     /* Cards structure */
@@ -123,33 +119,27 @@
         box-sizing: border-box;
         display: flex;
         flex-direction: column;
-        min-height: 0; /* Allow scroll inside child */
     }
 
     .consult-card-scrollable {
-        flex: 1;
-        overflow-y: auto;
-        padding-right: 0.5rem;
+        display: flex;
+        flex-direction: column;
     }
 
     /* Scrollbar decoration */
-    .consult-card-scrollable::-webkit-scrollbar,
     .consult-suggestions-dropdown::-webkit-scrollbar {
         width: 6px;
     }
 
-    .consult-card-scrollable::-webkit-scrollbar-track,
     .consult-suggestions-dropdown::-webkit-scrollbar-track {
         background: transparent;
     }
 
-    .consult-card-scrollable::-webkit-scrollbar-thumb,
     .consult-suggestions-dropdown::-webkit-scrollbar-thumb {
         background: var(--border-color);
         border-radius: 10px;
     }
 
-    .consult-card-scrollable::-webkit-scrollbar-thumb:hover,
     .consult-suggestions-dropdown::-webkit-scrollbar-thumb:hover {
         background: var(--brand-primary);
     }
@@ -347,7 +337,7 @@
                         <i data-lucide="files" style="color: var(--brand-primary); width: 16px; height: 16px;"></i>
                         Arquivos e Documentos (<span id="audit-files-count">0</span>)
                     </h4>
-                    <div id="audit-files-container" style="display: flex; flex-direction: column; gap: 0.6rem; max-height: 200px; overflow-y: auto; padding-right: 0.25rem;">
+                    <div id="audit-files-container" style="display: flex; flex-direction: column; gap: 0.6rem;">
                         <!-- Arquivos injetados por JS -->
                     </div>
                 </div>
