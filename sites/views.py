@@ -533,9 +533,12 @@ def site_list(request):
                 elif scope_key == 'INFRA':
                     if avg_partner_time <= 25: perf_badge = 'fast'
                     elif avg_partner_time > 50: perf_badge = 'slow'
-                else: # FABRICA
+                elif scope_key == 'FABRICA':
                     if avg_partner_time <= 15: perf_badge = 'fast'
                     elif avg_partner_time > 30: perf_badge = 'slow'
+                else: # PROJETOS e outros
+                    if avg_partner_time <= 20: perf_badge = 'fast'
+                    elif avg_partner_time > 40: perf_badge = 'slow'
             else:
                 perf_badge = 'none'
 
@@ -1164,7 +1167,7 @@ def site_detail(request, pk):
             # Editar Escopo do site
             if 'scope_type' in request.POST:
                 scope_type_input = request.POST.get('scope_type')
-                if scope_type_input in [Site.ScopeType.LAUDOS, Site.ScopeType.INSTALACAO, Site.ScopeType.INFRA, Site.ScopeType.FABRICA]:
+                if scope_type_input in [Site.ScopeType.LAUDOS, Site.ScopeType.INSTALACAO, Site.ScopeType.INFRA, Site.ScopeType.FABRICA, Site.ScopeType.PROJETOS]:
                     site.scope_type = scope_type_input
 
             # Editar Parceiro / Fornecedora

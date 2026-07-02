@@ -1706,6 +1706,106 @@ class ConsultSiteViewTests(TestCase):
         self.assertIn('site_audit_data_json', response.context)
 
 
+class SiteProjetosScopeTests(TestCase):
+    def setUp(self):
+        self.user = User.objects.create_user(
+            username='project_user',
+            password='password123',
+            email='project@example.com',
+            role=User.Role.ENGINEER
+        )
+
+    def test_site_creation_with_projetos_scope(self):
+        site = Site.objects.create(
+            site_id='PROJ_001',
+            name='Site Projetos Teste',
+            scope_type='PROJETOS'
+        )
+        # Verify stages are created
+        stages = list(site.stages.all().order_by('order'))
+        self.assertEqual(len(stages), 3)
+        self.assertEqual(stages[0].stage_name, 'Acesso')
+        self.assertEqual(stages[0].order, 1)
+        self.assertEqual(stages[1].stage_name, 'Vistoria')
+        self.assertEqual(stages[1].order, 2)
+        self.assertEqual(stages[2].stage_name, 'Projeto')
+        self.assertEqual(stages[2].order, 3)
+
+    def test_projetos_scope_milestones(self):
+        site = Site.objects.create(
+            site_id='PROJ_002',
+            name='Site Projetos Milestones',
+            scope_type='PROJETOS'
+        )
+        milestones = site.get_card_milestones()
+        self.assertEqual(len(milestones), 2)
+        self.assertEqual(milestones[0]['name'], 'Vistoria')
+        self.assertEqual(milestones[1]['name'], 'Projeto')
+
+    def test_projetos_scope_reschedule(self):
+        site = Site.objects.create(
+            site_id='PROJ_003',
+            name='Site Projetos Reschedule',
+            scope_type='PROJETOS',
+            planned_survey_date='2026-07-02',
+            planned_report_date='2026-07-10'
+        )
+        self.client.login(username='project_user', password='password123')
+        
+        # Test rescheduling Vistoria
+        url = reverse('site_detail', kwargs={'pk': site.pk})
+        response = self.client.post(url, {
+            'action': 'update_workflow',
+            'scope_type': 'PROJETOS',
+            'planned_survey_date': '2026-07-05',
+            'planned_report_date': '2026-07-10',
+            'reschedule_reason': 'Atraso geral'
+        })
+        site.refresh_from_db()
+        self.assertEqual(site.reschedule_count, 1)
+        self.assertEqual(site.planned_survey_date.isoformat(), '2026-07-05')
+        
+        # Test rescheduling Projeto
+        response = self.client.post(url, {
+            'action': 'update_workflow',
+            'scope_type': 'PROJETOS',
+            'planned_survey_date': '2026-07-05',
+            'planned_report_date': '2026-07-15',
+            'reschedule_reason': 'Atraso laudo'
+        })
+        site.refresh_from_db()
+        self.assertEqual(site.reschedule_count, 2)
+        self.assertEqual(site.planned_report_date.isoformat(), '2026-07-15')
+
+    def test_projetos_scope_skip_access_and_survey(self):
+        site = Site.objects.create(
+            site_id='PROJ_004',
+            name='Site Projetos Skips',
+            scope_type='PROJETOS'
+        )
+        self.client.login(username='project_user', password='password123')
+        url = reverse('site_detail', kwargs={'pk': site.pk})
+
+        # Skip Acesso stage
+        self.client.post(url, {
+            'action': 'update_access',
+            'access_action': 'skip_access'
+        })
+        site.refresh_from_db()
+        self.assertEqual(site.access_status, Site.AccessStatus.NOT_REQUIRED)
+        self.assertEqual(site.stages.get(stage_name='Acesso').status, 'SKIPPED')
+
+        # Skip Vistoria stage
+        self.client.post(url, {
+            'action': 'update_stage',
+            'stage_name': 'Vistoria',
+            'stage_status': 'SKIPPED'
+        })
+        site.refresh_from_db()
+        self.assertEqual(site.stages.get(stage_name='Vistoria').status, 'SKIPPED')
+
+
+
 
 
 

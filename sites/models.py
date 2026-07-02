@@ -75,6 +75,7 @@ class Site(models.Model):
         INSTALACAO = 'INSTALACAO', 'Instalação'
         INFRA = 'INFRA', 'Infra'
         FABRICA = 'FABRICA', 'Fabrica'
+        PROJETOS = 'PROJETOS', 'Projetos'
 
     class SiteType(models.TextChoices):
         ROOFTOP = 'ROOFTOP', 'Rooftop'
@@ -388,6 +389,7 @@ class Site(models.Model):
             'LAUDOS':     ['Vistoria', 'Laudo'],
             'INFRA':      ['Vistoria', 'Projeto', 'Execução', 'RFI'],
             'FABRICA':    ['Vistoria', 'Projeto'],
+            'PROJETOS':   ['Vistoria', 'Projeto'],
         }
         card_stage_names = card_stages_map.get(self.scope_type, self.get_stages_config())
 
@@ -504,7 +506,8 @@ class Site(models.Model):
         'LAUDOS': ['Acionamento Parceiro', 'Acesso', 'Vistoria', 'Laudo'],
         'INSTALACAO': ['Acesso', 'Vistoria', 'QRF', 'WarRoom', 'PPI', 'Execução Rollout', 'ARQ'],
         'INFRA': ['Acesso', 'Vistoria', 'Projeto', 'Execução', 'RFI'],
-        'FABRICA': ['Acesso', 'Vistoria', 'Projeto']
+        'FABRICA': ['Acesso', 'Vistoria', 'Projeto'],
+        'PROJETOS': ['Acesso', 'Vistoria', 'Projeto']
     }
 
     def get_stages_config(self):
