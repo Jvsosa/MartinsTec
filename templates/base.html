@@ -1479,13 +1479,13 @@
             <div class="sidebar-category">
                 <div class="nav-section-title">Ativos</div>
                 <nav class="nav-links">
-                    <a href="{% url 'site_list' %}#sites" class="nav-link" data-target="sites">
-                        <i data-lucide="map-pin" style="width: 18px; height: 18px;"></i>
-                        <span class="nav-link-text">Lista de Sites</span>
-                    </a>
                     <a href="{% url 'site_list' %}?open_consult=true#analytics" class="nav-link" id="nav-consult-site" data-target="consult-site" style="color: var(--brand-primary); font-weight: 600;">
                         <i data-lucide="search" style="width: 18px; height: 18px;"></i>
                         <span class="nav-link-text">Consultar Site</span>
+                    </a>
+                    <a href="{% url 'site_list' %}#sites" class="nav-link" data-target="sites">
+                        <i data-lucide="map-pin" style="width: 18px; height: 18px;"></i>
+                        <span class="nav-link-text">Lista de Sites</span>
                     </a>
                 </nav>
             </div>
