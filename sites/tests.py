@@ -2098,6 +2098,35 @@ class SiteStageRevisionTests(TestCase):
         # Deve ser True agora
         self.assertTrue(site_laudo.has_pending_revision)
 
+    def test_site_list_filter_revision(self):
+        # Cria um site no escopo LAUDOS
+        site_laudo = Site.objects.create(
+            site_id='LAUDO_PROP_REV_2',
+            name='Site Laudo Teste Filtro',
+            scope_type='LAUDOS',
+            planned_survey_date='2026-07-02',
+            planned_report_date='2026-07-10'
+        )
+        laudo_stage = site_laudo.stages.get(stage_name='Laudo')
+        laudo_stage.status = 'DONE'
+        laudo_stage.save()
+
+        from .models import SiteStageRevision
+        SiteStageRevision.objects.create(
+            stage=laudo_stage,
+            revision_number=1,
+            request_date='2026-07-12',
+            reason='Ajustar qualidade da imagem.',
+            status='PENDING'
+        )
+
+        self.client.login(username='revision_user', password='password123')
+        url = reverse('site_list') + '?status=REVISION'
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'Site Laudo Teste Filtro')
+
+
 
 
 

@@ -122,7 +122,10 @@ def site_list(request):
     sites_qs = Site.objects.all()
 
     if status_filter and status_filter != 'ALL':
-        sites_qs = sites_qs.filter(status=status_filter)
+        if status_filter == 'REVISION':
+            sites_qs = sites_qs.filter(stages__revisions__status='PENDING').distinct()
+        else:
+            sites_qs = sites_qs.filter(status=status_filter)
 
     if partner_filter:
         sites_qs = sites_qs.filter(partner_company=partner_filter)
