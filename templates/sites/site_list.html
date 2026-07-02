@@ -2678,22 +2678,8 @@
             }, 150);
         }
         
-        // Também verifica se veio redirecionado para consultar site
-        const urlParams = new URLSearchParams(window.location.search);
-        if (urlParams.get('open_consult') === 'true') {
-            if (typeof window.switchAnalyticsTab === 'function') {
-                window.switchAnalyticsTab('site');
-            }
-            const searchInput = document.getElementById('site-audit-search');
-            if (searchInput) {
-                setTimeout(() => {
-                    searchInput.focus();
-                    searchInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                }, 150);
-            }
-            // Remove o parâmetro da URL de forma limpa
-            const newUrl = window.location.pathname + window.location.hash;
-            window.history.replaceState({}, document.title, newUrl);
+        if (typeof window.checkOpenConsult === 'function') {
+            window.checkOpenConsult();
         }
     });
     
@@ -2714,23 +2700,6 @@
         if (urlParams.get('open_modal') === 'true') {
             openCreateModal();
             // Remove o parâmetro da URL de forma limpa para não reabrir ao atualizar a página
-            const newUrl = window.location.pathname + window.location.hash;
-            window.history.replaceState({}, document.title, newUrl);
-        }
-
-        // Verifica se veio redirecionado para consultar site
-        if (urlParams.get('open_consult') === 'true') {
-            if (typeof window.switchAnalyticsTab === 'function') {
-                window.switchAnalyticsTab('site');
-            }
-            const searchInput = document.getElementById('site-audit-search');
-            if (searchInput) {
-                setTimeout(() => {
-                    searchInput.focus();
-                    searchInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                }, 150);
-            }
-            // Remove o parâmetro da URL de forma limpa
             const newUrl = window.location.pathname + window.location.hash;
             window.history.replaceState({}, document.title, newUrl);
         }
@@ -3292,6 +3261,28 @@
                 suggestions.style.display = 'none';
             }
         });
+
+        // Lógica para detectar redirecionamento do "Consultar Site"
+        window.checkOpenConsult = function() {
+            const urlParams = new URLSearchParams(window.location.search);
+            if (urlParams.get('open_consult') === 'true') {
+                if (typeof window.switchAnalyticsTab === 'function') {
+                    window.switchAnalyticsTab('site');
+                }
+                const searchInput = document.getElementById('site-audit-search');
+                if (searchInput) {
+                    setTimeout(() => {
+                        searchInput.focus();
+                        searchInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    }, 150);
+                }
+                const newUrl = window.location.pathname + window.location.hash;
+                window.history.replaceState({}, document.title, newUrl);
+            }
+        };
+
+        // Executa a checagem no carregamento da página
+        window.checkOpenConsult();
     });
 </script>
 
