@@ -419,9 +419,8 @@
             
             let html = '';
             matches.forEach(item => {
-                let displayText = item.site_id !== '--' ? item.site_id : item.name;
                 html += `
-                    <div class="suggestion-item" onclick="selectAuditSite('${item.id}', '${displayText}')"
+                    <div class="suggestion-item" onclick="selectAuditSite('${item.id}')"
                          style="padding: 0.75rem 1.25rem; cursor: pointer; border-bottom: 1px solid var(--border-color); font-size: 0.88rem; transition: background 0.2s;"
                          onmouseover="this.style.background='rgba(37, 99, 235, 0.06)'"
                          onmouseout="this.style.background='transparent'">
@@ -435,12 +434,14 @@
             suggestionsBox.style.display = 'block';
         };
 
-        window.selectAuditSite = function(id, displayText) {
+        window.selectAuditSite = function(id) {
             document.getElementById('site-search-suggestions').style.display = 'none';
-            document.getElementById('site-audit-search').value = displayText;
             
             const siteData = siteAuditData[id];
             if (!siteData) return;
+            
+            const displayText = siteData.site_id !== '--' ? siteData.site_id : siteData.name;
+            document.getElementById('site-audit-search').value = displayText;
             
             document.getElementById('audit-placeholder').style.display = 'none';
             document.getElementById('audit-content').style.display = 'grid';
