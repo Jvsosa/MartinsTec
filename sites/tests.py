@@ -1804,6 +1804,43 @@ class SiteProjetosScopeTests(TestCase):
         site.refresh_from_db()
         self.assertEqual(site.stages.get(stage_name='Vistoria').status, 'SKIPPED')
 
+    def test_projetos_scope_reschedule_preserves_skipped_status(self):
+        site = Site.objects.create(
+            site_id='PROJ_005',
+            name='Site Projetos Skip Preserve',
+            scope_type='PROJETOS',
+            planned_survey_date='2026-07-02',
+            planned_report_date='2026-07-10'
+        )
+        self.client.login(username='project_user', password='password123')
+        url = reverse('site_detail', kwargs={'pk': site.pk})
+
+        # Skip Vistoria
+        self.client.post(url, {
+            'action': 'update_stage',
+            'stage_name': 'Vistoria',
+            'stage_status': 'SKIPPED'
+        })
+        site.refresh_from_db()
+        self.assertEqual(site.stages.get(stage_name='Vistoria').status, 'SKIPPED')
+
+        # Reschedule Projeto (Stage 3)
+        self.client.post(url, {
+            'action': 'update_workflow',
+            'scope_type': 'PROJETOS',
+            'planned_survey_date': '',  # Vistoria was skipped, so survey date is empty
+            'planned_report_date': '2026-07-15',
+            'reschedule_reason': 'Ajuste final'
+        })
+        site.refresh_from_db()
+
+        # Vistoria must still be SKIPPED!
+        self.assertEqual(site.stages.get(stage_name='Vistoria').status, 'SKIPPED')
+        # and actual_survey_date remains None
+        self.assertIsNone(site.actual_survey_date)
+        # and new planned report date was updated
+        self.assertEqual(site.planned_report_date.isoformat(), '2026-07-15')
+
 
 
 

@@ -921,7 +921,10 @@ def site_detail(request, pk):
                 messages.warning(request, f"Replanejamento registrado! Total: {site.reschedule_count}")
             vistoria_stage.planned_date = p_survey
             vistoria_stage.actual_date  = a_survey
-            vistoria_stage.status = 'DONE' if a_survey else 'PENDING'
+            if a_survey:
+                vistoria_stage.status = 'DONE'
+            elif vistoria_stage.status != 'SKIPPED':
+                vistoria_stage.status = 'PENDING'
             vistoria_stage.site = site
             vistoria_stage.save()
 
@@ -944,7 +947,10 @@ def site_detail(request, pk):
                     messages.warning(request, f"Replanejamento registrado! Total: {site.reschedule_count}")
             laudo_stage.planned_date = p_report
             laudo_stage.actual_date  = a_report
-            laudo_stage.status = 'DONE' if a_report else 'PENDING'
+            if a_report:
+                laudo_stage.status = 'DONE'
+            elif laudo_stage.status != 'SKIPPED':
+                laudo_stage.status = 'PENDING'
             laudo_stage.site = site
             laudo_stage.save()
 
