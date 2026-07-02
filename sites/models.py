@@ -272,6 +272,10 @@ class Site(models.Model):
         return " e ".join(stages)
 
     @property
+    def has_pending_revision(self):
+        return self.stages.filter(revisions__status='PENDING').exists()
+
+    @property
     def is_planning_missing(self):
         return any(not m['is_completed'] and not m['planned_date'] for m in self.get_card_milestones())
 

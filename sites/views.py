@@ -2181,6 +2181,7 @@ def consult_site(request):
             'finished_at': finished_date_str,
             'current_stage_name': current_stage_name,
             'current_stage_days': current_stage_days,
+            'has_pending_revision': s.has_pending_revision,
             'stages': stages_list_data,
             'reschedules': reschedules_data,
             'files': files_list,

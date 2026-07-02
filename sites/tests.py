@@ -2070,6 +2070,35 @@ class SiteStageRevisionTests(TestCase):
         self.assertEqual(rev.status, 'PENDING')
         self.assertEqual(rev.reason, 'Corrigir pranchas do projeto executivo.')
 
+    def test_has_pending_revision_property(self):
+        # Cria um site no escopo LAUDOS
+        site_laudo = Site.objects.create(
+            site_id='LAUDO_PROP_REV',
+            name='Site Laudo Propridade Revisao',
+            scope_type='LAUDOS',
+            planned_survey_date='2026-07-02',
+            planned_report_date='2026-07-10'
+        )
+        self.assertFalse(site_laudo.has_pending_revision)
+
+        # Adiciona uma revisão pendente em uma etapa
+        laudo_stage = site_laudo.stages.get(stage_name='Laudo')
+        laudo_stage.status = 'DONE'
+        laudo_stage.save()
+
+        from .models import SiteStageRevision
+        SiteStageRevision.objects.create(
+            stage=laudo_stage,
+            revision_number=1,
+            request_date='2026-07-12',
+            reason='Revisar ortofoto.',
+            status='PENDING'
+        )
+
+        # Deve ser True agora
+        self.assertTrue(site_laudo.has_pending_revision)
+
+
 
 
 
