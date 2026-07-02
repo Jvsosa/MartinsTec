@@ -2677,6 +2677,24 @@
                 initPartnerChart();
             }, 150);
         }
+        
+        // Também verifica se veio redirecionado para consultar site
+        const urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.get('open_consult') === 'true') {
+            if (typeof window.switchAnalyticsTab === 'function') {
+                window.switchAnalyticsTab('site');
+            }
+            const searchInput = document.getElementById('site-audit-search');
+            if (searchInput) {
+                setTimeout(() => {
+                    searchInput.focus();
+                    searchInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }, 150);
+            }
+            // Remove o parâmetro da URL de forma limpa
+            const newUrl = window.location.pathname + window.location.hash;
+            window.history.replaceState({}, document.title, newUrl);
+        }
     });
     
     document.addEventListener('DOMContentLoaded', () => {
@@ -2696,6 +2714,23 @@
         if (urlParams.get('open_modal') === 'true') {
             openCreateModal();
             // Remove o parâmetro da URL de forma limpa para não reabrir ao atualizar a página
+            const newUrl = window.location.pathname + window.location.hash;
+            window.history.replaceState({}, document.title, newUrl);
+        }
+
+        // Verifica se veio redirecionado para consultar site
+        if (urlParams.get('open_consult') === 'true') {
+            if (typeof window.switchAnalyticsTab === 'function') {
+                window.switchAnalyticsTab('site');
+            }
+            const searchInput = document.getElementById('site-audit-search');
+            if (searchInput) {
+                setTimeout(() => {
+                    searchInput.focus();
+                    searchInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }, 150);
+            }
+            // Remove o parâmetro da URL de forma limpa
             const newUrl = window.location.pathname + window.location.hash;
             window.history.replaceState({}, document.title, newUrl);
         }
@@ -2833,6 +2868,19 @@
                     else btn.classList.remove('active');
                 }
             });
+
+            // Sincroniza links de navegação lateral (Desempenho vs Consultar Site)
+            const navAnalytics = document.querySelector('a[data-target="analytics"]');
+            const navConsult = document.getElementById('nav-consult-site');
+            if (navAnalytics && navConsult) {
+                if (tabName === 'site') {
+                    navAnalytics.classList.remove('active');
+                    navConsult.classList.add('active');
+                } else {
+                    navAnalytics.classList.add('active');
+                    navConsult.classList.remove('active');
+                }
+            }
 
             if (tabName === 'scope') {
                 // Inicializa o gráfico do escopo que estiver ativo

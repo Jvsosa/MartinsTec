@@ -1483,12 +1483,10 @@
                         <i data-lucide="map-pin" style="width: 18px; height: 18px;"></i>
                         <span class="nav-link-text">Lista de Sites</span>
                     </a>
-                    {% if user.role == 'ADMIN' or user.role == 'ENGINEER' %}
-                    <a href="{% url 'site_list' %}?open_modal=true" class="nav-link" style="color: var(--brand-primary); font-weight: 600;">
-                        <i data-lucide="plus-circle" style="width: 18px; height: 18px;"></i>
-                        <span class="nav-link-text">Integrar Site</span>
+                    <a href="{% url 'site_list' %}?open_consult=true#analytics" class="nav-link" id="nav-consult-site" data-target="consult-site" style="color: var(--brand-primary); font-weight: 600;">
+                        <i data-lucide="search" style="width: 18px; height: 18px;"></i>
+                        <span class="nav-link-text">Consultar Site</span>
                     </a>
-                    {% endif %}
                 </nav>
             </div>
 
@@ -1937,11 +1935,32 @@
             // Atualizar links ativos na navbar
             document.querySelectorAll('.nav-link').forEach(link => {
                 const href = link.getAttribute('href');
+                const linkTarget = link.getAttribute('data-target');
                 if (href.includes('#')) {
-                    if (href.endsWith(hash)) {
-                        link.classList.add('active');
+                    if (hash === '#analytics') {
+                        if (linkTarget === 'analytics') {
+                            const siteTab = document.getElementById('analytics-tab-site');
+                            if (siteTab && siteTab.style.display === 'block') {
+                                link.classList.remove('active');
+                            } else {
+                                link.classList.add('active');
+                            }
+                        } else if (linkTarget === 'consult-site') {
+                            const siteTab = document.getElementById('analytics-tab-site');
+                            if (siteTab && siteTab.style.display === 'block') {
+                                link.classList.add('active');
+                            } else {
+                                link.classList.remove('active');
+                            }
+                        } else {
+                            link.classList.remove('active');
+                        }
                     } else {
-                        link.classList.remove('active');
+                        if (href.endsWith(hash)) {
+                            link.classList.add('active');
+                        } else {
+                            link.classList.remove('active');
+                        }
                     }
                 } else {
                     // Para links de paginas cheias, ativa se o path atual corresponder ao href
