@@ -1971,6 +1971,40 @@ class SiteStageRevisionTests(TestCase):
         self.assertEqual(rev.status, 'PENDING')
         self.assertEqual(rev.reason, 'Ajustar projeto elétrico na etapa QRF.')
 
+    def test_infra_stage_revision(self):
+        # Cria um site no escopo INFRA
+        site_infra = Site.objects.create(
+            site_id='INFRA_REV_01',
+            name='Site Infraestrutura Revisavel',
+            scope_type='INFRA',
+            planned_survey_date='2026-07-02',
+            planned_report_date='2026-07-10'
+        )
+        # Sincroniza stages para colocar a etapa RFI como DONE
+        rfi_stage = site_infra.stages.get(stage_name='RFI')
+        rfi_stage.status = 'DONE'
+        rfi_stage.save()
+
+        self.client.login(username='revision_user', password='password123')
+        url = reverse('site_detail', kwargs={'pk': site_infra.pk})
+
+        # Solicita revisão na etapa RFI
+        response = self.client.post(url, {
+            'action': 'request_stage_revision',
+            'stage_name': 'RFI',
+            'request_date': '2026-07-12',
+            'reason': 'Corrigir pendências no RFI.'
+        })
+        self.assertEqual(response.status_code, 302)
+
+        rfi_stage.refresh_from_db()
+        self.assertEqual(rfi_stage.revisions.count(), 1)
+        rev = rfi_stage.revisions.first()
+        self.assertEqual(rev.revision_number, 1)
+        self.assertEqual(rev.status, 'PENDING')
+        self.assertEqual(rev.reason, 'Corrigir pendências no RFI.')
+
+
 
 
 

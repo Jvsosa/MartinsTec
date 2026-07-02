@@ -3,11 +3,11 @@ FLUXO DE ETAPAS POR ESCOPO - MARTINSTEC
 
 Abaixo está o fluxo sequencial de etapas configurado para cada escopo de acionamento cadastrado no sistema.
 
-1. LAUDOS (Laudos)
+1. LAUDOS (Laudos) OK
    ---------------------------------
    Acionamento Parceiro > Acesso > Vistoria > Laudo
 
-2. INSTALACAO (Instalação)
+2. INSTALACAO (Instalação) OK
    ---------------------------------
    Acesso > Vistoria > QRF > WarRoom > PPI > Execução Rollout > ARQ
 
