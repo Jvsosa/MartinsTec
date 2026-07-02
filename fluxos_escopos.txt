@@ -1,0 +1,30 @@
+FLUXO DE ETAPAS POR ESCOPO - MARTINSTEC
+=======================================
+
+Abaixo está o fluxo sequencial de etapas configurado para cada escopo de acionamento cadastrado no sistema.
+
+1. LAUDOS (Laudos)
+   ---------------------------------
+   Acionamento Parceiro > Acesso > Vistoria > Laudo
+
+2. INSTALACAO (Instalação)
+   ---------------------------------
+   Acesso > Vistoria > QRF > WarRoom > PPI > Execução Rollout > ARQ
+
+3. INFRA (Infra)
+   ---------------------------------
+   Acesso > Vistoria > Projeto > Execução > RFI
+
+4. FABRICA (Fabrica)
+   ---------------------------------
+   Acesso > Vistoria > Projeto
+
+5. PROJETOS (Projetos)
+   ---------------------------------
+   Acesso > Vistoria > Projeto
+
+=======================================
+Notas sobre o funcionamento geral das etapas principais:
+- Acesso: Trâmite inicial para liberação do site (obtenção de chaves e autorizações físicas). Pode ser pulado caso o local seja de livre acesso.
+- Vistoria: Deslocamento de campo e realização da vistoria técnica. Pode ser replanejada ou ignorada/pulada.
+- Laudo / Projeto: Elaboração do arquivo técnico final pelo fornecedor. Admite replanejamentos de prazo.
