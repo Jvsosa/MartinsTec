@@ -1171,3 +1171,40 @@ class SystemLog(models.Model):
         )
 
 
+class SiteStageRevision(models.Model):
+    stage = models.ForeignKey(
+        'SiteStage',
+        on_delete=models.CASCADE,
+        related_name='revisions',
+        verbose_name="Etapa"
+    )
+    revision_number = models.PositiveIntegerField(verbose_name="Número da Revisão")
+    request_date = models.DateField(verbose_name="Data da Solicitação")
+    receive_date = models.DateField(blank=True, null=True, verbose_name="Data de Recebimento")
+    reason = models.TextField(blank=True, null=True, verbose_name="Motivo / Observações da Revisão")
+    status = models.CharField(
+        max_length=20,
+        choices=[
+            ('PENDING', 'Aguardando Retorno'),
+            ('RECEIVED', 'Revisão Recebida')
+        ],
+        default='PENDING',
+        verbose_name="Status da Revisão"
+    )
+    created_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True, blank=True,
+        verbose_name="Registrado por"
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['revision_number']
+        verbose_name = "Revisão de Etapa"
+        verbose_name_plural = "Revisões de Etapas"
+
+    def __str__(self):
+        return f"{self.stage.site.name} - {self.stage.stage_name} - R{self.revision_number} ({self.status})"
+
+

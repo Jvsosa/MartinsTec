@@ -1842,6 +1842,104 @@ class SiteProjetosScopeTests(TestCase):
         self.assertEqual(site.planned_report_date.isoformat(), '2026-07-15')
 
 
+class SiteStageRevisionTests(TestCase):
+    def setUp(self):
+        self.user = User.objects.create_user(
+            username='revision_user',
+            password='password123',
+            email='revision@example.com',
+            role=User.Role.ENGINEER
+        )
+        self.site = Site.objects.create(
+            site_id='REV_001',
+            name='Site Laudo Revisavel',
+            scope_type='LAUDOS',
+            planned_survey_date='2026-07-02',
+            planned_report_date='2026-07-10',
+            actual_survey_date='2026-07-03',
+            actual_report_date='2026-07-11'  # Conclui Laudo
+        )
+        # Sincroniza stages para garantir status='DONE'
+        laudo_stage = self.site.stages.get(stage_name='Laudo')
+        laudo_stage.status = 'DONE'
+        laudo_stage.save()
+
+    def test_request_revision_successfully(self):
+        self.client.login(username='revision_user', password='password123')
+        url = reverse('site_detail', kwargs={'pk': self.site.pk})
+
+        response = self.client.post(url, {
+            'action': 'request_stage_revision',
+            'stage_name': 'Laudo',
+            'request_date': '2026-07-12',
+            'reason': 'Corrigir as coordenadas UTM.'
+        })
+        self.assertEqual(response.status_code, 302)
+
+        laudo_stage = self.site.stages.get(stage_name='Laudo')
+        revisions = laudo_stage.revisions.all()
+        self.assertEqual(revisions.count(), 1)
+        
+        rev = revisions.first()
+        self.assertEqual(rev.revision_number, 1)
+        self.assertEqual(rev.request_date.isoformat(), '2026-07-12')
+        self.assertEqual(rev.reason, 'Corrigir as coordenadas UTM.')
+        self.assertEqual(rev.status, 'PENDING')
+        self.assertEqual(rev.created_by, self.user)
+
+    def test_cannot_request_multiple_pending_revisions(self):
+        self.client.login(username='revision_user', password='password123')
+        url = reverse('site_detail', kwargs={'pk': self.site.pk})
+        
+        # Primeira solicitação
+        self.client.post(url, {
+            'action': 'request_stage_revision',
+            'stage_name': 'Laudo',
+            'request_date': '2026-07-12',
+            'reason': 'Revisão R1'
+        })
+        
+        # Segunda solicitação (deve dar erro)
+        response = self.client.post(url, {
+            'action': 'request_stage_revision',
+            'stage_name': 'Laudo',
+            'request_date': '2026-07-13',
+            'reason': 'Revisão R2 tentada antes do retorno de R1'
+        })
+        self.assertEqual(response.status_code, 302)
+        
+        laudo_stage = self.site.stages.get(stage_name='Laudo')
+        self.assertEqual(laudo_stage.revisions.count(), 1) # Apenas 1 criada
+
+    def test_receive_revision_successfully(self):
+        self.client.login(username='revision_user', password='password123')
+        url = reverse('site_detail', kwargs={'pk': self.site.pk})
+
+        # Solicita
+        self.client.post(url, {
+            'action': 'request_stage_revision',
+            'stage_name': 'Laudo',
+            'request_date': '2026-07-12',
+            'reason': 'Corrigir as coordenadas UTM.'
+        })
+
+        # Recebe
+        response = self.client.post(url, {
+            'action': 'receive_stage_revision',
+            'stage_name': 'Laudo',
+            'receive_date': '2026-07-15',
+            'comments': 'Retorno da revisão concluído.'
+        })
+        self.assertEqual(response.status_code, 302)
+
+        laudo_stage = self.site.stages.get(stage_name='Laudo')
+        rev = laudo_stage.revisions.first()
+        self.assertEqual(rev.status, 'RECEIVED')
+        self.assertEqual(rev.receive_date.isoformat(), '2026-07-15')
+        self.assertIn('Retorno da revisão concluído.', rev.reason)
+
+
+
 
 
 

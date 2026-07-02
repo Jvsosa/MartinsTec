@@ -5,7 +5,7 @@ from django.contrib.auth import login, logout, authenticate
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.http import FileResponse, Http404, HttpResponseForbidden
-from .models import Site, SiteFile, User, SiteRescheduleHistory, SiteStage, SiteStageReschedule, Notification, SystemLog
+from .models import Site, SiteFile, User, SiteRescheduleHistory, SiteStage, SiteStageReschedule, Notification, SystemLog, SiteStageRevision
 from django.db import IntegrityError
 from django.utils.dateparse import parse_date
 
@@ -1147,6 +1147,89 @@ def site_detail(request, pk):
             messages.warning(request, f"Replanejamento da etapa '{stage_name}' registrado! Total: {site.reschedule_count}")
             return redirect('site_detail', pk=pk)
 
+        # Ação Nova: Solicitar Revisão de Etapa (apenas ADMIN ou ENGINEER)
+        if action == 'request_stage_revision':
+            if request.user.role not in [User.Role.ADMIN, User.Role.ENGINEER]:
+                messages.error(request, "Seu cargo não possui permissão para solicitar revisões.")
+                return redirect('site_detail', pk=pk)
+
+            stage_name = request.POST.get('stage_name')
+            request_date_str = request.POST.get('request_date')
+            reason = request.POST.get('reason', '').strip() or None
+
+            stage_obj = get_object_or_404(SiteStage, site=site, stage_name=stage_name)
+
+            # Valida se há revisão pendente ativa
+            if stage_obj.revisions.filter(status='PENDING').exists():
+                messages.error(request, f"Erro: Já existe uma revisão pendente para a etapa '{stage_name}'.")
+                return redirect('site_detail', pk=pk)
+
+            # Calcula o número da revisão
+            next_rev_num = stage_obj.revisions.count() + 1
+
+            from django.utils import timezone
+            req_date = parse_date(request_date_str) if request_date_str else timezone.localdate()
+
+            SiteStageRevision.objects.create(
+                stage=stage_obj,
+                revision_number=next_rev_num,
+                request_date=req_date,
+                reason=reason,
+                status='PENDING',
+                created_by=request.user
+            )
+
+            SystemLog.register_log(
+                user=request.user,
+                action=f"Solicitou revisão R{next_rev_num} da etapa '{stage_name}'",
+                target_name=site.name,
+                target_id=site.site_id,
+                details=f"Motivo: {reason or 'Sem motivo informado'}"
+            )
+
+            messages.warning(request, f"Revisão R{next_rev_num} solicitada com sucesso para a etapa '{stage_name}'!")
+            return redirect('site_detail', pk=pk)
+
+        # Ação Nova: Confirmar Recebimento de Revisão (apenas ADMIN ou ENGINEER)
+        if action == 'receive_stage_revision':
+            if request.user.role not in [User.Role.ADMIN, User.Role.ENGINEER]:
+                messages.error(request, "Seu cargo não possui permissão para receber revisões.")
+                return redirect('site_detail', pk=pk)
+
+            stage_name = request.POST.get('stage_name')
+            receive_date_str = request.POST.get('receive_date')
+            comments = request.POST.get('comments', '').strip()
+
+            stage_obj = get_object_or_404(SiteStage, site=site, stage_name=stage_name)
+
+            pending_rev = stage_obj.revisions.filter(status='PENDING').first()
+            if not pending_rev:
+                messages.error(request, f"Erro: Nenhuma revisão pendente encontrada para a etapa '{stage_name}'.")
+                return redirect('site_detail', pk=pk)
+
+            from django.utils import timezone
+            rec_date = parse_date(receive_date_str) if receive_date_str else timezone.localdate()
+
+            pending_rev.receive_date = rec_date
+            pending_rev.status = 'RECEIVED'
+            if comments:
+                if pending_rev.reason:
+                    pending_rev.reason += f"\n\n[Retorno em {rec_date.strftime('%d/%m/%Y')}]: {comments}"
+                else:
+                    pending_rev.reason = f"[Retorno em {rec_date.strftime('%d/%m/%Y')}]: {comments}"
+            pending_rev.save()
+
+            SystemLog.register_log(
+                user=request.user,
+                action=f"Recebeu revisão R{pending_rev.revision_number} da etapa '{stage_name}'",
+                target_name=site.name,
+                target_id=site.site_id,
+                details=f"Retorno: {comments or 'Sem comentários'}"
+            )
+
+            messages.success(request, f"Revisão R{pending_rev.revision_number} da etapa '{stage_name}' recebida com sucesso!")
+            return redirect('site_detail', pk=pk)
+
         # Ação 3: Atualização de localização e ficha técnica (apenas ADMIN ou ENGINEER)
         if action == 'update_location':
             if request.user.role not in [User.Role.ADMIN, User.Role.ENGINEER]:
@@ -1319,6 +1402,24 @@ def site_detail(request, pk):
         is_overdue = bool(planned_date_obj and status == 'PENDING' and planned_date_obj < today)
         days_overdue = (today - planned_date_obj).days if is_overdue else 0
 
+        # Obter revisões desta etapa
+        revisions_qs = stage_obj.revisions.all().order_by('revision_number')
+        revisions_list = [
+            {
+                'id': rev.id,
+                'revision_number': rev.revision_number,
+                'request_date': rev.request_date,
+                'receive_date': rev.receive_date,
+                'reason': rev.reason,
+                'status': rev.status,
+                'get_status_display': rev.get_status_display(),
+                'by': (rev.created_by.get_full_name() or rev.created_by.username) if rev.created_by else 'Sistema',
+            }
+            for rev in revisions_qs
+        ]
+        has_pending_revision = any(r['status'] == 'PENDING' for r in revisions_list)
+        pending_revision_number = next((r['revision_number'] for r in revisions_list if r['status'] == 'PENDING'), None)
+
         stages_list.append({
             'name': stage_obj.stage_name,
             'status': status,
@@ -1331,6 +1432,10 @@ def site_detail(request, pk):
             'days_overdue': days_overdue,
             'reschedule_count': reschedule_count,
             'reschedule_history': history,
+            'revisions': revisions_list,
+            'has_pending_revision': has_pending_revision,
+            'pending_revision_number': pending_revision_number,
+            'revisions_count': len(revisions_list),
         })
 
         if not found_pending and status == 'PENDING':
