@@ -2037,6 +2037,40 @@ class SiteStageRevisionTests(TestCase):
         self.assertEqual(rev.status, 'PENDING')
         self.assertEqual(rev.reason, 'Ajustar layout da fábrica no projeto.')
 
+    def test_projetos_scope_stage_revision(self):
+        # Cria um site no escopo PROJETOS
+        site_proj = Site.objects.create(
+            site_id='PROJETOS_REV_01',
+            name='Site Projetos Revisavel',
+            scope_type='PROJETOS',
+            planned_survey_date='2026-07-02',
+            planned_report_date='2026-07-10'
+        )
+        # Sincroniza stages para colocar a etapa Projeto como DONE
+        proj_stage = site_proj.stages.get(stage_name='Projeto')
+        proj_stage.status = 'DONE'
+        proj_stage.save()
+
+        self.client.login(username='revision_user', password='password123')
+        url = reverse('site_detail', kwargs={'pk': site_proj.pk})
+
+        # Solicita revisão na etapa Projeto
+        response = self.client.post(url, {
+            'action': 'request_stage_revision',
+            'stage_name': 'Projeto',
+            'request_date': '2026-07-12',
+            'reason': 'Corrigir pranchas do projeto executivo.'
+        })
+        self.assertEqual(response.status_code, 302)
+
+        proj_stage.refresh_from_db()
+        self.assertEqual(proj_stage.revisions.count(), 1)
+        rev = proj_stage.revisions.first()
+        self.assertEqual(rev.revision_number, 1)
+        self.assertEqual(rev.status, 'PENDING')
+        self.assertEqual(rev.reason, 'Corrigir pranchas do projeto executivo.')
+
+
 
 
 

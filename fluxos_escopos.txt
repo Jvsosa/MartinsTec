@@ -11,15 +11,15 @@ Abaixo está o fluxo sequencial de etapas configurado para cada escopo de aciona
    ---------------------------------
    Acesso > Vistoria > QRF > WarRoom > PPI > Execução Rollout > ARQ
 
-3. INFRA (Infra)
+3. INFRA (Infra) OK
    ---------------------------------
    Acesso > Vistoria > Projeto > Execução > RFI
 
-4. FABRICA (Fabrica)
+4. FABRICA (Fabrica)   OK
    ---------------------------------
    Acesso > Vistoria > Projeto
 
-5. PROJETOS (Projetos)
+5. PROJETOS (Projetos) OK
    ---------------------------------
    Acesso > Vistoria > Projeto
 
